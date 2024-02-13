@@ -41,3 +41,4 @@ aws:
   access-key: AKIATCKAQGU54KZHFK7Q
   secret-key: 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
   region: us-east-2
+  endpoint: https://dynamodb.us-east-2.amazonaws.com
