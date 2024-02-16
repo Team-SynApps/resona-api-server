@@ -37,8 +37,9 @@ cors:
 jwt:
   secret: '8sknjlO3NPTBqo319DHLNqsQAfRJEdKsETOds'
 
+# DynamoDB 로컬 설정
 aws:
-  access-key: AKIATCKAQGU54KZHFK7Q
-  secret-key: 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
-  region: us-east-2
-  endpoint: https://dynamodb.us-east-2.amazonaws.com
+  access-key: localKeyID
+  secret-key: localSecretAccessKey
+  region: localRegion
+  endpoint: http://localhost:8000
