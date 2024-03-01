@@ -43,3 +43,13 @@ aws:
   secret-key: localSecretAccessKey
   region: localRegion
   endpoint: http://localhost:8000
+
+cloud:
+  aws:
+    s3:
+      bucket: atch-bucket
+    stack.auto: false
+    region.static: us-east-2
+    credentials:
+      access-key: AKIATCKAQGU5YZVYMRWT
+      secret-key: 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
