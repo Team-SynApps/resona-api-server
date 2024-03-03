@@ -44,6 +44,12 @@ aws:
   region: localRegion
   endpoint: http://localhost:8000
 
+#aws:
+#  access-key: AKIATCKAQGU54KZHFK7Q
+#  secret-key: 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
+#  region: us-east-2
+
+
 cloud:
   aws:
     s3:
