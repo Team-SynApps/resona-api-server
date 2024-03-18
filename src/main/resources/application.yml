@@ -7,6 +7,14 @@ spring:
     url: jdbc:mysql://atch-database-1.c52esqc6awjk.us-east-2.rds.amazonaws.com:3306/dev?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
     username: atchAdmin
     password: 2024atchletsgo
+  data:
+    mongodb:
+      host: ec2-13-58-121-9.us-east-2.compute.amazonaws.com
+      port: 27017
+      authentication-database: admin
+      username: dbsquddnr
+      password: bw990825
+#      database:
 
   jpa:
     hibernate:
@@ -36,6 +44,7 @@ cors:
 
 jwt:
   secret: '8sknjlO3NPTBqo319DHLNqsQAfRJEdKsETOds'
+
 
 # DynamoDB 로컬 설정
 #aws:
