@@ -45,7 +45,7 @@ jobs:
 
       - name: Set ENV
         run: |
-          echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env 
+          echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
           ls -la
 
       # Gradle build
