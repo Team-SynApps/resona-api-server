@@ -1,4 +1,4 @@
-package com.synapps.atch.test;
+package com.synapps.atch.mongo.test;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 

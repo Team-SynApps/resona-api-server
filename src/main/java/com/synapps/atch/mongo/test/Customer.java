@@ -1,4 +1,4 @@
-package com.synapps.atch.test;
+package com.synapps.atch.mongo.test;
 
 import jakarta.persistence.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

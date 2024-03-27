@@ -1,0 +1,93 @@
+package com.synapps.atch.oauth.service;
+
+
+import com.synapps.atch.mysql.member.entity.Member;
+import com.synapps.atch.mysql.member.repository.MemberRepository;
+import com.synapps.atch.oauth.entity.ProviderType;
+import com.synapps.atch.oauth.entity.RoleType;
+import com.synapps.atch.oauth.entity.UserPrincipal;
+import com.synapps.atch.oauth.exception.OAuthProviderMissMatchException;
+import com.synapps.atch.oauth.info.OAuth2UserInfo;
+import com.synapps.atch.oauth.info.OAuth2UserInfoFactory;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+
+
+@Service
+//@RequiredArgsConstructor
+public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+
+    private final MemberRepository memberRepository;
+
+    @Override
+    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+        OAuth2User user = super.loadUser(userRequest);
+
+        try {
+            return this.process(userRequest, user);
+        } catch (AuthenticationException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            throw new InternalAuthenticationServiceException(ex.getMessage(), ex.getCause());
+        }
+    }
+
+    public CustomOAuth2UserService(MemberRepository memberRepository) {
+        this.memberRepository = memberRepository;
+    }
+
+    private OAuth2User process(OAuth2UserRequest userRequest, OAuth2User user) {
+        ProviderType providerType = ProviderType.valueOf(userRequest.getClientRegistration().getRegistrationId().toUpperCase());
+
+        OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, user.getAttributes());
+        Member savedMember = memberRepository.findByEmail(userInfo.getEmail());
+
+        if (savedMember != null) {
+            if (providerType != savedMember.getProviderType()) {
+                throw new OAuthProviderMissMatchException(
+                        "Looks like you're signed up with " + providerType +
+                                " account. Please use your " + savedMember.getProviderType() + " account to login."
+                );
+            }
+            updateMember(savedMember, userInfo);
+        } else {
+            savedMember = createMember(userInfo, providerType);
+        }
+
+        return UserPrincipal.create(savedMember, user.getAttributes());
+    }
+
+    private Member createMember(OAuth2UserInfo userInfo, ProviderType providerType) {
+        LocalDateTime now = LocalDateTime.now();
+        Member member = Member.of(
+                userInfo.getName(),
+                userInfo.getEmail(),
+                userInfo.getImageUrl(),
+                providerType,
+                RoleType.USER,
+                now,
+                now);
+
+        return memberRepository.saveAndFlush(member);
+    }
+
+    private Member updateMember(Member member, OAuth2UserInfo userInfo) {
+        if (userInfo.getName() != null && !member.getNickname().equals(userInfo.getName())) {
+            member.setUserNickname(userInfo.getName());
+        }
+
+        if (userInfo.getImageUrl() != null && !member.getProfileImageUrl().equals(userInfo.getImageUrl())) {
+            member.setProfileImageUrl(userInfo.getImageUrl());
+        }
+
+        return member;
+    }
+}
