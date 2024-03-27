@@ -43,7 +43,7 @@ jobs:
       #          echo "${{ secrets.MAIN_DATABASE_YML }}" >> ./application-database.yml
       #        shell: bash
 
-      - name: Set YML
+      - name: Set ENV
         run: |
           echo "${{ secrets.ENV_FILE }}" | base64 --decode > .env 
           ls -la
