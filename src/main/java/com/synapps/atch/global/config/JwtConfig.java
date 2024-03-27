@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class JwtConfig {
-    @Value("${classpath:jwt.secret}")
+    @Value("${JWT_SECRET}")
     private String secret;
 
     @Bean
