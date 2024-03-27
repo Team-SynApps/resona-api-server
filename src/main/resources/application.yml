@@ -19,7 +19,6 @@ spring:
       username: ${MONGO_USERNAME}
       password: ${MONGO_PASSWORD}
 #      database:
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -46,8 +45,8 @@ spring:
           scope:
             - email
             - profile
-
 jwt.secret: ${JWT_SECRET}
+
 # cors 설정
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGIN}
@@ -75,3 +74,4 @@ cloud:
     credentials:
       access-key: ${S3_ACCESS_KEY}
       secret-key: ${S3_SECRET_KEY}
+
