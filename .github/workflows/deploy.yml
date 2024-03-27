@@ -43,11 +43,6 @@ jobs:
       #          echo "${{ secrets.MAIN_DATABASE_YML }}" >> ./application-database.yml
       #        shell: bash
 
-      - name: Set ENV
-        run: |
-          echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
-          ls -la
-
       # Gradle build
       #      - name: Build with Gradle
       #        run: ./gradlew bootJar
@@ -67,6 +62,8 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_KEY }}
           script: |
+            echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
+            ls -la
             docker rm -f $(docker ps -qa)
             docker rmi ${{ secrets.DOCKER_USERNAME }}/atch:latest
             docker pull ${{ secrets.DOCKER_USERNAME }}/atch:latest
