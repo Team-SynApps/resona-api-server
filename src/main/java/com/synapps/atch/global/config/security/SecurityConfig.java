@@ -1,4 +1,4 @@
-package com.synapps.atch.global.config;
+package com.synapps.atch.global.config.security;
 
 import com.synapps.atch.global.properties.AppProperties;
 import com.synapps.atch.global.properties.CorsProperties;
