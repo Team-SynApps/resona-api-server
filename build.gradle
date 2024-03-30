@@ -23,7 +23,6 @@ repositories {
 }
 
 dependencies {
-
 	// web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -51,8 +50,9 @@ dependencies {
 	testImplementation 'org.springframework.security:spring-security-test'
 }
 
-configurations.all {
+configurations.configureEach {
 	exclude group: 'commons-logging', module: 'commons-logging'
+	exclude group: 'org.springboot.boot', module: 'spring-boot-starter-logging'
 }
 
 tasks.named('test') {

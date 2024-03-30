@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -29,6 +30,33 @@ public class Member {
     private String nickname;
 
     @NotBlank
+    @Size(max = 20)
+    private String phoneNumber;
+
+    @NotBlank
+    @Size(max = 15)
+    private Integer timezone;
+
+    @NotBlank
+    @Size(max = 15)
+    private Integer age;
+
+    @NotBlank
+    @Size(max = 512)
+    private LocalDateTime birth;
+
+    @NotBlank
+    @Size(max = 512)
+    private String comment;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private Sex sex;
+
+    @NotNull
+    private Boolean isOnline;
+
+    @NotBlank
     @Size(max = 50)
     @Email
     private String email;
@@ -36,6 +64,19 @@ public class Member {
     @NotBlank
     @Size(max = 120)
     private String password;
+
+    @NotNull
+    private String location;
+
+    @ElementCollection
+    @CollectionTable(name = "member_languages", joinColumns = @JoinColumn(name = "member_id"))
+    @Column(name = "language")
+    @Enumerated(EnumType.STRING)
+    private List<Languages> interestedLanguages;
+
+    @Enumerated(EnumType.STRING)
+    @Nullable
+    private Category category;
 
     @Nullable
     @Size(max = 512)
@@ -54,6 +95,9 @@ public class Member {
 
     @NotNull
     private LocalDateTime modifiedAt;
+
+    @NotNull
+    private LocalDateTime lastAccessedAt;
 
     private Member(String nickname,
                  String email,
