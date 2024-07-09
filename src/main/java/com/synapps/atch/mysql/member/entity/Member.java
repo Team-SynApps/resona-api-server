@@ -67,12 +67,9 @@ public class Member {
 
     @NotNull
     private String location;
-
-    @ElementCollection
-    @CollectionTable(name = "member_languages", joinColumns = @JoinColumn(name = "member_id"))
-    @Column(name = "language")
-    @Enumerated(EnumType.STRING)
-    private List<Languages> interestedLanguages;
+//
+//    @Enumerated(EnumType.STRING)
+//    private List<Languages> interestedLanguages;
 
     @Enumerated(EnumType.STRING)
     @Nullable
@@ -100,55 +97,81 @@ public class Member {
     private LocalDateTime lastAccessedAt;
 
     private Member(String nickname,
-                 String email,
-                 String profileImageUrl,
-                 ProviderType providerType,
-                 RoleType roleType,
-                 LocalDateTime createdAt,
-                 LocalDateTime modifiedAt) {
+                   String phoneNumber,
+                   Integer timezone,
+                   Integer age,
+                   LocalDateTime birth,
+                   String comment,
+                   Sex sex,
+                   Boolean isOnline,
+                   String email,
+                   String password,
+                   String location,
+                   ProviderType providerType,
+                   RoleType roleType,
+                   LocalDateTime createdAt,
+                   LocalDateTime modifiedAt,
+                   LocalDateTime lastAccessedAt) {
         this.nickname = nickname;
-        this.password = "NO_PASS";
-        this.email = email != null ? email : "NO_EMAIL";
-        this.profileImageUrl = profileImageUrl != null ? profileImageUrl : "";
+        this.phoneNumber = phoneNumber;
+        this.timezone = timezone;
+        this.age = age;
+        this.birth = birth;
+        this.comment = comment;
+        this.sex = sex;
+        this.isOnline = isOnline;
+        this.email = email;
+        this.password = password;
+        this.location = location;
         this.providerType = providerType;
         this.roleType = roleType;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-    }
-    private Member(
-                 String nickname,
-                 String email,
-                 ProviderType providerType,
-                 RoleType roleType,
-                 LocalDateTime createdAt,
-                 LocalDateTime modifiedAt) {
-        this.nickname = nickname;
-        this.password = "NO_PASS";
-        this.email = email != null ? email : "NO_EMAIL";
-        this.profileImageUrl = "";
-        this.providerType = providerType;
-        this.roleType = roleType;
-        this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
+        this.lastAccessedAt = lastAccessedAt;
     }
 
     public static Member of(String nickname,
-                          String email,
-                          String profileImageUrl,
-                          ProviderType providerType,
-                          RoleType roleType,
-                          LocalDateTime createdAt,
-                          LocalDateTime modifiedAt) {
-        return new Member(nickname, email, profileImageUrl, providerType, roleType, createdAt, modifiedAt);
+                            String phoneNumber,
+                            Integer timezone,
+                            Integer age,
+                            LocalDateTime birth,
+                            String comment,
+                            Sex sex,
+                            Boolean isOnline,
+                            String email,
+                            String password,
+                            String location,
+                            ProviderType providerType,
+                            RoleType roleType,
+                            LocalDateTime createdAt,
+                            LocalDateTime modifiedAt,
+                            LocalDateTime lastAccessedAt) {
+        return new Member(nickname, phoneNumber, timezone, age, birth, comment, sex, isOnline, email, password, location, providerType, roleType, createdAt, modifiedAt, lastAccessedAt);
     }
-    public static Member of(
-                          String nickname,
-                          String email,
-                          ProviderType providerType,
-                          RoleType roleType,
-                          LocalDateTime createdAt,
-                          LocalDateTime modifiedAt) {
-        return new Member(nickname,  email, providerType, roleType, createdAt, modifiedAt);
+
+    // 선택적 필드를 위한 추가 of 메소드
+    public static Member ofWithOptionals(String nickname,
+                                         String phoneNumber,
+                                         Integer timezone,
+                                         Integer age,
+                                         LocalDateTime birth,
+                                         String comment,
+                                         Sex sex,
+                                         Boolean isOnline,
+                                         String email,
+                                         String password,
+                                         String location,
+                                         ProviderType providerType,
+                                         RoleType roleType,
+                                         LocalDateTime createdAt,
+                                         LocalDateTime modifiedAt,
+                                         LocalDateTime lastAccessedAt,
+                                         Category category,
+                                         String profileImageUrl) {
+        Member member = new Member(nickname, phoneNumber, timezone, age, birth, comment, sex, isOnline, email, password, location, providerType, roleType, createdAt, modifiedAt, lastAccessedAt);
+        member.category = category;
+        member.profileImageUrl = profileImageUrl;
+        return member;
     }
     public void setUserNickname(String name) {
         this.nickname = name;

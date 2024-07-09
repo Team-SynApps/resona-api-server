@@ -29,22 +29,35 @@ dependencies {
 
 	// spring security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+
 	// oauth
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
 	// DB
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 	runtimeOnly 'com.mysql:mysql-connector-j:8.2.0'
+
 	//S3
 	implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.1000')
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
 	// Swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
 	// jwt
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+
 	// lombok
 	compileOnly 'org.projectlombok:lombok:1.18.20'
 	annotationProcessor 'org.projectlombok:lombok:1.18.20'
+
+	// log
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+//	implementation group: 'org.apache.logging.log4j', name: 'log4j-nosql', version: '2.9.1'
+	implementation group: 'org.apache.logging.log4j', name: 'log4j-mongodb4', version: '2.14.0'
+
+
 	//Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
@@ -52,7 +65,8 @@ dependencies {
 
 configurations.configureEach {
 	exclude group: 'commons-logging', module: 'commons-logging'
-	exclude group: 'org.springboot.boot', module: 'spring-boot-starter-logging'
+	exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+	exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
 }
 
 tasks.named('test') {
