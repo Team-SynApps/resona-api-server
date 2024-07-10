@@ -9,6 +9,7 @@ import com.synapps.atch.oauth.entity.ProviderType;
 import com.synapps.atch.oauth.entity.RoleType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,7 @@ public class MemberService {
      * @return 멤버를 이메일 기준으로 불러옴
      */
     public Member getMember() {
+        System.out.println("get member");
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return memberRepository.findByEmail(userPrincipal.getUsername());
     }
@@ -68,8 +70,8 @@ public class MemberService {
 
     public String deleteUser() {
         User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Optional<Member> member = memberRepository.findById(Long.parseLong(principal.getUsername()));
-        memberRepository.delete(member.get());
+        Member member = memberRepository.findByEmail(principal.getUsername());
+        memberRepository.delete(member);
         return "delete successful";
     }
 

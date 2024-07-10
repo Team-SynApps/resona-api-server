@@ -28,7 +28,7 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
+    @GetMapping()
     public ResponseEntity<?> getUser() {
         ResponseDto response = new ResponseDto(true, List.of(memberService.getMember()));
         return ResponseEntity.ok(response);

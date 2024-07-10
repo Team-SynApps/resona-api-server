@@ -33,16 +33,10 @@ public class Member {
     @Size(max = 20)
     private String phoneNumber;
 
-    @NotBlank
-    @Size(max = 15)
     private Integer timezone;
 
-    @NotBlank
-    @Size(max = 15)
     private Integer age;
 
-    @NotBlank
-    @Size(max = 512)
     private LocalDateTime birth;
 
     @NotBlank
