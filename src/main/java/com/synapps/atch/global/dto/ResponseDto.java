@@ -5,9 +5,11 @@ import lombok.Getter;
 
 import java.util.List;
 
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor
 public class ResponseDto {
-    private final Boolean success;
-    private final List<?> result;
+    private boolean success;
+
+    private List<?> result;
+    public ResponseDto() {}
 }

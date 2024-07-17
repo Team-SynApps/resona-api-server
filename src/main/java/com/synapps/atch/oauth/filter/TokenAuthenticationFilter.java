@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -25,22 +26,59 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
-            FilterChain filterChain)  throws ServletException, IOException {
-        final String authorizationHeader = request.getHeader("Authorization");
+            FilterChain filterChain) throws ServletException, IOException {
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            String tokenStr = HeaderUtil.getAccessToken(request);
-            AuthToken token = tokenProvider.convertAuthToken(tokenStr);
+        log.debug("TokenAuthenticationFilter started for URI: {}", request.getRequestURI());
 
-            if (token.validate()) {
-                Authentication authentication = tokenProvider.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+        String tokenStr = HeaderUtil.getAccessToken(request);
+        log.debug("Received token: {}", tokenStr);
+
+        if (StringUtils.hasText(tokenStr)) {
+            try {
+                log.debug("Attempting to convert and validate token");
+                AuthToken token = tokenProvider.convertAuthToken(tokenStr);
+
+                log.debug("Token converted, validating...");
+                if (token.validate()) {
+                    log.debug("Token is valid, getting authentication");
+                    Authentication authentication = tokenProvider.getAuthentication(token);
+                    log.debug("Authentication object created: {}", authentication);
+
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.debug("Set Authentication to security context for '{}', uri: {}", authentication.getName(), request.getRequestURI());
+
+                    // 현재 SecurityContext의 상태 로깅
+                    log.debug("Current SecurityContext: {}", SecurityContextHolder.getContext());
+                } else {
+                    log.warn("Invalid token, uri: {}", request.getRequestURI());
+                    SecurityContextHolder.clearContext();
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Invalid token");
+                    return;
+                }
+            } catch (Exception e) {
+                log.error("Could not set user authentication in security context", e);
+                SecurityContextHolder.clearContext();
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Token processing error: " + e.getMessage());
+                return;
             }
-
-            filterChain.doFilter(request, response);
-            return;
+        } else {
+            log.warn("No token found in request headers, uri: {}", request.getRequestURI());
+            SecurityContextHolder.clearContext();
         }
+
+        log.debug("TokenAuthenticationFilter completed for URI: {}", request.getRequestURI());
+        log.debug("Final SecurityContext state: {}", SecurityContextHolder.getContext());
         filterChain.doFilter(request, response);
     }
 
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        log.debug("Checking if should not filter for path: {}", path);
+        boolean shouldNotFilter = path.startsWith("/public") || path.equals("/error");
+        log.debug("Should not filter: {}", shouldNotFilter);
+        return shouldNotFilter;
+    }
 }

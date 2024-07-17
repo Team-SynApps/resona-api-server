@@ -7,7 +7,6 @@ import com.synapps.atch.mysql.member.dto.request.SignupRequest;
 import com.synapps.atch.mysql.member.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,13 +21,12 @@ public class MemberController {
 
 
     @PostMapping("/join")
-    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> join(@Valid @RequestBody SignupRequest request) throws Exception {
         ResponseDto response = new ResponseDto(true, List.of(memberService.signUp(request)));
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping()
+    @GetMapping("/info")
     public ResponseEntity<?> getUser() {
         ResponseDto response = new ResponseDto(true, List.of(memberService.getMember()));
         return ResponseEntity.ok(response);

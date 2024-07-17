@@ -62,7 +62,7 @@ public class AuthService {
         checkRefreshToken(memberEmail, refreshToken);
         executeCookie(request, response, refreshTokenExpiry, refreshToken);
 
-        ResponseDto responseData = new ResponseDto(Boolean.valueOf(true), List.of(accessToken));
+        ResponseDto responseData = new ResponseDto(true, List.of(accessToken));
         return ResponseEntity.ok(responseData);
     }
 //

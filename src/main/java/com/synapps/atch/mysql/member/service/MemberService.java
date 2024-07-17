@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
@@ -27,8 +28,9 @@ public class MemberService {
      * @return 멤버를 이메일 기준으로 불러옴
      */
     public Member getMember() {
-        System.out.println("get member");
+        log.info("get member");
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        log.info(userPrincipal.getUsername());
         return memberRepository.findByEmail(userPrincipal.getUsername());
     }
 

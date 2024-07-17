@@ -12,6 +12,7 @@ import com.synapps.atch.oauth.respository.OAuth2AuthorizationRequestBasedOnCooki
 import com.synapps.atch.oauth.service.CustomOAuth2UserService;
 import com.synapps.atch.oauth.service.CustomUserDetailsService;
 import com.synapps.atch.oauth.token.AuthTokenProvider;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -60,7 +61,8 @@ public class SecurityConfig {
             "/swagger-resources/**",
             "/auth",
             "/auth/refresh-token",
-            "/member/join"
+            "/member/join",
+            "/error"
     };
 
     /*
@@ -83,15 +85,21 @@ public class SecurityConfig {
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
 
-        http.exceptionHandling((exceptionConfig)->
-                exceptionConfig.authenticationEntryPoint(new RestAuthenticationEntryPoint()).accessDeniedHandler(tokenAccessDeniedHandler));
 
         http.authorizeHttpRequests((authorizeHttp)-> authorizeHttp
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .requestMatchers(PERMIT_URL_ARRAY).permitAll()
-                .requestMatchers("/api/**").hasAnyAuthority(RoleType.USER.getCode())
-                .requestMatchers("/api/**/admin/**").hasAnyAuthority(RoleType.ADMIN.getCode())
+                .requestMatchers("/api/v1/admin/**").hasAnyAuthority(RoleType.ADMIN.getCode())
+                .requestMatchers("/api/v1/**").hasAnyAuthority(RoleType.USER.getCode()).anyRequest().authenticated()
         );
+
+
+        http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new RestAuthenticationEntryPoint())
+                .accessDeniedHandler(((request, response, accessDeniedException) -> {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.getWriter().write("Access Denied: " + accessDeniedException.getMessage());
+        })));
+
 
         http.oauth2Login((oauth2LoginConfig)-> {oauth2LoginConfig
                 .authorizationEndpoint((endpoint)-> endpoint
