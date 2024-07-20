@@ -61,8 +61,7 @@ public class SecurityConfig {
             "/swagger-resources/**",
             "/auth",
             "/auth/refresh-token",
-            "/member/join",
-            "/error"
+            "/member/join"
     };
 
     /*

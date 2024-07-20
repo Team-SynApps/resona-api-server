@@ -7,6 +7,7 @@ import com.synapps.atch.global.properties.AppProperties;
 import com.synapps.atch.global.utils.CookieUtil;
 import com.synapps.atch.global.utils.HeaderUtil;
 import com.synapps.atch.mysql.member.dto.request.LoginRequest;
+import com.synapps.atch.mysql.member.dto.response.ChatMemberDto;
 import com.synapps.atch.mysql.member.entity.MemberRefreshToken;
 import com.synapps.atch.mysql.member.repository.MemberRefreshTokenRepository;
 import com.synapps.atch.mysql.member.repository.MemberRepository;
@@ -158,6 +159,17 @@ public class AuthService {
         }
 
         return ResponseEntity.ok(new ResponseDto(Boolean.valueOf(true), List.of(createNewAccessToken(memberEmail, roleType, now).getToken())));
+    }
+
+    public ChatMemberDto isMember(HttpServletRequest request, HttpServletResponse response) {
+        String accessToken = HeaderUtil.getAccessToken(request);
+        AuthToken authToken = tokenProvider.convertAuthToken(accessToken);
+        Claims claims = authToken.getTokenClaims();
+        String memberEmail = claims.getSubject();
+        if(memberRepository.existsByEmail(memberEmail)){
+            return new ChatMemberDto(memberEmail, true);
+        }
+        return new ChatMemberDto("", false);
     }
 
 
