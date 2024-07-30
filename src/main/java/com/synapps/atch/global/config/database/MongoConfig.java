@@ -1,4 +1,4 @@
-package com.synapps.atch.global.config;
+package com.synapps.atch.global.config.database;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

@@ -2,6 +2,7 @@ package com.synapps.atch.oauth.service;
 
 
 import com.synapps.atch.mysql.member.entity.Member;
+import com.synapps.atch.mysql.member.entity.Sex;
 import com.synapps.atch.mysql.member.repository.MemberRepository;
 import com.synapps.atch.oauth.entity.ProviderType;
 import com.synapps.atch.oauth.entity.RoleType;
@@ -68,13 +69,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private Member createMember(OAuth2UserInfo userInfo, ProviderType providerType) {
         LocalDateTime now = LocalDateTime.now();
         Member member = Member.of(
-                userInfo.getName(),
-                userInfo.getEmail(),
-                userInfo.getImageUrl(),
+                userInfo.getName(),                   // nickname
+                null,                                 // phoneNumber (OAuth2에서 제공하지 않음)
+                0,                                    // timezone (기본값 설정 필요)
+                null,                                 // age (OAuth2에서 제공하지 않음)
+                null,                                 // birth (OAuth2에서 제공하지 않음)
+                null,                                 // comment (OAuth2에서 제공하지 않음)
+                Sex.of("NO"),                    // sex (OAuth2에서 제공하지 않음)
+                false,                                // isOnline
+                userInfo.getEmail(),                  // email
+                "",                                   // password (OAuth2 로그인이므로 빈 문자열)
+                null,                                 // location (OAuth2에서 제공하지 않음)
                 providerType,
                 RoleType.USER,
-                now,
-                now);
+                now,                                  // createdAt
+                now,                                  // modifiedAt
+                now                                   // lastAccessedAt
+        );
 
         return memberRepository.saveAndFlush(member);
     }

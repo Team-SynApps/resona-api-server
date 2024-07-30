@@ -1,4 +1,4 @@
-package com.synapps.atch.global.config;
+package com.synapps.atch.global.config.security;
 
 import com.synapps.atch.oauth.token.AuthTokenProvider;
 import org.springframework.beans.factory.annotation.Value;

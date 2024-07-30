@@ -23,7 +23,7 @@ public class MemberRefreshToken {
     @Column(length = 64, unique = true)
     @NotNull
     @Size(max = 64)
-    private String memberId;
+    private String memberEmail;
 
     @Column(length = 256)
     @NotNull
@@ -31,10 +31,10 @@ public class MemberRefreshToken {
     private String refreshToken;
 
     public MemberRefreshToken(
-            @NotNull @Size(max = 64) String memberId,
+            @NotNull @Size(max = 64) String memberEmail,
             @NotNull @Size(max = 256) String refreshToken
     ) {
-        this.memberId = memberId;
+        this.memberEmail = memberEmail;
         this.refreshToken = refreshToken;
     }
 }

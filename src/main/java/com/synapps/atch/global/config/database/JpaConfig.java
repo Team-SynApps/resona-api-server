@@ -1,4 +1,4 @@
-package com.synapps.atch.global.config;
+package com.synapps.atch.global.config.database;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
