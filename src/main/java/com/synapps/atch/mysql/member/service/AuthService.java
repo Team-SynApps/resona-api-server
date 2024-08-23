@@ -1,6 +1,7 @@
 package com.synapps.atch.mysql.member.service;
 
 
+import com.synapps.atch.global.dto.MetaDataDto;
 import com.synapps.atch.global.dto.ResponseDto;
 import com.synapps.atch.global.dto.ResponseHeader;
 import com.synapps.atch.global.properties.AppProperties;
@@ -63,7 +64,9 @@ public class AuthService {
         checkRefreshToken(memberEmail, refreshToken);
         executeCookie(request, response, refreshTokenExpiry, refreshToken);
 
-        ResponseDto responseData = new ResponseDto(true, List.of(accessToken));
+        // hard coded datas here
+        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
+        ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken));
         return ResponseEntity.ok(responseData);
     }
 //
@@ -157,8 +160,9 @@ public class AuthService {
 
             executeCookie(request, response, refreshTokenExpiry, authRefreshToken);
         }
-
-        return ResponseEntity.ok(new ResponseDto(Boolean.valueOf(true), List.of(createNewAccessToken(memberEmail, roleType, now).getToken())));
+        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
+        ResponseDto responseDto = new ResponseDto(metaData,List.of(createNewAccessToken(memberEmail, roleType, now).getToken()));
+        return ResponseEntity.ok(responseDto);
     }
 
     public ChatMemberDto isMember(HttpServletRequest request, HttpServletResponse response) {
