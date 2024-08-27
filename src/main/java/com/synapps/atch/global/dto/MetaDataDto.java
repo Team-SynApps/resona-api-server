@@ -1,13 +1,15 @@
 package com.synapps.atch.global.dto;
 
+import com.synapps.atch.global.utils.DateTimeUtil;
 import lombok.Getter;
+
 import java.time.LocalDateTime;
 
 @Getter
 public class MetaDataDto {
     private final int status;
     private final String message;
-    private final LocalDateTime timestamp;
+    private final String timestamp;
     private final String path;
     private final String apiVersion;
     private final String serverName;
@@ -17,7 +19,7 @@ public class MetaDataDto {
     public MetaDataDto(int status, String message, String path, String apiVersion, String serverName) {
         this.status = status;
         this.message = message;
-        this.timestamp = LocalDateTime.now();
+        this.timestamp = DateTimeUtil.localDateTimeToStringSimpleFormat(LocalDateTime.now());
         this.path = path;
         this.apiVersion = apiVersion;
         this.serverName = serverName;
