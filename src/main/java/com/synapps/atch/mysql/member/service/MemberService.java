@@ -71,7 +71,7 @@ public class MemberService {
     }
 
     public boolean checkDuplicateId(DuplicateIdRequest request) throws Exception {
-        return memberRepository.existsById(Long.parseLong(request.getUserId()));
+        return memberRepository.existsById(Long.parseLong(request.getId()));
     }
 
     public String deleteUser() {
