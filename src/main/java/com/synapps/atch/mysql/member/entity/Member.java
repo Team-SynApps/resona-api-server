@@ -93,7 +93,6 @@ public class Member {
     private Member(String nickname,
                    String phoneNumber,
                    Integer timezone,
-                   Integer age,
                    LocalDateTime birth,
                    String comment,
                    Sex sex,
@@ -109,8 +108,8 @@ public class Member {
         this.nickname = nickname;
         this.phoneNumber = phoneNumber;
         this.timezone = timezone;
-        this.age = age;
         this.birth = birth;
+        this.age = birthToAge(birth);
         this.comment = comment;
         this.sex = sex;
         this.isOnline = isOnline;
@@ -140,14 +139,13 @@ public class Member {
                             LocalDateTime createdAt,
                             LocalDateTime modifiedAt,
                             LocalDateTime lastAccessedAt) {
-        return new Member(nickname, phoneNumber, timezone, age, birth, comment, sex, isOnline, email, password, location, providerType, roleType, createdAt, modifiedAt, lastAccessedAt);
+        return new Member(nickname, phoneNumber, timezone, birth, comment, sex, isOnline, email, password, location, providerType, roleType, createdAt, modifiedAt, lastAccessedAt);
     }
 
     // 선택적 필드를 위한 추가 of 메소드
     public static Member ofWithOptionals(String nickname,
                                          String phoneNumber,
                                          Integer timezone,
-                                         Integer age,
                                          LocalDateTime birth,
                                          String comment,
                                          Sex sex,
@@ -162,7 +160,7 @@ public class Member {
                                          LocalDateTime lastAccessedAt,
                                          Category category,
                                          String profileImageUrl) {
-        Member member = new Member(nickname, phoneNumber, timezone, age, birth, comment, sex, isOnline, email, password, location, providerType, roleType, createdAt, modifiedAt, lastAccessedAt);
+        Member member = new Member(nickname, phoneNumber, timezone, birth, comment, sex, isOnline, email, password, location, providerType, roleType, createdAt, modifiedAt, lastAccessedAt);
         member.category = category;
         member.profileImageUrl = profileImageUrl;
         return member;
@@ -178,5 +176,9 @@ public class Member {
     public void encodePassword(String rawPassword) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(rawPassword);
+    }
+    private Integer birthToAge(LocalDateTime birth) {
+        Integer birthYear = birth.getYear();
+        return LocalDateTime.now().getYear() - birthYear;
     }
 }
