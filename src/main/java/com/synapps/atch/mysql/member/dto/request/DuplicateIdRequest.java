@@ -8,5 +8,5 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class DuplicateIdRequest {
-    private String userId;
+    private String id;
 }

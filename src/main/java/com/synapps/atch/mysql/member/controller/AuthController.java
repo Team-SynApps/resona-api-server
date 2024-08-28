@@ -1,5 +1,6 @@
 package com.synapps.atch.mysql.member.controller;
 
+import com.synapps.atch.global.dto.MetaDataDto;
 import com.synapps.atch.global.dto.ResponseDto;
 import com.synapps.atch.mysql.member.dto.request.LoginRequest;
 import com.synapps.atch.mysql.member.service.AuthService;
@@ -41,6 +42,7 @@ public class AuthController {
 
     @GetMapping("/member")
     public ResponseEntity<?> memberExists(HttpServletRequest request, HttpServletResponse response) {
-        return ResponseEntity.ok().body(new ResponseDto(true, List.of(authService.isMember(request, response))));
+        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
+        return ResponseEntity.ok().body(new ResponseDto(metaData, List.of(authService.isMember(request, response))));
     }
 }

@@ -8,8 +8,8 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 public class ResponseDto {
-    private boolean success;
+    private MetaDataDto meta;
 
-    private List<?> result;
+    private List<?> data;
     public ResponseDto() {}
 }

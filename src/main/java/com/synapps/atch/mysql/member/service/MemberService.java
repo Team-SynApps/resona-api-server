@@ -1,7 +1,9 @@
 package com.synapps.atch.mysql.member.service;
 
+import com.synapps.atch.global.utils.DateTimeUtil;
 import com.synapps.atch.mysql.member.dto.request.DuplicateIdRequest;
 import com.synapps.atch.mysql.member.dto.request.SignupRequest;
+import com.synapps.atch.mysql.member.dto.response.MemberDto;
 import com.synapps.atch.mysql.member.entity.Member;
 import com.synapps.atch.mysql.member.entity.Sex;
 import com.synapps.atch.mysql.member.repository.MemberRepository;
@@ -10,6 +12,7 @@ import com.synapps.atch.oauth.entity.RoleType;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.MemberUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
@@ -35,7 +38,7 @@ public class MemberService {
     }
 
     @Transactional
-    public Member signUp(SignupRequest request) throws Exception {
+    public MemberDto signUp(SignupRequest request) throws Exception {
         if (!request.getCode().equals("code")) {
             throw new Exception("코드가 일치하지 않습니다");
         }
@@ -48,7 +51,7 @@ public class MemberService {
                 request.getPhoneNumber(),
                 request.getTimezone(),
                 request.getAge(),
-                request.getBirth(),
+                DateTimeUtil.stringToLocalDateTime(request.getBirth()),
                 request.getComment(),
                 Sex.of(request.getSex()),
                 false, // isOnline 초기값
@@ -63,11 +66,12 @@ public class MemberService {
         );
         member.encodePassword(request.getPassword());
         memberRepository.save(member);
-        return member;
+        MemberDto memberDto = MemberDto.from(member);
+        return memberDto;
     }
 
     public boolean checkDuplicateId(DuplicateIdRequest request) throws Exception {
-        return memberRepository.existsById(Long.parseLong(request.getUserId()));
+        return memberRepository.existsById(Long.parseLong(request.getId()));
     }
 
     public String deleteUser() {

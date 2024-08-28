@@ -1,15 +1,12 @@
 package com.synapps.atch.mysql.member.dto.request;
 
-import com.synapps.atch.oauth.entity.ProviderType;
-import com.synapps.atch.oauth.entity.RoleType;
-import com.synapps.atch.mysql.member.entity.Category;
-import com.synapps.atch.mysql.member.entity.Sex;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @AllArgsConstructor
@@ -31,7 +28,8 @@ public class SignupRequest {
     private Integer age;
 
     @NotNull
-    private LocalDateTime birth;
+    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "생년월일은 yyyy-MM-dd 형식이어야 합니다.")
+    private String birth = LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
 
     @Size(max = 512)
     private String comment;
