@@ -1,7 +1,12 @@
 server:
   port: 8080
   servlet:
-    context-path: /api/v1
+    context-path: /api/${api.version}
+  name: api_server
+
+api:
+  version: v1
+
 spring:
   profiles:
     active: prod

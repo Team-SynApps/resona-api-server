@@ -126,7 +126,6 @@ public class Member {
     public static Member of(String nickname,
                             String phoneNumber,
                             Integer timezone,
-                            Integer age,
                             LocalDateTime birth,
                             String comment,
                             Sex sex,

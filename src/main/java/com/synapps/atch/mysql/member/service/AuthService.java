@@ -27,6 +27,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import com.synapps.atch.global.exception.AuthException;
 
 import jakarta.servlet.http.Cookie;
 import java.util.Date;
@@ -39,7 +40,6 @@ public class AuthService {
     private final AppProperties appProperties;
     private final AuthTokenProvider tokenProvider;
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
-//    private final AppleOAuthUserProvider appleOAuthUserProvider;
     private final MemberRepository memberRepository;
 
     private final static long THREE_DAYS_MSEC = 259200;
@@ -69,52 +69,6 @@ public class AuthService {
         ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken));
         return ResponseEntity.ok(responseData);
     }
-//
-//    @Transactional
-//    public ResponseEntity<?> appleOAuthLogin(HttpServletRequest request,
-//                                             HttpServletResponse response,
-//                                             AppleLoginRequest appleLoginRequest) {
-//        OAuthPlatformMemberResponse applePlatformMember =
-//                appleOAuthUserProvider.getApplePlatformMember(appleLoginRequest.getToken());
-//
-//        String email = applePlatformMember.getEmail();
-//        String platformId = applePlatformMember.getPlatformId();
-//        if (!userRepository.existsByUserId(platformId)) {
-//            User user = User.of(
-//                    platformId,
-//                    "default",
-//                    email,
-//                    ProviderType.APPLE,
-//                    RoleType.USER,
-//                    LocalDateTime.now(),
-//                    LocalDateTime.now()
-//            );
-//            user.encodePassword(platformId);
-//            levelRepository.saveAndFlush(Level.newLevel(user));
-//        }
-//
-//        // Create authentication based on retrieved Apple platform member details
-//        Authentication authentication = getAuthentication(platformId, platformId);
-//
-//        // Set authentication in Security Context
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//
-//        Date now = new Date();
-//        long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
-//
-//        // Generate access and refresh tokens
-//        AuthToken accessToken = createToken(email, authentication, now);
-//        AuthToken refreshToken = getRefreshToken(now, refreshTokenExpiry);
-//
-//        // Check and handle refresh token
-//        checkRefreshToken(email, refreshToken);
-//        executeCookie(request, response, refreshTokenExpiry, refreshToken);
-//
-//        // Prepare response data
-//        ResponseDto responseData = new ResponseDto(true, List.of(accessToken));
-//        return ResponseEntity.ok(responseData);
-//    }
-//
 
     @Transactional
     public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
@@ -135,7 +89,7 @@ public class AuthService {
 
         String refreshToken = CookieUtil.getCookie(request, REFRESH_TOKEN)
                 .map(Cookie::getValue)
-                .orElse((null));
+                .orElseThrow(AuthException::refreshTokenNotFound);
 
         AuthToken authRefreshToken = tokenProvider.convertAuthToken(refreshToken);
 
@@ -228,10 +182,12 @@ public class AuthService {
         CookieUtil.deleteCookie(request, response, REFRESH_TOKEN);
         CookieUtil.addCookie(response, REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
     }
+
     private long calculateValidTime(AuthToken authToken) {
         Date now = new Date();
         return authToken.getTokenClaims().getExpiration().getTime() - now.getTime();
     }
+
     private ResponseEntity<?> errorResponse(String message) {
         return ResponseEntity.ok(new ResponseHeader(500, message));
     }

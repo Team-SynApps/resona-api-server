@@ -3,6 +3,8 @@ package com.synapps.atch.global.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import java.util.Optional;
+
 public class HeaderUtil {
 
     private final static String HEADER_AUTHORIZATION = "Authorization";
