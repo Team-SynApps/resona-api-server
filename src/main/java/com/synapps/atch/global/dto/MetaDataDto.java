@@ -1,9 +1,12 @@
 package com.synapps.atch.global.dto;
 
+import com.synapps.atch.global.config.ServerInfoConfig;
 import com.synapps.atch.global.utils.DateTimeUtil;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 public class MetaDataDto {
@@ -27,7 +30,7 @@ public class MetaDataDto {
     }
 
     private static String generateRequestId() {
-        return java.util.UUID.randomUUID().toString();
+        return UUID.randomUUID().toString();
     }
 
 //    public void setProcessingTime(Long processingTime) {
