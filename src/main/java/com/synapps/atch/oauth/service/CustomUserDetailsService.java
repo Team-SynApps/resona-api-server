@@ -1,6 +1,7 @@
 package com.synapps.atch.oauth.service;
 
 import com.synapps.atch.mysql.member.entity.Member;
+import com.synapps.atch.mysql.member.exception.MemberException;
 import com.synapps.atch.mysql.member.repository.MemberRepository;
 import com.synapps.atch.oauth.entity.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -17,10 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Member member = memberRepository.findByEmail(email);
-        if (member == null) {
-            throw new UsernameNotFoundException("Can not find username(email).");
-        }
+        Member member = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);
         return UserPrincipal.create(member);
     }
 }

@@ -3,6 +3,7 @@ package com.synapps.atch.oauth.service;
 
 import com.synapps.atch.mysql.member.entity.Member;
 import com.synapps.atch.mysql.member.entity.Sex;
+import com.synapps.atch.mysql.member.exception.MemberException;
 import com.synapps.atch.mysql.member.repository.MemberRepository;
 import com.synapps.atch.oauth.entity.ProviderType;
 import com.synapps.atch.oauth.entity.RoleType;
@@ -49,7 +50,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         ProviderType providerType = ProviderType.valueOf(userRequest.getClientRegistration().getRegistrationId().toUpperCase());
 
         OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, user.getAttributes());
-        Member savedMember = memberRepository.findByEmail(userInfo.getEmail());
+        Member savedMember = memberRepository.findByEmail(userInfo.getEmail()).orElseThrow(MemberException::memberNotFound);
 
         if (savedMember != null) {
             if (providerType != savedMember.getProviderType()) {
@@ -72,7 +73,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 userInfo.getName(),                   // nickname
                 null,                                 // phoneNumber (OAuth2에서 제공하지 않음)
                 0,                                    // timezone (기본값 설정 필요)
-                null,                                 // age (OAuth2에서 제공하지 않음)
                 null,                                 // birth (OAuth2에서 제공하지 않음)
                 null,                                 // comment (OAuth2에서 제공하지 않음)
                 Sex.of("NO"),                    // sex (OAuth2에서 제공하지 않음)
