@@ -5,6 +5,7 @@ import com.synapps.atch.global.dto.MetaDataDto;
 import com.synapps.atch.global.dto.ResponseDto;
 import com.synapps.atch.mysql.member.dto.request.DuplicateIdRequest;
 import com.synapps.atch.mysql.member.dto.request.SignupRequest;
+import com.synapps.atch.mysql.member.exception.MemberException;
 import com.synapps.atch.mysql.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

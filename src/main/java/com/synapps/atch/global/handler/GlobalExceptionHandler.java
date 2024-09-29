@@ -7,15 +7,20 @@ import com.synapps.atch.global.exception.AuthException;
 import com.synapps.atch.global.exception.BaseException;
 import com.synapps.atch.mysql.member.exception.MemberException;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private final ServerInfoConfig serverInfoConfig;
@@ -25,74 +30,50 @@ public class GlobalExceptionHandler {
         this.serverInfoConfig = serverInfoConfig;
     }
 
-    @ExceptionHandler(BaseException.class)
-    public ResponseEntity<?> handleBaseException(BaseException ex, HttpServletRequest request) {
-        ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
-                ex.getStatus().value(),
-                ex.getMessage(),
-                request.getRequestURI(),
-                serverInfoConfig.getVersionNumber(), // apiVersion
-                serverInfoConfig.getServerName(),
-                ex.getErrorCode()
-        );
-        ResponseDto responseData = new ResponseDto(metaData, Collections.emptyList());
-        return new ResponseEntity<>(responseData, ex.getStatus());
+    @ExceptionHandler({BaseException.class, MemberException.class, AuthException.class})
+    public ResponseEntity<?> handleCustomException(BaseException ex, HttpServletRequest request) {
+        ErrorMetaDataDto metaData = createErrorMetaData(ex.getStatus().value(), ex.getMessage(), request.getRequestURI(), ex.getErrorCode());
+        log.error(ex.getMessage(), ex);
+        return createErrorResponse(metaData, ex.getStatus());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex, HttpServletRequest request) {
-        String errorMessage = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
-        ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
-                HttpStatus.BAD_REQUEST.value(),
-                errorMessage,
-                request.getRequestURI(),
-                serverInfoConfig.getVersionNumber(),
-                serverInfoConfig.getServerName(),
-                "VAL001"
-        );
-        ResponseDto responseData = new ResponseDto(metaData, Collections.emptyList());
-        return new ResponseEntity<>(responseData, HttpStatus.BAD_REQUEST);
+        List<String> errors = ex.getBindingResult().getAllErrors().stream()
+                .map(error -> {
+                    if (error instanceof FieldError) {
+                        return ((FieldError) error).getField() + ": " + error.getDefaultMessage();
+                    }
+                    return error.getDefaultMessage();
+                })
+                .collect(Collectors.toList());
+
+        String errorMessage = String.join(", ", errors);
+        ErrorMetaDataDto metaData = createErrorMetaData(HttpStatus.BAD_REQUEST.value(), errorMessage, request.getRequestURI(), "VAL001");
+        log.error(errorMessage, ex);
+        return createErrorResponse(metaData, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleException(Exception ex, HttpServletRequest request) {
-        ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                "Internal server error",
-                request.getRequestURI(),
-                serverInfoConfig.getVersionNumber(),
-                serverInfoConfig.getServerName(),
-                "SYS001"
-        );
-        ResponseDto responseData = new ResponseDto(metaData, Collections.emptyList());
-        return new ResponseEntity<>(responseData, HttpStatus.INTERNAL_SERVER_ERROR);
+        ErrorMetaDataDto metaData = createErrorMetaData(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal server error", request.getRequestURI(), "SYS001");
+        log.error(ex.getMessage(), ex);
+        return createErrorResponse(metaData, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler(MemberException.class)
-    public ResponseEntity<?> handleMemberException(MemberException ex, HttpServletRequest request) {
-        ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
-                ex.getStatus().value(),
-                ex.getMessage(),
-                request.getRequestURI(),
+    private ErrorMetaDataDto createErrorMetaData(int statusCode, String message, String requestUri, String errorCode) {
+        return ErrorMetaDataDto.createErrorMetaData(
+                statusCode,
+                message,
+                requestUri,
                 serverInfoConfig.getVersionNumber(),
                 serverInfoConfig.getServerName(),
-                ex.getErrorCode()
+                errorCode
         );
-        ResponseDto responseData = new ResponseDto(metaData, Collections.emptyList());
-        return new ResponseEntity<>(responseData, ex.getStatus());
     }
 
-    @ExceptionHandler(AuthException.class)
-    public ResponseEntity<?> handleAuthException(AuthException ex, HttpServletRequest request) {
-        ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
-                ex.getStatus().value(),
-                ex.getMessage(),
-                request.getRequestURI(),
-                serverInfoConfig.getVersionNumber(),
-                serverInfoConfig.getServerName(),
-                ex.getErrorCode()
-        );
+    private ResponseEntity<?> createErrorResponse(ErrorMetaDataDto metaData, HttpStatus status) {
         ResponseDto responseData = new ResponseDto(metaData, Collections.emptyList());
-        return new ResponseEntity<>(responseData, ex.getStatus());
+        return new ResponseEntity<>(responseData, status);
     }
 }
