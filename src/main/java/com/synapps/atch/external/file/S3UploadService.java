@@ -1,6 +1,6 @@
-package com.synapps.atch.file;
+package com.synapps.atch.external.file;
 
-import com.synapps.atch.file.dto.FileDetail;
+import com.synapps.atch.external.file.dto.FileDetail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
