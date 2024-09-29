@@ -1,5 +1,6 @@
 package com.synapps.atch.mysql.member.controller;
 
+import com.synapps.atch.global.config.ServerInfoConfig;
 import com.synapps.atch.global.dto.MetaDataDto;
 import com.synapps.atch.global.dto.ResponseDto;
 import com.synapps.atch.mysql.member.dto.request.LoginRequest;
@@ -17,6 +18,11 @@ import java.util.List;
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
+    private final ServerInfoConfig serverInfo;
+
+    private MetaDataDto createSuccessMetaData(String queryString){
+        return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
+    }
 
     @PostMapping
     public ResponseEntity<?> authenticateUser(
@@ -42,7 +48,7 @@ public class AuthController {
 
     @GetMapping("/member")
     public ResponseEntity<?> memberExists(HttpServletRequest request, HttpServletResponse response) {
-        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         return ResponseEntity.ok().body(new ResponseDto(metaData, List.of(authService.isMember(request, response))));
     }
 }

@@ -1,6 +1,7 @@
 package com.synapps.atch.mysql.member.controller;
 
 
+import com.synapps.atch.global.config.ServerInfoConfig;
 import com.synapps.atch.global.dto.MetaDataDto;
 import com.synapps.atch.global.dto.ResponseDto;
 import com.synapps.atch.mysql.member.dto.request.DuplicateIdRequest;
@@ -20,15 +21,19 @@ import java.util.List;
 @RequestMapping("/member")
 @RequiredArgsConstructor
 public class MemberController {
-
     private final MemberService memberService;
+    private final ServerInfoConfig serverInfo;
+
+    private MetaDataDto createSuccessMetaData(String queryString){
+        return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
+    }
 
 
     @PostMapping("/join")
     public ResponseEntity<?> join(HttpServletRequest request,
                                   HttpServletResponse response,
                                   @Valid @RequestBody SignupRequest signupRequest) throws Exception {
-        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(),"1","api server");
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.signUp(signupRequest)));
         return ResponseEntity.ok(responseData);
     }
@@ -36,7 +41,7 @@ public class MemberController {
     @GetMapping("/info")
     public ResponseEntity<?> getUser(HttpServletRequest request,
                                      HttpServletResponse response) {
-        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(),"1","api server");
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.getMember()));
         return ResponseEntity.ok(responseData);
     }
@@ -45,7 +50,7 @@ public class MemberController {
     public ResponseEntity<?> checkDuplicateId(HttpServletRequest request,
                                               HttpServletResponse response,
                                               @RequestBody DuplicateIdRequest duplicateIdRequest) throws Exception {
-        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(),"1","api server");
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.checkDuplicateId(duplicateIdRequest)));
         return ResponseEntity.ok(responseData);
     }
@@ -53,8 +58,9 @@ public class MemberController {
     @DeleteMapping()
     public ResponseEntity<?> deleteUser(HttpServletRequest request,
                                         HttpServletResponse response) {
-        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(),"1","api server");
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.deleteUser()));
         return ResponseEntity.ok(responseData);
     }
+
 }
