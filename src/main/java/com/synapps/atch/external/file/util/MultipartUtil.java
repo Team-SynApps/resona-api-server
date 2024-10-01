@@ -1,4 +1,4 @@
-package com.synapps.atch.file.util;
+package com.synapps.atch.external.file.util;
 
 import org.springframework.util.StringUtils;
 

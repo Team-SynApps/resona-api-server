@@ -1,6 +1,6 @@
-package com.synapps.atch.file.dto;
+package com.synapps.atch.external.file.dto;
 
-import com.synapps.atch.file.util.MultipartUtil;
+import com.synapps.atch.external.file.util.MultipartUtil;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 

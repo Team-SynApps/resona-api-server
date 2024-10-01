@@ -1,12 +1,15 @@
 package com.synapps.atch.global.handler;
 
+import com.synapps.atch.external.email.exception.EmailException;
 import com.synapps.atch.global.config.ServerInfoConfig;
 import com.synapps.atch.global.dto.ErrorMetaDataDto;
 import com.synapps.atch.global.dto.ResponseDto;
 import com.synapps.atch.global.exception.AuthException;
 import com.synapps.atch.global.exception.BaseException;
 import com.synapps.atch.mysql.member.exception.MemberException;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Email;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,6 +35,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({BaseException.class, MemberException.class, AuthException.class})
     public ResponseEntity<?> handleCustomException(BaseException ex, HttpServletRequest request) {
+        ErrorMetaDataDto metaData = createErrorMetaData(ex.getStatus().value(), ex.getMessage(), request.getRequestURI(), ex.getErrorCode());
+        log.error(ex.getMessage(), ex);
+        return createErrorResponse(metaData, ex.getStatus());
+    }
+
+    @ExceptionHandler(EmailException.class)
+    public ResponseEntity<?> handleEmailException(EmailException ex, HttpServletRequest request) {
         ErrorMetaDataDto metaData = createErrorMetaData(ex.getStatus().value(), ex.getMessage(), request.getRequestURI(), ex.getErrorCode());
         log.error(ex.getMessage(), ex);
         return createErrorResponse(metaData, ex.getStatus());
