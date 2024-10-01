@@ -23,6 +23,7 @@ spring:
       authentication-database: ${MONGO_AUTH_DATABASE}
       username: ${MONGO_USERNAME}
       password: ${MONGO_PASSWORD}
+      uri: ${MONGODB_CONNECTION_STRING}
 #      database:
   jpa:
     hibernate:
