@@ -11,6 +11,8 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      timestamp: ${{ steps.timestamp.outputs.timestamp }}  # 'timestamp' 값을 outputs로 설정
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -56,19 +58,19 @@ jobs:
 
             # Debugging: Check Docker Username and Image Tag
             echo "Docker Username: ${{ secrets.DOCKER_USERNAME }}"
-            echo "Image Tag: ${{ steps.timestamp.outputs.timestamp }}"
+            echo "Image Tag: ${{ needs.build.outputs.timestamp }}"  # 'needs'를 사용하여 build job의 출력 참조
 
             docker rm -f $(docker ps -qa) || true
             docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:latest || true
 
             # Pulling the image
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ steps.timestamp.outputs.timestamp }}
+            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}  # 'needs'를 사용하여 timestamp 참조
 
             # Check if the image was successfully pulled
             docker images
 
             # Running the container
-            docker run --name api-server -dit --network synapps -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ steps.timestamp.outputs.timestamp }}
+            docker run --name api-server -dit --network synapps -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
 
       - name: Health Check
         uses: appleboy/ssh-action@master
@@ -102,7 +104,7 @@ jobs:
           script: |
             echo "Deployment failed, rolling back..."
             docker rm -f api-server || true
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:${{ steps.timestamp.outputs.timestamp }} || true
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }} || true
             docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:latest
             docker run --name api-server -dit --network synapps -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:latest
             echo "Rollback completed"
