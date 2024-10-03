@@ -70,7 +70,7 @@ jobs:
             docker images
 
             # Running the container
-            docker run --name api-server -dit --network synapps -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
+            docker run --name api-server -d --network synapps -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
 
       - name: Health Check
         uses: appleboy/ssh-action@master
@@ -106,5 +106,5 @@ jobs:
             docker rm -f api-server || true
             docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }} || true
             docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:latest
-            docker run --name api-server -dit --network synapps -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:latest
+            docker run --name api-server -d --network synapps -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:latest
             echo "Rollback completed"
