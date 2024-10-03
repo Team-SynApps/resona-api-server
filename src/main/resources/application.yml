@@ -66,6 +66,11 @@ spring:
 jwt:
   secret: ${JWT_SECRET}
 
+swagger:
+  server:
+    #    url: http://localhost:8081
+    url: ${CURRENT_SERVER_URL}
+
 # cors 설정
 cors:
   allowed-origins: ${CORS_ALLOWED_ORIGIN}
