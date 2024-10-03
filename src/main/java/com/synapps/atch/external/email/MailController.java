@@ -33,7 +33,7 @@ public class MailController {
     }
 
     // 인증번호 일치여부 확인
-    @GetMapping("/identification")
+    @GetMapping()
     public ResponseEntity<?> mailCheck(@RequestParam String userNumber) {
 
         boolean isMatch = userNumber.equals(String.valueOf(number));
