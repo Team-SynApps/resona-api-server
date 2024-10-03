@@ -111,13 +111,12 @@ jobs:
             FAILED_TAG=${{ steps.timestamp.outputs.timestamp }}
 
             # 실패한 이미지를 삭제
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/nginx-proxy:$FAILED_TAG || true
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$FAILED_TAG || true
 
             # 가장 큰 timestamp 태그를 가진 이미지를 찾음
             LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
 
             # 해당 이미지를 실행
             docker pull ${{ secrets.DOCKER_USERNAME }}/nginx-proxy:$LAST_SUCCESSFUL_TAG
-            docker run --network synapps -d --name nginx-proxy -p 8081:8081 --env-file .env ${{ secrets.DOCKER_USERNAME }}/nginx-proxy:$LAST_SUCCESSFUL_TAG
+            docker run --network synapps -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/nginx-proxy:$LAST_SUCCESSFUL_TAG
             echo "Rollback to $LAST_SUCCESSFUL_TAG completed"
-      
