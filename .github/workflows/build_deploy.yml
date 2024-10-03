@@ -60,11 +60,14 @@ jobs:
             echo "Docker Username: ${{ secrets.DOCKER_USERNAME }}"
             echo "Image Tag: ${{ needs.build.outputs.timestamp }}"  # 'needs'를 사용하여 build job의 출력 참조
 
-            docker rm -f $(docker ps -qa) || true
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:latest || true
+            # 기존 api-server 컨테이너 중지 및 제거 (api-server만 대상으로 함)
+            if [ $(docker ps -q -f name=api-server) ]; then
+              echo "Stopping and removing existing api-server container..."
+              docker rm -f api-server
+            fi
 
             # Pulling the image
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}  # 'needs'를 사용하여 timestamp 참조
+            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
 
             # Check if the image was successfully pulled
             docker images
@@ -103,8 +106,18 @@ jobs:
           key: ${{ secrets.EC2_KEY }}
           script: |
             echo "Deployment failed, rolling back..."
-            docker rm -f api-server || true
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }} || true
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:latest
-            docker run --name api-server -d --network synapps -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:latest
-            echo "Rollback completed"
+
+            # 현재 실패한 이미지의 timestamp를 저장
+            FAILED_TAG=${{ steps.timestamp.outputs.timestamp }}
+
+            # 실패한 이미지를 삭제
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/nginx-proxy:$FAILED_TAG || true
+
+            # 가장 큰 timestamp 태그를 가진 이미지를 찾음
+            LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
+
+            # 해당 이미지를 실행
+            docker pull ${{ secrets.DOCKER_USERNAME }}/nginx-proxy:$LAST_SUCCESSFUL_TAG
+            docker run --network synapps -d --name nginx-proxy -p 8081:8081 --env-file .env ${{ secrets.DOCKER_USERNAME }}/nginx-proxy:$LAST_SUCCESSFUL_TAG
+            echo "Rollback to $LAST_SUCCESSFUL_TAG completed"
+      
