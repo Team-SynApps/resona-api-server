@@ -25,7 +25,7 @@ jobs:
         id: timestamp
         run: echo "timestamp=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
-      - name: Build and Push Docker Image For Spring
+      - name: Build Docker Image For Spring
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
@@ -36,6 +36,13 @@ jobs:
           docker push $DOCKER_USERNAME/api-server:$IMAGE_TAG
           docker tag $DOCKER_USERNAME/api-server:$IMAGE_TAG $DOCKER_USERNAME/api-server:latest
           docker push $DOCKER_USERNAME/api-server:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  # 'build' job이 완료된 후에 'deploy' job 실행
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: EC2 Docker Run
         uses: appleboy/ssh-action@master
