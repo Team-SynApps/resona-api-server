@@ -53,5 +53,6 @@ public class MailController {
         ResponseDto responseData = new ResponseDto(metaData, List.of(isMatch));
 
         return ResponseEntity.ok(responseData);
+        //
     }
 }
