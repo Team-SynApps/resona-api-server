@@ -117,6 +117,6 @@ jobs:
             LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
 
             # 해당 이미지를 실행
-            docker pull ${{ secrets.DOCKER_USERNAME }}/nginx-proxy:$LAST_SUCCESSFUL_TAG
-            docker run --network synapps -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/nginx-proxy:$LAST_SUCCESSFUL_TAG
+            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
+            docker run --network synapps -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
             echo "Rollback to $LAST_SUCCESSFUL_TAG completed"
