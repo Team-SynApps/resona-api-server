@@ -12,7 +12,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
-      timestamp: ${{ steps.timestamp.outputs.timestamp }}  # 'timestamp' 값을 outputs로 설정
+      timestamp: ${{ steps.timestamp.outputs.timestamp }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -41,7 +41,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build  # 'build' job이 완료된 후에 'deploy' job 실행
+    needs: build
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -56,23 +56,23 @@ jobs:
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
 
-            # Debugging: Check Docker Username and Image Tag
             echo "Docker Username: ${{ secrets.DOCKER_USERNAME }}"
-            echo "Image Tag: ${{ needs.build.outputs.timestamp }}"  # 'needs'를 사용하여 build job의 출력 참조
+            echo "Image Tag: ${{ needs.build.outputs.timestamp }}"
 
-            # 기존 api-server 컨테이너 중지 및 제거 (api-server만 대상으로 함)
-            if [ $(docker ps -q -f name=api-server) ]; then
+            # 기존 api-server 컨테이너 중지 및 제거
+            if [ $(docker ps -aq -f name=api-server) ]; then
               echo "Stopping and removing existing api-server container..."
-              docker rm -f api-server
+              docker stop api-server
+              docker rm api-server
             fi
 
-            # Pulling the image
+            # 새 이미지 pull
             docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
 
-            # Check if the image was successfully pulled
+            # 이미지 pull 확인
             docker images
 
-            # Running the container
+            # 새 컨테이너 실행
             docker run --name api-server -d --network synapps -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
 
       - name: Health Check
@@ -97,6 +97,31 @@ jobs:
             docker logs api-server
             exit 1
 
+      - name: Cleanup Old Images
+        if: success()
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            echo "Cleaning up old images..."
+            # 최신 5개의 이미지 태그를 저장
+            KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
+            
+            # 모든 이미지 태그를 가져옴
+            ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
+            
+            # 오래된 이미지 삭제
+            for tag in $ALL_TAGS; do
+              if ! echo "$KEEP_TAGS" | grep -q "$tag"; then
+                echo "Removing old image: ${{ secrets.DOCKER_USERNAME }}/api-server:$tag"
+                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag
+              fi
+            done
+            
+            echo "Cleanup completed"
+
       - name: Rollback on Failure
         if: failure()
         uses: appleboy/ssh-action@master
@@ -107,16 +132,17 @@ jobs:
           script: |
             echo "Deployment failed, rolling back..."
 
-            # 현재 실패한 이미지의 timestamp를 저장
-            FAILED_TAG=${{ steps.timestamp.outputs.timestamp }}
+            FAILED_TAG=${{ needs.build.outputs.timestamp }}
 
-            # 실패한 이미지를 삭제
             docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$FAILED_TAG || true
 
-            # 가장 큰 timestamp 태그를 가진 이미지를 찾음
             LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
 
-            # 해당 이미지를 실행
             docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
+            
+            # 기존 컨테이너 제거 (실패한 경우에도)
+            docker rm -f api-server || true
+            
+            # 롤백 이미지로 새 컨테이너 실행
             docker run --network synapps -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
             echo "Rollback to $LAST_SUCCESSFUL_TAG completed"
