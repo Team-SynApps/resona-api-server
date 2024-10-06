@@ -4,11 +4,6 @@ import com.synapps.resona.global.config.ServerInfoConfig;
 import com.synapps.resona.global.dto.MetaDataDto;
 import com.synapps.resona.global.dto.ResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
 import java.util.List;
 
 @RestController
@@ -26,6 +21,7 @@ public class MailController {
     // 인증 이메일 전송
     @PostMapping()
     public ResponseEntity<?> sendMail(HttpServletRequest request, String mail) {
+    private int number; // 이메일 인증 숫자를 저장하는 변수
         HashMap<String, Object> map = new HashMap<>();
 
         try {
@@ -42,7 +38,6 @@ public class MailController {
         ResponseDto responseData = new ResponseDto(metaData, List.of(map));
 
         return ResponseEntity.ok(responseData);
-    }
 
     // 인증번호 일치여부 확인
     @GetMapping()
@@ -53,6 +48,5 @@ public class MailController {
         ResponseDto responseData = new ResponseDto(metaData, List.of(isMatch));
 
         return ResponseEntity.ok(responseData);
-        //
     }
 }
