@@ -1,21 +1,27 @@
 package com.synapps.resona.external.email;
 
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.HashMap;
+import com.synapps.resona.global.config.ServerInfoConfig;
+import com.synapps.resona.global.dto.MetaDataDto;
+import com.synapps.resona.global.dto.ResponseDto;
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping("/email")
 @RequiredArgsConstructor
 public class MailController {
     private final MailService mailService;
+    private final ServerInfoConfig serverInfo;
     private int number; // 이메일 인증 숫자를 저장하는 변수
+
+    private MetaDataDto createSuccessMetaData(String queryString){
+        return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
+    }
 
     // 인증 이메일 전송
     @PostMapping()
-    public HashMap<String, Object> mailSend(String mail) {
+    public ResponseEntity<?> sendMail(HttpServletRequest request, String mail) {
+    private int number; // 이메일 인증 숫자를 저장하는 변수
         HashMap<String, Object> map = new HashMap<>();
 
         try {
@@ -28,16 +34,19 @@ public class MailController {
             map.put("success", Boolean.FALSE);
             map.put("error", e.getMessage());
         }
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        ResponseDto responseData = new ResponseDto(metaData, List.of(map));
 
-        return map;
-    }
+        return ResponseEntity.ok(responseData);
 
     // 인증번호 일치여부 확인
     @GetMapping()
-    public ResponseEntity<?> mailCheck(@RequestParam String userNumber) {
+    public ResponseEntity<?> mailCheck(HttpServletRequest request, @RequestParam String userNumber) {
 
         boolean isMatch = userNumber.equals(String.valueOf(number));
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        ResponseDto responseData = new ResponseDto(metaData, List.of(isMatch));
 
-        return ResponseEntity.ok(isMatch);
+        return ResponseEntity.ok(responseData);
     }
 }
