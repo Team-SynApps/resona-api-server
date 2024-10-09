@@ -1,4 +1,4 @@
-name: Spring Boot & Gradle & Docker & EC2 CD
+name: Spring Boot & Gradle & Docker & OCI CD
 
 on:
   push:
@@ -27,17 +27,26 @@ jobs:
         id: timestamp
         run: echo "timestamp=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
-      - name: Build Docker Image For Spring
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v2
         env:
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
           IMAGE_TAG: ${{ steps.timestamp.outputs.timestamp }}
-        run: |
-          echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-          docker build -t $DOCKER_USERNAME/api-server:$IMAGE_TAG .
-          docker push $DOCKER_USERNAME/api-server:$IMAGE_TAG
-          docker tag $DOCKER_USERNAME/api-server:$IMAGE_TAG $DOCKER_USERNAME/api-server:latest
-          docker push $DOCKER_USERNAME/api-server:latest
+        with:
+          context: .
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/api-server:${{ env.IMAGE_TAG }}
+            ${{ secrets.DOCKER_USERNAME }}/api-server:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -46,7 +55,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: EC2 Docker Run
+      - name: OCI Docker Run
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.ORACLE_HOST }}
@@ -78,9 +87,9 @@ jobs:
       - name: Health Check
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.ORACLE_HOST }}
           username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
+          key: ${{ secrets.ORACLE_KEY }}
           script: |
             echo "Waiting for application to start..."
             for i in {1..15}
@@ -101,9 +110,9 @@ jobs:
         if: success()
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.ORACLE_HOST }}
           username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
+          key: ${{ secrets.ORACLE_KEY }}
           script: |
             echo "Cleaning up old images..."
             # 최신 5개의 이미지 태그를 저장
@@ -126,9 +135,9 @@ jobs:
         if: failure()
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.ORACLE_HOST }}
           username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
+          key: ${{ secrets.ORACLE_KEY }}
           script: |
             echo "Deployment failed, rolling back..."
 
@@ -144,5 +153,5 @@ jobs:
             docker rm -f api-server || true
             
             # 롤백 이미지로 새 컨테이너 실행
-            docker run --network synapps -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
+            docker run -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
             echo "Rollback to $LAST_SUCCESSFUL_TAG completed"
