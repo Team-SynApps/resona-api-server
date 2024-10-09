@@ -49,9 +49,9 @@ jobs:
       - name: EC2 Docker Run
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.EC2_HOST }}
+          host: ${{ secrets.ORACLE_HOST }}
           username: ubuntu
-          key: ${{ secrets.EC2_KEY }}
+          key: ${{ secrets.ORACLE_KEY }}
           script: |
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
@@ -73,7 +73,7 @@ jobs:
             docker images
 
             # 새 컨테이너 실행
-            docker run --name api-server -d --network synapps -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
+            docker run --name api-server -d -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
 
       - name: Health Check
         uses: appleboy/ssh-action@master
