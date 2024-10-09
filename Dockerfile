@@ -4,12 +4,9 @@ FROM openjdk:17.0.1-jdk-slim as build
 # 작업 디렉토리를 /workspace/app으로 설정합니다.
 WORKDIR /workspace/app
 
-# 먼저 gradlew 및 build 관련 파일들을 복사하여 종속성을 미리 다운로드할 수 있도록 합니다.
+# gradlew 및 build 관련 파일들을 복사합니다.
 COPY gradlew build.gradle settings.gradle ./
 COPY ./gradle ./gradle/
-
-# 종속성 캐싱을 위해 종속성만 설치합니다.
-RUN ./gradlew dependencies
 
 # 소스 코드를 복사합니다.
 COPY ./src ./src/
