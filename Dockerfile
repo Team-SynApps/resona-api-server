@@ -1,38 +1,33 @@
-# 빌드 스테이지
-FROM eclipse-temurin:17-jdk as build
+# OpenJDK 17.0.1의 slim 버전을 기반으로 빌드 스테이지를 설정합니다.
+FROM openjdk:17.0.1-jdk-slim as build
 
+# 작업 디렉토리를 /workspace/app으로 설정합니다.
 WORKDIR /workspace/app
 
-# 먼저 gradle 파일들만 복사하여 종속성을 다운로드합니다.
-# 이렇게 하면 소스 코드가 변경되어도 종속성 레이어를 재사용할 수 있습니다.
-COPY gradlew .
-COPY gradle gradle
-COPY build.gradle .
-COPY settings.gradle .
+# 먼저 gradlew 및 build 관련 파일들을 복사하여 종속성을 미리 다운로드할 수 있도록 합니다.
+COPY gradlew build.gradle settings.gradle ./
+COPY ./gradle ./gradle/
 
-# 종속성을 다운로드합니다.
+# 종속성 캐싱을 위해 종속성만 설치합니다.
 RUN ./gradlew dependencies
 
 # 소스 코드를 복사합니다.
-COPY src src
+COPY ./src ./src/
 
-# 애플리케이션을 빌드합니다.
+# gradlew를 사용하여 bootJar 작업을 실행하여 Spring Boot JAR 파일을 생성합니다.
 RUN ./gradlew bootJar
-RUN mkdir -p build/dependency && (cd build/dependency; jar -xf ../libs/*.jar)
 
-# 런타임 스테이지
-FROM eclipse-temurin:17-jre
+# 런타임용 이미지로 slim 버전을 다시 사용합니다.
+FROM openjdk:17.0.1-jdk-slim
 
-VOLUME /tmp
-ARG DEPENDENCY=/workspace/app/build/dependency
+# 작업 디렉토리를 /app으로 설정합니다.
+WORKDIR /app
 
-# 애플리케이션 파일을 복사합니다.
-COPY --from=build ${DEPENDENCY}/BOOT-INF/lib /app/lib
-COPY --from=build ${DEPENDENCY}/META-INF /app/META-INF
-COPY --from=build ${DEPENDENCY}/BOOT-INF/classes /app
+# 빌드 스테이지에서 생성된 JAR 파일을 복사합니다.
+COPY --from=build /workspace/app/build/libs/*.jar /app/app.jar
 
-# 8080 포트를 노출합니다.
+# 컨테이너가 8080 포트에서 통신하도록 설정합니다.
 EXPOSE 8080
 
-# 애플리케이션을 실행합니다.
-ENTRYPOINT ["java","-cp","app:app/lib/*","synapps.resona.api.ResonaAPIServer"]
+# 컨테이너가 시작될 때 app.jar를 실행합니다.
+CMD ["java", "-jar", "/app/app.jar"]
