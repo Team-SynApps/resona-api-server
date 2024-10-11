@@ -23,29 +23,41 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            gradle-${{ runner.os }}-
+
+      - name: Cache Docker Buildx
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: buildx-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
+          restore-keys: |
+            buildx-${{ runner.os }}-
+
       - name: Generate Timestamp
         id: timestamp
         run: echo "timestamp=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v1
+        with:
+          install: true
 
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v1
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Cache Docker layers
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-docker-
-
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v2
         env:
           IMAGE_TAG: ${{ steps.timestamp.outputs.timestamp }}
         with:
@@ -55,8 +67,8 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/api-server:${{ env.IMAGE_TAG }}
-            ${{ secrets.DOCKER_USERNAME }}/api-server:latest
+            ${{ secrets.DOCKER_USERNAME }}/chat-server:${{ env.IMAGE_TAG }}
+            ${{ secrets.DOCKER_USERNAME }}/chat-server:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -78,43 +90,21 @@ jobs:
             echo "Docker Username: ${{ secrets.DOCKER_USERNAME }}"
             echo "Image Tag: ${{ needs.build.outputs.timestamp }}"
 
-            # 기존 api-server 컨테이너 중지 및 제거
-            if [ $(docker ps -aq -f name=api-server) ]; then
-              echo "Stopping and removing existing api-server container..."
-              docker stop api-server
-              docker rm api-server
+            # 기존 chat-server 컨테이너 중지 및 제거
+            if [ $(docker ps -aq -f name=chat-server) ]; then
+              echo "Stopping and removing existing chat-server container..."
+              docker stop chat-server
+              docker rm chat-server
             fi
 
             # 새 이미지 pull
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
+            docker pull ${{ secrets.DOCKER_USERNAME }}/chat-server:${{ needs.build.outputs.timestamp }}
 
             # 이미지 pull 확인
             docker images
 
             # 새 컨테이너 실행
-            docker run --name api-server -d -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
-
-      - name: Health Check
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.ORACLE_HOST }}
-          username: ubuntu
-          key: ${{ secrets.ORACLE_KEY }}
-          script: |
-            echo "Waiting for application to start..."
-            for i in {1..15}
-            do
-              if curl -sSf http://localhost:8080/api/v1/actuator/health > /dev/null 2>&1
-              then
-                echo "Application is healthy"
-                exit 0
-              fi
-              echo "Attempt $i: Application is not yet healthy. Waiting..."
-              sleep 10
-            done
-            echo "Application failed to become healthy within timeout"
-            docker logs api-server
-            exit 1
+            docker run --name chat-server -d -p 9000:9000 --env-file .env ${{ secrets.DOCKER_USERNAME }}/chat-server:${{ needs.build.outputs.timestamp }}
 
       - name: Cleanup Old Images
         if: success()
@@ -125,20 +115,14 @@ jobs:
           key: ${{ secrets.ORACLE_KEY }}
           script: |
             echo "Cleaning up old images..."
-            # 최신 5개의 이미지 태그를 저장
-            KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
-            
-            # 모든 이미지 태그를 가져옴
-            ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
-            
-            # 오래된 이미지 삭제
+            KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/chat-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
+            ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/chat-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
             for tag in $ALL_TAGS; do
               if ! echo "$KEEP_TAGS" | grep -q "$tag"; then
-                echo "Removing old image: ${{ secrets.DOCKER_USERNAME }}/api-server:$tag"
-                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag
+                echo "Removing old image: ${{ secrets.DOCKER_USERNAME }}/chat-server:$tag"
+                docker rmi ${{ secrets.DOCKER_USERNAME }}/chat-server:$tag
               fi
             done
-            
             echo "Cleanup completed"
 
       - name: Rollback on Failure
@@ -150,18 +134,10 @@ jobs:
           key: ${{ secrets.ORACLE_KEY }}
           script: |
             echo "Deployment failed, rolling back..."
-
             FAILED_TAG=${{ needs.build.outputs.timestamp }}
-
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$FAILED_TAG || true
-
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/chat-server:$FAILED_TAG || true
             LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
-
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
-            
-            # 기존 컨테이너 제거 (실패한 경우에도)
-            docker rm -f api-server || true
-            
-            # 롤백 이미지로 새 컨테이너 실행
-            docker run -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
+            docker pull ${{ secrets.DOCKER_USERNAME }}/chat-server:$LAST_SUCCESSFUL_TAG
+            docker rm -f chat-server || true
+            docker run -d --name chat-server -p 9000:9000 --env-file .env ${{ secrets.DOCKER_USERNAME }}/chat-server:$LAST_SUCCESSFUL_TAG
             echo "Rollback to $LAST_SUCCESSFUL_TAG completed"
