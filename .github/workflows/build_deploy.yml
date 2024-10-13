@@ -105,15 +105,21 @@ jobs:
         run: |
           oci setup repair-file-permissions --file ~/.oci/config
 
+      - name: Create SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+          touch ~/.ssh/known_hosts
+
       - name: Create Bastion Session
         run: |
           oci bastion session create-managed-ssh \
-            --bastion-id ${{ secrets.BASTION_OCID }} \
-            --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
-            --target-os-username ubuntu \
-            --ssh-public-key-file ~/.oci/oci_api_key.pem \
-            --wait-for-state SUCCEEDED \
-            --wait-interval-seconds 10
+          --bastion-id ${{ secrets.BASTION_OCID }} \
+          --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
+          --target-os-username ubuntu \
+          --ssh-public-key-file ~/.ssh/id_rsa.pub \
+          --wait-for-state SUCCEEDED \
+          --wait-interval-seconds 10
 
       - name: Get Bastion Session OCID
         id: get-session-ocid
@@ -137,11 +143,14 @@ jobs:
           PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_COMMAND: ${{ env.SSH_COMMAND }}
         run: |
+          # SSH_PRIVATE_KEY를 이용하여 개인 키 파일 생성
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
+          
+          # SSH_COMMAND에서 <privateKey>를 실제 개인 키 파일로 대체
           SSH_COMMAND="${SSH_COMMAND//<privateKey>/private_key.pem}"
           
-          eval "$SSH_COMMAND -tt" << EOF
+          eval "$SSH_COMMAND" << EOF
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
           
