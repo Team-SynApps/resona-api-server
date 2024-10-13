@@ -91,15 +91,14 @@ jobs:
           touch ~/.ssh/known_hosts
 
       - name: Create Bastion Session
-        uses: oracle-actions/run-oci-cli-command@v1.3.0
+        uses: oracle-actions/run-oci-cli-command@v1.3.2
         with:
           command: |
-            bastion session create-session \
+            oci --debug bastion session create-session \
               --bastion-id ${{ secrets.BASTION_OCID }} \
               --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
               --session-type MANAGED_SSH \
               --ssh-public-key-file ~/.ssh/id_rsa.pub
-        id: create_session
 
       - name: Get Session OCID
         run: echo "SESSION_OCID=$(echo '${{ steps.create_session.outputs.output }}' | jq -r '.data.id')" >> $GITHUB_ENV
