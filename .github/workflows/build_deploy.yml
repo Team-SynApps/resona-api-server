@@ -24,7 +24,7 @@ jobs:
         uses: actions/checkout@v4.2.0
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4.4.0
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -116,11 +116,11 @@ jobs:
         run: |
           while true; do
             STATE=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query "data.lifecycle-state" --raw-output)
-            if [ "$STATE" == "ACTIVE" ]; then
-              echo "Session is ACTIVE"
+            if [ "$STATE" == "SUCCEEDED" ]; then
+              echo "Session is SUCCEEDED"
               break
             fi
-            echo "Current state: $STATE. Waiting for session to become ACTIVE..."
+            echo "Current state: $STATE. Waiting for session to become SUCCEEDED..."
             sleep 10
           done
 
