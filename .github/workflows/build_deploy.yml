@@ -120,10 +120,9 @@ jobs:
             --bastion-id ${{ secrets.BASTION_OCID }} \
             --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
             --target-os-username ubuntu \
-            --ssh-public-key-file ~/.ssh/id_rsa.pub \
             --wait-for-state SUCCEEDED \
             --wait-interval-seconds 10
-
+      #            --ssh-public-key-file ~/.ssh/id_rsa.pub \
       - name: Get Bastion Session OCID
         id: get-session-ocid
         run: |
