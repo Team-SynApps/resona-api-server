@@ -132,7 +132,7 @@ jobs:
 
       - name: Get SSH Command and Collect Host Keys
         run: |
-          SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data.ssh-metadata.command' --raw-output)
+          SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data.ssh-metadata[0].command' --raw-output)
           echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
           
           BASTION_HOST=$(echo $SSH_COMMAND | awk '{print $3}' | cut -d@ -f2)
