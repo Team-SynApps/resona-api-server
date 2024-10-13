@@ -138,7 +138,6 @@ jobs:
           TARGET_HOST=$(echo $SSH_COMMAND | awk '{print $4}' | tr -d '"')
           
           ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
-          ssh-keyscan -H $TARGET_HOST >> ~/.ssh/known_hosts
 
       - name: Deploy to Private Instance
         env:
