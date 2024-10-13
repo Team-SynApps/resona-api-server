@@ -134,7 +134,7 @@ jobs:
         run: |
           oci bastion session get --session-id ${{ env.SESSION_OCID }} --raw-output
           
-          SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata"[0].command' --raw-output)
+          SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata".command' --raw-output)
           echo "SSH_COMMAND: $SSH_COMMAND"
           echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
     
