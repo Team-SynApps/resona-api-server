@@ -107,12 +107,12 @@ jobs:
       - name: Fix OCI CLI file permissions
         run: |
           oci setup repair-file-permissions --file ~/.oci/config
-#
-#      - name: Create SSH Key
-#        run: |
-#          mkdir -p ~/.ssh
-#          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
-#          touch ~/.ssh/known_hosts
+
+      - name: Create SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+          touch ~/.ssh/known_hosts
 
       - name: Create Bastion Session
         run: |
@@ -120,9 +120,10 @@ jobs:
             --bastion-id ${{ secrets.BASTION_OCID }} \
             --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
             --target-os-username ubuntu \
+            --ssh-public-key-file ~/.ssh/id_rsa.pub \
             --wait-for-state SUCCEEDED \
             --wait-interval-seconds 10
-      #            --ssh-public-key-file ~/.ssh/id_rsa.pub \
+
       - name: Get Bastion Session OCID
         id: get-session-ocid
         run: |
@@ -135,10 +136,10 @@ jobs:
           echo "SSH_COMMAND: $SSH_COMMAND"
           echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
 
-#          BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}')
-#          TARGET_HOST=$(echo $SSH_COMMAND | awk '{print $4}')
-#          ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
-#          ssh-keyscan -H $TARGET_HOST >> ~/.ssh/known_hosts
+          BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}')
+          TARGET_HOST=$(echo $SSH_COMMAND | awk '{print $4}')
+          ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
+          ssh-keyscan -H $TARGET_HOST >> ~/.ssh/known_hosts
 
       - name: Deploy to Private Instance
         env:
@@ -147,7 +148,7 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          SSH_COMMAND="${SSH_COMMAND//<privateKey>/private_key.pem} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          SSH_COMMAND="${SSH_COMMAND//<privateKey>/private_key.pem}"
           
           eval "$SSH_COMMAND -tt" << EOF
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
