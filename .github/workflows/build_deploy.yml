@@ -95,6 +95,14 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
+          # Install 경로를 PATH에 추가
+          echo 'export PATH=$PATH:~/.local/bin' >> $GITHUB_ENV
+
+      - name: Add OCI CLI to PATH
+        if: steps.cache.outputs.cache-hit == 'true'
+        run: |
+          # 캐시된 경우에도 PATH에 추가
+          echo 'export PATH=$PATH:~/.local/bin' >> $GITHUB_ENV
 
       - name: Verify OCI CLI installation
         run: |
