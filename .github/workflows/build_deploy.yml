@@ -130,19 +130,16 @@ jobs:
           SESSION_DETAILS=$(oci bastion session list --bastion-id ${{ secrets.BASTION_OCID }} --query 'data[0]')
           echo "SESSION_OCID=$(echo $SESSION_DETAILS | jq -r '.id')" >> $GITHUB_ENV
 
-      - name: Get SSH Command and Collect Host Keys
+      - name: Get SSH Command
         run: |
-          oci bastion session get --session-id ${{ env.SESSION_OCID }} --raw-output
-          
           SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata".command' --raw-output)
           echo "SSH_COMMAND: $SSH_COMMAND"
           echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
-    
-          BASTION_HOST=$(echo $SSH_COMMAND | awk '{print $3}' | cut -d'@' -f2)
-          TARGET_HOST=$(echo $SSH_COMMAND | awk '{print $4}')
-    
-          ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
-          ssh-keyscan -H $TARGET_HOST >> ~/.ssh/known_hosts
+
+#           SSH keyscan for bastion host only if needed
+#           Extracting bastion host for ssh-keyscan (optional)
+#          BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}')
+#          ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
 
       - name: Deploy to Private Instance
         env:
@@ -151,7 +148,11 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          $SSH_COMMAND -i private_key.pem << EOF
+#           Replace <privateKey> with the actual private key in the SSH_COMMAND
+          SSH_COMMAND="${SSH_COMMAND//<privateKey>/private_key.pem}"
+
+          # Execute the command
+          eval "$SSH_COMMAND" << EOF
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
 
@@ -185,7 +186,9 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          $SSH_COMMAND -i private_key.pem << EOF
+          SSH_COMMAND="${SSH_COMMAND//<privateKey>/private_key.pem}"
+
+          eval "$SSH_COMMAND" << EOF
             FAILED_TAG=${{ needs.build.outputs.timestamp }}
             docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$FAILED_TAG || true
             LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
@@ -193,3 +196,4 @@ jobs:
             docker rm -f api-server || true
             docker run -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
           EOF
+      
