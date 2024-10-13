@@ -108,10 +108,10 @@ jobs:
 
       - name: Create Bastion Session
         run: |
-          echo '{"resourceType": "instance", "instanceId": "'"${{ secrets.TARGET_INSTANCE_OCID }}"'", "sessionType": "MANAGED_SSH"}' > target_resource_details.json
-          oci bastion session create \
+          oci bastion session create-managed-ssh \
             --bastion-id ${{ secrets.BASTION_OCID }} \
-            --target-resource-details file://target_resource_details.json \
+            --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
+            --target-os-username ubuntu \ # 타겟 인스턴스의 사용자 이름을 지정해야 합니다 (예: opc, ubuntu 등)
             --ssh-public-key-file ~/.ssh/id_rsa.pub \
             --wait-for-state SUCCEEDED \
             --wait-interval-seconds 10
