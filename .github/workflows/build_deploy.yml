@@ -83,30 +83,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.0
 
-      - name: Cache OCI CLI
-        uses: actions/cache@v4
-        with:
-          path: ~/.local/bin/oci  # CLI 설치 경로 수정
-          key: oci-cli-${{ runner.os }}-${{ hashFiles('~/.local/bin/oci') }}
-          restore-keys: |
-            oci-cli-${{ runner.os }}-
-
       - name: Install OCI CLI
-        if: steps.cache.outputs.cache-hit != 'true'
         run: |
-          curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
-          # Install 경로를 PATH에 추가
-          echo 'export PATH=$PATH:~/.local/bin' >> $GITHUB_ENV
-
-      - name: Add OCI CLI to PATH
-        if: steps.cache.outputs.cache-hit == 'true'
-        run: |
-          # 캐시된 경우에도 PATH에 추가
-          echo 'export PATH=$PATH:~/.local/bin' >> $GITHUB_ENV
-
-      - name: Verify OCI CLI installation
-        run: |
-          oci --version
+          sudo apt update
+          sudo apt install python3-pip -y
+          pip3 install oci-cli
 
       - name: Create SSH Key
         run: |
