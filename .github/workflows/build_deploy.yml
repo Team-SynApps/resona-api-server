@@ -130,27 +130,33 @@ jobs:
 
       - name: Get SSH Command and key scan
         run: |
+    
           SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata".command' --raw-output)
-          echo "SSH_COMMAND: $SSH_COMMAND"
+          echo "Original SSH_COMMAND: $SSH_COMMAND"
+
+    
+          BASTION_KEY_PATH="~/.ssh/id_rsa_bastion"
+          SSH_COMMAND=$(echo $SSH_COMMAND | sed '0,/<privateKey>/{s/<privateKey>/'"$BASTION_KEY_PATH"'/}')
+
+    
+          INSTANCE_KEY_PATH="private_key.pem"
+          SSH_COMMAND=$(echo $SSH_COMMAND | sed 's/<privateKey>/'"$INSTANCE_KEY_PATH"'/')
+
+          echo "Final SSH_COMMAND: $SSH_COMMAND"
           echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
-          
+
+    
           BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}' | tr -d '"')
-          TARGET_HOST=$(echo $SSH_COMMAND | awk '{print $4}' | tr -d '"')
-          
           ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
+
 
       - name: Deploy to Private Instance
         env:
           PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_COMMAND: ${{ env.SSH_COMMAND }}
         run: |
-        
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-          
-        
-          SSH_COMMAND="${SSH_COMMAND//<privateKey>/private_key.pem}"
-          
         
           eval "$SSH_COMMAND" << EOF
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
