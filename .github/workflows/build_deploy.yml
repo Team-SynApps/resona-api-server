@@ -94,25 +94,16 @@ jobs:
           echo "region=${{ secrets.OCI_CLI_REGION }}" >> ~/.oci/config
           echo "${{ secrets.OCI_CLI_KEY_CONTENT }}" > ~/.oci/oci_api_key.pem
           chmod 600 ~/.oci/oci_api_key.pem
-      
-      
 
       - name: Install OCI CLI
         run: |
           sudo apt update
           sudo apt install python3-pip -y
           pip3 install oci-cli
-          
 
       - name: Fix OCI CLI file permissions
         run: |
           oci setup repair-file-permissions --file ~/.oci/config
-
-      - name: Create SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
-          touch ~/.ssh/known_hosts
 
       - name: Create Bastion Session
         run: |
@@ -120,7 +111,7 @@ jobs:
             --bastion-id ${{ secrets.BASTION_OCID }} \
             --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
             --target-os-username ubuntu \
-            --ssh-public-key-file ~/.ssh/id_rsa.pub \
+            --ssh-public-key-file ~/.oci/oci_api_key.pem \
             --wait-for-state SUCCEEDED \
             --wait-interval-seconds 10
 
@@ -194,4 +185,3 @@ jobs:
             docker rm -f api-server || true
             docker run -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
           EOF
-      
