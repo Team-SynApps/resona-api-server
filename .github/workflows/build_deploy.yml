@@ -13,6 +13,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       timestamp: ${{ steps.timestamp.outputs.timestamp }}
+    env:
+      OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
+      OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
+      OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
+      OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}
+      OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -67,8 +73,8 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/chat-server:${{ env.IMAGE_TAG }}
-            ${{ secrets.DOCKER_USERNAME }}/chat-server:latest
+            ${{ secrets.DOCKER_USERNAME }}/api-server:${{ env.IMAGE_TAG }}
+            ${{ secrets.DOCKER_USERNAME }}/api-server:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -77,67 +83,116 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: OCI Docker Run
-        uses: appleboy/ssh-action@master
+      - name: Create SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+          # KNOWN_HOSTS를 비워둡니다
+          touch ~/.ssh/known_hosts
+
+      - name: Create Bastion Session
+        uses: oracle-actions/run-oci-cli-command@v1.3.2
         with:
-          host: ${{ secrets.ORACLE_HOST }}
-          username: ubuntu
-          key: ${{ secrets.ORACLE_KEY }}
-          script: |
+          command: |
+            bastion session create-session \
+              --bastion-id ${{ secrets.BASTION_OCID }} \
+              --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
+              --session-type MANAGED_SSH \
+              --ssh-public-key-file ~/.ssh/id_rsa.pub
+        id: create_session
+
+      - name: Get Session OCID
+        run: echo "SESSION_OCID=$(echo '${{ steps.create_session.outputs.output }}' | jq -r '.data.id')" >> $GITHUB_ENV
+
+      - name: Wait for Bastion Session
+        uses: oracle-actions/run-oci-cli-command@v1.3.2
+        with:
+          command: |
+            bash -c '
+            while true; do
+              STATE=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query "data.\"lifecycle-state\"" --raw-output)
+              if [ "$STATE" == "ACTIVE" ]; then
+                break
+              fi
+              sleep 10
+            done
+            '
+
+      - name: Get SSH Command and Collect Host Keys
+        uses: oracle-actions/run-oci-cli-command@v1.3.2
+        with:
+            command: |
+              SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata"."command"' --raw-output)
+              echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
+              
+              # Bastion 호스트 키 수집
+              BASTION_HOST=$(echo $SSH_COMMAND | awk '{print $3}' | cut -d@ -f2)
+              ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
+              
+              # 대상 인스턴스 호스트 키 수집
+              TARGET_HOST=$(echo $SSH_COMMAND | awk '{print $4}')
+              ssh-keyscan -H $TARGET_HOST >> ~/.ssh/known_hosts
+
+      - name: Deploy to Private Instance
+        env:
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_COMMAND: ${{ steps.get_ssh_command.outputs.output }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          $SSH_COMMAND -i private_key.pem << EOF
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
 
             echo "Docker Username: ${{ secrets.DOCKER_USERNAME }}"
             echo "Image Tag: ${{ needs.build.outputs.timestamp }}"
 
-            # 기존 chat-server 컨테이너 중지 및 제거
-            if [ $(docker ps -aq -f name=chat-server) ]; then
-              echo "Stopping and removing existing chat-server container..."
-              docker stop chat-server
-              docker rm chat-server
+            if [ $(docker ps -aq -f name=api-server) ]; then
+              echo "Stopping and removing existing api-server container..."
+              docker stop api-server
+              docker rm api-server
             fi
 
-            # 새 이미지 pull
-            docker pull ${{ secrets.DOCKER_USERNAME }}/chat-server:${{ needs.build.outputs.timestamp }}
-
-            # 이미지 pull 확인
+            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
             docker images
+            docker run --name api-server -d -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
 
-            # 새 컨테이너 실행
-            docker run --name chat-server -d -p 9000:9000 --env-file .env ${{ secrets.DOCKER_USERNAME }}/chat-server:${{ needs.build.outputs.timestamp }}
-
-      - name: Cleanup Old Images
-        if: success()
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.ORACLE_HOST }}
-          username: ubuntu
-          key: ${{ secrets.ORACLE_KEY }}
-          script: |
             echo "Cleaning up old images..."
-            KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/chat-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
-            ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/chat-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
+            KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
+            ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
             for tag in $ALL_TAGS; do
               if ! echo "$KEEP_TAGS" | grep -q "$tag"; then
-                echo "Removing old image: ${{ secrets.DOCKER_USERNAME }}/chat-server:$tag"
-                docker rmi ${{ secrets.DOCKER_USERNAME }}/chat-server:$tag
+                echo "Removing old image: ${{ secrets.DOCKER_USERNAME }}/api-server:$tag"
+                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag
               fi
             done
             echo "Cleanup completed"
+          EOF
+
+      - name: Clean up Bastion Session
+        if: always()
+        uses: oracle-actions/run-oci-cli-command@v1.3.2
+        with:
+          command: |
+            bastion session delete \
+              --session-id ${{ env.SESSION_OCID }} \
+              --force
 
       - name: Rollback on Failure
         if: failure()
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.ORACLE_HOST }}
-          username: ubuntu
-          key: ${{ secrets.ORACLE_KEY }}
-          script: |
+        env:
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_COMMAND: ${{ steps.get_ssh_command.outputs.output }}
+        run: |
+          echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 private_key.pem
+          $SSH_COMMAND -i private_key.pem << EOF
             echo "Deployment failed, rolling back..."
             FAILED_TAG=${{ needs.build.outputs.timestamp }}
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/chat-server:$FAILED_TAG || true
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$FAILED_TAG || true
             LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
-            docker pull ${{ secrets.DOCKER_USERNAME }}/chat-server:$LAST_SUCCESSFUL_TAG
-            docker rm -f chat-server || true
-            docker run -d --name chat-server -p 9000:9000 --env-file .env ${{ secrets.DOCKER_USERNAME }}/chat-server:$LAST_SUCCESSFUL_TAG
+            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
+            docker rm -f api-server || true
+            docker run -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
             echo "Rollback to $LAST_SUCCESSFUL_TAG completed"
+          EOF
