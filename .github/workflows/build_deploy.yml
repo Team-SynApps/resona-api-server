@@ -141,6 +141,13 @@ jobs:
 #          ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
 #          ssh-keyscan -H $TARGET_HOST >> ~/.ssh/known_hosts
 
+
+      - name: 확인용 SSH_COMMAND 출력
+        run: |
+            echo "Before Replacement: $SSH_COMMAND"
+            SSH_COMMAND="${SSH_COMMAND//<privateKey>/private_key.pem}"
+            echo "After Replacement: $SSH_COMMAND"
+
       - name: Deploy to Private Instance
         env:
           PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
