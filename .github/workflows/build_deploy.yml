@@ -107,12 +107,12 @@ jobs:
       - name: Fix OCI CLI file permissions
         run: |
           oci setup repair-file-permissions --file ~/.oci/config
-
-      - name: Create SSH Key
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
-          touch ~/.ssh/known_hosts
+#
+#      - name: Create SSH Key
+#        run: |
+#          mkdir -p ~/.ssh
+#          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
+#          touch ~/.ssh/known_hosts
 
       - name: Create Bastion Session
         run: |
