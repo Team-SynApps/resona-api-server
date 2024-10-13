@@ -21,7 +21,7 @@ jobs:
       OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.2.0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v3
@@ -81,7 +81,7 @@ jobs:
     needs: build
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4.2.0
 
       - name: Create SSH Key
         run: |
