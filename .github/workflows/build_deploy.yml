@@ -63,18 +63,16 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v2
         env:
           IMAGE_TAG: ${{ steps.timestamp.outputs.timestamp }}
-        with:
-          context: .
-          push: true
-          platforms: linux/amd64,linux/arm64
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/api-server:${{ env.IMAGE_TAG }}
-            ${{ secrets.DOCKER_USERNAME }}/api-server:latest
+        run: |
+          docker buildx build --platform linux/amd64,linux/arm64 \
+            --cache-from type=local,src=/tmp/.buildx-cache \
+            --cache-to type=local,dest=/tmp/.buildx-cache,mode=max \
+            -t ${{ secrets.DOCKER_USERNAME }}/api-server:${{ env.IMAGE_TAG }} \
+            -t ${{ secrets.DOCKER_USERNAME }}/api-server:latest \
+            . \
+            --push
 
   deploy:
     runs-on: ubuntu-latest
@@ -87,50 +85,35 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa -N ""
-          # KNOWN_HOSTS를 비워둡니다
           touch ~/.ssh/known_hosts
 
       - name: Create Bastion Session
-        uses: oracle-actions/run-oci-cli-command@v1.3.2
-        with:
-          command: |
-            oci --debug bastion session create-session \
-              --bastion-id ${{ secrets.BASTION_OCID }} \
-              --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
-              --session-type MANAGED_SSH \
-              --ssh-public-key-file ~/.ssh/id_rsa.pub
-
-      - name: Get Session OCID
-        run: echo "SESSION_OCID=$(echo '${{ steps.create_session.outputs.output }}' | jq -r '.data.id')" >> $GITHUB_ENV
+        run: |
+          SESSION_OUTPUT=$(oci bastion session create-session \
+            --bastion-id ${{ secrets.BASTION_OCID }} \
+            --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
+            --session-type MANAGED_SSH \
+            --ssh-public-key-file ~/.ssh/id_rsa.pub)
+          echo "SESSION_OCID=$(echo "$SESSION_OUTPUT" | jq -r '.data.id')" >> $GITHUB_ENV
 
       - name: Wait for Bastion Session
-        uses: oracle-actions/run-oci-cli-command@v1.3.0
-        with:
-          command: |
-            bash -c '
-            while true; do
-              STATE=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query "data.\"lifecycle-state\"" --raw-output)
-              if [ "$STATE" == "ACTIVE" ]; then
-                break
-              fi
-              sleep 10
-            done
-            '
+        run: |
+          while true; do
+            STATE=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query "data.\"lifecycle-state\"" --raw-output)
+            if [ "$STATE" == "ACTIVE" ]; then
+              break
+            fi
+            sleep 10
+          done
 
       - name: Get SSH Command and Collect Host Keys
-        uses: oracle-actions/run-oci-cli-command@v1.3.0
-        with:
-            command: |
-              SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata"."command"' --raw-output)
-              echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
-              
-              # Bastion 호스트 키 수집
-              BASTION_HOST=$(echo $SSH_COMMAND | awk '{print $3}' | cut -d@ -f2)
-              ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
-              
-              # 대상 인스턴스 호스트 키 수집
-              TARGET_HOST=$(echo $SSH_COMMAND | awk '{print $4}')
-              ssh-keyscan -H $TARGET_HOST >> ~/.ssh/known_hosts
+        run: |
+          SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata"."command"' --raw-output)
+          echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
+          BASTION_HOST=$(echo $SSH_COMMAND | awk '{print $3}' | cut -d@ -f2)
+          ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
+          TARGET_HOST=$(echo $SSH_COMMAND | awk '{print $4}')
+          ssh-keyscan -H $TARGET_HOST >> ~/.ssh/known_hosts
 
       - name: Deploy to Private Instance
         env:
@@ -146,23 +129,22 @@ jobs:
             echo "Docker Username: ${{ secrets.DOCKER_USERNAME }}"
             echo "Image Tag: ${{ needs.build.outputs.timestamp }}"
 
-            if [ $(docker ps -aq -f name=api-server) ]; then
+            if [ \$(docker ps -aq -f name=api-server) ]; then
               echo "Stopping and removing existing api-server container..."
               docker stop api-server
               docker rm api-server
             fi
 
             docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
-            docker images
             docker run --name api-server -d -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
 
             echo "Cleaning up old images..."
-            KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
-            ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
-            for tag in $ALL_TAGS; do
-              if ! echo "$KEEP_TAGS" | grep -q "$tag"; then
-                echo "Removing old image: ${{ secrets.DOCKER_USERNAME }}/api-server:$tag"
-                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag
+            KEEP_TAGS=\$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
+            ALL_TAGS=\$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
+            for tag in \$ALL_TAGS; do
+              if ! echo "\$KEEP_TAGS" | grep -q "\$tag"; then
+                echo "Removing old image: ${{ secrets.DOCKER_USERNAME }}/api-server:\$tag"
+                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:\$tag
               fi
             done
             echo "Cleanup completed"
@@ -170,12 +152,8 @@ jobs:
 
       - name: Clean up Bastion Session
         if: always()
-        uses: oracle-actions/run-oci-cli-command@v1.3.0
-        with:
-          command: |
-            bastion session delete \
-              --session-id ${{ env.SESSION_OCID }} \
-              --force
+        run: |
+          oci bastion session delete --session-id ${{ env.SESSION_OCID }} --force
 
       - name: Rollback on Failure
         if: failure()
@@ -188,10 +166,10 @@ jobs:
           $SSH_COMMAND -i private_key.pem << EOF
             echo "Deployment failed, rolling back..."
             FAILED_TAG=${{ needs.build.outputs.timestamp }}
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$FAILED_TAG || true
-            LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
+            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:\$FAILED_TAG || true
+            LAST_SUCCESSFUL_TAG=\$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
+            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:\$LAST_SUCCESSFUL_TAG
             docker rm -f api-server || true
-            docker run -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
-            echo "Rollback to $LAST_SUCCESSFUL_TAG completed"
+            docker run -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:\$LAST_SUCCESSFUL_TAG
+            echo "Rollback to \$LAST_SUCCESSFUL_TAG completed"
           EOF
