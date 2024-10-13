@@ -84,15 +84,15 @@ jobs:
         uses: actions/checkout@v4.2.0
 
       - name: Cache OCI CLI
-        uses: actions/cache@v4.1.0
+        uses: actions/cache@v4
         with:
-          path: ~/.oci
-          key: oci-cli-${{ runner.os }}-${{ hashFiles('~/.oci') }}
+          path: ~/.local/bin/oci  # CLI 설치 경로 수정
+          key: oci-cli-${{ runner.os }}-${{ hashFiles('~/.local/bin/oci') }}
           restore-keys: |
             oci-cli-${{ runner.os }}-
 
       - name: Install OCI CLI
-        if: steps.cache-oci-cli.outputs.cache-hit != 'true'
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
 
