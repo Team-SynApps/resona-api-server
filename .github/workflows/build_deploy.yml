@@ -136,11 +136,11 @@ jobs:
 
     
           BASTION_KEY_PATH="~/.ssh/id_rsa_bastion"
-          SSH_COMMAND=$(echo $SSH_COMMAND | sed '0,|<privateKey>|{s|<privateKey>|'"$BASTION_KEY_PATH"'|}')
+          SSH_COMMAND=$(echo "$SSH_COMMAND" | sed '0,/<privateKey>/s|<privateKey>|'"$BASTION_KEY_PATH"'|')
 
     
           INSTANCE_KEY_PATH="private_key.pem"
-          SSH_COMMAND=$(echo $SSH_COMMAND | sed 's|<privateKey>|'"$INSTANCE_KEY_PATH"'|')
+          SSH_COMMAND=$(echo "$SSH_COMMAND" | sed 's|<privateKey>|'"$INSTANCE_KEY_PATH"'|')
 
           echo "Final SSH_COMMAND: $SSH_COMMAND"
           echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
