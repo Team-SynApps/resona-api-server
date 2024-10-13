@@ -130,7 +130,7 @@ jobs:
           SESSION_DETAILS=$(oci bastion session list --bastion-id ${{ secrets.BASTION_OCID }} --query 'data[0]')
           echo "SESSION_OCID=$(echo $SESSION_DETAILS | jq -r '.id')" >> $GITHUB_ENV
 
-      - name: Get SSH Command
+      - name: Get SSH Command and key scan
         run: |
           SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata".command' --raw-output)
           echo "SSH_COMMAND: $SSH_COMMAND"
@@ -138,7 +138,6 @@ jobs:
           
           BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}')
           TARGET_HOST=$(echo $SSH_COMMAND | awk '{print $4}')
-    
           ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
           ssh-keyscan -H $TARGET_HOST >> ~/.ssh/known_hosts
 
@@ -151,7 +150,7 @@ jobs:
           chmod 600 private_key.pem
           SSH_COMMAND="${SSH_COMMAND//<privateKey>/private_key.pem}"
 
-          eval "$SSH_COMMAND" << EOF
+          eval "$SSH_COMMAND -tt" << EOF
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
 
