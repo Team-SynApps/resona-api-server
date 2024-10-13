@@ -134,10 +134,11 @@ jobs:
           echo "SSH_COMMAND: $SSH_COMMAND"
           echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
 
-          BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}'| tr -d '"')
-          TARGET_HOST=$(echo $SSH_COMMAND | awk '{print $4}'| tr -d '"')
+          BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}' | tr -d '"')
+          TARGET_HOST=$(echo $SSH_COMMAND | awk '{print $4}' | tr -d '"')
+
+        # bastion 호스트에 대한 공개 키를 known_hosts에 추가
           ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
-          ssh-keyscan -H $TARGET_HOST >> ~/.ssh/known_hosts
 
       - name: Deploy to Private Instance
         env:
