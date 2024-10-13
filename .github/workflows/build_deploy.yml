@@ -91,7 +91,7 @@ jobs:
           touch ~/.ssh/known_hosts
 
       - name: Create Bastion Session
-        uses: oracle-actions/run-oci-cli-command@v1.3.2
+        uses: oracle-actions/run-oci-cli-command@v1.3.0
         with:
           command: |
             bastion session create-session \
@@ -105,7 +105,7 @@ jobs:
         run: echo "SESSION_OCID=$(echo '${{ steps.create_session.outputs.output }}' | jq -r '.data.id')" >> $GITHUB_ENV
 
       - name: Wait for Bastion Session
-        uses: oracle-actions/run-oci-cli-command@v1.3.2
+        uses: oracle-actions/run-oci-cli-command@v1.3.0
         with:
           command: |
             bash -c '
@@ -119,7 +119,7 @@ jobs:
             '
 
       - name: Get SSH Command and Collect Host Keys
-        uses: oracle-actions/run-oci-cli-command@v1.3.2
+        uses: oracle-actions/run-oci-cli-command@v1.3.0
         with:
             command: |
               SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata"."command"' --raw-output)
@@ -171,7 +171,7 @@ jobs:
 
       - name: Clean up Bastion Session
         if: always()
-        uses: oracle-actions/run-oci-cli-command@v1.3.2
+        uses: oracle-actions/run-oci-cli-command@v1.3.0
         with:
           command: |
             bastion session delete \
