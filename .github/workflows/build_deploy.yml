@@ -143,10 +143,8 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-
           SSH_COMMAND="${SSH_COMMAND//<privateKey>/private_key.pem}"
 
-          # Execute the command
           eval "$SSH_COMMAND" << EOF
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
