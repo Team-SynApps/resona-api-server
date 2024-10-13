@@ -108,7 +108,7 @@ jobs:
       - name: Create SSH Key for Bastion
         run: |
           mkdir -p ~/.ssh
-          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_bastion -N ""  # 바스티온용 키 생성
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_bastion -N ""  
           touch ~/.ssh/known_hosts
 
       - name: Create Bastion Session
@@ -145,14 +145,14 @@ jobs:
           PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_COMMAND: ${{ env.SSH_COMMAND }}
         run: |
-        # SSH_PRIVATE_KEY를 이용하여 개인 키 파일 생성
+        
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
           
-        # SSH_COMMAND에서 <privateKey>를 실제 개인 키 파일로 대체
+        
           SSH_COMMAND="${SSH_COMMAND//<privateKey>/private_key.pem}"
           
-        # SSH 연결을 통한 명령 실행
+        
           eval "$SSH_COMMAND" << EOF
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
