@@ -98,7 +98,7 @@ jobs:
 
       - name: Create Bastion Session
         run: |
-          oci --debug bastion session create-session \
+          oci --debug bastion session create \
             --bastion-id ${{ secrets.BASTION_OCID }} \
             --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
             --session-type MANAGED_SSH \
