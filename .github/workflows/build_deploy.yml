@@ -136,11 +136,6 @@ jobs:
           echo "SSH_COMMAND: $SSH_COMMAND"
           echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
 
-#           SSH keyscan for bastion host only if needed
-#           Extracting bastion host for ssh-keyscan (optional)
-#          BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}')
-#          ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
-
       - name: Deploy to Private Instance
         env:
           PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
@@ -148,7 +143,7 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-#           Replace <privateKey> with the actual private key in the SSH_COMMAND
+
           SSH_COMMAND="${SSH_COMMAND//<privateKey>/private_key.pem}"
 
           # Execute the command
