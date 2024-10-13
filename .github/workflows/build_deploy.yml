@@ -124,6 +124,7 @@ jobs:
       - name: Get Bastion Session OCID
         id: get-session-ocid
         run: |
+          echo oci oci bastion session list --bastion-id ${{ secrets.BASTION_OCID }} --query 'data'
           SESSION_DETAILS=$(oci bastion session list --bastion-id ${{ secrets.BASTION_OCID }} --query 'data[0]')
           echo "SESSION_OCID=$(echo $SESSION_DETAILS | jq -r '.id')" >> $GITHUB_ENV
 
