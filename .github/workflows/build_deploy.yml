@@ -102,6 +102,11 @@ jobs:
           sudo apt update
           sudo apt install python3-pip -y
           pip3 install oci-cli
+          
+
+      - name: Fix OCI CLI file permissions
+        run: |
+          oci setup repair-file-permissions --file ~/.oci/config
 
       - name: Create SSH Key
         run: |
@@ -127,15 +132,15 @@ jobs:
 
       - name: Wait for Bastion Session
         run: |
-          while true; do
-            STATE=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query "data.lifecycle-state" --raw-output)
-            if [ "$STATE" == "SUCCEEDED" ]; then
-              echo "Session is SUCCEEDED"
-              break
-            fi
-            echo "Current state: $STATE. Waiting for session to become SUCCEEDED..."
-            sleep 10
-          done
+            while true; do
+              STATE=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query "data.lifecycleState" --raw-output)
+              if [ "$STATE" == "SUCCEEDED" ]; then
+                echo "Session is SUCCEEDED"
+                break
+              fi
+              echo "Current state: $STATE. Waiting for session to become SUCCEEDED..."
+              sleep 10
+            done
 
       - name: Get SSH Command and Collect Host Keys
         run: |
