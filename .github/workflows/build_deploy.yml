@@ -130,18 +130,6 @@ jobs:
           SESSION_DETAILS=$(oci bastion session list --bastion-id ${{ secrets.BASTION_OCID }} --query 'data[0]')
           echo "SESSION_OCID=$(echo $SESSION_DETAILS | jq -r '.id')" >> $GITHUB_ENV
 
-      - name: Wait for Bastion Session
-        run: |
-            while true; do
-              STATE=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query "data.lifecycleState" --raw-output)
-              if [ "$STATE" == "SUCCEEDED" ]; then
-                echo "Session is SUCCEEDED"
-                break
-              fi
-              echo "Current state: $STATE. Waiting for session to become SUCCEEDED..."
-              sleep 10
-            done
-
       - name: Get SSH Command and Collect Host Keys
         run: |
           SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data.ssh-metadata.command' --raw-output)
