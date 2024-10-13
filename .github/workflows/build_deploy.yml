@@ -83,12 +83,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4.2.0
 
+      - name: Cache OCI CLI
+        uses: actions/cache@v4.1.0
+        with:
+          path: ~/.oci
+          key: oci-cli-${{ runner.os }}-${{ hashFiles('~/.oci') }}
+          restore-keys: |
+            oci-cli-${{ runner.os }}-
+
       - name: Install OCI CLI
+        if: steps.cache-oci-cli.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y python3-pip
-          pip3 install oci-cli --upgrade
-          echo "OCI CLI installed successfully."
+          curl -L https://raw.githubusercontent.com/oracle/oci-cli/master/scripts/install/install.sh | bash -s -- --accept-all-defaults
+
+      - name: Verify OCI CLI installation
+        run: |
+          oci --version
 
       - name: Create SSH Key
         run: |
@@ -98,7 +108,7 @@ jobs:
 
       - name: Create Bastion Session
         run: |
-          echo '{"resourceType": "instance", "instanceId": "'"${{ secrets.TARGET_INSTANCE_OCID }}"'"}' > target_resource_details.json
+          echo '{"resourceType": "instance", "instanceId": "'"${{ secrets.TARGET_INSTANCE_OCID }}"'", "sessionType": "MANAGED_SSH"}' > target_resource_details.json
           oci bastion session create \
             --bastion-id ${{ secrets.BASTION_OCID }} \
             --target-resource-details file://target_resource_details.json \
