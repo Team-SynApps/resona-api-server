@@ -155,21 +155,26 @@ jobs:
           PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_COMMAND: ${{ env.SSH_COMMAND }}
         run: |
+          
           echo "$PRIVATE_KEY" > private_key.pem
           chmod 600 private_key.pem
-        
-          eval "$SSH_COMMAND" << EOF
+          
+          
+          $SSH_COMMAND << EOF
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
           
+            
             if [ $(docker ps -aq -f name=api-server) ]; then
               docker stop api-server
               docker rm api-server
             fi
           
+            
             docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
             docker run --name api-server -d -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
           
+            
             KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
             ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
             for tag in $ALL_TAGS; do
