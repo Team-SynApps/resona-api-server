@@ -146,13 +146,10 @@ jobs:
 
       - name: Deploy to Private Instance
         env:
-          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_COMMAND: ${{ env.SSH_COMMAND }}
         run: |
-          
-          echo "$PRIVATE_KEY" > private_key.pem
+        
           chmod 600 ~/.ssh/id_rsa_bastion
-          chmod 600 private_key.pem
           
           echo "SSH Command: $SSH_COMMAND"
           SSH_COMMAND="${SSH_COMMAND/ssh /ssh -vvv -o StrictHostKeyChecking=no }"
@@ -189,12 +186,9 @@ jobs:
       - name: Rollback on Failure
         if: failure()
         env:
-          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           SSH_COMMAND: ${{ env.SSH_COMMAND }}
         run: |
-          echo "$PRIVATE_KEY" > private_key.pem
-          chmod 600 private_key.pem
-          SSH_COMMAND="${SSH_COMMAND//<privateKey>/private_key.pem}"
+          chmod 600 ~/.ssh/id_rsa_bastion
           
           eval "$SSH_COMMAND" << EOF
             FAILED_TAG=${{ needs.build.outputs.timestamp }}
