@@ -134,7 +134,7 @@ jobs:
           echo "Original SSH_COMMAND: $SSH_COMMAND"
 
           BASTION_KEY_PATH="~/.ssh/id_rsa_bastion"
-          SSH_COMMAND=$(echo "$SSH_COMMAND" | sed 's|<privateKey>|'"$BASTION_KEY_PATH"'|')
+          SSH_COMMAND=$(echo "$SSH_COMMAND" | sed 's|<privateKey>|'"$BASTION_KEY_PATH"'|g')
 
           echo "Final SSH_COMMAND: $SSH_COMMAND"
           echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
