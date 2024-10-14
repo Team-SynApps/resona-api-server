@@ -157,6 +157,7 @@ jobs:
         run: |
           
           echo "$PRIVATE_KEY" > private_key.pem
+          chmod 600 ~/.ssh/id_rsa_bastion
           chmod 600 private_key.pem
           
           echo "SSH Command: $SSH_COMMAND"
