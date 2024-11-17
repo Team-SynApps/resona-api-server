@@ -74,7 +74,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         Date now = new Date();
         AuthToken accessToken = tokenProvider.createAuthToken(
-                userInfo.getId(),
+                userInfo.getEmail(),
                 roleType.getCode(),
                 new Date(now.getTime() + appProperties.getAuth().getTokenExpiry())
         );
@@ -92,7 +92,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         if (userRefreshToken != null) {
             userRefreshToken.setRefreshToken(refreshToken.getToken());
         } else {
-            userRefreshToken = new MemberRefreshToken(userInfo.getId(), refreshToken.getToken());
+            userRefreshToken = new MemberRefreshToken(userInfo.getEmail(), refreshToken.getToken());
             memberRefreshTokenRepository.saveAndFlush(userRefreshToken);
         }
 

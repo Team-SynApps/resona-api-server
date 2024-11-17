@@ -3,7 +3,6 @@ package synapps.resona.api.oauth.service;
 
 import synapps.resona.api.mysql.member.entity.Member;
 import synapps.resona.api.mysql.member.entity.Sex;
-import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
@@ -18,21 +17,32 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import synapps.resona.api.oauth.token.AuthTokenProvider;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Service
-//@RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
+    private final AuthTokenProvider tokenProvider;
+
+    public CustomOAuth2UserService(MemberRepository memberRepository, AuthTokenProvider tokenProvider) {
+        this.memberRepository = memberRepository;
+        this.tokenProvider = tokenProvider;
+    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User user = super.loadUser(userRequest);
 
         try {
+            if ("apple".equals(userRequest.getClientRegistration().getRegistrationId())) {
+                return this.processAppleUser(userRequest, user);
+            }
             return this.process(userRequest, user);
         } catch (AuthenticationException ex) {
             throw ex;
@@ -42,15 +52,17 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         }
     }
 
-    public CustomOAuth2UserService(MemberRepository memberRepository) {
-        this.memberRepository = memberRepository;
-    }
-
     private OAuth2User process(OAuth2UserRequest userRequest, OAuth2User user) {
-        ProviderType providerType = ProviderType.valueOf(userRequest.getClientRegistration().getRegistrationId().toUpperCase());
+        ProviderType providerType = ProviderType.valueOf(
+                userRequest.getClientRegistration().getRegistrationId().toUpperCase()
+        );
 
-        OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, user.getAttributes());
-        Member savedMember = memberRepository.findByEmail(userInfo.getEmail()).orElseThrow(MemberException::memberNotFound);
+        OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(
+                providerType,
+                user.getAttributes()
+        );
+
+        Member savedMember = memberRepository.findByEmail(userInfo.getEmail()).orElse(null);
 
         if (savedMember != null) {
             if (providerType != savedMember.getProviderType()) {
@@ -67,38 +79,100 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return UserPrincipal.create(savedMember, user.getAttributes());
     }
 
+    private OAuth2User processAppleUser(OAuth2UserRequest userRequest, OAuth2User user) {
+        try {
+            // ID 토큰 검증
+            String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
+            if (!tokenProvider.validateAppleToken(idToken)) {
+                throw new OAuth2AuthenticationException("Invalid Apple ID token");
+            }
+
+            // Apple은 첫 로그인 시에만 사용자 정보를 제공하므로 이를 처리
+            Map<String, Object> attributes = user.getAttributes();
+            String email = (String) attributes.get("email");
+
+            // 이메일로 기존 회원 조회
+            Member savedMember = memberRepository.findByEmail(email).orElse(null);
+
+            if (savedMember != null) {
+                // 기존 회원의 경우 프로바이더 타입 확인
+                if (ProviderType.APPLE != savedMember.getProviderType()) {
+                    throw new OAuthProviderMissMatchException(
+                            "Looks like you're signed up with " + ProviderType.APPLE +
+                                    " account. Please use your " + savedMember.getProviderType() + " account to login."
+                    );
+                }
+
+                // 사용자 정보 업데이트 (첫 로그인 시에만 제공되는 정보)
+                Map<String, Object> userAttributes =
+                        (Map<String, Object>) userRequest.getAdditionalParameters().get("user");
+                if (userAttributes != null && userAttributes.containsKey("name")) {
+                    Map<String, String> name = (Map<String, String>) userAttributes.get("name");
+                    String fullName = name.getOrDefault("firstName", "") +
+                            " " +
+                            name.getOrDefault("lastName", "");
+                    if (!fullName.trim().isEmpty()) {
+                        savedMember.setUserNickname(fullName);
+                        memberRepository.save(savedMember);
+                    }
+                }
+            } else {
+                // 새로운 회원 생성
+                Map<String, Object> userAttributes =
+                        (Map<String, Object>) userRequest.getAdditionalParameters().get("user");
+
+                // 기본 사용자 정보 설정
+                Map<String, Object> finalAttributes = new HashMap<>(attributes);
+                if (userAttributes != null && userAttributes.containsKey("name")) {
+                    finalAttributes.put("name", userAttributes.get("name"));
+                }
+
+                OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(
+                        ProviderType.APPLE,
+                        finalAttributes
+                );
+                savedMember = createMember(userInfo, ProviderType.APPLE);
+            }
+
+            return UserPrincipal.create(savedMember, attributes);
+
+        } catch (Exception ex) {
+            throw new OAuth2AuthenticationException(ex.getMessage());
+        }
+    }
+
     private Member createMember(OAuth2UserInfo userInfo, ProviderType providerType) {
         LocalDateTime now = LocalDateTime.now();
+
+        // Apple 사용자의 이름이 없을 수 있으므로 기본 이름 설정
+        String nickname = userInfo.getName() != null ? userInfo.getName() : "User" + now.getNano();
+
         Member member = Member.of(
-                userInfo.getName(),                   // nickname
-                null,                                 // phoneNumber (OAuth2에서 제공하지 않음)
-                0,                                    // timezone (기본값 설정 필요)
-                null,                                 // birth (OAuth2에서 제공하지 않음)
-                null,                                 // comment (OAuth2에서 제공하지 않음)
-                Sex.of("NO"),                    // sex (OAuth2에서 제공하지 않음)
-                false,                                // isOnline
-                userInfo.getEmail(),                  // email
-                "",                                   // password (OAuth2 로그인이므로 빈 문자열)
-                null,                                 // location (OAuth2에서 제공하지 않음)
+                nickname,                   // nickname
+                null,                      // phoneNumber
+                0,                         // timezone
+                null,                      // birth
+                null,                      // comment
+                Sex.of("NO"),             // sex
+                false,                     // isOnline
+                userInfo.getEmail(),       // email
+                "",                        // password (OAuth2 로그인이므로 빈 문자열)
+                "",                      // location
                 providerType,
                 RoleType.USER,
-                now,                                  // createdAt
-                now,                                  // modifiedAt
-                now                                   // lastAccessedAt
+                now,                       // createdAt
+                now,                       // modifiedAt
+                now                        // lastAccessedAt
         );
 
         return memberRepository.saveAndFlush(member);
     }
 
-    private Member updateMember(Member member, OAuth2UserInfo userInfo) {
+    private void updateMember(Member member, OAuth2UserInfo userInfo) {
         if (userInfo.getName() != null && !member.getNickname().equals(userInfo.getName())) {
             member.setUserNickname(userInfo.getName());
         }
 
-        if (userInfo.getImageUrl() != null && !member.getProfileImageUrl().equals(userInfo.getImageUrl())) {
-            member.setProfileImageUrl(userInfo.getImageUrl());
-        }
-
-        return member;
+        memberRepository.save(member);
     }
 }
