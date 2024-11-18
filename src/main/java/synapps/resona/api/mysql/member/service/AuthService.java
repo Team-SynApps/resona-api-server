@@ -7,11 +7,18 @@ import synapps.resona.api.global.dto.ResponseHeader;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.utils.CookieUtil;
 import synapps.resona.api.global.utils.HeaderUtil;
+import synapps.resona.api.mysql.member.dto.request.AppleLoginRequest;
 import synapps.resona.api.mysql.member.dto.request.LoginRequest;
 import synapps.resona.api.mysql.member.dto.response.ChatMemberDto;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
+import synapps.resona.api.mysql.member.dto.response.OAuthPlatformMemberResponse;
+import synapps.resona.api.mysql.member.entity.Member;
 import synapps.resona.api.mysql.member.entity.MemberRefreshToken;
+import synapps.resona.api.mysql.member.entity.Sex;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.oauth.apple.AppleOAuthUserProvider;
+import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 import synapps.resona.api.oauth.token.AuthToken;
@@ -30,6 +37,8 @@ import org.springframework.stereotype.Service;
 import synapps.resona.api.global.exception.AuthException;
 
 import jakarta.servlet.http.Cookie;
+
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -41,6 +50,7 @@ public class AuthService {
     private final AuthTokenProvider tokenProvider;
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
     private final MemberRepository memberRepository;
+    private final AppleOAuthUserProvider appleOAuthUserProvider;
 
     private final static long THREE_DAYS_MSEC = 259200;
     private final static String REFRESH_TOKEN = "refresh_token";
@@ -68,6 +78,72 @@ public class AuthService {
         MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
         ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken));
         return ResponseEntity.ok(responseData);
+    }
+
+    @Transactional
+    public ResponseEntity<?> appleLogin(HttpServletRequest request, HttpServletResponse response, AppleLoginRequest loginRequest) throws Exception {
+        OAuthPlatformMemberResponse applePlatformMember =
+                appleOAuthUserProvider.getApplePlatformMember(loginRequest.getToken());
+
+        String memberEmail = applePlatformMember.getEmail();
+        String memberPassword = applePlatformMember.getPlatformId();
+
+        if (memberRepository.existsByEmail(applePlatformMember.getEmail())) {
+            Authentication authentication = getAuthentication(memberEmail, memberPassword);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            Date now = new Date();
+            long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
+
+            AuthToken accessToken = createToken(memberEmail, authentication, now);
+            AuthToken refreshToken = getRefreshToken(now, refreshTokenExpiry);
+
+            checkRefreshToken(memberEmail, refreshToken);
+            executeCookie(request, response, refreshTokenExpiry, refreshToken);
+
+            // hard coded datas here
+            MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
+            ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken));
+            return ResponseEntity.ok(responseData);
+
+        } else {
+            Member member = Member.of(
+                    "",                   // nickname
+                    null,                      // phoneNumber
+                    0,                         // timezone
+                    null,                      // birth
+                    null,                      // comment
+                    Sex.of("NO"),             // sex
+                    false,                     // isOnline
+                    applePlatformMember.getEmail(),       // email
+                    applePlatformMember.getPlatformId(), // password (OAuth2 로그인이므로 빈 문자열)
+                    "",                      // location
+                    ProviderType.APPLE,
+                    RoleType.USER,
+                    LocalDateTime.now(),         // createdAt
+                    LocalDateTime.now(),         // modifiedAt
+                    LocalDateTime.now()          // lastAccessedAt
+            );
+            member.encodePassword(applePlatformMember.getPlatformId());
+            memberRepository.save(member);
+
+            Authentication authentication = getAuthentication(memberEmail, memberPassword);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
+
+            Date now = new Date();
+
+            AuthToken accessToken = createToken(memberEmail, authentication, now);
+            AuthToken refreshToken = getRefreshToken(now, refreshTokenExpiry);
+
+            checkRefreshToken(memberEmail, refreshToken);
+            executeCookie(request, response, refreshTokenExpiry, refreshToken);
+
+            // hard coded datas here
+            MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
+            ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken));
+            return ResponseEntity.ok(responseData);
+        }
     }
 
     @Transactional

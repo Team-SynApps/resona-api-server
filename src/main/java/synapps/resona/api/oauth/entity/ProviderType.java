@@ -7,6 +7,7 @@ import java.util.Arrays;
 @Getter
 public enum ProviderType {
     GOOGLE,
+    FACEBOOK,
     APPLE,
     LOCAL;
 

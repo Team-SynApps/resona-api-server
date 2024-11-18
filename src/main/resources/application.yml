@@ -50,6 +50,13 @@ spring:
           scope:
             - email
             - profile
+        facebook:
+          clientId: ${FACEBOOK_CLIENT_ID}
+          clientSecret: ${FACEBOOK_CLIENT_SECRET}
+          scope:
+            - email
+            - public_profile
+
   # 이메일
   mail:
     host: smtp.gmail.com
@@ -65,6 +72,12 @@ spring:
             enable: true
 jwt:
   secret: ${JWT_SECRET}
+
+oauth:
+  apple:
+    iss: https://appleid.apple.com
+    client-id: ${APPLE_CLIENT_ID}
+    nonce: ${APPLE_NONCE}
 
 swagger:
   server:
