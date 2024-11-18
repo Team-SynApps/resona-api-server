@@ -1,5 +1,6 @@
 package synapps.resona.api.mysql.member.entity;
 
+import lombok.Setter;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
 import jakarta.annotation.Nullable;
@@ -28,7 +29,6 @@ public class Member {
     @Size(max = 15)
     private String nickname;
 
-    @NotBlank
     @Size(max = 20)
     private String phoneNumber;
 
@@ -38,7 +38,6 @@ public class Member {
 
     private LocalDateTime birth;
 
-    @NotBlank
     @Size(max = 512)
     private String comment;
 
@@ -54,11 +53,10 @@ public class Member {
     @Email
     private String email;
 
-    @NotBlank
     @Size(max = 120)
     private String password;
 
-    @NotNull
+    @Nullable
     private String location;
 //
 //    @Enumerated(EnumType.STRING)
@@ -68,6 +66,7 @@ public class Member {
     @Nullable
     private Category category;
 
+    @Setter
     @Nullable
     @Size(max = 512)
     private String profileImageUrl;
@@ -114,7 +113,11 @@ public class Member {
         this.isOnline = isOnline;
         this.email = email;
         this.password = password;
-        this.location = location;
+        if(location != null) {
+            this.location = "";
+        } else {
+            this.location = location;
+        }
         this.providerType = providerType;
         this.roleType = roleType;
         this.createdAt = createdAt;
@@ -167,15 +170,14 @@ public class Member {
         this.nickname = name;
     }
 
-    public void setProfileImageUrl(String imageUrl) {
-        this.profileImageUrl = imageUrl;
-    }
-
     public void encodePassword(String rawPassword) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(rawPassword);
     }
     private Integer birthToAge(LocalDateTime birth) {
+        if(birth == null) {
+            return 0;
+        }
         Integer birthYear = birth.getYear();
         return LocalDateTime.now().getYear() - birthYear;
     }
