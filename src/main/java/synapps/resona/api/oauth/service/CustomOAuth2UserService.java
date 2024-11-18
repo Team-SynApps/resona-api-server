@@ -20,8 +20,6 @@ import org.springframework.stereotype.Service;
 import synapps.resona.api.oauth.token.AuthTokenProvider;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 
 @Service
@@ -40,9 +38,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User user = super.loadUser(userRequest);
 
         try {
-            if ("apple".equals(userRequest.getClientRegistration().getRegistrationId())) {
-                return this.processAppleUser(userRequest, user);
-            }
+
             return this.process(userRequest, user);
         } catch (AuthenticationException ex) {
             throw ex;
@@ -79,68 +75,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         return UserPrincipal.create(savedMember, user.getAttributes());
     }
 
-    private OAuth2User processAppleUser(OAuth2UserRequest userRequest, OAuth2User user) {
-        try {
-            // ID 토큰 검증
-            String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
-            if (!tokenProvider.validateAppleToken(idToken)) {
-                throw new OAuth2AuthenticationException("Invalid Apple ID token");
-            }
-
-            // Apple은 첫 로그인 시에만 사용자 정보를 제공하므로 이를 처리
-            Map<String, Object> attributes = user.getAttributes();
-            String email = (String) attributes.get("email");
-
-            // 이메일로 기존 회원 조회
-            Member savedMember = memberRepository.findByEmail(email).orElse(null);
-
-            if (savedMember != null) {
-                // 기존 회원의 경우 프로바이더 타입 확인
-                if (ProviderType.APPLE != savedMember.getProviderType()) {
-                    throw new OAuthProviderMissMatchException(
-                            "Looks like you're signed up with " + ProviderType.APPLE +
-                                    " account. Please use your " + savedMember.getProviderType() + " account to login."
-                    );
-                }
-
-                // 사용자 정보 업데이트 (첫 로그인 시에만 제공되는 정보)
-                Map<String, Object> userAttributes =
-                        (Map<String, Object>) userRequest.getAdditionalParameters().get("user");
-                if (userAttributes != null && userAttributes.containsKey("name")) {
-                    Map<String, String> name = (Map<String, String>) userAttributes.get("name");
-                    String fullName = name.getOrDefault("firstName", "") +
-                            " " +
-                            name.getOrDefault("lastName", "");
-                    if (!fullName.trim().isEmpty()) {
-                        savedMember.setUserNickname(fullName);
-                        memberRepository.save(savedMember);
-                    }
-                }
-            } else {
-                // 새로운 회원 생성
-                Map<String, Object> userAttributes =
-                        (Map<String, Object>) userRequest.getAdditionalParameters().get("user");
-
-                // 기본 사용자 정보 설정
-                Map<String, Object> finalAttributes = new HashMap<>(attributes);
-                if (userAttributes != null && userAttributes.containsKey("name")) {
-                    finalAttributes.put("name", userAttributes.get("name"));
-                }
-
-                OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(
-                        ProviderType.APPLE,
-                        finalAttributes
-                );
-                savedMember = createMember(userInfo, ProviderType.APPLE);
-            }
-
-            return UserPrincipal.create(savedMember, attributes);
-
-        } catch (Exception ex) {
-            throw new OAuth2AuthenticationException(ex.getMessage());
-        }
-    }
-
     private Member createMember(OAuth2UserInfo userInfo, ProviderType providerType) {
         LocalDateTime now = LocalDateTime.now();
 
@@ -175,4 +109,66 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         memberRepository.save(member);
     }
+
+//    private OAuth2User processAppleUser(OAuth2UserRequest userRequest, OAuth2User user) {
+//        try {
+//            // ID 토큰 검증
+//            String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
+//            if (!tokenProvider.validateAppleToken(idToken)) {
+//                throw new OAuth2AuthenticationException("Invalid Apple ID token");
+//            }
+//
+//            // Apple은 첫 로그인 시에만 사용자 정보를 제공하므로 이를 처리
+//            Map<String, Object> attributes = user.getAttributes();
+//            String email = (String) attributes.get("email");
+//
+//            // 이메일로 기존 회원 조회
+//            Member savedMember = memberRepository.findByEmail(email).orElse(null);
+//
+//            if (savedMember != null) {
+//                // 기존 회원의 경우 프로바이더 타입 확인
+//                if (ProviderType.APPLE != savedMember.getProviderType()) {
+//                    throw new OAuthProviderMissMatchException(
+//                            "Looks like you're signed up with " + ProviderType.APPLE +
+//                                    " account. Please use your " + savedMember.getProviderType() + " account to login."
+//                    );
+//                }
+//
+//                // 사용자 정보 업데이트 (첫 로그인 시에만 제공되는 정보)
+//                Map<String, Object> userAttributes =
+//                        (Map<String, Object>) userRequest.getAdditionalParameters().get("user");
+//                if (userAttributes != null && userAttributes.containsKey("name")) {
+//                    Map<String, String> name = (Map<String, String>) userAttributes.get("name");
+//                    String fullName = name.getOrDefault("firstName", "") +
+//                            " " +
+//                            name.getOrDefault("lastName", "");
+//                    if (!fullName.trim().isEmpty()) {
+//                        savedMember.setUserNickname(fullName);
+//                        memberRepository.save(savedMember);
+//                    }
+//                }
+//            } else {
+//                // 새로운 회원 생성
+//                Map<String, Object> userAttributes =
+//                        (Map<String, Object>) userRequest.getAdditionalParameters().get("user");
+//
+//                // 기본 사용자 정보 설정
+//                Map<String, Object> finalAttributes = new HashMap<>(attributes);
+//                if (userAttributes != null && userAttributes.containsKey("name")) {
+//                    finalAttributes.put("name", userAttributes.get("name"));
+//                }
+//
+//                OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(
+//                        ProviderType.APPLE,
+//                        finalAttributes
+//                );
+//                savedMember = createMember(userInfo, ProviderType.APPLE);
+//            }
+//
+//            return UserPrincipal.create(savedMember, attributes);
+//
+//        } catch (Exception ex) {
+//            throw new OAuth2AuthenticationException(ex.getMessage());
+//        }
+//    }
 }
