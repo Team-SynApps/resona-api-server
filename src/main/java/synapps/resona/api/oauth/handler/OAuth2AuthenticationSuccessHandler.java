@@ -1,6 +1,10 @@
 package synapps.resona.api.oauth.handler;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.ResponseEntity;
+import synapps.resona.api.global.dto.MetaDataDto;
+import synapps.resona.api.global.dto.ResponseDto;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.utils.CookieUtil;
 import synapps.resona.api.mysql.member.entity.MemberRefreshToken;
@@ -29,6 +33,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -42,18 +47,19 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        String targetUrl = determineTargetUrl(request, response, authentication);
+        ResponseEntity<?> responseData = getResponse(request, response, authentication);
 
-        if (response.isCommitted()) {
-            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
-            return;
-        }
+//        if (response.isCommitted()) {
+//            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
+//            return;
+//        }
 
         clearAuthenticationAttributes(request, response);
-        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+//        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        writeResponse(response, responseData);
     }
 
-    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    protected ResponseEntity<?> getResponse(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         Optional<String> redirectUri = CookieUtil.getCookie(request, OAuth2AuthorizationRequestBasedOnCookieRepository.REDIRECT_URI_PARAM_COOKIE_NAME)
                 .map(Cookie::getValue);
 
@@ -74,7 +80,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         Date now = new Date();
         AuthToken accessToken = tokenProvider.createAuthToken(
-                userInfo.getId(),
+                userInfo.getEmail(),
                 roleType.getCode(),
                 new Date(now.getTime() + appProperties.getAuth().getTokenExpiry())
         );
@@ -92,7 +98,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         if (userRefreshToken != null) {
             userRefreshToken.setRefreshToken(refreshToken.getToken());
         } else {
-            userRefreshToken = new MemberRefreshToken(userInfo.getId(), refreshToken.getToken());
+            userRefreshToken = new MemberRefreshToken(userInfo.getEmail(), refreshToken.getToken());
             memberRefreshTokenRepository.saveAndFlush(userRefreshToken);
         }
 
@@ -101,14 +107,30 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         CookieUtil.deleteCookie(request, response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN);
         CookieUtil.addCookie(response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
 
-        return UriComponentsBuilder.fromUriString(targetUrl)
-                .queryParam("token", accessToken.getToken())
-                .build().toUriString();
+        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
+        ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken.getToken()));
+
+        return ResponseEntity.ok(responseData);
     }
 
     protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
         super.clearAuthenticationAttributes(request);
         authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
+    }
+
+    private void writeResponse(HttpServletResponse response, ResponseEntity<?> responseData) throws IOException {
+        // 상태 코드 설정
+        response.setStatus(responseData.getStatusCodeValue());
+
+        // Content-Type 설정
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        // Body를 HttpServletResponse로 작성
+        if (responseData.getBody() != null) {
+            String responseBody = new ObjectMapper().writeValueAsString(responseData.getBody());
+            response.getWriter().write(responseBody);
+        }
     }
 
     private boolean hasAuthority(Collection<? extends GrantedAuthority> authorities, String authority) {
