@@ -45,17 +45,11 @@ spring:
     oauth2.client:
       registration:
         google:
-          clientId: "988591477345-1148ltc0941a2htvj3fnvh7r1qmte27k.apps.googleusercontent.com"
-          clientSecret: "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"
+          clientId: ${GOOGLE_CLIENT_ID}
+          clientSecret: ${GOOGLE_CLIENT_SECRET}
           scope:
             - email
             - profile
-#        google:
-#          clientId: ${GOOGLE_CLIENT_ID}
-#          clientSecret: ${GOOGLE_CLIENT_SECRET}
-#          scope:
-#            - email
-#            - profile
         facebook:
           clientId: ${FACEBOOK_CLIENT_ID}
           clientSecret: ${FACEBOOK_CLIENT_SECRET}
