@@ -35,7 +35,7 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties', 'src/**') }}
           restore-keys: |
             gradle-${{ runner.os }}-
 
@@ -43,7 +43,7 @@ jobs:
         uses: actions/cache@v4.1.0
         with:
           path: /tmp/.buildx-cache
-          key: buildx-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
+          key: buildx-${{ runner.os }}-${{ hashFiles('Dockerfile', 'src/**') }}
           restore-keys: |
             buildx-${{ runner.os }}-
 
