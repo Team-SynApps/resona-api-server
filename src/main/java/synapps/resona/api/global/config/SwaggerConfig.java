@@ -29,6 +29,7 @@ public class SwaggerConfig {
                 .security(List.of(securityRequirement))
                 .servers(List.of(new Server().url("https://resona.life/api/v1")));
     }
+
 //    // 로컬 테스트시 사용
 //    @Bean
 //    public OpenAPI openAPI() {
@@ -48,6 +49,7 @@ public class SwaggerConfig {
         return new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")
                 .in(SecurityScheme.In.HEADER).name("Authorization");
     }
+
     private SecurityRequirement getSecurityRequireMent() {
         return new SecurityRequirement().addList("bearerAuth");
     }
