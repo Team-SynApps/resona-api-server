@@ -175,7 +175,7 @@ jobs:
             fi
           
             
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
+            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:latest
             docker run --name api-server -d -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
           
             
