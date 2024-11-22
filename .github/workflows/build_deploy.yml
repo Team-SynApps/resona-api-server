@@ -142,8 +142,9 @@ jobs:
               docker rm api-server
             fi
           
+            echo "Build Timestamp: ${{ needs.build.outputs.timestamp }}" # 타임스탬프 출력
           
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
+            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }} && \
             docker run --name api-server -d -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
           
           
@@ -151,7 +152,7 @@ jobs:
             ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
             for tag in $ALL_TAGS; do
               if ! echo "$KEEP_TAGS" | grep -q "$tag"; then
-                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag || true
+                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag || echo "Failed to remove image: $tag"
               fi
             done
           EOF
