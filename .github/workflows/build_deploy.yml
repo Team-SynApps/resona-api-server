@@ -127,35 +127,42 @@ jobs:
         env:
           SSH_COMMAND: ${{ env.SSH_COMMAND }}
         run: |
-          
           chmod 600 ~/.ssh/id_rsa_bastion
-          
+
           echo "SSH Command: $SSH_COMMAND"
           SSH_COMMAND="${SSH_COMMAND/ssh /ssh -vvv -o StrictHostKeyChecking=no }"
-          
-          eval $SSH_COMMAND << EOF
+
+          eval $SSH_COMMAND << 'EOF'
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
-          
-            if [ $(docker ps -aq -f name=api-server) ]; then
-              docker stop api-server
-              docker rm api-server
+
+#             기존 컨테이너 존재 여부 확인 및 제거
+            CONTAINER_ID=$(docker ps -aq -f name=api-server)
+            if [ -n "$CONTAINER_ID" ]; then
+              echo "[INFO] Stopping and removing existing container: $CONTAINER_ID"
+              docker stop $CONTAINER_ID
+              docker rm $CONTAINER_ID
+            else
+              echo "[INFO] No existing container to remove."
             fi
-          
+
             echo "Build Timestamp: ${{ needs.build.outputs.timestamp }}" # 타임스탬프 출력
-          
+
             docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }} && \
             docker run --name api-server -d -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
-          
-          
+
+#             오래된 이미지 정리
             KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
             ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
             for tag in $ALL_TAGS; do
               if ! echo "$KEEP_TAGS" | grep -q "$tag"; then
-                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag || echo "Failed to remove image: $tag"
+                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag || echo "[WARN] Failed to remove image: $tag"
               fi
             done
+
+            echo "[INFO] Deployment completed."
           EOF
+
 
       - name: Clean up Bastion Session
         if: always()
