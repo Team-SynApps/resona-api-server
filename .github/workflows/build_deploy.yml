@@ -132,37 +132,42 @@ jobs:
           echo "SSH Command: $SSH_COMMAND"
           SSH_COMMAND="${SSH_COMMAND/ssh /ssh -vvv -o StrictHostKeyChecking=no }"
 
-          eval $SSH_COMMAND << 'EOF'
+          BUILD_TIMESTAMP="${{ needs.build.outputs.timestamp }}"
+          DOCKER_IMAGE="${{ secrets.DOCKER_USERNAME }}/api-server"
+
+          eval $SSH_COMMAND << EOF
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
 
-#             기존 컨테이너 존재 여부 확인 및 제거
-            CONTAINER_ID=$(docker ps -aq -f name=api-server)
-            if [ -n "$CONTAINER_ID" ]; then
-              echo "[INFO] Stopping and removing existing container: $CONTAINER_ID"
-              docker stop $CONTAINER_ID
-              docker rm $CONTAINER_ID
+            # 기존 컨테이너 확인 및 삭제
+            CONTAINER_ID=\$(docker ps -aq -f name=api-server)
+            if [ -n "\$CONTAINER_ID" ]; then
+              echo "[INFO] Stopping and removing existing container: \$CONTAINER_ID"
+              docker stop \$CONTAINER_ID
+              docker rm \$CONTAINER_ID
             else
               echo "[INFO] No existing container to remove."
             fi
 
-            echo "Build Timestamp: ${{ needs.build.outputs.timestamp }}" # 타임스탬프 출력
+            echo "Build Timestamp: $BUILD_TIMESTAMP" # 타임스탬프 출력
 
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }} && \
-            docker run --name api-server -d -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
+            # 새로운 컨테이너 실행
+            docker pull \$DOCKER_IMAGE:\$BUILD_TIMESTAMP && \
+            docker run --name api-server -d -p 8080:8080 --env-file .env \$DOCKER_IMAGE:\$BUILD_TIMESTAMP
 
-#             오래된 이미지 정리
-            KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
-            ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
-            for tag in $ALL_TAGS; do
-              if ! echo "$KEEP_TAGS" | grep -q "$tag"; then
-                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag || echo "[WARN] Failed to remove image: $tag"
+            # 오래된 이미지 삭제
+            KEEP_TAGS=\$(docker images \$DOCKER_IMAGE --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
+            ALL_TAGS=\$(docker images \$DOCKER_IMAGE --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
+            for tag in \$ALL_TAGS; do
+              if ! echo "\$KEEP_TAGS" | grep -q "\$tag"; then
+                docker rmi \$DOCKER_IMAGE:\$tag || echo "[WARN] Failed to remove image: \$tag"
               fi
             done
 
             echo "[INFO] Deployment completed."
           EOF
-
+      
+      
 
       - name: Clean up Bastion Session
         if: always()
