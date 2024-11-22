@@ -3,6 +3,7 @@ server:
   servlet:
     context-path: /api/${api.version}
   name: resona
+  forward-headers-strategy: framework
 
 api:
   version: v1

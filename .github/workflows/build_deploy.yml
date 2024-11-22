@@ -126,7 +126,7 @@ jobs:
       - name: Deploy to Private Instance
         env:
           SSH_COMMAND: ${{ env.SSH_COMMAND }}
-          DOCKER_IMAGE: "${{ secrets.DOCKER_USERNAME }}/api-server"  # 여기서 명시적으로 정의
+          DOCKER_IMAGE: "${{ secrets.DOCKER_USERNAME }}/api-server"
         run: |
           chmod 600 ~/.ssh/id_rsa_bastion
 
@@ -135,11 +135,10 @@ jobs:
 
           BUILD_TIMESTAMP="${{ needs.build.outputs.timestamp }}"
 
-          
-          eval $SSH_COMMAND << 'EOF'
+          $SSH_COMMAND "DOCKER_IMAGE='$DOCKER_IMAGE' BUILD_TIMESTAMP='$BUILD_TIMESTAMP' bash -s" << 'EOF'
             
-            DOCKER_IMAGE="$1"
-            BUILD_TIMESTAMP="$2"
+            echo "Docker Image: $DOCKER_IMAGE"
+            echo "Build Timestamp: $BUILD_TIMESTAMP"
 
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
@@ -153,16 +152,14 @@ jobs:
               echo "[INFO] No existing container to remove."
             fi
 
-            echo "Build Timestamp: $BUILD_TIMESTAMP"
-            echo "Docker Image: $DOCKER_IMAGE"  # 디버깅을 위해 추가
-
             
             FULL_IMAGE_NAME="${DOCKER_IMAGE}:${BUILD_TIMESTAMP}"
             echo "Pulling image: $FULL_IMAGE_NAME"
 
             docker pull "$FULL_IMAGE_NAME" && \
             docker run --name api-server -d -p 8080:8080 --env-file .env "$FULL_IMAGE_NAME"
-          
+
+            
             KEEP_TAGS=$(docker images "$DOCKER_IMAGE" --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5 | xargs)
             ALL_TAGS=$(docker images "$DOCKER_IMAGE" --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | xargs)
 
@@ -188,7 +185,7 @@ jobs:
 
             echo "[INFO] Deployment completed."
           EOF
-          "$DOCKER_IMAGE" "$BUILD_TIMESTAMP"
+      
 
       - name: Clean up Bastion Session
         if: always()
