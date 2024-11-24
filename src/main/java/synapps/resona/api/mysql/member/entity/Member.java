@@ -29,21 +29,10 @@ public class Member {
     @Size(max = 15)
     private String nickname;
 
-    @Size(max = 20)
-    private String phoneNumber;
-
     private Integer timezone;
-
-    private Integer age;
-
-    private LocalDateTime birth;
 
     @Size(max = 512)
     private String comment;
-
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private Gender gender;
 
     @NotNull
     private Boolean isOnline;
@@ -55,9 +44,6 @@ public class Member {
 
     @Size(max = 120)
     private String password;
-
-    @Nullable
-    private String location;
 //
 //    @Enumerated(EnumType.STRING)
 //    private List<Languages> interestedLanguages;
@@ -81,11 +67,8 @@ public class Member {
     private LocalDateTime lastAccessedAt;
 
     private Member(String nickname,
-                   String phoneNumber,
                    Integer timezone,
-                   LocalDateTime birth,
                    String comment,
-                   Gender gender,
                    Boolean isOnline,
                    String email,
                    String password,
@@ -94,12 +77,8 @@ public class Member {
                    LocalDateTime modifiedAt,
                    LocalDateTime lastAccessedAt) {
         this.nickname = nickname;
-        this.phoneNumber = phoneNumber;
         this.timezone = timezone;
-        this.birth = birth;
-        this.age = birthToAge(birth);
         this.comment = comment;
-        this.gender = gender;
         this.isOnline = isOnline;
         this.email = email;
         this.password = password;
@@ -114,11 +93,8 @@ public class Member {
     }
 
     public static Member of(String nickname,
-                            String phoneNumber,
                             Integer timezone,
-                            LocalDateTime birth,
                             String comment,
-                            Gender gender,
                             Boolean isOnline,
                             String email,
                             String password,
@@ -126,16 +102,13 @@ public class Member {
                             LocalDateTime createdAt,
                             LocalDateTime modifiedAt,
                             LocalDateTime lastAccessedAt) {
-        return new Member(nickname, phoneNumber, timezone, birth, comment, gender, isOnline, email, password, location, createdAt, modifiedAt, lastAccessedAt);
+        return new Member(nickname, timezone, comment, isOnline, email, password, location, createdAt, modifiedAt, lastAccessedAt);
     }
 
     // 선택적 필드를 위한 추가 of 메소드
     public static Member ofWithOptionals(String nickname,
-                                         String phoneNumber,
                                          Integer timezone,
-                                         LocalDateTime birth,
                                          String comment,
-                                         Gender gender,
                                          Boolean isOnline,
                                          String email,
                                          String password,
@@ -145,7 +118,7 @@ public class Member {
                                          LocalDateTime lastAccessedAt,
                                          Category category,
                                          String profileImageUrl) {
-        Member member = new Member(nickname, phoneNumber, timezone, birth, comment, gender, isOnline, email, password, location, createdAt, modifiedAt, lastAccessedAt);
+        Member member = new Member(nickname, timezone, comment, isOnline, email, password, location, createdAt, modifiedAt, lastAccessedAt);
         member.category = category;
         member.profileImageUrl = profileImageUrl;
         return member;
@@ -157,12 +130,5 @@ public class Member {
     public void encodePassword(String rawPassword) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(rawPassword);
-    }
-    private Integer birthToAge(LocalDateTime birth) {
-        if(birth == null) {
-            return 0;
-        }
-        Integer birthYear = birth.getYear();
-        return LocalDateTime.now().getYear() - birthYear;
     }
 }
