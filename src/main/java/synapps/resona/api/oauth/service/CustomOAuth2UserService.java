@@ -2,7 +2,7 @@ package synapps.resona.api.oauth.service;
 
 
 import synapps.resona.api.mysql.member.entity.Member;
-import synapps.resona.api.mysql.member.entity.Sex;
+import synapps.resona.api.mysql.member.entity.Gender;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
@@ -87,7 +87,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 0,                         // timezone
                 null,                      // birth
                 null,                      // comment
-                Sex.of("NO"),             // sex
+                Gender.of("NO"),             // sex
                 false,                     // isOnline
                 userInfo.getEmail(),       // email
                 "",                        // password (OAuth2 로그인이므로 빈 문자열)

@@ -3,7 +3,7 @@ package synapps.resona.api.mysql.member.dto.response;
 import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.entity.Category;
 import synapps.resona.api.mysql.member.entity.Member;
-import synapps.resona.api.mysql.member.entity.Sex;
+import synapps.resona.api.mysql.member.entity.Gender;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
 import lombok.Builder;
@@ -19,7 +19,7 @@ public class MemberDto {
     private Integer age;
     private String birth;
     private String comment;
-    private Sex sex;
+    private Gender gender;
     private Boolean isOnline;
     private String email;
     private String password;
@@ -41,7 +41,7 @@ public class MemberDto {
                 .age(member.getAge())
                 .birth(DateTimeUtil.localDateTimeToStringSimpleFormat(member.getBirth()))
                 .comment(member.getComment())
-                .sex(member.getSex())
+                .gender(member.getGender())
                 .isOnline(member.getIsOnline())
                 .email(member.getEmail())
                 .password(member.getPassword())

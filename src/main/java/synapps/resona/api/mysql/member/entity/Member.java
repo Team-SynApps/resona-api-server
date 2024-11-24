@@ -43,7 +43,7 @@ public class Member {
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    private Sex sex;
+    private Gender gender;
 
     @NotNull
     private Boolean isOnline;
@@ -93,7 +93,7 @@ public class Member {
                    Integer timezone,
                    LocalDateTime birth,
                    String comment,
-                   Sex sex,
+                   Gender gender,
                    Boolean isOnline,
                    String email,
                    String password,
@@ -109,7 +109,7 @@ public class Member {
         this.birth = birth;
         this.age = birthToAge(birth);
         this.comment = comment;
-        this.sex = sex;
+        this.gender = gender;
         this.isOnline = isOnline;
         this.email = email;
         this.password = password;
@@ -130,7 +130,7 @@ public class Member {
                             Integer timezone,
                             LocalDateTime birth,
                             String comment,
-                            Sex sex,
+                            Gender gender,
                             Boolean isOnline,
                             String email,
                             String password,
@@ -140,7 +140,7 @@ public class Member {
                             LocalDateTime createdAt,
                             LocalDateTime modifiedAt,
                             LocalDateTime lastAccessedAt) {
-        return new Member(nickname, phoneNumber, timezone, birth, comment, sex, isOnline, email, password, location, providerType, roleType, createdAt, modifiedAt, lastAccessedAt);
+        return new Member(nickname, phoneNumber, timezone, birth, comment, gender, isOnline, email, password, location, providerType, roleType, createdAt, modifiedAt, lastAccessedAt);
     }
 
     // 선택적 필드를 위한 추가 of 메소드
@@ -149,7 +149,7 @@ public class Member {
                                          Integer timezone,
                                          LocalDateTime birth,
                                          String comment,
-                                         Sex sex,
+                                         Gender gender,
                                          Boolean isOnline,
                                          String email,
                                          String password,
@@ -161,7 +161,7 @@ public class Member {
                                          LocalDateTime lastAccessedAt,
                                          Category category,
                                          String profileImageUrl) {
-        Member member = new Member(nickname, phoneNumber, timezone, birth, comment, sex, isOnline, email, password, location, providerType, roleType, createdAt, modifiedAt, lastAccessedAt);
+        Member member = new Member(nickname, phoneNumber, timezone, birth, comment, gender, isOnline, email, password, location, providerType, roleType, createdAt, modifiedAt, lastAccessedAt);
         member.category = category;
         member.profileImageUrl = profileImageUrl;
         return member;

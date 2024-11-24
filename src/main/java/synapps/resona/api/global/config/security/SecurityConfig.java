@@ -86,6 +86,10 @@ public class SecurityConfig {
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
 
+        http.requiresChannel(channel ->
+                channel.requestMatchers("/oauth2/**").requiresSecure()
+        );
+
 
         http.authorizeHttpRequests((authorizeHttp)-> authorizeHttp
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()

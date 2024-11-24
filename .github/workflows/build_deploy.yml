@@ -29,24 +29,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Cache Gradle dependencies
-        uses: actions/cache@v4.1.0
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            gradle-${{ runner.os }}-
-
-      - name: Cache Docker Buildx
-        uses: actions/cache@v4.1.0
-        with:
-          path: /tmp/.buildx-cache
-          key: buildx-${{ runner.os }}-${{ hashFiles('Dockerfile') }}
-          restore-keys: |
-            buildx-${{ runner.os }}-
-
       - name: Generate Timestamp
         id: timestamp
         run: echo "timestamp=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
@@ -69,9 +51,8 @@ jobs:
         with:
           context: .
           push: true
-          platforms: linux/amd64,linux/arm64
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache,mode=max
+          no-cache: true
+          platforms: linux/arm64
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/api-server:${{ env.IMAGE_TAG }}
             ${{ secrets.DOCKER_USERNAME }}/api-server:latest
@@ -142,13 +123,11 @@ jobs:
           BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}' | tr -d '"')
           ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
 
-
-
       - name: Deploy to Private Instance
         env:
           SSH_COMMAND: ${{ env.SSH_COMMAND }}
         run: |
-        
+          
           chmod 600 ~/.ssh/id_rsa_bastion
           
           echo "SSH Command: $SSH_COMMAND"
@@ -158,22 +137,22 @@ jobs:
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
             echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
           
-            
             if [ $(docker ps -aq -f name=api-server) ]; then
               docker stop api-server
               docker rm api-server
             fi
           
-            
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
+            echo "Build Timestamp: ${{ needs.build.outputs.timestamp }}" # 타임스탬프 출력
+          
+            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }} && \
             docker run --name api-server -d -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
           
-            
+          
             KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
             ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
             for tag in $ALL_TAGS; do
               if ! echo "$KEEP_TAGS" | grep -q "$tag"; then
-                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag || true
+                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag || echo "Failed to remove image: $tag"
               fi
             done
           EOF
