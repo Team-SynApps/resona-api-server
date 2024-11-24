@@ -10,11 +10,10 @@ import synapps.resona.api.global.utils.HeaderUtil;
 import synapps.resona.api.mysql.member.dto.request.AppleLoginRequest;
 import synapps.resona.api.mysql.member.dto.request.LoginRequest;
 import synapps.resona.api.mysql.member.dto.response.ChatMemberDto;
-import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.dto.response.OAuthPlatformMemberResponse;
 import synapps.resona.api.mysql.member.entity.Member;
 import synapps.resona.api.mysql.member.entity.MemberRefreshToken;
-import synapps.resona.api.mysql.member.entity.Sex;
+import synapps.resona.api.mysql.member.entity.Gender;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.apple.AppleOAuthUserProvider;
@@ -113,7 +112,7 @@ public class AuthService {
                     0,                         // timezone
                     null,                      // birth
                     null,                      // comment
-                    Sex.of("NO"),             // sex
+                    Gender.of("NO"),             // sex
                     false,                     // isOnline
                     applePlatformMember.getEmail(),       // email
                     applePlatformMember.getPlatformId(), // password (OAuth2 로그인이므로 빈 문자열)
