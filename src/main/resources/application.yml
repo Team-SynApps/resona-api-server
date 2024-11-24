@@ -2,7 +2,8 @@ server:
   port: 8080
   servlet:
     context-path: /api/${api.version}
-  name: api_server
+  name: resona
+  forward-headers-strategy: framework
 
 api:
   version: v1
@@ -23,7 +24,6 @@ spring:
       authentication-database: ${MONGO_AUTH_DATABASE}
       username: ${MONGO_USERNAME}
       password: ${MONGO_PASSWORD}
-      uri: ${MONGODB_CONNECTION_STRING}
 #      database:
   jpa:
     hibernate:
@@ -41,7 +41,7 @@ spring:
   mvc:
     path match:
       matching-strategy: ant_path_matcher
-
+# oauth
   security:
     oauth2.client:
       registration:
@@ -51,6 +51,13 @@ spring:
           scope:
             - email
             - profile
+        facebook:
+          clientId: ${FACEBOOK_CLIENT_ID}
+          clientSecret: ${FACEBOOK_CLIENT_SECRET}
+          scope:
+            - email
+            - public_profile
+
   # 이메일
   mail:
     host: smtp.gmail.com
@@ -66,6 +73,12 @@ spring:
             enable: true
 jwt:
   secret: ${JWT_SECRET}
+
+oauth:
+  apple:
+    iss: https://appleid.apple.com
+    client-id: ${APPLE_CLIENT_ID}
+    nonce: ${APPLE_NONCE}
 
 # cors 설정
 cors:
@@ -83,7 +96,7 @@ app:
     refreshTokenExpiry: 604800000
   oauth2:
     authorizedRedirectUris:
-      - http://localhost:3000/oauth/redirect
+      - https://localhost:3000/oauth/redirect
 
 cloud:
   aws:
