@@ -1,5 +1,6 @@
 package synapps.resona.api.mysql.member.entity;
 
+import synapps.resona.api.mysql.member.entity.personal_info.Gender;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
 import org.junit.jupiter.api.Test;

@@ -31,9 +31,6 @@ public class Member {
 
     private Integer timezone;
 
-    @Size(max = 512)
-    private String comment;
-
     @NotNull
     private Boolean isOnline;
 
@@ -52,11 +49,6 @@ public class Member {
     @Nullable
     private Category category;
 
-    @Setter
-    @Nullable
-    @Size(max = 512)
-    private String profileImageUrl;
-
     @NotNull
     private LocalDateTime createdAt;
 
@@ -72,7 +64,6 @@ public class Member {
                    Boolean isOnline,
                    String email,
                    String password,
-                   String location,
                    LocalDateTime createdAt,
                    LocalDateTime modifiedAt,
                    LocalDateTime lastAccessedAt) {
@@ -82,11 +73,6 @@ public class Member {
         this.isOnline = isOnline;
         this.email = email;
         this.password = password;
-        if(location != null) {
-            this.location = "";
-        } else {
-            this.location = location;
-        }
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
         this.lastAccessedAt = lastAccessedAt;
@@ -98,11 +84,10 @@ public class Member {
                             Boolean isOnline,
                             String email,
                             String password,
-                            String location,
                             LocalDateTime createdAt,
                             LocalDateTime modifiedAt,
                             LocalDateTime lastAccessedAt) {
-        return new Member(nickname, timezone, comment, isOnline, email, password, location, createdAt, modifiedAt, lastAccessedAt);
+        return new Member(nickname, timezone, comment, isOnline, email, password, createdAt, modifiedAt, lastAccessedAt);
     }
 
     // 선택적 필드를 위한 추가 of 메소드
@@ -112,13 +97,12 @@ public class Member {
                                          Boolean isOnline,
                                          String email,
                                          String password,
-                                         String location,
                                          LocalDateTime createdAt,
                                          LocalDateTime modifiedAt,
                                          LocalDateTime lastAccessedAt,
                                          Category category,
                                          String profileImageUrl) {
-        Member member = new Member(nickname, timezone, comment, isOnline, email, password, location, createdAt, modifiedAt, lastAccessedAt);
+        Member member = new Member(nickname, timezone, comment, isOnline, email, password, createdAt, modifiedAt, lastAccessedAt);
         member.category = category;
         member.profileImageUrl = profileImageUrl;
         return member;

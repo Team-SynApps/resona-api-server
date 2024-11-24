@@ -13,7 +13,7 @@ import synapps.resona.api.mysql.member.dto.response.ChatMemberDto;
 import synapps.resona.api.mysql.member.dto.response.OAuthPlatformMemberResponse;
 import synapps.resona.api.mysql.member.entity.Member;
 import synapps.resona.api.mysql.member.entity.MemberRefreshToken;
-import synapps.resona.api.mysql.member.entity.Gender;
+import synapps.resona.api.mysql.member.entity.personal_info.Gender;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.apple.AppleOAuthUserProvider;

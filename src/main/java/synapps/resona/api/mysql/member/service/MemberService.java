@@ -5,7 +5,7 @@ import synapps.resona.api.mysql.member.dto.request.DuplicateIdRequest;
 import synapps.resona.api.mysql.member.dto.request.SignupRequest;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.Member;
-import synapps.resona.api.mysql.member.entity.Gender;
+import synapps.resona.api.mysql.member.entity.personal_info.Gender;
 import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;

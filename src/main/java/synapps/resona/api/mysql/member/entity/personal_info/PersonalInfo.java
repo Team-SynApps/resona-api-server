@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.member.entity;
+package synapps.resona.api.mysql.member.entity.personal_info;
 
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -7,8 +7,12 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import synapps.resona.api.mysql.member.entity.CountryCode;
+import synapps.resona.api.mysql.member.entity.Language;
+import synapps.resona.api.mysql.member.entity.Member;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -21,6 +25,10 @@ public class PersonalInfo {
     @OneToOne
     @JoinColumn(name = "member_id") // 외래 키 컬럼 이름
     private Member member;
+
+    @ElementCollection
+    @CollectionTable(name = "language", joinColumns = @JoinColumn(name = "personal_info_id"))
+    private List<Language> usingLanguages;
 
     @Enumerated(EnumType.STRING)
     @Column(name="nationality")
@@ -62,8 +70,9 @@ public class PersonalInfo {
     @Column(name="updated_at")
     private LocalDateTime updatedAt;
 
-    private PersonalInfo(CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, LocalDateTime birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    private PersonalInfo(CountryCode nationality,List<Language> usingLanguages, CountryCode countryOfResidence, String phoneNumber, LocalDateTime birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.nationality = nationality;
+        this.usingLanguages = usingLanguages;
         this.countryOfResidence = countryOfResidence;
         this.phoneNumber = phoneNumber;
         this.birth = birth;
@@ -74,8 +83,8 @@ public class PersonalInfo {
         this.updatedAt = updatedAt;
     }
 
-    public static PersonalInfo of(CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, LocalDateTime birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        return new PersonalInfo(nationality, countryOfResidence, phoneNumber, birth, gender, location, createdAt, updatedAt);
+    public static PersonalInfo of(CountryCode nationality,List<Language> usingLanguages, CountryCode countryOfResidence, String phoneNumber, LocalDateTime birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        return new PersonalInfo(nationality, usingLanguages, countryOfResidence, phoneNumber, birth, gender, location, createdAt, updatedAt);
     }
 
     private Integer birthToAge(LocalDateTime birth) {

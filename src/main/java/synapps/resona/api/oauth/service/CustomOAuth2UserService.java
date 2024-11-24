@@ -2,7 +2,7 @@ package synapps.resona.api.oauth.service;
 
 
 import synapps.resona.api.mysql.member.entity.Member;
-import synapps.resona.api.mysql.member.entity.Gender;
+import synapps.resona.api.mysql.member.entity.personal_info.Gender;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
