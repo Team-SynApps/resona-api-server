@@ -13,7 +13,10 @@ import synapps.resona.api.mysql.member.dto.response.ChatMemberDto;
 import synapps.resona.api.mysql.member.dto.response.OAuthPlatformMemberResponse;
 import synapps.resona.api.mysql.member.entity.Member;
 import synapps.resona.api.mysql.member.entity.MemberRefreshToken;
+import synapps.resona.api.mysql.member.entity.account.AccountInfo;
+import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.personal_info.Gender;
+import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.apple.AppleOAuthUserProvider;
@@ -49,6 +52,7 @@ public class AuthService {
     private final AuthTokenProvider tokenProvider;
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
     private final MemberRepository memberRepository;
+    private final AccountInfoRepository accountInfoRepository;
     private final AppleOAuthUserProvider appleOAuthUserProvider;
 
     private final static long THREE_DAYS_MSEC = 259200;
@@ -107,24 +111,25 @@ public class AuthService {
 
         } else {
             Member member = Member.of(
-                    "",                   // nickname
-                    null,                      // phoneNumber
-                    0,                         // timezone
-                    null,                      // birth
-                    null,                      // comment
-                    Gender.of("NO"),             // sex
-                    false,                     // isOnline
                     applePlatformMember.getEmail(),       // email
                     applePlatformMember.getPlatformId(), // password (OAuth2 로그인이므로 빈 문자열)
-                    "",                      // location
-                    ProviderType.APPLE,
-                    RoleType.USER,
                     LocalDateTime.now(),         // createdAt
-                    LocalDateTime.now(),         // modifiedAt
-                    LocalDateTime.now()          // lastAccessedAt
+                    LocalDateTime.now()         // modifiedAt
             );
+
+            AccountInfo accountInfo = AccountInfo.of(
+                    member,
+                    RoleType.USER,
+                    ProviderType.APPLE,
+                    AccountStatus.ACTIVE,
+                    LocalDateTime.now(),
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
+
             member.encodePassword(applePlatformMember.getPlatformId());
             memberRepository.save(member);
+            accountInfoRepository.save(accountInfo);
 
             Authentication authentication = getAuthentication(memberEmail, memberPassword);
             SecurityContextHolder.getContext().setAuthentication(authentication);
