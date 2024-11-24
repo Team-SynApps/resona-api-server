@@ -20,7 +20,7 @@ public class MemberTest {
                 0,
                 now,
                 "comment",
-                Sex.MAN,
+                Gender.MAN,
                 false,
                 "test@example.com",
                 "password",
@@ -38,7 +38,7 @@ public class MemberTest {
         assertEquals(0, member.getTimezone());
         assertEquals(now, member.getBirth());
         assertEquals("comment", member.getComment());
-        assertEquals(Sex.MAN, member.getSex());
+        assertEquals(Gender.MAN, member.getGender());
         assertFalse(member.getIsOnline());
         assertEquals("test@example.com", member.getEmail());
         assertEquals("password", member.getPassword());
@@ -84,7 +84,7 @@ public class MemberTest {
                 member.getTimezone(),
                 birthDate,
                 member.getComment(),
-                member.getSex(),
+                member.getGender(),
                 member.getIsOnline(),
                 member.getEmail(),
                 member.getPassword(),
@@ -106,7 +106,7 @@ public class MemberTest {
                 0,
                 LocalDateTime.now(),
                 "comment",
-                Sex.MAN,
+                Gender.MAN,
                 false,
                 "test@example.com",
                 "password",

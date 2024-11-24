@@ -2,13 +2,13 @@ package synapps.resona.api.mysql.member.entity;
 
 import java.util.Arrays;
 
-public enum Sex {
-    MAN, WOMAN, NO;
+public enum Gender {
+    MAN, WOMAN, OTHER;
 
-    public static Sex of(String sex) {
-        return Arrays.stream(Sex.values())
+    public static Gender of(String sex) {
+        return Arrays.stream(Gender.values())
                 .filter(r -> r.toString().equals(sex))
                 .findAny()
-                .orElse(NO);
+                .orElse(OTHER);
     }
 }

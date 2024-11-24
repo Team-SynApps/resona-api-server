@@ -5,7 +5,7 @@ import synapps.resona.api.mysql.member.dto.request.DuplicateIdRequest;
 import synapps.resona.api.mysql.member.dto.request.SignupRequest;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.Member;
-import synapps.resona.api.mysql.member.entity.Sex;
+import synapps.resona.api.mysql.member.entity.Gender;
 import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
@@ -54,7 +54,7 @@ public class MemberService {
                 request.getTimezone(),
                 DateTimeUtil.stringToLocalDateTime(request.getBirth()),
                 request.getComment(),
-                Sex.of(request.getSex()),
+                Gender.of(request.getSex()),
                 false, // isOnline 초기값
                 request.getEmail(),
                 request.getPassword(),
