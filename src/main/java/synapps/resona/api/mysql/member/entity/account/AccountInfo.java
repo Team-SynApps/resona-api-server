@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 public class AccountInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "account_info_id")
     private Long id;
 
     @OneToOne
@@ -50,7 +51,8 @@ public class AccountInfo {
     @Column(name="updated_at")
     private LocalDateTime updatedAt;
 
-    private AccountInfo(RoleType roleType, ProviderType providerType, AccountStatus status, LocalDateTime lastAccessedAt, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    private AccountInfo(Member member, RoleType roleType, ProviderType providerType, AccountStatus status, LocalDateTime lastAccessedAt, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.member = member;
         this.roleType = roleType;
         this.providerType = providerType;
         this.status = status;
@@ -59,8 +61,8 @@ public class AccountInfo {
         this.updatedAt = updatedAt;
     }
 
-    public static AccountInfo of(RoleType roleType, ProviderType providerType, AccountStatus status, LocalDateTime lastAccessedAt, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        return new AccountInfo(roleType, providerType, status, lastAccessedAt, createdAt, updatedAt);
+    public static AccountInfo of(Member member, RoleType roleType, ProviderType providerType, AccountStatus status, LocalDateTime lastAccessedAt, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        return new AccountInfo(member, roleType, providerType, status, lastAccessedAt, createdAt, updatedAt);
     }
 
 }

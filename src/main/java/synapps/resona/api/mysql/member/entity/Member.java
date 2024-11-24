@@ -23,16 +23,8 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "member_id")
     private Long id;
-
-    @NotBlank
-    @Size(max = 15)
-    private String nickname;
-
-    private Integer timezone;
-
-    @NotNull
-    private Boolean isOnline;
 
     @NotBlank
     @Size(max = 50)
@@ -41,13 +33,6 @@ public class Member {
 
     @Size(max = 120)
     private String password;
-//
-//    @Enumerated(EnumType.STRING)
-//    private List<Languages> interestedLanguages;
-
-    @Enumerated(EnumType.STRING)
-    @Nullable
-    private Category category;
 
     @NotNull
     private LocalDateTime createdAt;
@@ -55,60 +40,21 @@ public class Member {
     @NotNull
     private LocalDateTime modifiedAt;
 
-    @NotNull
-    private LocalDateTime lastAccessedAt;
-
-    private Member(String nickname,
-                   Integer timezone,
-                   String comment,
-                   Boolean isOnline,
-                   String email,
+    private Member(String email,
                    String password,
                    LocalDateTime createdAt,
-                   LocalDateTime modifiedAt,
-                   LocalDateTime lastAccessedAt) {
-        this.nickname = nickname;
-        this.timezone = timezone;
-        this.comment = comment;
-        this.isOnline = isOnline;
+                   LocalDateTime modifiedAt) {
         this.email = email;
         this.password = password;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
-        this.lastAccessedAt = lastAccessedAt;
     }
 
-    public static Member of(String nickname,
-                            Integer timezone,
-                            String comment,
-                            Boolean isOnline,
-                            String email,
+    public static Member of(String email,
                             String password,
                             LocalDateTime createdAt,
-                            LocalDateTime modifiedAt,
-                            LocalDateTime lastAccessedAt) {
-        return new Member(nickname, timezone, comment, isOnline, email, password, createdAt, modifiedAt, lastAccessedAt);
-    }
-
-    // 선택적 필드를 위한 추가 of 메소드
-    public static Member ofWithOptionals(String nickname,
-                                         Integer timezone,
-                                         String comment,
-                                         Boolean isOnline,
-                                         String email,
-                                         String password,
-                                         LocalDateTime createdAt,
-                                         LocalDateTime modifiedAt,
-                                         LocalDateTime lastAccessedAt,
-                                         Category category,
-                                         String profileImageUrl) {
-        Member member = new Member(nickname, timezone, comment, isOnline, email, password, createdAt, modifiedAt, lastAccessedAt);
-        member.category = category;
-        member.profileImageUrl = profileImageUrl;
-        return member;
-    }
-    public void setUserNickname(String name) {
-        this.nickname = name;
+                            LocalDateTime modifiedAt) {
+        return new Member(email, password, createdAt, modifiedAt);
     }
 
     public void encodePassword(String rawPassword) {
