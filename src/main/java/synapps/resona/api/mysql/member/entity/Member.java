@@ -71,14 +71,6 @@ public class Member {
     @Size(max = 512)
     private String profileImageUrl;
 
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private ProviderType providerType;
-
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    private RoleType roleType;
-
     @NotNull
     private LocalDateTime createdAt;
 
@@ -98,8 +90,6 @@ public class Member {
                    String email,
                    String password,
                    String location,
-                   ProviderType providerType,
-                   RoleType roleType,
                    LocalDateTime createdAt,
                    LocalDateTime modifiedAt,
                    LocalDateTime lastAccessedAt) {
@@ -118,8 +108,6 @@ public class Member {
         } else {
             this.location = location;
         }
-        this.providerType = providerType;
-        this.roleType = roleType;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
         this.lastAccessedAt = lastAccessedAt;
@@ -135,12 +123,10 @@ public class Member {
                             String email,
                             String password,
                             String location,
-                            ProviderType providerType,
-                            RoleType roleType,
                             LocalDateTime createdAt,
                             LocalDateTime modifiedAt,
                             LocalDateTime lastAccessedAt) {
-        return new Member(nickname, phoneNumber, timezone, birth, comment, gender, isOnline, email, password, location, providerType, roleType, createdAt, modifiedAt, lastAccessedAt);
+        return new Member(nickname, phoneNumber, timezone, birth, comment, gender, isOnline, email, password, location, createdAt, modifiedAt, lastAccessedAt);
     }
 
     // 선택적 필드를 위한 추가 of 메소드
@@ -154,14 +140,12 @@ public class Member {
                                          String email,
                                          String password,
                                          String location,
-                                         ProviderType providerType,
-                                         RoleType roleType,
                                          LocalDateTime createdAt,
                                          LocalDateTime modifiedAt,
                                          LocalDateTime lastAccessedAt,
                                          Category category,
                                          String profileImageUrl) {
-        Member member = new Member(nickname, phoneNumber, timezone, birth, comment, gender, isOnline, email, password, location, providerType, roleType, createdAt, modifiedAt, lastAccessedAt);
+        Member member = new Member(nickname, phoneNumber, timezone, birth, comment, gender, isOnline, email, password, location, createdAt, modifiedAt, lastAccessedAt);
         member.category = category;
         member.profileImageUrl = profileImageUrl;
         return member;
