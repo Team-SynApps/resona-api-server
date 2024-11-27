@@ -68,6 +68,9 @@ public class PersonalInfo {
     @Column(name="updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name="is_deleted")
+    private boolean isDeleted = false;
+
     private PersonalInfo(Member member, Integer timezone, CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, LocalDateTime birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.member = member;
         this.timezone = timezone;
@@ -92,6 +95,22 @@ public class PersonalInfo {
         }
         int birthYear = birth.getYear();
         return LocalDateTime.now().getYear() - birthYear;
+    }
+
+    public void updatePersonalInfo(Integer timezone, CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, LocalDateTime birth, Gender gender, String location) {
+        this.timezone = timezone;
+        this.nationality = nationality;
+        this.countryOfResidence = countryOfResidence;
+        this.phoneNumber = phoneNumber;
+        this.birth = birth;
+        this.age = birthToAge(birth);
+        this.gender = gender;
+        this.location = location;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
     }
 
 }

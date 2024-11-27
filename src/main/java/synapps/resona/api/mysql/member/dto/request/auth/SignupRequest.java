@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.member.dto.request;
+package synapps.resona.api.mysql.member.dto.request.auth;
 
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -12,6 +12,7 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class SignupRequest {
+    // 수정해야 함
 
     @NotBlank
     @Size(max = 15)

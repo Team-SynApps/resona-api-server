@@ -20,6 +20,9 @@ public enum ErrorCode {
     //email
     INVALID_EMAIL_CODE(HttpStatus.UNAUTHORIZED, "EMAIL001", "Invalid email code"),
     EMAIL_SEND_FAILED(HttpStatus.CONFLICT, "EMAIL002", "Email send failed"),
+
+    //profile
+    PROFILE_INPUT_INVALID(HttpStatus.CONFLICT, "PROFILE001", "Invalid profile")
     ;
 
     private HttpStatus status;

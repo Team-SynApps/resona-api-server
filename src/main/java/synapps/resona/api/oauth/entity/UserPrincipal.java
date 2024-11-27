@@ -12,6 +12,7 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -84,18 +85,18 @@ public class UserPrincipal implements OAuth2User, UserDetails, OidcUser {
         return null;
     }
 
-    public static UserPrincipal create(Member member) {
+    public static UserPrincipal create(Member member, AccountInfo accountInfo) {
         return new UserPrincipal(
                 member.getEmail(),
                 member.getPassword(),
-                member.getProviderType(),
+                accountInfo.getProviderType(),
                 RoleType.USER,
                 Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.getCode()))
         );
     }
 
-    public static UserPrincipal create(Member member, Map<String, Object> attributes) {
-        UserPrincipal userPrincipal = create(member);
+    public static UserPrincipal create(Member member, AccountInfo accountInfo,  Map<String, Object> attributes) {
+        UserPrincipal userPrincipal = create(member, accountInfo);
         userPrincipal.setAttributes(attributes);
 
         return userPrincipal;

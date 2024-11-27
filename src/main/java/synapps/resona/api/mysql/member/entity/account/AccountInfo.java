@@ -65,4 +65,8 @@ public class AccountInfo {
         return new AccountInfo(member, roleType, providerType, status, lastAccessedAt, createdAt, updatedAt);
     }
 
+    public void updateLastAccessedAt() {
+        this.lastAccessedAt = LocalDateTime.now();
+    }
+
 }

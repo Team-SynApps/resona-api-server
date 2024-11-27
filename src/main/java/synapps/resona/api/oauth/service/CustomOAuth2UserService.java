@@ -1,11 +1,10 @@
 package synapps.resona.api.oauth.service;
 
 
-import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import synapps.resona.api.mysql.member.entity.Member;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
-import synapps.resona.api.mysql.member.entity.personal_info.Gender;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
@@ -27,17 +26,12 @@ import java.time.LocalDateTime;
 
 
 @Service
+@RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
     private final AccountInfoRepository accountInfoRepository;
     private final AuthTokenProvider tokenProvider;
-
-    public CustomOAuth2UserService(MemberRepository memberRepository, AccountInfoRepository accountInfoRepository, AuthTokenProvider tokenProvider) {
-        this.memberRepository = memberRepository;
-        this.accountInfoRepository = accountInfoRepository;
-        this.tokenProvider = tokenProvider;
-    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -64,7 +58,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         );
 
         Member savedMember = memberRepository.findByEmail(userInfo.getEmail()).orElse(null);
-        AccountInfo accountInfo = accountInfoRepository.findByMemberId(savedMember.getId());
+        AccountInfo accountInfo = accountInfoRepository.findByMember(savedMember);
 
         if (providerType != accountInfo.getProviderType()) {
             throw new OAuthProviderMissMatchException(
@@ -73,7 +67,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             );
         }
 
-        return UserPrincipal.create(savedMember, user.getAttributes());
+        return UserPrincipal.create(savedMember, accountInfo, user.getAttributes());
     }
 
     private Member createMember(OAuth2UserInfo userInfo, ProviderType providerType) {

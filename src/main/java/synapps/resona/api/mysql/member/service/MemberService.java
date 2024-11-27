@@ -1,13 +1,11 @@
 package synapps.resona.api.mysql.member.service;
 
-import synapps.resona.api.global.utils.DateTimeUtil;
-import synapps.resona.api.mysql.member.dto.request.DuplicateIdRequest;
-import synapps.resona.api.mysql.member.dto.request.SignupRequest;
+import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
+import synapps.resona.api.mysql.member.dto.request.auth.SignupRequest;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.Member;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
-import synapps.resona.api.mysql.member.entity.personal_info.Gender;
 import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
@@ -34,12 +32,15 @@ public class MemberService {
      * @return 멤버를 이메일 기준으로 불러옴
      * Optional 적용 고려
      */
+    @Transactional
     public Member getMember() {
         log.info("get member");
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info(userPrincipal.getUsername());
-        return memberRepository.findByEmail(userPrincipal.getUsername())
-                .orElseThrow(MemberException::memberNotFound);
+        Member member = memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
+        AccountInfo accountInfo = accountInfoRepository.findByMember(member);
+        accountInfo.updateLastAccessedAt();
+        return member;
     }
 
     @Transactional
@@ -72,8 +73,7 @@ public class MemberService {
         member.encodePassword(request.getPassword());
         memberRepository.save(member);
         accountInfoRepository.save(accountInfo);
-        MemberDto memberDto = MemberDto.from(member);
-        return memberDto;
+        return new MemberDto(member.getId(), member.getEmail());
     }
 
     public boolean checkDuplicateId(DuplicateIdRequest request) throws Exception {

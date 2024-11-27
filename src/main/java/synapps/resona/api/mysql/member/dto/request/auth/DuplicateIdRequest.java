@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.member.dto.request;
+package synapps.resona.api.mysql.member.dto.request.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

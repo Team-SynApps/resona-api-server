@@ -1,15 +1,15 @@
-package synapps.resona.api.mysql.member.dto.request;
+package synapps.resona.api.mysql.member.dto.request.auth;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
+@Data
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthReqModel {
-    private String id;
+public class LoginRequest {
+    private String memberEmail;
     private String password;
 }

@@ -10,9 +10,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.mysql.member.entity.Language;
 import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.util.HashGenerator;
+import synapps.resona.api.mysql.member.util.MD5Generator;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -28,6 +31,10 @@ public class Profile {
     @OneToOne
     @JoinColumn(name = "member_id") // 외래 키 컬럼 이름
     private Member member;
+
+    @NotNull
+    @Size(min = 1, max = 50)
+    private String tag;
 
     @NotBlank
     @Size(max = 15)
@@ -58,28 +65,69 @@ public class Profile {
     private String aboutMe;
 
     @NotNull
-    @Column(name="created_at")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @NotNull
-    @Column(name="updated_at")
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    private Profile(Member member,String nickname, Set<Language> usingLanguages, String profileImageUrl, String backgroundImageUrl, MBTI mbti, String comment, String aboutMe, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    @NotNull
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
+
+    private Profile(Member member, String nickname, List<String> usingLanguages, String profileImageUrl, String backgroundImageUrl, String mbti, String comment, String aboutMe, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.member = member;
+        this.tag = generateTag(String.valueOf(member.getId()));
         this.nickname = nickname;
-        this.usingLanguages = usingLanguages;
+        this.usingLanguages = parseUsingLanguages(usingLanguages);
         this.profileImageUrl = profileImageUrl;
         this.backgroundImageUrl = backgroundImageUrl;
-        this.mbti = mbti;
+        this.mbti = MBTI.of(mbti);
         this.comment = comment;
         this.aboutMe = aboutMe;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
+    public void modifyProfile(String nickname, List<String> usingLanguages, String profileImageUrl, String backgroundImageUrl, String mbti, String comment, String aboutMe) {
+        this.nickname = nickname;
+        this.usingLanguages = parseUsingLanguages(usingLanguages);
+        this.profileImageUrl = profileImageUrl;
+        this.backgroundImageUrl = backgroundImageUrl;
+        this.mbti = MBTI.of(mbti);
+        this.comment = comment;
+        this.aboutMe = aboutMe;
+        this.updatedAt = LocalDateTime.now();
+    }
 
-    public static Profile of(Member member,String nickname, Set<Language> usingLanguages, String profileImageUrl, String backgroundImageUrl, MBTI mbti, String comment, String aboutMe, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public void changeBackgroundUrl(String url) {
+        this.backgroundImageUrl = url;
+    }
+
+    public void changeProfileImageUrl(String url) {
+        this.profileImageUrl = url;
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
+    }
+
+    private String generateTag(String input) {
+        HashGenerator md5generator = new MD5Generator();
+        return md5generator.generateHash(input);
+    }
+
+
+    private Set<Language> parseUsingLanguages(List<String> unParsedLanguages) {
+        Set<Language> languages = new HashSet<>();
+        for (String language : unParsedLanguages) {
+            languages.add(Language.fromCode(language));
+        }
+        return languages;
+    }
+
+    public static Profile of(Member member, String nickname, List<String> usingLanguages, String profileImageUrl, String backgroundImageUrl, String mbti, String comment, String aboutMe, LocalDateTime createdAt, LocalDateTime updatedAt) {
         return new Profile(member, nickname, usingLanguages, profileImageUrl, backgroundImageUrl, mbti, comment, aboutMe, createdAt, updatedAt);
     }
 }

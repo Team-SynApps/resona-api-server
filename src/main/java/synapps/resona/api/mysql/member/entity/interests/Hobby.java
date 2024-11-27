@@ -17,10 +17,6 @@ public class Hobby {
     @Column(name = "hobby_name")
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "interests_id")
-    private Interests interests;
-
     private Hobby(String name) {
         this.name = name;
     }
