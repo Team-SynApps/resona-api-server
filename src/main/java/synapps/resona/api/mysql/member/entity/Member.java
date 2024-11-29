@@ -40,16 +40,16 @@ public class Member {
     @Size(max = 120)
     private String password;
 
-    @OneToMany(mappedBy = "feed")
+    @OneToMany(mappedBy = "member")
     private List<Feed> feeds = new ArrayList<>();
 
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "member")
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "mention")
+    @OneToMany(mappedBy = "member")
     private List<Mention> mentions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "scrap")
+    @OneToMany(mappedBy = "member")
     private List<Scrap> scraps = new ArrayList<>();
 
     @NotNull

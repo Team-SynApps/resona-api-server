@@ -53,6 +53,11 @@ public class Reply {
     }
 
     public void softDelete() {
-        isDeleted = true;
+        this.isDeleted = true;
+    }
+
+    public void update(String content) {
+        this.content = content;
+        this.modifiedAt = LocalDateTime.now();
     }
 }

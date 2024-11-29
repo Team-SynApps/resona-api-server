@@ -24,13 +24,13 @@ public class Feed {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "feed")
     private List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "like")
+    @OneToMany(mappedBy = "feed")
     private List<Like> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "feedImage")
+    @OneToMany(mappedBy = "feed")
     private List<FeedImage> images = new ArrayList<>();
 
     @Column(name="content")
@@ -62,6 +62,11 @@ public class Feed {
     }
 
     public void softDelete() {
-        isDeleted = true;
+        this.isDeleted = true;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+        this.modifiedAt = LocalDateTime.now();
     }
 }

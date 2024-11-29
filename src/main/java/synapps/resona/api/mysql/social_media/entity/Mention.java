@@ -30,25 +30,20 @@ public class Mention {
     @Column(name = "mentioned_at")
     private LocalDateTime mentionedAt;
 
-    @NotNull
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
-
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
-    private Mention(Member member, Comment comment, LocalDateTime mentionedAt, LocalDateTime modifiedAt) {
+    private Mention(Member member, Comment comment, LocalDateTime mentionedAt) {
         this.member = member;
         this.comment = comment;
         this.mentionedAt = mentionedAt;
-        this.modifiedAt = modifiedAt;
     }
 
-    public static Mention of(Member member, Comment comment, LocalDateTime mentionedAt, LocalDateTime modifiedAt) {
-        return new Mention(member, comment, mentionedAt, modifiedAt);
+    public static Mention of(Member member, Comment comment, LocalDateTime mentionedAt) {
+        return new Mention(member, comment, mentionedAt);
     }
 
     public void softDelete() {
-        isDeleted = true;
+        this.isDeleted = true;
     }
 }

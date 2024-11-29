@@ -27,21 +27,31 @@ public class FeedImage {
     @NotNull
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+    @NotNull
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt;
 
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
-    private FeedImage(Feed feed, String url, LocalDateTime createdAt) {
+    private FeedImage(Feed feed, String url, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.feed = feed;
         this.url = url;
         this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
     }
 
-    public static FeedImage of(Feed feed, String url, LocalDateTime createdAt) {
-        return new FeedImage(feed, url, createdAt);
+    public static FeedImage of(Feed feed, String url, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        return new FeedImage(feed, url, createdAt, modifiedAt);
     }
 
     public void softDelete() {
-        isDeleted = true;
+        this.isDeleted = true;
+    }
+
+    // url 업데이트 된 걸 로그로 남겨야 할지
+    public void updateUrl(String url) {
+        this.url = url;
+        this.modifiedAt = LocalDateTime.now();
     }
 }

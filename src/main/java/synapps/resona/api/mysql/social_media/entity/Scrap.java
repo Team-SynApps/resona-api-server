@@ -46,6 +46,10 @@ public class Scrap {
     }
 
     public void softDelete() {
-        isScrapCanceled = true;
+        this.isScrapCanceled = true;
+    }
+
+    public void cancelScrap() {
+        this.isScrapCanceled = true;
     }
 }

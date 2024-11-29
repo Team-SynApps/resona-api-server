@@ -33,6 +33,10 @@ public class Like {
     private LocalDateTime likedAt;
 
     @NotNull
+    @Column(name = "canceled_at")
+    private LocalDateTime canceledAt;
+
+    @NotNull
     @Column(name = "is_like_canceled")
     private boolean isLikeCanceled = false;
 
@@ -46,7 +50,8 @@ public class Like {
         return new Like(member, feed, likedAt);
     }
 
-    public void softDelete() {
-        isLikeCanceled = true;
+    public void cancelLike() {
+        this.isLikeCanceled = true;
+        this.canceledAt = LocalDateTime.now();
     }
 }

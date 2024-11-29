@@ -28,10 +28,10 @@ public class Comment {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "reply")
+    @OneToMany(mappedBy = "comment")
     private List<Reply> replies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "mention")
+    @OneToMany(mappedBy = "comment")
     private List<Mention> mentions = new ArrayList<>();
 
     @Column(name="content")
@@ -64,6 +64,19 @@ public class Comment {
     }
 
     public void softDelete() {
-        isDeleted = true;
+        this.isDeleted = true;
+    }
+
+    public void addReply() {
+        this.isReplyExist = true;
+    }
+
+    public void removeReply() {
+        this.isReplyExist = false;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+        this.modifiedAt = LocalDateTime.now();
     }
 }
