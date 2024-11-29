@@ -58,4 +58,6 @@ public class ProfileController {
         ResponseDto responseData = new ResponseDto(metaData, List.of(profileService.deleteProfile()));
         return ResponseEntity.ok(responseData);
     }
+
+    // 닉네임 중복 요청 로직 들어가야 함
 }

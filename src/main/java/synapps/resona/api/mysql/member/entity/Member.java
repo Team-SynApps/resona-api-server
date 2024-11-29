@@ -1,6 +1,10 @@
 package synapps.resona.api.mysql.member.entity;
 
 import lombok.Setter;
+import synapps.resona.api.mysql.social_media.entity.Comment;
+import synapps.resona.api.mysql.social_media.entity.Feed;
+import synapps.resona.api.mysql.social_media.entity.Mention;
+import synapps.resona.api.mysql.social_media.entity.Scrap;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
 import jakarta.annotation.Nullable;
@@ -15,6 +19,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,10 +40,24 @@ public class Member {
     @Size(max = 120)
     private String password;
 
+    @OneToMany(mappedBy = "feed")
+    private List<Feed> feeds = new ArrayList<>();
+
+    @OneToMany(mappedBy = "comment")
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "mention")
+    private List<Mention> mentions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "scrap")
+    private List<Scrap> scraps = new ArrayList<>();
+
     @NotNull
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @NotNull
+    @Column(name = "modified_at")
     private LocalDateTime modifiedAt;
 
     private Member(String email,

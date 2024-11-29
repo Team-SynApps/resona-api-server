@@ -3,11 +3,13 @@ package synapps.resona.api.mysql.member.service;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.mysql.member.dto.request.personal_info.PersonalInfoRequest;
+import synapps.resona.api.mysql.member.entity.CountryCode;
 import synapps.resona.api.mysql.member.entity.Member;
 import synapps.resona.api.mysql.member.entity.personal_info.PersonalInfo;
+import synapps.resona.api.mysql.member.exception.InvalidTimeStampException;
 import synapps.resona.api.mysql.member.exception.MemberException;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.repository.PersonalInfoRepository;
 
 import java.time.LocalDateTime;
@@ -16,7 +18,6 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class PersonalInfoService {
 
-    private final MemberRepository memberRepository;
     private final PersonalInfoRepository personalInfoRepository;
     private final MemberService memberService;
 
@@ -25,14 +26,14 @@ public class PersonalInfoService {
      */
     @Transactional
     public PersonalInfo register(PersonalInfoRequest request) {
-        Long memberId = request.getMemberId();
-        Member member = memberRepository.findById(memberId).orElseThrow(MemberException::memberNotFound);
+        validateData(request);
+        Member member = memberService.getMember();
 
         PersonalInfo personalInfo = PersonalInfo.of(
                 member,
                 request.getTimezone(),
-                request.getNationality(),
-                request.getCountryOfResidence(),
+                CountryCode.fromCode(request.getNationality()),
+                CountryCode.fromCode(request.getCountryOfResidence()),
                 request.getPhoneNumber(),
                 request.getBirth(),
                 request.getGender(),
@@ -58,13 +59,14 @@ public class PersonalInfoService {
      */
     @Transactional
     public PersonalInfo editPersonalInfo(PersonalInfoRequest request) {
+        validateData(request);
         Member member = memberService.getMember();
         PersonalInfo personalInfo = personalInfoRepository.findByMember(member).orElseThrow(MemberException::memberNotFound);
 
         personalInfo.updatePersonalInfo(
                 request.getTimezone(),
-                request.getNationality(),
-                request.getCountryOfResidence(),
+                CountryCode.fromCode(request.getNationality()),
+                CountryCode.fromCode(request.getCountryOfResidence()),
                 request.getPhoneNumber(),
                 request.getBirth(),
                 request.getGender(),
@@ -84,6 +86,17 @@ public class PersonalInfoService {
 
         personalInfo.softDelete();
         return personalInfo;
+    }
+
+    private void validateData(PersonalInfoRequest request) {
+        validateTimeStamp(request.getBirth());
+    }
+
+    private void validateTimeStamp(String timestamp) {
+        String regex = "^\\d{4}-\\d{2}-\\d{2}$";
+        if (!timestamp.matches(regex)) {
+            throw InvalidTimeStampException.of(ErrorCode.TIMESTAMP_INVALID.getMessage(), ErrorCode.TIMESTAMP_INVALID.getStatus(), ErrorCode.TIMESTAMP_INVALID.getCode());
+        }
     }
 }
 

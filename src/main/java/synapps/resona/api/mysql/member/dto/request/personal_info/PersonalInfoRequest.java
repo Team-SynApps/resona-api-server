@@ -22,17 +22,17 @@ public class PersonalInfoRequest {
     private Integer timezone;
 
     @NotNull
-    private CountryCode nationality;
+    private String nationality;
 
     @NotNull
-    private CountryCode countryOfResidence;
+    private String countryOfResidence;
 
     @NotBlank
     @Size(max = 20)
     private String phoneNumber;
 
     @NotNull
-    private LocalDateTime birth;
+    private String birth;
 
     @NotNull
     private Gender gender;

@@ -4,6 +4,9 @@ package synapps.resona.api.global.exception;
 import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "SERVER001", "Internal Server Error"),
+    INVALID_INPUT(HttpStatus.BAD_REQUEST, "INVALID_INPUT", "Invalid Input"),
+
     // member
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEM001", "Member not found"),
     DUPLICATE_EMAIL(HttpStatus.CONFLICT, "MEM002", "Duplicate email"),
@@ -16,13 +19,16 @@ public enum ErrorCode {
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH003", "Invalid refresh token"),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH004", "Refresh token not found"),
     TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH005", "Token not found"),
+    INVALID_CLIENT(HttpStatus.UNAUTHORIZED, "AUTH006", "Invalid client"),
 
     //email
     INVALID_EMAIL_CODE(HttpStatus.UNAUTHORIZED, "EMAIL001", "Invalid email code"),
     EMAIL_SEND_FAILED(HttpStatus.CONFLICT, "EMAIL002", "Email send failed"),
 
     //profile
-    PROFILE_INPUT_INVALID(HttpStatus.CONFLICT, "PROFILE001", "Invalid profile")
+    PROFILE_INPUT_INVALID(HttpStatus.CONFLICT, "PROFILE001", "Invalid profile"),
+
+    TIMESTAMP_INVALID(HttpStatus.CONFLICT, "TIMESTAMP001", "Invalid timestamp"),
     ;
 
     private HttpStatus status;

@@ -7,10 +7,13 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.entity.CountryCode;
 import synapps.resona.api.mysql.member.entity.Member;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Getter
@@ -71,21 +74,21 @@ public class PersonalInfo {
     @Column(name="is_deleted")
     private boolean isDeleted = false;
 
-    private PersonalInfo(Member member, Integer timezone, CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, LocalDateTime birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    private PersonalInfo(Member member, Integer timezone, CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, String birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.member = member;
         this.timezone = timezone;
         this.nationality = nationality;
         this.countryOfResidence = countryOfResidence;
         this.phoneNumber = phoneNumber;
-        this.birth = birth;
-        this.age = birthToAge(birth);
+        this.birth = parseToLocalDate(birth);
+        this.age = birthToAge(parseToLocalDate(birth));
         this.gender = gender;
         this.location = location;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
 
-    public static PersonalInfo of(Member member, Integer timezone, CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, LocalDateTime birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public static PersonalInfo of(Member member, Integer timezone, CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, String birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime updatedAt) {
         return new PersonalInfo(member, timezone, nationality, countryOfResidence, phoneNumber, birth, gender, location, createdAt, updatedAt);
     }
 
@@ -97,13 +100,22 @@ public class PersonalInfo {
         return LocalDateTime.now().getYear() - birthYear;
     }
 
-    public void updatePersonalInfo(Integer timezone, CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, LocalDateTime birth, Gender gender, String location) {
+    private LocalDateTime parseToLocalDate(String date) {
+        try {
+            return DateTimeUtil.stringToLocalDateTime(date);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid date format. Expected format: yyyy-MM-dd. Provided: " + date, e);
+        }
+    }
+
+
+    public void updatePersonalInfo(Integer timezone, CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, String birth, Gender gender, String location) {
         this.timezone = timezone;
         this.nationality = nationality;
         this.countryOfResidence = countryOfResidence;
         this.phoneNumber = phoneNumber;
-        this.birth = birth;
-        this.age = birthToAge(birth);
+        this.birth = parseToLocalDate(birth);
+        this.age = birthToAge(parseToLocalDate(birth));
         this.gender = gender;
         this.location = location;
         this.updatedAt = LocalDateTime.now();
