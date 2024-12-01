@@ -1,12 +1,13 @@
 package synapps.resona.api.mysql.member.service;
 
-import synapps.resona.api.global.utils.DateTimeUtil;
-import synapps.resona.api.mysql.member.dto.request.DuplicateIdRequest;
-import synapps.resona.api.mysql.member.dto.request.SignupRequest;
+import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
+import synapps.resona.api.mysql.member.dto.request.auth.SignupRequest;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
-import synapps.resona.api.mysql.member.entity.Member;
-import synapps.resona.api.mysql.member.entity.Gender;
+import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.entity.account.AccountInfo;
+import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.exception.MemberException;
+import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
@@ -24,18 +25,22 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final AccountInfoRepository accountInfoRepository;
 
     /**
      * SecurityContextHolder에서 관리하는 context에서 userPrincipal을 받아옴
      * @return 멤버를 이메일 기준으로 불러옴
      * Optional 적용 고려
      */
+    @Transactional
     public Member getMember() {
         log.info("get member");
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info(userPrincipal.getUsername());
-        return memberRepository.findByEmail(userPrincipal.getUsername())
-                .orElseThrow(MemberException::memberNotFound);
+        Member member = memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
+        AccountInfo accountInfo = accountInfoRepository.findByMember(member);
+        accountInfo.updateLastAccessedAt();
+        return member;
     }
 
     @Transactional
@@ -49,26 +54,26 @@ public class MemberService {
         }
 
         Member member = Member.of(
-                request.getNickname(),
-                request.getPhoneNumber(),
-                request.getTimezone(),
-                DateTimeUtil.stringToLocalDateTime(request.getBirth()),
-                request.getComment(),
-                Gender.of(request.getSex()),
-                false, // isOnline 초기값
                 request.getEmail(),
                 request.getPassword(),
-                request.getLocation(),
-                ProviderType.of(request.getProviderType()),
-                RoleType.USER,
                 LocalDateTime.now(), // createdAt
-                LocalDateTime.now(), // modifiedAt
-                LocalDateTime.now()  // lastAccessedAt
+                LocalDateTime.now() // modifiedAt
         );
+
+        AccountInfo accountInfo = AccountInfo.of(
+                member,
+                RoleType.USER,
+                ProviderType.LOCAL,
+                AccountStatus.ACTIVE,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
         member.encodePassword(request.getPassword());
         memberRepository.save(member);
-        MemberDto memberDto = MemberDto.from(member);
-        return memberDto;
+        accountInfoRepository.save(accountInfo);
+        return new MemberDto(member.getId(), member.getEmail());
     }
 
     public boolean checkDuplicateId(DuplicateIdRequest request) throws Exception {

@@ -54,6 +54,6 @@ Configuration:
 
     Logger:
       - name: org.apache.logging.log4j.core
-        level: warn
+        level: info
       - name: org.mongodb.driver
-        level: warn
+        level: debug
