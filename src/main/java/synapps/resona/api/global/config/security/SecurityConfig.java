@@ -1,5 +1,7 @@
 package synapps.resona.api.global.config.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
