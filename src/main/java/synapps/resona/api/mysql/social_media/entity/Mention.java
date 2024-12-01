@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.entity.member.Member;
 
 import java.time.LocalDateTime;
 
@@ -28,6 +28,7 @@ public class Mention {
 
     @NotNull
     @Column(name = "mentioned_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime mentionedAt;
 
     @Column(name = "is_deleted")

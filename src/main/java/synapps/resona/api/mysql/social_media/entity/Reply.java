@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.entity.member.Member;
 
 import java.time.LocalDateTime;
 
@@ -31,10 +31,12 @@ public class Reply {
 
     @NotNull
     @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @NotNull
     @Column(name = "modified_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
 
     @Column(name = "is_deleted")

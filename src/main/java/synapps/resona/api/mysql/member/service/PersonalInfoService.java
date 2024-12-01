@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.mysql.member.dto.request.personal_info.PersonalInfoRequest;
 import synapps.resona.api.mysql.member.entity.CountryCode;
-import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.personal_info.PersonalInfo;
 import synapps.resona.api.mysql.member.exception.InvalidTimeStampException;
 import synapps.resona.api.mysql.member.exception.MemberException;

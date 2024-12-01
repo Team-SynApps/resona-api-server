@@ -9,11 +9,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.entity.CountryCode;
-import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.entity.member.Member;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Entity
 @Getter
@@ -65,16 +63,18 @@ public class PersonalInfo {
 
     @NotNull
     @Column(name="created_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @NotNull
-    @Column(name="updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name="modified_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime modifiedAt;
 
     @Column(name="is_deleted")
     private boolean isDeleted = false;
 
-    private PersonalInfo(Member member, Integer timezone, CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, String birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    private PersonalInfo(Member member, Integer timezone, CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, String birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.member = member;
         this.timezone = timezone;
         this.nationality = nationality;
@@ -85,11 +85,11 @@ public class PersonalInfo {
         this.gender = gender;
         this.location = location;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.modifiedAt = modifiedAt;
     }
 
-    public static PersonalInfo of(Member member, Integer timezone, CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, String birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        return new PersonalInfo(member, timezone, nationality, countryOfResidence, phoneNumber, birth, gender, location, createdAt, updatedAt);
+    public static PersonalInfo of(Member member, Integer timezone, CountryCode nationality, CountryCode countryOfResidence, String phoneNumber, String birth, Gender gender, String location, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        return new PersonalInfo(member, timezone, nationality, countryOfResidence, phoneNumber, birth, gender, location, createdAt, modifiedAt);
     }
 
     private Integer birthToAge(LocalDateTime birth) {
@@ -118,7 +118,7 @@ public class PersonalInfo {
         this.age = birthToAge(parseToLocalDate(birth));
         this.gender = gender;
         this.location = location;
-        this.updatedAt = LocalDateTime.now();
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public void softDelete() {

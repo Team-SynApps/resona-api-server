@@ -26,9 +26,12 @@ public class FeedImage {
 
     @NotNull
     @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
+
     @NotNull
     @Column(name = "modified_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
 
     @Column(name = "is_deleted")

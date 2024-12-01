@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.social_media.dto;
+package synapps.resona.api.mysql.social_media.dto.comment;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ReplyUpdateRequest {
-    private Long replyId;
+public class CommentRequest {
+    private Long feedId;
     private String content;
 }

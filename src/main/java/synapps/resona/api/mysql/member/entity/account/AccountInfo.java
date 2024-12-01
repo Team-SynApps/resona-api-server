@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
 
@@ -41,28 +41,31 @@ public class AccountInfo {
 
     @NotNull
     @Column(name="last_accessed_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime lastAccessedAt;
 
     @NotNull
     @Column(name="created_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @NotNull
-    @Column(name="updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name="modified_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime modifiedAt;
 
-    private AccountInfo(Member member, RoleType roleType, ProviderType providerType, AccountStatus status, LocalDateTime lastAccessedAt, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    private AccountInfo(Member member, RoleType roleType, ProviderType providerType, AccountStatus status, LocalDateTime lastAccessedAt, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.member = member;
         this.roleType = roleType;
         this.providerType = providerType;
         this.status = status;
         this.lastAccessedAt = lastAccessedAt;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.modifiedAt = modifiedAt;
     }
 
-    public static AccountInfo of(Member member, RoleType roleType, ProviderType providerType, AccountStatus status, LocalDateTime lastAccessedAt, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        return new AccountInfo(member, roleType, providerType, status, lastAccessedAt, createdAt, updatedAt);
+    public static AccountInfo of(Member member, RoleType roleType, ProviderType providerType, AccountStatus status, LocalDateTime lastAccessedAt, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        return new AccountInfo(member, roleType, providerType, status, lastAccessedAt, createdAt, modifiedAt);
     }
 
     public void updateLastAccessedAt() {

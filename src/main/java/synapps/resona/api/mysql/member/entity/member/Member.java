@@ -1,13 +1,9 @@
-package synapps.resona.api.mysql.member.entity;
+package synapps.resona.api.mysql.member.entity.member;
 
-import lombok.Setter;
 import synapps.resona.api.mysql.social_media.entity.Comment;
 import synapps.resona.api.mysql.social_media.entity.Feed;
 import synapps.resona.api.mysql.social_media.entity.Mention;
 import synapps.resona.api.mysql.social_media.entity.Scrap;
-import synapps.resona.api.oauth.entity.ProviderType;
-import synapps.resona.api.oauth.entity.RoleType;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -54,10 +50,12 @@ public class Member {
 
     @NotNull
     @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @NotNull
     @Column(name = "modified_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
 
     private Member(String email,

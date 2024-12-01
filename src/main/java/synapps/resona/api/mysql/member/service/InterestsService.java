@@ -4,9 +4,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.mysql.member.dto.request.interests.InterestsRequest;
-import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.interests.Interests;
 import synapps.resona.api.mysql.member.repository.InterestsRepository;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +23,7 @@ public class InterestsService {
     public Interests registerInterests(InterestsRequest request) {
         Member member = memberService.getMember();
 
-        Interests interests = Interests.of(member, request.getInterestedLanguages(), request.getHobbies());
+        Interests interests = Interests.of(member, request.getInterestedLanguages(), request.getHobbies(), LocalDateTime.now(), LocalDateTime.now());
         interestsRepository.save(interests);
 
         return interests;

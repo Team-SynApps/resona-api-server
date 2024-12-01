@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.entity.member.Member;
 
 import java.time.LocalDateTime;
 
@@ -30,14 +30,17 @@ public class Like {
 
     @NotNull
     @Column(name = "liked_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime likedAt;
 
     @NotNull
     @Column(name = "canceled_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime canceledAt;
 
     @NotNull
     @Column(name = "is_like_canceled")
+    @Temporal(TemporalType.TIMESTAMP)
     private boolean isLikeCanceled = false;
 
     private Like(Member member, Feed feed, LocalDateTime likedAt) {

@@ -3,7 +3,7 @@ package synapps.resona.api.mysql.social_media.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.social_media.dto.LikeRequest;
 import synapps.resona.api.mysql.social_media.entity.Feed;
