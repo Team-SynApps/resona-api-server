@@ -1,6 +1,7 @@
 package synapps.resona.api.mysql.member.entity;
 
 import org.junit.jupiter.api.Test;
+import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
 
 import static org.junit.jupiter.api.Assertions.*;
 

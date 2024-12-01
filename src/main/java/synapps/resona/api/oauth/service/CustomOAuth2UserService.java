@@ -1,8 +1,11 @@
 package synapps.resona.api.oauth.service;
 
 
-import synapps.resona.api.mysql.member.entity.Member;
-import synapps.resona.api.mysql.member.entity.Gender;
+import lombok.RequiredArgsConstructor;
+import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.entity.account.AccountInfo;
+import synapps.resona.api.mysql.member.entity.account.AccountStatus;
+import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
@@ -23,22 +26,18 @@ import java.time.LocalDateTime;
 
 
 @Service
+@RequiredArgsConstructor
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
+    private final AccountInfoRepository accountInfoRepository;
     private final AuthTokenProvider tokenProvider;
-
-    public CustomOAuth2UserService(MemberRepository memberRepository, AuthTokenProvider tokenProvider) {
-        this.memberRepository = memberRepository;
-        this.tokenProvider = tokenProvider;
-    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         OAuth2User user = super.loadUser(userRequest);
 
         try {
-
             return this.process(userRequest, user);
         } catch (AuthenticationException ex) {
             throw ex;
@@ -59,20 +58,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         );
 
         Member savedMember = memberRepository.findByEmail(userInfo.getEmail()).orElse(null);
+        AccountInfo accountInfo = accountInfoRepository.findByMember(savedMember);
 
-        if (savedMember != null) {
-            if (providerType != savedMember.getProviderType()) {
-                throw new OAuthProviderMissMatchException(
-                        "Looks like you're signed up with " + providerType +
-                                " account. Please use your " + savedMember.getProviderType() + " account to login."
-                );
-            }
-            updateMember(savedMember, userInfo);
-        } else {
-            savedMember = createMember(userInfo, providerType);
+        if (providerType != accountInfo.getProviderType()) {
+            throw new OAuthProviderMissMatchException(
+                    "Looks like you're signed up with " + providerType +
+                            " account. Please use your " + accountInfo.getProviderType() + " account to login."
+            );
         }
 
-        return UserPrincipal.create(savedMember, user.getAttributes());
+        return UserPrincipal.create(savedMember, accountInfo, user.getAttributes());
     }
 
     private Member createMember(OAuth2UserInfo userInfo, ProviderType providerType) {
@@ -82,32 +77,23 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         String nickname = userInfo.getName() != null ? userInfo.getName() : "User" + now.getNano();
 
         Member member = Member.of(
-                nickname,                   // nickname
-                null,                      // phoneNumber
-                0,                         // timezone
-                null,                      // birth
-                null,                      // comment
-                Gender.of("NO"),             // sex
-                false,                     // isOnline
                 userInfo.getEmail(),       // email
-                "",                        // password (OAuth2 로그인이므로 빈 문자열)
-                "",                      // location
-                providerType,
-                RoleType.USER,
+                "",                         // password
                 now,                       // createdAt
-                now,                       // modifiedAt
-                now                        // lastAccessedAt
+                now                       // modifiedAt
         );
+        AccountInfo accountInfo = AccountInfo.of(
+                member,
+                RoleType.USER,
+                providerType,
+                AccountStatus.ACTIVE,
+                now,
+                now,
+                now
+        );
+        accountInfoRepository.save(accountInfo);
 
         return memberRepository.saveAndFlush(member);
-    }
-
-    private void updateMember(Member member, OAuth2UserInfo userInfo) {
-        if (userInfo.getName() != null && !member.getNickname().equals(userInfo.getName())) {
-            member.setUserNickname(userInfo.getName());
-        }
-
-        memberRepository.save(member);
     }
 
 //    private OAuth2User processAppleUser(OAuth2UserRequest userRequest, OAuth2User user) {

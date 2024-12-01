@@ -1,6 +1,6 @@
 package synapps.resona.api.mysql.member.repository;
 
-import synapps.resona.api.mysql.member.entity.MemberRefreshToken;
+import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
