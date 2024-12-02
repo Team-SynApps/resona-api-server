@@ -4,7 +4,9 @@ server:
     context-path: /api/${api.version}
   name: resona
   forward-headers-strategy: framework
-
+  tomcat:
+    mbeanregistry:
+      enabled: true
 api:
   version: v1
 
@@ -115,7 +117,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: "*"
   endpoint:
     health:
       show-details: always
