@@ -174,33 +174,7 @@ jobs:
                   - prometheus
             EOL
           
-        
             docker-compose -f docker-compose.yml up -d
-          cat > docker-compose-monitoring.yml << EOL
-          version: '3'
-          services:
-            prometheus:
-              image: prom/prometheus:latest
-              container_name: prometheus
-              ports:
-                - "9090:9090"
-              volumes:
-                - ./prometheus.yml:/etc/prometheus/prometheus.yml
-
-            grafana:
-              image: grafana/grafana:latest
-              container_name: grafana
-              user: "1001:1001"
-              ports:
-                - "3000:3000"
-              volumes:
-                - ./grafana-data:/var/lib/grafana
-              depends_on:
-                - prometheus
-          EOL
-
-          docker-compose -f docker-compose-monitoring.yml up -d
-          
           
             KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
             ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
