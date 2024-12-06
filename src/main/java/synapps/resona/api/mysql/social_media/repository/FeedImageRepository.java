@@ -1,7 +1,7 @@
 package synapps.resona.api.mysql.social_media.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import synapps.resona.api.mysql.social_media.entity.FeedImage;
+import synapps.resona.api.mysql.social_media.entity.FeedMedia;
 
-public interface FeedImageRepository extends JpaRepository<FeedImage, Long> {
+public interface FeedImageRepository extends JpaRepository<FeedMedia, Long> {
 }
