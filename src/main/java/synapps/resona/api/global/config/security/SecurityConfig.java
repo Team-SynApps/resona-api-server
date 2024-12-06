@@ -1,5 +1,7 @@
 package synapps.resona.api.global.config.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
@@ -62,7 +64,7 @@ public class SecurityConfig {
             "/auth",
             "/auth/refresh-token",
             "/member/join",
-            "/actuator/health",
+            "/actuator/**",
             "/email"
     };
 
@@ -86,9 +88,9 @@ public class SecurityConfig {
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
 
-//        http.requiresChannel(channel ->
-//                channel.requestMatchers("/oauth2/**").requiresSecure()
-//        );
+        http.requiresChannel(channel ->
+                channel.requestMatchers("/oauth2/**").requiresSecure()
+        );
 
 
         http.authorizeHttpRequests((authorizeHttp)-> authorizeHttp
