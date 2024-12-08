@@ -102,6 +102,19 @@ app:
 logging:
   config: classpath:log4j2-spring.xml
 
+oci:
+  config:
+    userId: ${OCI_BUCKET_USER_ID}
+    tenancyId: ${OCI_BUCKET_TENANCY_ID}
+    fingerprint: ${OCI_BUCKET_FINGERPRINT}
+    privateKeyPath: ${BUCKET_PRIVATE_KEY_PATH}
+    region: ${OCI_BUCKET_REGION}
+  storage:
+    bucketName: ${OCI_BUCKET_NAME}
+    compartmentId: ${OCI_BUCKET_COMPARTMENT_ID}
+    namespace: ${OCI_BUCKET_NAMESPACE}
+    region: ${OCI_BUCKET_REGION}
+
 cloud:
   aws:
     s3:

@@ -22,7 +22,7 @@ public class FeedService {
     @Transactional
     public Feed register(FeedRequest feedRequest) {
         Member member = memberService.getMember();
-        Feed feed = Feed.of(member, feedRequest.getContent(), LocalDateTime.now(), LocalDateTime.now());
+        Feed feed = Feed.of(member, feedRequest.getContent(),feedRequest.getCategory(), LocalDateTime.now(), LocalDateTime.now());
         return feedRepository.save(feed);
     }
 

@@ -9,4 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class FeedRequest {
     private String content;
+    private String category;
 }

@@ -22,7 +22,7 @@ public class FeedImageService {
     @Transactional
     public FeedMedia register(FeedImageRequest feedImageRequest) throws FeedNotFoundException {
         Feed feed = feedRepository.findById(feedImageRequest.getFeedId()).orElseThrow(FeedNotFoundException::new);
-        FeedMedia feedMedia = FeedMedia.of(feed, feedImageRequest.getUrl(), LocalDateTime.now(), LocalDateTime.now());
+        FeedMedia feedMedia = FeedMedia.of(feed, feedImageRequest.getUrl(),feedImageRequest.getType(), LocalDateTime.now(), LocalDateTime.now());
         feedImageRepository.save(feedMedia);
         return feedMedia;
     }

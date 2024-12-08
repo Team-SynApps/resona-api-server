@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class FeedImageRequest {
     private Long feedId;
     private String url;
+    private String type;
 }
