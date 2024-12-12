@@ -114,6 +114,8 @@ oci:
     compartmentId: ${OCI_BUCKET_COMPARTMENT_ID}
     namespace: ${OCI_BUCKET_NAMESPACE}
     region: ${OCI_BUCKET_REGION}
+    buffer-bucket-name: ${OCI_BUFFER_BUCKET_NAME}
+    disk-bucket-name: ${OCI_DISK_BUCKET_NAME}
 
 cloud:
   aws:

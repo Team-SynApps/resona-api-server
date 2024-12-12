@@ -15,4 +15,6 @@ public class StorageProperties {
     private String compartmentId;
     private String namespace;
     private String region;
+    private String bufferBucketName;
+    private String diskBucketName;
 }
