@@ -9,10 +9,15 @@ import com.oracle.bmc.objectstorage.responses.GetObjectResponse;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.tomcat.util.http.fileupload.FileUploadException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import synapps.resona.api.external.file.dto.FileMetadataDto;
+import synapps.resona.api.external.file.exception.FileEmptyException;
 import synapps.resona.api.global.config.StorageProperties;
+import synapps.resona.api.global.exception.ErrorCode;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -28,8 +33,23 @@ public class ObjectStorageService {
 
     // 버퍼 버킷에 임시 저장
     public FileMetadataDto uploadToBuffer(MultipartFile file) throws IOException {
-        String temporaryFileName = generateTemporaryFileName(file.getOriginalFilename());
+        if (file == null || file.isEmpty()) {
+            throw FileEmptyException.of(ErrorCode.FILE_EMPTY_EXCEPTION.toString(), ErrorCode.FILE_EMPTY_EXCEPTION.getStatus(), ErrorCode.FILE_EMPTY_EXCEPTION.getCode());
+        }
 
+        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String temporaryFileName = generateTemporaryFileName(userPrincipal.getUsername());
+
+        try {
+            uploadFileToBufferStorage(file, temporaryFileName);
+            return createFileMetadata(file, temporaryFileName);
+        } catch (Exception e) {
+            logger.error("Failed to upload file: " + file.getOriginalFilename(), e);
+            throw new FileUploadException("Failed to upload file", e);
+        }
+    }
+
+    private void uploadFileToBufferStorage(MultipartFile file, String temporaryFileName) throws IOException {
         PutObjectRequest request = PutObjectRequest.builder()
                 .bucketName(storageProperties.getBufferBucketName())
                 .namespaceName(storageProperties.getNamespace())
@@ -39,7 +59,10 @@ public class ObjectStorageService {
                 .build();
 
         objectStorageClient.putObject(request);
+        logger.info("File uploaded to buffer: {}", temporaryFileName);
+    }
 
+    private FileMetadataDto createFileMetadata(MultipartFile file, String temporaryFileName) {
         return FileMetadataDto.builder()
                 .originalFileName(file.getOriginalFilename())
                 .temporaryFileName(temporaryFileName)
@@ -69,11 +92,11 @@ public class ObjectStorageService {
         return generateFileUrl(storageProperties.getDiskBucketName(), finalFileName);
     }
 
-    private String generateTemporaryFileName(String originalFileName) {
+    private String generateTemporaryFileName(String userEmail) {
         return String.format("%s_%s_%s",
                 UUID.randomUUID().toString(),
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")),
-                originalFileName
+                userEmail
         );
     }
 
