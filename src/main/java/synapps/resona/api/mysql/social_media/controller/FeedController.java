@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.ServerInfoConfig;
 import synapps.resona.api.global.dto.MetaDataDto;
 import synapps.resona.api.global.dto.ResponseDto;
-import synapps.resona.api.mysql.social_media.dto.feed.FeedRequest;
-import synapps.resona.api.mysql.social_media.dto.feed.FeedUpdateRequest;
+import synapps.resona.api.mysql.social_media.dto.feed.request.FeedRequest;
+import synapps.resona.api.mysql.social_media.dto.feed.request.FeedUpdateRequest;
 import synapps.resona.api.mysql.social_media.service.FeedService;
 
 import java.util.List;

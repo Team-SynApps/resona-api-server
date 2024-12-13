@@ -35,6 +35,20 @@ public class ObjectStorageController {
         return ResponseEntity.ok(responseData);
     }
 
+    @PostMapping(
+            path = "/multiple",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<?> uploadMultipleFiles(HttpServletRequest request,
+                                                 @RequestParam("files") List<MultipartFile> files) throws IOException {
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        List<FileMetadataDto> fileMetadatas = storageService.uploadMultipleFile(files);
+
+        ResponseDto responseData = new ResponseDto(metaData, fileMetadatas);
+        return ResponseEntity.ok(responseData);
+    }
+
     // 게시글 작성 완료 시 호출될 메소드
     @PostMapping("/finalize")
     public ResponseEntity<?> finalizeFile(HttpServletRequest request,

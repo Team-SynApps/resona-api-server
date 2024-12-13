@@ -1,5 +1,6 @@
 package synapps.resona.api.external.file;
 
+import com.oracle.bmc.model.BmcException;
 import com.oracle.bmc.objectstorage.ObjectStorage;
 import com.oracle.bmc.objectstorage.model.CopyObjectDetails;
 import com.oracle.bmc.objectstorage.requests.CopyObjectRequest;
@@ -22,7 +23,9 @@ import synapps.resona.api.global.exception.ErrorCode;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,8 +40,9 @@ public class ObjectStorageService {
             throw FileEmptyException.of(ErrorCode.FILE_EMPTY_EXCEPTION.toString(), ErrorCode.FILE_EMPTY_EXCEPTION.getStatus(), ErrorCode.FILE_EMPTY_EXCEPTION.getCode());
         }
 
-        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String temporaryFileName = generateTemporaryFileName(userPrincipal.getUsername());
+//        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        String temporaryFileName = generateTemporaryFileName(userPrincipal.getUsername());
+        String temporaryFileName = generateTemporaryFileName(UUID.randomUUID().toString());
 
         try {
             uploadFileToBufferStorage(file, temporaryFileName);
@@ -120,32 +124,17 @@ public class ObjectStorageService {
         return response.getInputStream().readAllBytes();
     }
 
-//    public List<String> copyMultipleToDisk(List<FileMetadataDto> metadataList) {
-//        return metadataList.parallelStream()
-//                .map(metadata -> {
-//                    try {
-//                        String finalFileName = generateFinalFileName(metadata); // 파일명 생성 메서드 필요
-//                        CopyObjectDetails copyObjectDetails = CopyObjectDetails.builder()
-//                                .sourceObjectName(metadata.getOriginalFileName())
-//                                .destinationBucket(storageProperties.getDiskBucketName())
-//                                .destinationNamespace(storageProperties.getNamespace())
-//                                .destinationObjectName(finalFileName)
-//                                .destinationRegion(storageProperties.getRegion())
-//                                .build();
-//
-//                        CopyObjectRequest copyRequest = CopyObjectRequest.builder()
-//                                .namespaceName(storageProperties.getNamespace())
-//                                .bucketName(storageProperties.getBufferBucketName())
-//                                .copyObjectDetails(copyObjectDetails)
-//                                .build();
-//
-//                        objectStorageClient.copyObject(copyRequest);
-//                        return generateFileUrl(storageProperties.getDiskBucketName(), finalFileName);
-//                    } catch (BmcException e) {
-//                        logger.error("Failed to copy file: {}", metadata.getOriginalFileName(), e);
-//                        throw new RuntimeException("Failed to copy file: " + metadata.getOriginalFileName(), e);
-//                    }
-//                })
-//                .collect(Collectors.toList());
-//    }
+    public List<FileMetadataDto> uploadMultipleFile(List<MultipartFile> files) {
+        return files.parallelStream()
+                .map(file -> {
+                    try {
+                        return uploadToBuffer(file);
+                    } catch (IOException e) {
+                        logger.error("Failed to upload file: {}", file.getOriginalFilename(), e);
+                        throw new RuntimeException(e);
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
 }
