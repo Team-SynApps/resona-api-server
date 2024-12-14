@@ -11,4 +11,5 @@ public class FeedImageRequest {
     private Long feedId;
     private String url;
     private String type;
+    private int index;
 }
