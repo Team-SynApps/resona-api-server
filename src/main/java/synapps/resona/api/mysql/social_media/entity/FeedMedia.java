@@ -29,6 +29,10 @@ public class FeedMedia {
     private String url;
 
     @NotNull
+    @Column(name="index")
+    private Integer index;
+
+    @NotNull
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
@@ -38,24 +42,30 @@ public class FeedMedia {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
 
+
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
-    private FeedMedia(Feed feed, String mediaType, String url, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private FeedMedia(Feed feed, String mediaType, String url, Integer index, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.feed = feed;
         this.mediaType = MediaType.of(mediaType);
         this.url = url;
+        this.index = index;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
-    public static FeedMedia of(Feed feed, String mediaType, String url, LocalDateTime createdAt, LocalDateTime modifiedAt) {
-        return new FeedMedia(feed, mediaType, url, createdAt, modifiedAt);
+    public static FeedMedia of(Feed feed, String mediaType, String url, Integer index, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        return new FeedMedia(feed, mediaType, url, index, createdAt, modifiedAt);
     }
 
     public void softDelete() {
         this.isDeleted = true;
         this.modifiedAt = LocalDateTime.now();
+    }
+
+    public void changeIndex(Integer index) {
+        this.index = index;
     }
 
     // url 업데이트 된 걸 로그로 남겨야 할지

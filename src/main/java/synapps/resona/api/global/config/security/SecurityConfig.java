@@ -66,8 +66,6 @@ public class SecurityConfig {
             "/member/join",
             "/actuator/**",
             "/email",
-            // for testing
-            "/storage/**"
     };
 
     /*

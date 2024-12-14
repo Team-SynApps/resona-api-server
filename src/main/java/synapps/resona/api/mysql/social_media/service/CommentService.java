@@ -3,7 +3,9 @@ package synapps.resona.api.mysql.social_media.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.social_media.dto.comment.CommentRequest;
 import synapps.resona.api.mysql.social_media.dto.comment.CommentUpdateRequest;
@@ -21,11 +23,15 @@ import java.time.LocalDateTime;
 public class CommentService {
     private final CommentRepository commentRepository;
     private final FeedRepository feedRepository;
+    private final MemberRepository memberRepository;
     private final MemberService memberService;
+
 
     @Transactional
     public Comment register(CommentRequest request) throws FeedNotFoundException {
-        Member member = memberService.getMember();
+        MemberDto memberDto = memberService.getMember();
+        Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+
         Feed feed = feedRepository.findById(request.getFeedId()).orElseThrow(FeedNotFoundException::new);
         Comment comment = Comment.of(feed, member, request.getContent(), LocalDateTime.now(), LocalDateTime.now());
         commentRepository.save(comment);

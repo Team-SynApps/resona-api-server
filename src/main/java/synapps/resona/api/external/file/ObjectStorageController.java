@@ -10,6 +10,8 @@ import synapps.resona.api.external.file.dto.FileMetadataDto;
 import synapps.resona.api.global.config.ServerInfoConfig;
 import synapps.resona.api.global.dto.MetaDataDto;
 import synapps.resona.api.global.dto.ResponseDto;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
+import synapps.resona.api.mysql.member.service.MemberService;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ObjectStorageController {
     private final ObjectStorageService storageService;
+    private final MemberService memberService;
     private final ServerInfoConfig serverInfo;
 
     private MetaDataDto createSuccessMetaData(String queryString) {
@@ -29,7 +32,8 @@ public class ObjectStorageController {
     public ResponseEntity<?> uploadFile(HttpServletRequest request,
                                         @RequestParam("file") MultipartFile file) throws IOException {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        FileMetadataDto fileMetadata = storageService.uploadToBuffer(file);
+        MemberDto memberDto = memberService.getMember();
+        FileMetadataDto fileMetadata = storageService.uploadToBuffer(file, memberDto.getEmail());
 
         ResponseDto responseData = new ResponseDto(metaData, List.of(fileMetadata));
         return ResponseEntity.ok(responseData);

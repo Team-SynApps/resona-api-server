@@ -19,7 +19,13 @@ import synapps.resona.api.external.file.dto.FileMetadataDto;
 import synapps.resona.api.external.file.exception.FileEmptyException;
 import synapps.resona.api.global.config.StorageProperties;
 import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
+import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.service.MemberService;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -32,17 +38,16 @@ import java.util.stream.Collectors;
 public class ObjectStorageService {
     private final ObjectStorage objectStorageClient;
     private final StorageProperties storageProperties;
+    private final MemberService memberService;
     private final Logger logger = LogManager.getLogger(ObjectStorageService.class);
 
     // 버퍼 버킷에 임시 저장
-    public FileMetadataDto uploadToBuffer(MultipartFile file) throws IOException {
+    public FileMetadataDto uploadToBuffer(MultipartFile file, String userEmail) throws IOException {
         if (file == null || file.isEmpty()) {
             throw FileEmptyException.of(ErrorCode.FILE_EMPTY_EXCEPTION.toString(), ErrorCode.FILE_EMPTY_EXCEPTION.getStatus(), ErrorCode.FILE_EMPTY_EXCEPTION.getCode());
         }
 
-//        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        String temporaryFileName = generateTemporaryFileName(userPrincipal.getUsername());
-        String temporaryFileName = generateTemporaryFileName(UUID.randomUUID().toString());
+        String temporaryFileName = generateTemporaryFileName(userEmail);
 
         try {
             uploadFileToBufferStorage(file, temporaryFileName);
@@ -66,12 +71,15 @@ public class ObjectStorageService {
         logger.info("File uploaded to buffer: {}", temporaryFileName);
     }
 
-    private FileMetadataDto createFileMetadata(MultipartFile file, String temporaryFileName) {
+    private FileMetadataDto createFileMetadata(MultipartFile file, String temporaryFileName) throws IOException {
+        BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
         return FileMetadataDto.builder()
                 .originalFileName(file.getOriginalFilename())
                 .temporaryFileName(temporaryFileName)
                 .uploadTime(LocalDateTime.now().toString())
                 .contentType(file.getContentType())
+                .width(bufferedImage.getWidth())
+                .height(bufferedImage.getHeight())
                 .fileSize(file.getSize())
                 .build();
     }
@@ -125,10 +133,12 @@ public class ObjectStorageService {
     }
 
     public List<FileMetadataDto> uploadMultipleFile(List<MultipartFile> files) {
+        MemberDto memberDto = memberService.getMember();
+        String userEmail = memberDto.getEmail();
         return files.parallelStream()
                 .map(file -> {
                     try {
-                        return uploadToBuffer(file);
+                        return uploadToBuffer(file, userEmail);
                     } catch (IOException e) {
                         logger.error("Failed to upload file: {}", file.getOriginalFilename(), e);
                         throw new RuntimeException(e);
