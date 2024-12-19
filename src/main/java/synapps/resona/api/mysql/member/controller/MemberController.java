@@ -2,8 +2,8 @@ package synapps.resona.api.mysql.member.controller;
 
 
 import synapps.resona.api.global.config.ServerInfoConfig;
-import synapps.resona.api.global.dto.MetaDataDto;
-import synapps.resona.api.global.dto.ResponseDto;
+import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.SignupRequest;
 import synapps.resona.api.mysql.member.service.MemberService;

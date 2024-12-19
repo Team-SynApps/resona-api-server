@@ -7,18 +7,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.ServerInfoConfig;
-import synapps.resona.api.global.dto.MetaDataDto;
-import synapps.resona.api.global.dto.ResponseDto;
+import synapps.resona.api.global.dto.CursorResult;
+import synapps.resona.api.global.dto.metadata.CursorBasedMetaDataDto;
+import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.social_media.dto.feed.request.FeedRegistrationRequest;
-import synapps.resona.api.mysql.social_media.dto.feed.request.FeedRequest;
 import synapps.resona.api.mysql.social_media.dto.feed.request.FeedUpdateRequest;
 import synapps.resona.api.mysql.social_media.dto.feed.response.FeedPostResponse;
+import synapps.resona.api.mysql.social_media.dto.feed.response.FeedReadResponse;
 import synapps.resona.api.mysql.social_media.service.FeedService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/feed")
+@RequestMapping
 @RequiredArgsConstructor
 public class FeedController {
     private final FeedService feedService;
@@ -28,7 +30,11 @@ public class FeedController {
         return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
     }
 
-    @PostMapping
+    private MetaDataDto createSuccessMetaData(String queryString, String cursor, int size, boolean hasNext) {
+        return CursorBasedMetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName(), cursor, size, hasNext);
+    }
+
+    @PostMapping("/feed")
     public ResponseEntity<?> registerFeed(HttpServletRequest request,
                                           HttpServletResponse response,
                                           @Valid @RequestBody FeedRegistrationRequest feedRegistrationRequest) throws Exception {
@@ -42,7 +48,7 @@ public class FeedController {
         return ResponseEntity.ok(responseData);
     }
 
-    @GetMapping
+    @GetMapping("/feed")
     public ResponseEntity<?> readFeed(HttpServletRequest request,
                                               HttpServletResponse response,
                                       @RequestParam Long feedId) throws Exception {
@@ -51,7 +57,7 @@ public class FeedController {
         return ResponseEntity.ok(responseData);
     }
 
-    @GetMapping("/all")
+    @GetMapping("/feed/test/all")
     public ResponseEntity<?> readAllFeed(HttpServletRequest request,
                                       HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
@@ -59,7 +65,18 @@ public class FeedController {
         return ResponseEntity.ok(responseData);
     }
 
-    @PutMapping
+    @GetMapping("/feeds")
+    public ResponseEntity<?> readFeedByCursor(HttpServletRequest request,
+                                              HttpServletResponse response,
+                                              @RequestParam(required = false) String cursor,
+                                              @RequestParam(defaultValue = "10") int size) throws Exception {
+        CursorResult<FeedReadResponse> feeds = feedService.getFeedsByCursor(cursor, size);
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString(), feeds.getCursor(), size, feeds.isHasNext());
+        ResponseDto responseData = new ResponseDto(metaData, List.of(feeds.getValues()));
+        return ResponseEntity.ok(responseData);
+    }
+
+    @PutMapping("/feed")
     public ResponseEntity<?> editFeed(HttpServletRequest request,
                                               HttpServletResponse response,
                                               @Valid @RequestBody FeedUpdateRequest feedRequest) throws Exception {
@@ -68,7 +85,7 @@ public class FeedController {
         return ResponseEntity.ok(responseData);
     }
 
-    @DeleteMapping
+    @DeleteMapping("/feed")
     public ResponseEntity<?> deletePersonalInfo(HttpServletRequest request,
                                                 HttpServletResponse response,
                                                 @RequestParam Long feedId) throws Exception {

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.external.file.ObjectStorageService;
 import synapps.resona.api.external.file.dto.FileMetadataDto;
+import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
@@ -29,6 +30,7 @@ import synapps.resona.api.mysql.social_media.repository.LocationRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -88,6 +90,29 @@ public class FeedService {
                     .build());
         }
         return feedReadResponses;
+    }
+
+    public CursorResult<FeedReadResponse> getFeedsByCursor(String cursor, int size) {
+        LocalDateTime cursorTime = cursor != null ?
+                LocalDateTime.parse(cursor) : LocalDateTime.now();
+
+        List<Feed> feeds = feedRepository.findFeedsByCursor(cursorTime, size + 1);
+        boolean hasNext = feeds.size() > size;
+        if (hasNext) {
+            feeds.remove(feeds.size() - 1);
+        }
+
+        String nextCursor = hasNext ?
+                feeds.get(feeds.size()-1).getCreatedAt().toString() : null;
+
+
+        return new CursorResult<>(
+                feeds.stream()
+                        .map(FeedReadResponse::from)
+                        .collect(Collectors.toList()),
+                hasNext,
+                nextCursor
+        );
     }
 
     @Transactional
