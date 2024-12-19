@@ -51,6 +51,14 @@ public class FeedController {
         return ResponseEntity.ok(responseData);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<?> readAllFeed(HttpServletRequest request,
+                                      HttpServletResponse response) throws Exception {
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.readAllFeeds()));
+        return ResponseEntity.ok(responseData);
+    }
+
     @PutMapping
     public ResponseEntity<?> editFeed(HttpServletRequest request,
                                               HttpServletResponse response,

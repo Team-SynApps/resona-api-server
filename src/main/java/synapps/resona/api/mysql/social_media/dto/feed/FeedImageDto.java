@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FeedTempDto {
+public class FeedImageDto {
     private String url;
     private int index;
 }

@@ -12,10 +12,11 @@ import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
-import synapps.resona.api.mysql.social_media.dto.feed.FeedTempDto;
+import synapps.resona.api.mysql.social_media.dto.feed.FeedImageDto;
 import synapps.resona.api.mysql.social_media.dto.feed.request.FeedRequest;
 import synapps.resona.api.mysql.social_media.dto.feed.request.FeedUpdateRequest;
 import synapps.resona.api.mysql.social_media.dto.feed.response.FeedPostResponse;
+import synapps.resona.api.mysql.social_media.dto.feed.response.FeedReadResponse;
 import synapps.resona.api.mysql.social_media.dto.location.LocationRequest;
 import synapps.resona.api.mysql.social_media.entity.Feed;
 import synapps.resona.api.mysql.social_media.entity.FeedMedia;
@@ -26,6 +27,7 @@ import synapps.resona.api.mysql.social_media.repository.FeedRepository;
 import synapps.resona.api.mysql.social_media.repository.LocationRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -48,8 +50,44 @@ public class FeedService {
         return feed;
     }
 
-    public Feed readFeed(Long feedId) throws FeedNotFoundException {
-        return feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
+    @Transactional
+    public FeedReadResponse readFeed(Long feedId) throws FeedNotFoundException {
+        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
+        List<FeedMedia> feedMedias = feed.getImages();
+        List<FeedImageDto> feedImageDtos = new ArrayList<>();
+
+        for (FeedMedia feedMedia : feedMedias) {
+            feedImageDtos.add(FeedImageDto.builder().url(feedMedia.getUrl()).index(feedMedia.getIndex()).build());
+        }
+
+        return FeedReadResponse.builder()
+                .feedImageDtos(feedImageDtos)
+                .id(feed.getId().toString())
+                .content(feed.getContent())
+                .build();
+    }
+
+    @Transactional
+    public List<FeedReadResponse> readAllFeeds() throws FeedNotFoundException {
+        MemberDto memberDto = memberService.getMember();
+        Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+
+        List<Feed> feeds = feedRepository.findAllByMember(member);
+        List<FeedReadResponse> feedReadResponses = new ArrayList<>();
+        for (Feed feed : feeds) {
+            List<FeedMedia> feedMedias = feed.getImages();
+            List<FeedImageDto> feedImageDtos = new ArrayList<>();
+
+            for (FeedMedia feedMedia : feedMedias) {
+                feedImageDtos.add(FeedImageDto.builder().url(feedMedia.getUrl()).index(feedMedia.getIndex()).build());
+            }
+            feedReadResponses.add(FeedReadResponse.builder()
+                    .feedImageDtos(feedImageDtos)
+                    .id(feed.getId().toString())
+                    .content(feed.getContent())
+                    .build());
+        }
+        return feedReadResponses;
     }
 
     @Transactional
@@ -75,7 +113,7 @@ public class FeedService {
         feedRepository.save(feed);
 
         // finalizing feedImages: move buffer bucket images to disk bucket
-        List<FeedTempDto> finalizedFeed = metadataList.parallelStream()
+        List<FeedImageDto> finalizedFeed = metadataList.parallelStream()
                 .map(metadata -> {
                     try {
                         String finalFileName = String.format("%s/%s/%s?%s&%s",
@@ -86,7 +124,7 @@ public class FeedService {
                                 "index=" + metadata.getIndex());
                         String diskUrl = objectStorageService.copyToDisk(metadata,finalFileName);
 
-                        return FeedTempDto.builder()
+                        return FeedImageDto.builder()
                                 .url(diskUrl)
                                 .index(metadata.getIndex())
                                 .build();
@@ -98,7 +136,7 @@ public class FeedService {
                 .toList();
 
         finalizedFeed.forEach(feedTempData -> {
-            FeedMedia feedMedia = FeedMedia.of(feed, "IMAGE", feedTempData.getUrl(),feedTempData.getIndex(), LocalDateTime.now(), LocalDateTime.now());
+            FeedMedia feedMedia = FeedMedia.of(feed, "IMAGE", feedTempData.getUrl(), feedTempData.getIndex(), LocalDateTime.now(), LocalDateTime.now());
             feedMediaRepository.save(feedMedia);
         });
 
@@ -112,7 +150,7 @@ public class FeedService {
 
         return FeedPostResponse.builder()
                 .id(feed.getId().toString())
-                .feedTempDtos(finalizedFeed)
+                .feedImageDtos(finalizedFeed)
                 .content(feed.getContent()).build();
     }
 }

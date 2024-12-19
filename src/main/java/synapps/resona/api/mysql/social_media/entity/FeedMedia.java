@@ -29,7 +29,7 @@ public class FeedMedia {
     private String url;
 
     @NotNull
-    @Column(name="index")
+    @Column(name="media_index")
     private Integer index;
 
     @NotNull

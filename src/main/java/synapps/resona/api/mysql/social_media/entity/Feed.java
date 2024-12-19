@@ -30,7 +30,8 @@ public class Feed {
     @OneToMany(mappedBy = "feed")
     private List<Like> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "feed")
+    // TODO: 이렇게 해도 되는지 검증이 필요함.
+    @OneToMany(mappedBy = "feed", fetch = FetchType.EAGER)
     private List<FeedMedia> images = new ArrayList<>();
 
     @Column(name="content")
