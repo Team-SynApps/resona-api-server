@@ -7,8 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.ServerInfoConfig;
-import synapps.resona.api.global.dto.MetaDataDto;
-import synapps.resona.api.global.dto.ResponseDto;
+import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.member.dto.request.personal_info.PersonalInfoRequest;
 import synapps.resona.api.mysql.member.service.PersonalInfoService;
 

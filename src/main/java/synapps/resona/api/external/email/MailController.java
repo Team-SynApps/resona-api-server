@@ -1,8 +1,8 @@
 package synapps.resona.api.external.email;
 
 import synapps.resona.api.global.config.ServerInfoConfig;
-import synapps.resona.api.global.dto.MetaDataDto;
-import synapps.resona.api.global.dto.ResponseDto;
+import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.response.ResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

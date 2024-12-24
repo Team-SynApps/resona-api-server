@@ -23,6 +23,15 @@ repositories {
 	mavenCentral()
 }
 
+dependencyManagement {
+	// for oci bucket storage
+	imports {
+		mavenBom 'com.oracle.oci.sdk:oci-java-sdk-bom:3.43.1'
+		mavenBom 'org.springframework.boot:spring-boot-dependencies:3.2.3'
+	}
+}
+
+
 dependencies {
 	// web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -50,14 +59,11 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-
-	//S3
-	implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.1000')
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	// OCI SDK
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-shaded-full'
 
 	// email
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-
 
 	// lombok
 	compileOnly 'org.projectlombok:lombok:1.18.20'

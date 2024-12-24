@@ -10,8 +10,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.ServerInfoConfig;
-import synapps.resona.api.global.dto.ErrorMetaDataDto;
-import synapps.resona.api.global.dto.ResponseDto;
+import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
+import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.global.exception.BaseException;
 import synapps.resona.api.global.exception.ErrorCode;
 

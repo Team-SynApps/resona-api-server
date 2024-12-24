@@ -1,4 +1,4 @@
-package synapps.resona.api.global.dto;
+package synapps.resona.api.global.dto.metadata;
 
 import synapps.resona.api.global.utils.DateTimeUtil;
 import lombok.Getter;

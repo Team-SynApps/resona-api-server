@@ -5,29 +5,30 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.member.entity.member.Member;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Reply {
+public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reply_id")
+    @Column(name = "location_id")
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "comment_id")
-    private Comment comment;
+    @OneToOne
+    @JoinColumn(name = "feed_id") // 외래 키 컬럼 이름
+    private Feed feed;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @Column(name = "coordinate")
+    private String coordinate;
 
-    @Column(name="content")
-    private String content;
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "location_name")
+    private String locationName;
 
     @NotNull
     @Column(name = "created_at")
@@ -42,25 +43,21 @@ public class Reply {
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
-    private Reply(Comment comment, Member member, String content, LocalDateTime createdAt, LocalDateTime modifiedAt) {
-        this.comment = comment;
-        this.member = member;
-        this.content = content;
+    private Location(Feed feed, String coordinate, String address, String locationName, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        this.feed = feed;
+        this.coordinate = coordinate;
+        this.address = address;
+        this.locationName = locationName;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
-    public static Reply of(Comment comment, Member member, String content, LocalDateTime createdAt, LocalDateTime modifiedAt) {
-        return new Reply(comment, member, content, createdAt, modifiedAt);
+    public static Location of(Feed feed, String coordinate, String address, String locationName, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        return new Location(feed, coordinate, address, locationName, createdAt, modifiedAt);
     }
 
     public void softDelete() {
         this.isDeleted = true;
-        this.modifiedAt = LocalDateTime.now();
-    }
-
-    public void update(String content) {
-        this.content = content;
         this.modifiedAt = LocalDateTime.now();
     }
 }

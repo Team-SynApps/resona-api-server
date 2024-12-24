@@ -1,4 +1,4 @@
-package synapps.resona.api.global.dto;
+package synapps.resona.api.global.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

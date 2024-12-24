@@ -4,9 +4,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.mysql.member.dto.request.interests.InterestsRequest;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.interests.Interests;
 import synapps.resona.api.mysql.member.repository.InterestsRepository;
+import synapps.resona.api.mysql.member.repository.MemberRepository;
 
 import java.time.LocalDateTime;
 
@@ -15,13 +17,15 @@ import java.time.LocalDateTime;
 public class InterestsService {
     private final InterestsRepository interestsRepository;
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
 
     /**
      * Register Interests
      */
     @Transactional
     public Interests registerInterests(InterestsRequest request) {
-        Member member = memberService.getMember();
+        MemberDto memberDto = memberService.getMember();
+        Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
         Interests interests = Interests.of(member, request.getInterestedLanguages(), request.getHobbies(), LocalDateTime.now(), LocalDateTime.now());
         interestsRepository.save(interests);
@@ -33,7 +37,9 @@ public class InterestsService {
      * Get Interests
      */
     public Interests getInterests() {
-        Member member = memberService.getMember();
+        MemberDto memberDto = memberService.getMember();
+        Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+
         return interestsRepository.findByMember(member).orElseThrow(() -> new RuntimeException("Interests not found"));
     }
 
@@ -42,7 +48,9 @@ public class InterestsService {
      */
     @Transactional
     public Interests editInterests(InterestsRequest request) {
-        Member member = memberService.getMember();
+        MemberDto memberDto = memberService.getMember();
+        Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+
         Interests interests = interestsRepository.findByMember(member).orElseThrow(() -> new RuntimeException("Interests not found"));
         interests.modifyInterests(request.getInterestedLanguages(), request.getHobbies());
         return interests;
@@ -53,7 +61,9 @@ public class InterestsService {
      */
     @Transactional
     public Interests deleteInterests() {
-        Member member = memberService.getMember();
+        MemberDto memberDto = memberService.getMember();
+        Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+
         Interests interests = interestsRepository.findByMember(member)
                 .orElseThrow(() -> new RuntimeException("Interests not found"));
 

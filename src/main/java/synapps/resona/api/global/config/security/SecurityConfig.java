@@ -65,7 +65,7 @@ public class SecurityConfig {
             "/auth/refresh-token",
             "/member/join",
             "/actuator/**",
-            "/email"
+            "/email",
     };
 
     /*
