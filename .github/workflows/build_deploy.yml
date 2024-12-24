@@ -14,27 +14,28 @@ jobs:
     steps:
       - name: Print Secrets
         env:
-          OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }} | base64
-          OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }} | base64
-          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }} | base64
-          OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }} | base64
-          OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }} | base64
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }} | base64
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }} | base64
-          BASTION_OCID: ${{ secrets.BASTION_OCID }} | base64
-          TARGET_INSTANCE_OCID: ${{ secrets.TARGET_INSTANCE_OCID }} | base64
-          ENV_PROD_FILE: ${{ secrets.ENV_PROD_FILE }} | base64
+          OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
+          OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
+          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
+          OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}
+          OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          BASTION_OCID: ${{ secrets.BASTION_OCID }}
+          TARGET_INSTANCE_OCID: ${{ secrets.TARGET_INSTANCE_OCID }}
+          ENV_PROD_FILE: ${{ secrets.ENV_PROD_FILE }}
         run: |
-          echo "OCI_CLI_USER=$OCI_CLI_USER"
-          echo "OCI_CLI_TENANCY=$OCI_CLI_TENANCY"
-          echo "OCI_CLI_FINGERPRINT=$OCI_CLI_FINGERPRINT"
-          echo "OCI_CLI_KEY_CONTENT=$OCI_CLI_KEY_CONTENT"
-          echo "OCI_CLI_REGION=$OCI_CLI_REGION"
-          echo "DOCKER_USERNAME=$DOCKER_USERNAME"
-          echo "DOCKER_PASSWORD=$DOCKER_PASSWORD"
-          echo "BASTION_OCID=$BASTION_OCID"
-          echo "TARGET_INSTANCE_OCID=$TARGET_INSTANCE_OCID"
-          echo "ENV_PROD_FILE=$ENV_PROD_FILE"
+          echo "OCI_CLI_USER=$(echo $OCI_CLI_USER | base64)"
+          echo "OCI_CLI_TENANCY=$(echo $OCI_CLI_TENANCY | base64)"
+          echo "OCI_CLI_FINGERPRINT=$(echo $OCI_CLI_FINGERPRINT | base64)"
+          echo "OCI_CLI_KEY_CONTENT=$(echo $OCI_CLI_KEY_CONTENT | base64)"
+          echo "OCI_CLI_REGION=$(echo $OCI_CLI_REGION | base64)"
+          echo "DOCKER_USERNAME=$(echo $DOCKER_USERNAME | base64)"
+          echo "DOCKER_PASSWORD=$(echo $DOCKER_PASSWORD | base64)"
+          echo "BASTION_OCID=$(echo $BASTION_OCID | base64)"
+          echo "TARGET_INSTANCE_OCID=$(echo $TARGET_INSTANCE_OCID | base64)"
+          echo "ENV_PROD_FILE=$(echo $ENV_PROD_FILE | base64)"
+
   build:
     runs-on: ubuntu-latest
     outputs:
