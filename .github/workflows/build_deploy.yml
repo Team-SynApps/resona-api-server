@@ -74,10 +74,10 @@ jobs:
           echo "region=${{ secrets.OCI_CLI_REGION }}" >> ~/.oci/config
           echo "${{ secrets.OCI_CLI_KEY_CONTENT }}" > ~/.oci/oci_api_key.pem
           chmod 600 ~/.oci/oci_api_key.pem
-          echo ~/.oci/oci_api_key.pem
 
       - name: Install OCI CLI
         run: |
+          cat ~/.oci/oci_api_key.pem
           sudo apt update
           sudo apt install python3-pip -y
           pip3 install oci-cli
