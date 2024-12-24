@@ -14,16 +14,16 @@ jobs:
     steps:
       - name: Print Secrets
         env:
-          OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }}
-          OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }}
-          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }}
-          OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }}
-          OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }}
-          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          BASTION_OCID: ${{ secrets.BASTION_OCID }}
-          TARGET_INSTANCE_OCID: ${{ secrets.TARGET_INSTANCE_OCID }}
-          ENV_PROD_FILE: ${{ secrets.ENV_PROD_FILE }}
+          OCI_CLI_USER: ${{ secrets.OCI_CLI_USER }} | base64
+          OCI_CLI_TENANCY: ${{ secrets.OCI_CLI_TENANCY }} | base64
+          OCI_CLI_FINGERPRINT: ${{ secrets.OCI_CLI_FINGERPRINT }} | base64
+          OCI_CLI_KEY_CONTENT: ${{ secrets.OCI_CLI_KEY_CONTENT }} | base64
+          OCI_CLI_REGION: ${{ secrets.OCI_CLI_REGION }} | base64
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }} | base64
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }} | base64
+          BASTION_OCID: ${{ secrets.BASTION_OCID }} | base64
+          TARGET_INSTANCE_OCID: ${{ secrets.TARGET_INSTANCE_OCID }} | base64
+          ENV_PROD_FILE: ${{ secrets.ENV_PROD_FILE }} | base64
         run: |
           echo "OCI_CLI_USER=$OCI_CLI_USER"
           echo "OCI_CLI_TENANCY=$OCI_CLI_TENANCY"
