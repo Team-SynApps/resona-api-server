@@ -34,7 +34,7 @@ jobs:
           echo "DOCKER_PASSWORD=$(echo $DOCKER_PASSWORD | base64)"
           echo "BASTION_OCID=$(echo $BASTION_OCID | base64)"
           echo "TARGET_INSTANCE_OCID=$(echo $TARGET_INSTANCE_OCID | base64)"
-          echo "ENV_PROD_FILE=$(echo $ENV_PROD_FILE | base64)"
+          echo "ENV_PROD_FILE=$(echo $ENV_PROD_FILE | base64)" 
 
   build:
     runs-on: ubuntu-latest
