@@ -66,6 +66,7 @@ public class SecurityConfig {
             "/member/join",
             "/actuator/**",
             "/email",
+            "/metrics",
     };
 
     /*
@@ -95,6 +96,7 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorizeHttp)-> authorizeHttp
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                .requestMatchers("/api/v1/actuator/**").permitAll()
                 .requestMatchers(PERMIT_URL_ARRAY).permitAll()
                 .requestMatchers("/api/v1/admin/**").hasAnyAuthority(RoleType.ADMIN.getCode())
                 .requestMatchers("/api/v1/**").hasAnyAuthority(RoleType.USER.getCode()).anyRequest().authenticated()
