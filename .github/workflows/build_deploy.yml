@@ -74,6 +74,7 @@ jobs:
           echo "region=${{ secrets.OCI_CLI_REGION }}" >> ~/.oci/config
           echo "${{ secrets.OCI_CLI_KEY_CONTENT }}" > ~/.oci/oci_api_key.pem
           chmod 600 ~/.oci/oci_api_key.pem
+          cat ~/.oci/oci_api_key.pem
 
       - name: Install OCI CLI
         run: |
