@@ -1,21 +1,18 @@
-package synapps.resona.api.mysql.social_media.dto.feed.response;
+package synapps.resona.api.mysql.social_media.dto.comment.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.social_media.dto.feed.FeedImageDto;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FeedPostResponse {
-    private String id;
+public class CommentPostResponse {
+    private String commentId;
     private String content;
-    private List<FeedImageDto> feedImageDtos;
     private String createdAt;
 }

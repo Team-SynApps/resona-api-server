@@ -65,6 +65,7 @@ public class FeedService {
         return FeedReadResponse.builder()
                 .feedImageDtos(feedImageDtos)
                 .id(feed.getId().toString())
+                .createdAt(feed.getCreatedAt().toString())
                 .content(feed.getContent())
                 .build();
     }
@@ -176,6 +177,7 @@ public class FeedService {
         return FeedPostResponse.builder()
                 .id(feed.getId().toString())
                 .feedImageDtos(finalizedFeed)
+                .createdAt(feed.getCreatedAt().toString())
                 .content(feed.getContent()).build();
     }
 }
