@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.social_media.dto.reply;
+package synapps.resona.api.mysql.social_media.dto.reply.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

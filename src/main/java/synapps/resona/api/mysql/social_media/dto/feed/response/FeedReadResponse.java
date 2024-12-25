@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import synapps.resona.api.mysql.social_media.dto.feed.FeedImageDto;
 import synapps.resona.api.mysql.social_media.entity.Feed;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,12 +18,14 @@ import java.util.stream.Collectors;
 public class FeedReadResponse {
     private String id;
     private String content;
+    private String createdAt;
     private List<FeedImageDto> feedImageDtos;
 
     public static FeedReadResponse from(Feed feed) {
         return FeedReadResponse.builder()
                 .id(feed.getId().toString())
                 .content(feed.getContent())
+                .createdAt(feed.getCreatedAt().toString())
                 .feedImageDtos(feed.getImages().stream().map(media -> FeedImageDto.from(media)
                 ).toList())
                 .build();
