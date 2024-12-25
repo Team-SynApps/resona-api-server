@@ -7,6 +7,12 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
+    threads:
+      max: 200
+      min-spare: 10
+    max-connections: 8192
+    accept-count: 100
+    connection-timeout: 5000
 api:
   version: v1
 
@@ -19,6 +25,12 @@ spring:
     url: ${MYSQL_DATABASE_URL}
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+      max-lifetime: 1200000
   data:
     mongodb:
       host: ${MONGO_HOST}
@@ -26,24 +38,25 @@ spring:
       authentication-database: ${MONGO_AUTH_DATABASE}
       username: ${MONGO_USERNAME}
       password: ${MONGO_PASSWORD}
-#      database:
+  task:
+    execution:
+      pool:
+        core-size: 8
+        max-size: 50
+        queue-capacity: 100
+        keep-alive: 60s
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        #show_sql: true
-#        format_sql: true
         default_batch_fetch_size: 500
-#        dialect: org.hibernate.spatial.dialect.mysql.MySQL8SpatialDialect
-    #        database-platform: org.hibernate.spatial.dialect.mysql.MySQL8SpatialDialect
-#    database: mysql
     open-in-view: false
 
   mvc:
     path match:
       matching-strategy: ant_path_matcher
-# oauth
+  # oauth
   security:
     oauth2.client:
       registration:
@@ -88,6 +101,7 @@ cors:
   allowed-methods: GET,POST,PUT,DELETE,OPTIONS
   allowed-headers: '*'
   max-age: 3600
+
 # 토큰 관련 secret Key 및 RedirectUri 설정
 app:
   auth:
@@ -122,7 +136,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: "prometheus,health,metrics"  # 필요한 엔드포인트만 노출
+        include: "prometheus,health,metrics"
       base-path: /actuator
   endpoint:
     health:
@@ -131,7 +145,15 @@ management:
       enabled: true
   server:
     port: 8080
+  metrics:
+    tags:
+      application: resona
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      slo:
+        http.server.requests: 500ms, 1500ms
   prometheus:
     metrics:
       export:
-        enabled: true      # 새로운 위치
+        enabled: true
