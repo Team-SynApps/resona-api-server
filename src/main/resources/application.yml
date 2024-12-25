@@ -8,11 +8,11 @@ server:
     mbeanregistry:
       enabled: true
     threads:
-      max: 200
-      min-spare: 10
-    max-connections: 8192
-    accept-count: 100
-    connection-timeout: 5000
+      max: 400
+      min-spare: 20
+    max-connections: 10000
+    accept-count: 200
+    connection-timeout: 20000
 api:
   version: v1
 
@@ -26,10 +26,10 @@ spring:
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
+      maximum-pool-size: 50
+      minimum-idle: 10
       idle-timeout: 300000
-      connection-timeout: 20000
+      connection-timeout: 30000
       max-lifetime: 1200000
   data:
     mongodb:
@@ -41,9 +41,9 @@ spring:
   task:
     execution:
       pool:
-        core-size: 8
-        max-size: 50
-        queue-capacity: 100
+        core-size: 20
+        max-size: 100
+        queue-capacity: 200
         keep-alive: 60s
   jpa:
     hibernate:
