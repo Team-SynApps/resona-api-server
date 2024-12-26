@@ -16,4 +16,8 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
     @Query("SELECT f FROM Feed f WHERE f.createdAt < :cursor " +
             "ORDER BY f.createdAt DESC LIMIT :size")
     List<Feed> findFeedsByCursor(LocalDateTime cursor, int size);
+    //    @QueryHints(value = @QueryHint(name = "org.hibernate.hint.USE_INDEX", value = "idx_created_at"))
+//    @Query("SELECT  f FROM Feed f WHERE f.createdAt < :cursor " +
+//            "ORDER BY f.createdAt DESC LIMIT :size")
+//    List<Feed> findFeedsByCursor(LocalDateTime cursor, int size);
 }

@@ -7,7 +7,7 @@ server:
   tomcat:
     mbeanregistry:
       enabled: true
-    threads:
+    threads: # 톰캣 스레드 수 조정
       max: 400
       min-spare: 20
     max-connections: 10000
@@ -38,7 +38,7 @@ spring:
       authentication-database: ${MONGO_AUTH_DATABASE}
       username: ${MONGO_USERNAME}
       password: ${MONGO_PASSWORD}
-  task:
+  task: # 스레드 풀 크기 조정
     execution:
       pool:
         core-size: 20
@@ -51,7 +51,10 @@ spring:
     properties:
       hibernate:
         default_batch_fetch_size: 500
+        format_sql: true # 쿼리 추적용
+        use_sql_comments: true # 쿼리 추적용
     open-in-view: false
+    show-sql: true # 쿼리 추적용
 
   mvc:
     path match:
