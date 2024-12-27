@@ -29,7 +29,7 @@ spring:
       maximum-pool-size: 50
       minimum-idle: 10
       idle-timeout: 300000
-      connection-timeout: 20000
+      connection-timeout: 30000
       max-lifetime: 1200000
   data:
     mongodb:
