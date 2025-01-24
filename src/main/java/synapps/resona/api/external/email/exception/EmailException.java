@@ -27,4 +27,8 @@ public class EmailException extends MessagingException {
     public static EmailException emailSendFailed() {
         return of(ErrorCode.EMAIL_SEND_FAILED);
     }
+
+    public static EmailException blankCode(){
+        return of(ErrorCode.BLANK_CODE);
+    }
 }

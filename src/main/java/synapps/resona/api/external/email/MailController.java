@@ -1,5 +1,7 @@
 package synapps.resona.api.external.email;
 
+import jakarta.validation.Valid;
+import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
@@ -17,7 +19,7 @@ import java.util.List;
 public class MailController {
     private final MailService mailService;
     private final ServerInfoConfig serverInfo;
-    private int number; // 이메일 인증 숫자를 저장하는 변수
+    private final RedisService redisService;
 
     private MetaDataDto createSuccessMetaData(String queryString){
         return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
@@ -29,11 +31,11 @@ public class MailController {
         HashMap<String, Object> map = new HashMap<>();
 
         try {
-            number = mailService.sendMail(mail);
+            int number = mailService.sendMail(mail);
             String num = String.valueOf(number);
 
             map.put("success", Boolean.TRUE);
-            map.put("number", num);
+            redisService.setCode(mail, num);
         } catch (Exception e) {
             map.put("success", Boolean.FALSE);
             map.put("error", e.getMessage());
@@ -45,10 +47,10 @@ public class MailController {
     }
 
     // 인증번호 일치여부 확인
-    @GetMapping()
-    public ResponseEntity<?> mailCheck(HttpServletRequest request, @RequestParam String userNumber) {
+    @PostMapping("/verification")
+    public ResponseEntity<?> mailCheck(HttpServletRequest request, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
 
-        boolean isMatch = userNumber.equals(String.valueOf(number));
+        boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(isMatch));
 

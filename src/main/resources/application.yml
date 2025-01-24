@@ -32,6 +32,9 @@ spring:
       connection-timeout: 30000
       max-lifetime: 1200000
   data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
     mongodb:
       host: ${MONGO_HOST}
       port: ${MONGO_PORT}
