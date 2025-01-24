@@ -4,7 +4,15 @@ server:
     context-path: /api/${api.version}
   name: resona
   forward-headers-strategy: framework
-
+  tomcat:
+    mbeanregistry:
+      enabled: true
+    threads: # 톰캣 스레드 수 조정
+      max: 400
+      min-spare: 20
+    max-connections: 10000
+    accept-count: 200
+    connection-timeout: 20000
 api:
   version: v1
 
@@ -17,6 +25,12 @@ spring:
     url: ${MYSQL_DATABASE_URL}
     username: ${MYSQL_USERNAME}
     password: ${MYSQL_PASSWORD}
+    hikari:
+      maximum-pool-size: 50
+      minimum-idle: 10
+      idle-timeout: 300000
+      connection-timeout: 30000
+      max-lifetime: 1200000
   data:
     mongodb:
       host: ${MONGO_HOST}
@@ -24,24 +38,28 @@ spring:
       authentication-database: ${MONGO_AUTH_DATABASE}
       username: ${MONGO_USERNAME}
       password: ${MONGO_PASSWORD}
-#      database:
+  task: # 스레드 풀 크기 조정
+    execution:
+      pool:
+        core-size: 20
+        max-size: 100
+        queue-capacity: 200
+        keep-alive: 60s
   jpa:
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        #show_sql: true
-#        format_sql: true
         default_batch_fetch_size: 500
-#        dialect: org.hibernate.spatial.dialect.mysql.MySQL8SpatialDialect
-    #        database-platform: org.hibernate.spatial.dialect.mysql.MySQL8SpatialDialect
-#    database: mysql
+        format_sql: true # 쿼리 추적용
+        use_sql_comments: true # 쿼리 추적용
     open-in-view: false
+    show-sql: true # 쿼리 추적용
 
   mvc:
     path match:
       matching-strategy: ant_path_matcher
-# oauth
+  # oauth
   security:
     oauth2.client:
       registration:
@@ -87,7 +105,6 @@ cors:
   allowed-headers: '*'
   max-age: 3600
 
-
 # 토큰 관련 secret Key 및 RedirectUri 설정
 app:
   auth:
@@ -98,24 +115,48 @@ app:
     authorizedRedirectUris:
       - https://localhost:3000/oauth/redirect
 
-cloud:
-  aws:
-    s3:
-      bucket: ${S3_BUCKET_NAME}
-    stack.auto: false
-    region.static: ${REGION}
-    credentials:
-      access-key: ${S3_ACCESS_KEY}
-      secret-key: ${S3_SECRET_KEY}
+# 기존 설정에 추가
+logging:
+  config: classpath:log4j2-spring.xml
+
+oci:
+  config:
+    userId: ${OCI_BUCKET_USER_ID}
+    tenancyId: ${OCI_BUCKET_TENANCY_ID}
+    fingerprint: ${OCI_BUCKET_FINGERPRINT}
+    privateKeyPath: ${BUCKET_PRIVATE_KEY_PATH}
+    region: ${OCI_BUCKET_REGION}
+  storage:
+    bucketName: ${OCI_BUCKET_NAME}
+    compartmentId: ${OCI_BUCKET_COMPARTMENT_ID}
+    namespace: ${OCI_BUCKET_NAMESPACE}
+    region: ${OCI_BUCKET_REGION}
+    buffer-bucket-name: ${OCI_BUFFER_BUCKET_NAME}
+    disk-bucket-name: ${OCI_DISK_BUCKET_NAME}
 
 # actuator
 management:
   endpoints:
     web:
       exposure:
-        include: health
+        include: "prometheus,health,metrics"
+      base-path: /actuator
   endpoint:
     health:
       show-details: always
+    prometheus:
+      enabled: true
   server:
     port: 8080
+  metrics:
+    tags:
+      application: resona
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      slo:
+        http.server.requests: 500ms, 1500ms
+  prometheus:
+    metrics:
+      export:
+        enabled: true

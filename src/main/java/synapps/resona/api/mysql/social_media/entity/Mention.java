@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.entity.member.Member;
 
 import java.time.LocalDateTime;
 
@@ -28,27 +28,23 @@ public class Mention {
 
     @NotNull
     @Column(name = "mentioned_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime mentionedAt;
-
-    @NotNull
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt;
 
     @Column(name = "is_deleted")
     private boolean isDeleted;
 
-    private Mention(Member member, Comment comment, LocalDateTime mentionedAt, LocalDateTime modifiedAt) {
+    private Mention(Member member, Comment comment, LocalDateTime mentionedAt) {
         this.member = member;
         this.comment = comment;
         this.mentionedAt = mentionedAt;
-        this.modifiedAt = modifiedAt;
     }
 
-    public static Mention of(Member member, Comment comment, LocalDateTime mentionedAt, LocalDateTime modifiedAt) {
-        return new Mention(member, comment, mentionedAt, modifiedAt);
+    public static Mention of(Member member, Comment comment, LocalDateTime mentionedAt) {
+        return new Mention(member, comment, mentionedAt);
     }
 
     public void softDelete() {
-        isDeleted = true;
+        this.isDeleted = true;
     }
 }

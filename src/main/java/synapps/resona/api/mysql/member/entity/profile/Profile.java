@@ -9,7 +9,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.mysql.member.entity.Language;
-import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.util.HashGenerator;
 import synapps.resona.api.mysql.member.util.MD5Generator;
 
@@ -66,17 +66,19 @@ public class Profile {
 
     @NotNull
     @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @NotNull
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime modifiedAt;
 
     @NotNull
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
-    private Profile(Member member, String nickname, List<String> usingLanguages, String profileImageUrl, String backgroundImageUrl, String mbti, String comment, String aboutMe, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    private Profile(Member member, String nickname, List<String> usingLanguages, String profileImageUrl, String backgroundImageUrl, String mbti, String comment, String aboutMe, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.member = member;
         this.tag = generateTag(String.valueOf(member.getId()));
         this.nickname = nickname;
@@ -87,7 +89,7 @@ public class Profile {
         this.comment = comment;
         this.aboutMe = aboutMe;
         this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
+        this.modifiedAt = modifiedAt;
     }
 
     public void modifyProfile(String nickname, List<String> usingLanguages, String profileImageUrl, String backgroundImageUrl, String mbti, String comment, String aboutMe) {
@@ -98,7 +100,7 @@ public class Profile {
         this.mbti = MBTI.of(mbti);
         this.comment = comment;
         this.aboutMe = aboutMe;
-        this.updatedAt = LocalDateTime.now();
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public void changeBackgroundUrl(String url) {

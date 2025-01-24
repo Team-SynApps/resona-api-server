@@ -2,7 +2,7 @@ package synapps.resona.api.oauth.service;
 
 
 import lombok.RequiredArgsConstructor;
-import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;

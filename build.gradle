@@ -3,6 +3,7 @@ plugins {
 	id 'org.springframework.boot' version '3.2.3'
 	id 'io.spring.dependency-management' version '1.1.4'
 	id "co.uzzu.dotenv.gradle" version "4.0.0"
+	id("io.gatling.gradle") version "3.13.1"
 }
 
 group = 'com.synapps'
@@ -21,6 +22,15 @@ configurations {
 repositories {
 	mavenCentral()
 }
+
+dependencyManagement {
+	// for oci bucket storage
+	imports {
+		mavenBom 'com.oracle.oci.sdk:oci-java-sdk-bom:3.43.1'
+		mavenBom 'org.springframework.boot:spring-boot-dependencies:3.2.3'
+	}
+}
+
 
 dependencies {
 	// web
@@ -49,37 +59,39 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-
-	//S3
-	implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.1000')
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	// OCI SDK
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-shaded-full'
 
 	// email
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-
 
 	// lombok
 	compileOnly 'org.projectlombok:lombok:1.18.20'
 	annotationProcessor 'org.projectlombok:lombok:1.18.20'
 
 	// log
+	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 	implementation 'org.apache.logging.log4j:log4j-mongodb4:2.21.1'
-//	implementation 'org.apache.logging.log4j:log4j-core:2.21.1'
-	implementation 'org.apache.logging.log4j:log4j-to-slf4j:2.21.1'
 
+	// Actuator
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-	//Test
+	// prometheus
+	implementation 'io.micrometer:micrometer-registry-prometheus'
+
+	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 
-	// Actuator: for health check
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	// stress test: gatling
+	testImplementation 'io.gatling:gatling-test-framework:3.13.1'
+	testImplementation 'io.gatling.highcharts:gatling-charts-highcharts:3.13.1'
 }
 
-configurations.configureEach {
-	exclude group: 'commons-logging', module: 'commons-logging'
-	exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-	exclude group: 'org.apache.logging.log4j', module: 'log4j-to-slf4j'
+configurations {
+	configureEach {
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+	}
 }
 
 tasks.named('test') {

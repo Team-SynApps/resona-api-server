@@ -1,5 +1,5 @@
-# OpenJDK 17.0.1의 slim 버전을 기반으로 빌드 스테이지를 설정합니다.
-FROM openjdk:17.0.1-jdk-slim as build
+# OpenJDK 17 버전을 기반으로 빌드 스테이지를 설정합니다.
+FROM openjdk:17-slim-buster AS build
 
 # 작업 디렉토리를 /workspace/app으로 설정합니다.
 WORKDIR /workspace/app
@@ -12,10 +12,12 @@ COPY ./gradle ./gradle/
 COPY ./src ./src/
 
 # gradlew를 사용하여 bootJar 작업을 실행하여 Spring Boot JAR 파일을 생성합니다.
-RUN ./gradlew bootJar
+RUN chmod +x ./gradlew
+RUN ./gradlew clean bootJar -PexcludeSecrets=true
 
 # 런타임용 이미지로 slim 버전을 다시 사용합니다.
-FROM openjdk:17.0.1-jdk-slim
+#FROM openjdk:17.0.1-jdk-slim
+FROM openjdk:17-slim-buster
 
 # 작업 디렉토리를 /app으로 설정합니다.
 WORKDIR /app

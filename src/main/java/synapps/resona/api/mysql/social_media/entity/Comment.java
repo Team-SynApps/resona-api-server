@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.member.entity.Member;
+import synapps.resona.api.mysql.member.entity.member.Member;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,10 +28,10 @@ public class Comment {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "reply")
+    @OneToMany(mappedBy = "comment")
     private List<Reply> replies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "mention")
+    @OneToMany(mappedBy = "comment")
     private List<Mention> mentions = new ArrayList<>();
 
     @Column(name="content")
@@ -39,10 +39,12 @@ public class Comment {
 
     @NotNull
     @Column(name = "created_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @NotNull
     @Column(name = "modified_at")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
 
     @Column(name = "is_reply_exist")
@@ -64,6 +66,20 @@ public class Comment {
     }
 
     public void softDelete() {
-        isDeleted = true;
+        this.isDeleted = true;
+        this.modifiedAt = LocalDateTime.now();
+    }
+
+    public void addReply() {
+        this.isReplyExist = true;
+    }
+
+    public void removeReply() {
+        this.isReplyExist = false;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+        this.modifiedAt = LocalDateTime.now();
     }
 }
