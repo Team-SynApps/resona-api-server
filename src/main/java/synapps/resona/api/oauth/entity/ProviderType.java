@@ -9,7 +9,8 @@ public enum ProviderType {
     GOOGLE,
     FACEBOOK,
     APPLE,
-    LOCAL;
+    LOCAL,
+    TEMPORARY;
 
     public static ProviderType of(String providerType) {
         return Arrays.stream(ProviderType.values())
