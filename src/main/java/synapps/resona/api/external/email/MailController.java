@@ -31,15 +31,24 @@ public class MailController {
         HashMap<String, Object> map = new HashMap<>();
 
         try {
-            int number = mailService.sendMail(mail);
-            String num = String.valueOf(number);
+            // 발송 가능 여부 확인
+            if (!redisService.canSendEmail(mail)) {
+                map.put("success", Boolean.FALSE);
+                map.put("error", "일일 최대 발송 횟수를 초과했습니다.");
+                map.put("remainingAttempts", 0);
+            } else {
+                int number = mailService.sendMail(mail);
+                String num = String.valueOf(number);
 
-            map.put("success", Boolean.TRUE);
-            redisService.setCode(mail, num);
+                redisService.setCode(mail, num);
+                map.put("success", Boolean.TRUE);
+                map.put("remainingAttempts", redisService.getRemainingEmailSends(mail));
+            }
         } catch (Exception e) {
             map.put("success", Boolean.FALSE);
             map.put("error", e.getMessage());
         }
+
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(map));
 
