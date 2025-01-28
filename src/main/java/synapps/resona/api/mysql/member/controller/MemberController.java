@@ -6,6 +6,7 @@ import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.SignupRequest;
+import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
 import synapps.resona.api.mysql.member.service.MemberService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,6 +53,15 @@ public class MemberController {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.checkDuplicateId(duplicateIdRequest)));
         return ResponseEntity.ok(responseData);
+    }
+
+    @PostMapping("/password")
+    public ResponseEntity<?> changePassword(HttpServletRequest request,
+                                            HttpServletResponse response,
+                                            @RequestBody MemberPasswordChangeDto requestBody) throws Exception {
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        ResponseDto responseDto = new ResponseDto(metaData, List.of(memberService.changePassword(requestBody)));
+        return ResponseEntity.ok(responseDto);
     }
 
     @DeleteMapping()
