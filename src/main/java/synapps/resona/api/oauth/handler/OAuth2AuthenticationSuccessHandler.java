@@ -47,7 +47,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         ResponseEntity<?> responseData = getResponse(request, response, authentication);
-
+        String targetUrl = determineTargetUrl(request, response, authentication);
 //        if (response.isCommitted()) {
 //            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
 //            return;
@@ -55,6 +55,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         clearAuthenticationAttributes(request, response);
 //        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+        response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY); // 301 상태 코드
+        response.setHeader("Location", targetUrl);
         writeResponse(response, responseData);
     }
 
