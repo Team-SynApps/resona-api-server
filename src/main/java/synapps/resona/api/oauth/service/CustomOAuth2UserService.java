@@ -58,7 +58,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         );
 
         Member savedMember = memberRepository.findByEmail(userInfo.getEmail()).orElse(null);
+        if (savedMember == null) {
+            savedMember = createMember(userInfo, providerType);
+        }
+
         AccountInfo accountInfo = accountInfoRepository.findByMember(savedMember);
+
 
         if (providerType != accountInfo.getProviderType()) {
             throw new OAuthProviderMissMatchException(
