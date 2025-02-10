@@ -87,6 +87,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 now,                       // createdAt
                 now                       // modifiedAt
         );
+        member = memberRepository.saveAndFlush(member);
         AccountInfo accountInfo = AccountInfo.of(
                 member,
                 RoleType.USER,
@@ -98,7 +99,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         );
         accountInfoRepository.save(accountInfo);
 
-        return memberRepository.saveAndFlush(member);
+        return member;
     }
 
 //    private OAuth2User processAppleUser(OAuth2UserRequest userRequest, OAuth2User user) {
