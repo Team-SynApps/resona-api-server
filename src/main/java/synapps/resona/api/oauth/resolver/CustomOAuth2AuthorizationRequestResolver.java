@@ -3,8 +3,6 @@ package synapps.resona.api.oauth.resolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
-import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.stereotype.Component;
@@ -17,11 +15,8 @@ public class CustomOAuth2AuthorizationRequestResolver implements OAuth2Authoriza
     @Value("${oauth.redirect-scheme}")
     private String redirectScheme;
 
-    public CustomOAuth2AuthorizationRequestResolver(ClientRegistrationRepository clientRegistrationRepository) {
-        this.defaultResolver = new DefaultOAuth2AuthorizationRequestResolver(
-                clientRegistrationRepository,
-                "/oauth2/authorization"
-        );
+    public CustomOAuth2AuthorizationRequestResolver(OAuth2AuthorizationRequestResolver defaultResolver) {
+        this.defaultResolver = defaultResolver;
     }
 
     @Override
