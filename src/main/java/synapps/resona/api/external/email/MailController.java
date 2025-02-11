@@ -1,5 +1,6 @@
 package synapps.resona.api.external.email;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.ServerInfoConfig;
@@ -9,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import synapps.resona.api.mysql.member.service.TempTokenService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +22,7 @@ public class MailController {
     private final MailService mailService;
     private final ServerInfoConfig serverInfo;
     private final RedisService redisService;
+    private final TempTokenService tempTokenService;
 
     private MetaDataDto createSuccessMetaData(String queryString){
         return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
@@ -63,6 +66,21 @@ public class MailController {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(isMatch));
 
+        return ResponseEntity.ok(responseData);
+    }
+
+    // 인증번호 일치여부 확인
+    @PostMapping("/temp_token")
+    public ResponseEntity<?> mailCheckAndIssueToken(HttpServletRequest request, HttpServletResponse response, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
+
+        boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        if(isMatch){
+            ResponseDto responseData = new ResponseDto(metaData, List.of(tempTokenService.createTemporaryToken(request, response)));
+            return ResponseEntity.ok(responseData);
+        }
+
+        ResponseDto responseData = new ResponseDto(metaData, List.of(isMatch));
         return ResponseEntity.ok(responseData);
     }
 }
