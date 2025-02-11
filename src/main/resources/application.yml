@@ -96,6 +96,7 @@ jwt:
   secret: ${JWT_SECRET}
 
 oauth:
+  redirect-scheme: resona
   apple:
     iss: https://appleid.apple.com
     client-id: ${APPLE_CLIENT_ID}

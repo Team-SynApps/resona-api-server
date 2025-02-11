@@ -2,6 +2,8 @@ package synapps.resona.api.oauth.handler;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
@@ -30,10 +32,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @RequiredArgsConstructor
@@ -43,6 +42,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final AppProperties appProperties;
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
     private final OAuth2AuthorizationRequestBasedOnCookieRepository authorizationRequestRepository;
+
+    @Value("${oauth.redirect-scheme}")
+    private String redirectScheme;
+
 
 //    @Override
 //    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -67,17 +70,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         clearAuthenticationAttributes(request, response);
-
-        // 301 상태 코드와 Location 헤더 설정
-        response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
-        response.setHeader("Location", targetUrl);
+        redirectToScheme(response, targetUrl);
     }
 
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        String redirectUri = request.getParameter("redirect-uri");
-        if (redirectUri == null || redirectUri.isEmpty()) {
-            throw new IllegalArgumentException("redirect-uri parameter is required");
-        }
+        String baseRedirectUri = (String) request.getSession().getAttribute(redirectScheme);
 
         // 토큰 생성 로직
         OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
@@ -118,9 +115,34 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         CookieUtil.deleteCookie(request, response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN);
         CookieUtil.addCookie(response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
 
-        return redirectUri + "://token=" + accessToken.getToken();
+        Map<String,Object> queryParams = new HashMap<>();
+        queryParams.put("isRegistered", "true");
+        queryParams.put("accessToken", accessToken);
+        queryParams.put("refreshToken", refreshToken);
+
+        return createRedirectScheme(baseRedirectUri,queryParams);
     }
 
+    private String createRedirectScheme(String baseRedirectUri, Map<String, Object> queryParams) {
+        StringBuilder stringBuffer = new StringBuilder()
+                .append(baseRedirectUri)
+                .append("://?");
+        for (String key : queryParams.keySet()) {
+            stringBuffer.append(key);
+            stringBuffer.append("=");
+            stringBuffer.append(queryParams.get(key));
+            stringBuffer.append("&");
+        }
+        stringBuffer.deleteCharAt(stringBuffer.length() - 1);
+        return stringBuffer.toString();
+    }
+
+    private void redirectToScheme(HttpServletResponse response, String redirectUri) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpStatus.FOUND.value());
+        response.sendRedirect(redirectUri);
+    }
 
 
     protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
