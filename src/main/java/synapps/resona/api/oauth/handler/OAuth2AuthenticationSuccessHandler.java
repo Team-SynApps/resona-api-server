@@ -126,7 +126,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private String createRedirectScheme(String baseRedirectUri, Map<String, Object> queryParams) {
         StringBuilder stringBuffer = new StringBuilder()
                 .append(baseRedirectUri)
-                .append("://?");
+                .append("://");
         for (String key : queryParams.keySet()) {
             stringBuffer.append(key);
             stringBuffer.append("=");
