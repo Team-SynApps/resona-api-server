@@ -68,7 +68,7 @@ public class SecurityConfig {
             "/email",
             "/email/verification",
             "/metrics",
-            "/auth/temp"
+            "/email/temp_token"
     };
 
     /*
