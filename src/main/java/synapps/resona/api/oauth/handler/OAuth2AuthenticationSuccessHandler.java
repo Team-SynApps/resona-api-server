@@ -74,15 +74,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     }
 
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        Optional<String> redirectUri = CookieUtil.getCookie(request, OAuth2AuthorizationRequestBasedOnCookieRepository.REDIRECT_URI_PARAM_COOKIE_NAME)
-                .map(Cookie::getValue);
-
-        if(redirectUri.isEmpty()) {
-            throw new IllegalArgumentException("No redirect URI provided");
+        String redirectUri = request.getParameter("redirect-uri");
+        if (redirectUri == null || redirectUri.isEmpty()) {
+            throw new IllegalArgumentException("redirect-uri parameter is required");
         }
-
-        String originalUri = redirectUri.get();
-        String schema = extractSchema(originalUri);
 
         // 토큰 생성 로직
         OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
@@ -123,16 +118,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         CookieUtil.deleteCookie(request, response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN);
         CookieUtil.addCookie(response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
 
-        // 리다이렉트 URL 생성
-        return schema + "://token=" + accessToken.getToken();
-    }
-
-    private String extractSchema(String uri) {
-        int schemaEnd = uri.indexOf("://");
-        if (schemaEnd == -1) {
-            throw new IllegalArgumentException("Invalid URI format: " + uri);
-        }
-        return uri.substring(0, schemaEnd);
+        return redirectUri + "://token=" + accessToken.getToken();
     }
 
 
