@@ -46,30 +46,45 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        ResponseEntity<?> responseData = getResponse(request, response, authentication);
         String targetUrl = determineTargetUrl(request, response, authentication);
+
+        if (response.isCommitted()) {
+            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
+            return;
+        }
+
+        clearAuthenticationAttributes(request, response);
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+    }
+
+//    @Override
+//    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+//        String targetUrl = determineTargetUrl(request, response, authentication);
+//
 //        if (response.isCommitted()) {
 //            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
 //            return;
 //        }
+//
+//        clearAuthenticationAttributes(request, response);
+//
+//        // 301 상태 코드와 Location 헤더 설정
+//        response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY);
+//        response.setHeader("Location", targetUrl);
+//    }
 
-        clearAuthenticationAttributes(request, response);
-//        getRedirectStrategy().sendRedirect(request, response, targetUrl);
-        response.setStatus(HttpServletResponse.SC_MOVED_PERMANENTLY); // 301 상태 코드
-        response.setHeader("Location", targetUrl);
-        writeResponse(response, responseData);
-    }
-
-    protected ResponseEntity<?> getResponse(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         Optional<String> redirectUri = CookieUtil.getCookie(request, OAuth2AuthorizationRequestBasedOnCookieRepository.REDIRECT_URI_PARAM_COOKIE_NAME)
                 .map(Cookie::getValue);
 
-        if(redirectUri.isPresent() && !isAuthorizedRedirectUri(redirectUri.get())) {
-            throw new IllegalArgumentException("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication");
+        if(redirectUri.isEmpty()) {
+            throw new IllegalArgumentException("No redirect URI provided");
         }
 
-        String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
+        String originalUri = redirectUri.get();
+        String schema = extractSchema(originalUri);
 
+        // 토큰 생성 로직
         OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
         ProviderType providerType = ProviderType.valueOf(authToken.getAuthorizedClientRegistrationId().toUpperCase());
 
@@ -108,30 +123,23 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         CookieUtil.deleteCookie(request, response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN);
         CookieUtil.addCookie(response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
 
-        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
-        ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken.getToken()));
-
-        return ResponseEntity.ok(responseData);
+        // 리다이렉트 URL 생성
+        return schema + "://token=" + accessToken.getToken();
     }
+
+    private String extractSchema(String uri) {
+        int schemaEnd = uri.indexOf("://");
+        if (schemaEnd == -1) {
+            throw new IllegalArgumentException("Invalid URI format: " + uri);
+        }
+        return uri.substring(0, schemaEnd);
+    }
+
+
 
     protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
         super.clearAuthenticationAttributes(request);
         authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
-    }
-
-    private void writeResponse(HttpServletResponse response, ResponseEntity<?> responseData) throws IOException {
-        // 상태 코드 설정
-        response.setStatus(responseData.getStatusCodeValue());
-
-        // Content-Type 설정
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-
-        // Body를 HttpServletResponse로 작성
-        if (responseData.getBody() != null) {
-            String responseBody = new ObjectMapper().writeValueAsString(responseData.getBody());
-            response.getWriter().write(responseBody);
-        }
     }
 
     private boolean hasAuthority(Collection<? extends GrantedAuthority> authorities, String authority) {
@@ -163,5 +171,59 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                     return false;
                 });
     }
+
+//    protected ResponseEntity<?> getResponse(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
+//        Optional<String> redirectUri = CookieUtil.getCookie(request, OAuth2AuthorizationRequestBasedOnCookieRepository.REDIRECT_URI_PARAM_COOKIE_NAME)
+//                .map(Cookie::getValue);
+//
+//        if(redirectUri.isPresent() && !isAuthorizedRedirectUri(redirectUri.get())) {
+//            throw new IllegalArgumentException("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication");
+//        }
+//
+//        String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
+//
+//        OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
+//        ProviderType providerType = ProviderType.valueOf(authToken.getAuthorizedClientRegistrationId().toUpperCase());
+//
+//        OidcUser user = ((OidcUser) authentication.getPrincipal());
+//        OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, user.getAttributes());
+//        Collection<? extends GrantedAuthority> authorities = ((OidcUser) authentication.getPrincipal()).getAuthorities();
+//
+//        RoleType roleType = hasAuthority(authorities, RoleType.ADMIN.getCode()) ? RoleType.ADMIN : RoleType.USER;
+//
+//        Date now = new Date();
+//        AuthToken accessToken = tokenProvider.createAuthToken(
+//                userInfo.getEmail(),
+//                roleType.getCode(),
+//                new Date(now.getTime() + appProperties.getAuth().getTokenExpiry())
+//        );
+//
+//        // refresh 토큰 설정
+//        long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
+//
+//        AuthToken refreshToken = tokenProvider.createAuthToken(
+//                appProperties.getAuth().getTokenSecret(),
+//                new Date(now.getTime() + refreshTokenExpiry)
+//        );
+//
+//        // DB 저장
+//        MemberRefreshToken userRefreshToken = memberRefreshTokenRepository.findByMemberEmail(userInfo.getId());
+//        if (userRefreshToken != null) {
+//            userRefreshToken.setRefreshToken(refreshToken.getToken());
+//        } else {
+//            userRefreshToken = new MemberRefreshToken(userInfo.getEmail(), refreshToken.getToken());
+//            memberRefreshTokenRepository.saveAndFlush(userRefreshToken);
+//        }
+//
+//        int cookieMaxAge = (int) refreshTokenExpiry / 60;
+//
+//        CookieUtil.deleteCookie(request, response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN);
+//        CookieUtil.addCookie(response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
+//
+//        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
+//        ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken.getToken()));
+//
+//        return ResponseEntity.ok(responseData);
+//    }
 }
 
