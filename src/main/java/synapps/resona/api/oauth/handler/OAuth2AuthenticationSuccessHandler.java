@@ -102,14 +102,14 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         );
 
         // DB 저장
-        MemberRefreshToken userRefreshToken = memberRefreshTokenRepository.findByMemberEmail(userInfo.getId());
+        MemberRefreshToken userRefreshToken = memberRefreshTokenRepository.findByMemberEmail(userInfo.getEmail());
         if (userRefreshToken != null) {
             userRefreshToken.setRefreshToken(refreshToken.getToken());
+            memberRefreshTokenRepository.saveAndFlush(userRefreshToken); // 변경된 토큰 저장 추가
         } else {
             userRefreshToken = new MemberRefreshToken(userInfo.getEmail(), refreshToken.getToken());
             memberRefreshTokenRepository.saveAndFlush(userRefreshToken);
         }
-
         int cookieMaxAge = (int) refreshTokenExpiry / 60;
 
         CookieUtil.deleteCookie(request, response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN);
@@ -117,8 +117,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
         Map<String,Object> queryParams = new HashMap<>();
         queryParams.put("isRegistered", "true");
-        queryParams.put("accessToken", accessToken);
-        queryParams.put("refreshToken", refreshToken);
+        queryParams.put("accessToken", accessToken.getToken());
+        queryParams.put("refreshToken", refreshToken.getToken());
 
         return createRedirectScheme(baseRedirectUri,queryParams);
     }
