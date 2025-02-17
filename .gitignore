@@ -7,6 +7,10 @@ build/
 
 ### environment
 .env
+.env-local
+
+## private key ###
+src/main/resources/keys/resona-bucket-private-key.pem
 
 ### STS ###
 .apt_generated

@@ -2,6 +2,7 @@ package synapps.resona.api.mysql.member.service;
 
 import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.SignupRequest;
+import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
@@ -33,14 +34,18 @@ public class MemberService {
      * Optional 적용 고려
      */
     @Transactional
-    public Member getMember() {
+    public MemberDto getMember() {
         log.info("get member");
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info(userPrincipal.getUsername());
         Member member = memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
         AccountInfo accountInfo = accountInfoRepository.findByMember(member);
         accountInfo.updateLastAccessedAt();
-        return member;
+
+        return MemberDto.builder()
+                .id(member.getId())
+                .email(member.getEmail())
+                .build();
     }
 
     @Transactional
@@ -78,6 +83,14 @@ public class MemberService {
 
     public boolean checkDuplicateId(DuplicateIdRequest request) throws Exception {
         return memberRepository.existsById(Long.parseLong(request.getId()));
+    }
+
+    @Transactional
+    public MemberDto changePassword(MemberPasswordChangeDto memberPasswordChangeDto) {
+        String email = memberPasswordChangeDto.getEmail();
+        Member member = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);
+        member.encodePassword(memberPasswordChangeDto.getChangedPassword());
+        return new MemberDto(member.getId(), member.getEmail());
     }
 
     public String deleteUser() {

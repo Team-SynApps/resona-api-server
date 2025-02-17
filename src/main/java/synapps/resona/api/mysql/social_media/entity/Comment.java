@@ -67,6 +67,7 @@ public class Comment {
 
     public void softDelete() {
         this.isDeleted = true;
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public void addReply() {

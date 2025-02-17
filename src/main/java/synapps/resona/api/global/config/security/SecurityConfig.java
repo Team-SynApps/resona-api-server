@@ -1,5 +1,10 @@
 package synapps.resona.api.global.config.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
@@ -8,6 +13,7 @@ import synapps.resona.api.oauth.filter.TokenAuthenticationFilter;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationFailureHandler;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationSuccessHandler;
 import synapps.resona.api.oauth.handler.TokenAccessDeniedHandler;
+import synapps.resona.api.oauth.resolver.CustomOAuth2AuthorizationRequestResolver;
 import synapps.resona.api.oauth.respository.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import synapps.resona.api.oauth.service.CustomOAuth2UserService;
 import synapps.resona.api.oauth.service.CustomUserDetailsService;
@@ -45,6 +51,7 @@ public class SecurityConfig {
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
     private final TokenAccessDeniedHandler tokenAccessDeniedHandler;
     private final CustomOAuth2UserService oAuth2UserService;
+    private final ClientRegistrationRepository clientRegistrationRepository;
     private static final String[] PERMIT_URL_ARRAY = {
             /* swagger v2 */
             "/v2/api-docs",
@@ -62,8 +69,11 @@ public class SecurityConfig {
             "/auth",
             "/auth/refresh-token",
             "/member/join",
-            "/actuator/health",
-            "/email"
+            "/actuator/**",
+            "/email",
+            "/email/verification",
+            "/metrics",
+            "/email/temp_token"
     };
 
     /*
@@ -86,13 +96,14 @@ public class SecurityConfig {
         http.formLogin(AbstractHttpConfigurer::disable);
         http.httpBasic(AbstractHttpConfigurer::disable);
 
-//        http.requiresChannel(channel ->
-//                channel.requestMatchers("/oauth2/**").requiresSecure()
-//        );
+        http.requiresChannel(channel ->
+                channel.requestMatchers("/oauth2/**").requiresSecure()
+        );
 
 
         http.authorizeHttpRequests((authorizeHttp)-> authorizeHttp
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                .requestMatchers("/api/v1/actuator/**").permitAll()
                 .requestMatchers(PERMIT_URL_ARRAY).permitAll()
                 .requestMatchers("/api/v1/admin/**").hasAnyAuthority(RoleType.ADMIN.getCode())
                 .requestMatchers("/api/v1/**").hasAnyAuthority(RoleType.USER.getCode()).anyRequest().authenticated()
@@ -110,6 +121,7 @@ public class SecurityConfig {
                 .authorizationEndpoint((endpoint)-> endpoint
                         .baseUri("/oauth2/authorization")
                         .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository())
+                        .authorizationRequestResolver(customOAuth2AuthorizationRequestResolver())
                 )
                 .redirectionEndpoint((endpoint) ->
                         endpoint.baseUri("/*/oauth2/code/*")
@@ -188,5 +200,15 @@ public class SecurityConfig {
     @Bean
     public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository() {
         return new OAuth2AuthorizationRequestBasedOnCookieRepository();
+    }
+
+    @Bean
+    public CustomOAuth2AuthorizationRequestResolver customOAuth2AuthorizationRequestResolver() {
+        DefaultOAuth2AuthorizationRequestResolver defaultResolver =
+                new DefaultOAuth2AuthorizationRequestResolver(
+                        clientRegistrationRepository,
+                        "/oauth2/authorization"
+                );
+        return new CustomOAuth2AuthorizationRequestResolver(defaultResolver);
     }
 }

@@ -30,11 +30,16 @@ public class Feed {
     @OneToMany(mappedBy = "feed")
     private List<Like> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "feed")
-    private List<FeedImage> images = new ArrayList<>();
+    // TODO: 이렇게 해도 되는지 검증이 필요함.
+    @OneToMany(mappedBy = "feed", fetch = FetchType.EAGER)
+    private List<FeedMedia> images = new ArrayList<>();
 
     @Column(name="content")
     private String content;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category")
+    private FeedCategory category;
 
     @NotNull
     @Column(name = "created_at")
@@ -52,19 +57,21 @@ public class Feed {
     @Column(name = "is_kept")
     private boolean isKept = false;
 
-    private Feed(Member member, String content, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private Feed(Member member, String content, String category, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.member = member;
         this.content = content;
+        this.category = FeedCategory.of(category);
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
-    public static Feed of(Member member, String content, LocalDateTime createdAt, LocalDateTime modifiedAt) {
-        return new Feed(member, content, createdAt, modifiedAt);
+    public static Feed of(Member member, String content, String category, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+        return new Feed(member, content, category, createdAt, modifiedAt);
     }
 
     public void softDelete() {
         this.isDeleted = true;
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public void updateContent(String content) {

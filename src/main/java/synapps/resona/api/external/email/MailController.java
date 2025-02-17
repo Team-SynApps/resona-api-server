@@ -1,12 +1,16 @@
 package synapps.resona.api.external.email;
 
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.ServerInfoConfig;
-import synapps.resona.api.global.dto.MetaDataDto;
-import synapps.resona.api.global.dto.ResponseDto;
+import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.response.ResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import synapps.resona.api.mysql.member.service.TempTokenService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +21,8 @@ import java.util.List;
 public class MailController {
     private final MailService mailService;
     private final ServerInfoConfig serverInfo;
-    private int number; // 이메일 인증 숫자를 저장하는 변수
+    private final RedisService redisService;
+    private final TempTokenService tempTokenService;
 
     private MetaDataDto createSuccessMetaData(String queryString){
         return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
@@ -29,15 +34,24 @@ public class MailController {
         HashMap<String, Object> map = new HashMap<>();
 
         try {
-            number = mailService.sendMail(mail);
-            String num = String.valueOf(number);
+            // 발송 가능 여부 확인
+            if (!redisService.canSendEmail(mail)) {
+                map.put("success", Boolean.FALSE);
+                map.put("error", "일일 최대 발송 횟수를 초과했습니다.");
+                map.put("remainingAttempts", 0);
+            } else {
+                int number = mailService.sendMail(mail);
+                String num = String.valueOf(number);
 
-            map.put("success", Boolean.TRUE);
-            map.put("number", num);
+                redisService.setCode(mail, num);
+                map.put("success", Boolean.TRUE);
+                map.put("remainingAttempts", redisService.getRemainingEmailSends(mail));
+            }
         } catch (Exception e) {
             map.put("success", Boolean.FALSE);
             map.put("error", e.getMessage());
         }
+
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(map));
 
@@ -45,13 +59,28 @@ public class MailController {
     }
 
     // 인증번호 일치여부 확인
-    @GetMapping()
-    public ResponseEntity<?> mailCheck(HttpServletRequest request, @RequestParam String userNumber) {
+    @PostMapping("/verification")
+    public ResponseEntity<?> mailCheck(HttpServletRequest request, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
 
-        boolean isMatch = userNumber.equals(String.valueOf(number));
+        boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(isMatch));
 
+        return ResponseEntity.ok(responseData);
+    }
+
+    // 인증번호 일치여부 확인
+    @PostMapping("/temp_token")
+    public ResponseEntity<?> mailCheckAndIssueToken(HttpServletRequest request, HttpServletResponse response, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
+
+        boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        if(isMatch){
+            ResponseDto responseData = new ResponseDto(metaData, List.of(tempTokenService.createTemporaryToken(request, response)));
+            return ResponseEntity.ok(responseData);
+        }
+
+        ResponseDto responseData = new ResponseDto(metaData, List.of(isMatch));
         return ResponseEntity.ok(responseData);
     }
 }

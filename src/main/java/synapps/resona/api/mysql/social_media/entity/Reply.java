@@ -56,6 +56,7 @@ public class Reply {
 
     public void softDelete() {
         this.isDeleted = true;
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public void update(String content) {

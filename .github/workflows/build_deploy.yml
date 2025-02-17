@@ -56,124 +56,152 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/api-server:${{ env.IMAGE_TAG }}
             ${{ secrets.DOCKER_USERNAME }}/api-server:latest
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4.2.0
-
-      - name: Setup OCI config
-        run: |
-          mkdir -p ~/.oci
-          echo "[DEFAULT]" > ~/.oci/config
-          echo "user=${{ secrets.OCI_CLI_USER }}" >> ~/.oci/config
-          echo "fingerprint=${{ secrets.OCI_CLI_FINGERPRINT }}" >> ~/.oci/config
-          echo "key_file=~/.oci/oci_api_key.pem" >> ~/.oci/config
-          echo "tenancy=${{ secrets.OCI_CLI_TENANCY }}" >> ~/.oci/config
-          echo "region=${{ secrets.OCI_CLI_REGION }}" >> ~/.oci/config
-          echo "${{ secrets.OCI_CLI_KEY_CONTENT }}" > ~/.oci/oci_api_key.pem
-          chmod 600 ~/.oci/oci_api_key.pem
-
-      - name: Install OCI CLI
-        run: |
-          sudo apt update
-          sudo apt install python3-pip -y
-          pip3 install oci-cli
-
-      - name: Fix OCI CLI file permissions
-        run: |
-          oci setup repair-file-permissions --file ~/.oci/config
-
-      - name: Create SSH Key for Bastion
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_bastion -N ""  
-          touch ~/.ssh/known_hosts
-
-      - name: Create Bastion Session
-        run: |
-          oci bastion session create-managed-ssh \
-          --bastion-id ${{ secrets.BASTION_OCID }} \
-          --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
-          --target-os-username ubuntu \
-          --ssh-public-key-file ~/.ssh/id_rsa_bastion.pub \
-          --wait-for-state SUCCEEDED \
-          --wait-interval-seconds 10
-
-      - name: Get Bastion Session OCID
-        id: get-session-ocid
-        run: |
-          echo oci bastion session list --bastion-id ${{ secrets.BASTION_OCID }} --query 'data'
-          SESSION_DETAILS=$(oci bastion session list --bastion-id ${{ secrets.BASTION_OCID }} --query 'data[0]')
-          echo "SESSION_OCID=$(echo $SESSION_DETAILS | jq -r '.id')" >> $GITHUB_ENV
-
-      - name: Get SSH Command and key scan
-        run: |
-          SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata".command' --raw-output)
-          echo "Original SSH_COMMAND: $SSH_COMMAND"
-
-          BASTION_KEY_PATH="~/.ssh/id_rsa_bastion"
-          SSH_COMMAND=$(echo "$SSH_COMMAND" | sed 's|<privateKey>|'"$BASTION_KEY_PATH"'|g')
-
-          echo "Final SSH_COMMAND: $SSH_COMMAND"
-          echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
-
-          BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}' | tr -d '"')
-          ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
-
-      - name: Deploy to Private Instance
-        env:
-          SSH_COMMAND: ${{ env.SSH_COMMAND }}
-        run: |
-          
-          chmod 600 ~/.ssh/id_rsa_bastion
-          
-          echo "SSH Command: $SSH_COMMAND"
-          SSH_COMMAND="${SSH_COMMAND/ssh /ssh -vvv -o StrictHostKeyChecking=no }"
-          
-          eval $SSH_COMMAND << EOF
-            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-            echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
-          
-            if [ $(docker ps -aq -f name=api-server) ]; then
-              docker stop api-server
-              docker rm api-server
-            fi
-          
-            echo "Build Timestamp: ${{ needs.build.outputs.timestamp }}" # 타임스탬프 출력
-          
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }} && \
-            docker run --name api-server -d -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:${{ needs.build.outputs.timestamp }}
-          
-          
-            KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
-            ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
-            for tag in $ALL_TAGS; do
-              if ! echo "$KEEP_TAGS" | grep -q "$tag"; then
-                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag || echo "Failed to remove image: $tag"
-              fi
-            done
-          EOF
-
-      - name: Clean up Bastion Session
-        if: always()
-        run: |
-          oci bastion session delete --session-id ${{ env.SESSION_OCID }} --force
-
-      - name: Rollback on Failure
-        if: failure()
-        env:
-          SSH_COMMAND: ${{ env.SSH_COMMAND }}
-        run: |
-          chmod 600 ~/.ssh/id_rsa_bastion
-          
-          eval "$SSH_COMMAND" << EOF
-            FAILED_TAG=${{ needs.build.outputs.timestamp }}
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$FAILED_TAG || true
-            LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
-            docker rm -f api-server || true
-            docker run -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
-          EOF
+#
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: build
+#    steps:
+#      - name: Checkout
+#        uses: actions/checkout@v4.2.0
+#      - name: Setup OCI config
+#        run: |
+#          mkdir -p ~/.oci
+#          echo "[DEFAULT]" > ~/.oci/config
+#          echo "user=${{ secrets.OCI_CLI_USER }}" >> ~/.oci/config
+#          echo "fingerprint=${{ secrets.OCI_CLI_FINGERPRINT }}" >> ~/.oci/config
+#          echo "key_file=~/.oci/oci_api_key.pem" >> ~/.oci/config
+#          echo "tenancy=${{ secrets.OCI_CLI_TENANCY }}" >> ~/.oci/config
+#          echo "region=${{ secrets.OCI_CLI_REGION }}" >> ~/.oci/config
+#          echo "${{ secrets.OCI_CLI_KEY_CONTENT }}" > ~/.oci/oci_api_key.pem
+#          chmod 600 ~/.oci/oci_api_key.pem
+#
+#      - name: Install OCI CLI
+#        run: |
+#          sudo apt update
+#          sudo apt install python3-pip -y
+#          pip3 install oci-cli
+#
+#      - name: Fix OCI CLI file permissions
+#        run: |
+#          oci setup repair-file-permissions --file ~/.oci/config
+#
+#      - name: Create SSH Key for Bastion
+#        run: |
+#          mkdir -p ~/.ssh
+#          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_bastion -N ""
+#          touch ~/.ssh/known_hosts
+#
+#      - name: Create Bastion Session
+#        run: |
+#          oci bastion session create-managed-ssh \
+#          --bastion-id ${{ secrets.BASTION_OCID }} \
+#          --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
+#          --target-os-username ubuntu \
+#          --ssh-public-key-file ~/.ssh/id_rsa_bastion.pub \
+#          --wait-for-state SUCCEEDED \
+#          --wait-interval-seconds 10
+#
+#      - name: Get Bastion Session OCID
+#        id: get-session-ocid
+#        run: |
+#          echo oci bastion session list --bastion-id ${{ secrets.BASTION_OCID }} --query 'data'
+#          SESSION_DETAILS=$(oci bastion session list --bastion-id ${{ secrets.BASTION_OCID }} --query 'data[0]')
+#          echo "SESSION_OCID=$(echo $SESSION_DETAILS | jq -r '.id')" >> $GITHUB_ENV
+#
+#      - name: Get SSH Command and key scan
+#        run: |
+#          SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata".command' --raw-output)
+#          echo "Original SSH_COMMAND: $SSH_COMMAND"
+#
+#          BASTION_KEY_PATH="~/.ssh/id_rsa_bastion"
+#          SSH_COMMAND=$(echo "$SSH_COMMAND" | sed 's|<privateKey>|'"$BASTION_KEY_PATH"'|g')
+#
+#          echo "Final SSH_COMMAND: $SSH_COMMAND"
+#          echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
+#
+#          BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}' | tr -d '"')
+#          ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
+#
+#      - name: Deploy to Private Instance
+#        env:
+#          SSH_COMMAND: ${{ env.SSH_COMMAND }}
+#        run: |
+#
+#          chmod 600 ~/.ssh/id_rsa_bastion
+#
+#          echo "SSH Command: $SSH_COMMAND"
+#          SSH_COMMAND="${SSH_COMMAND/ssh /ssh -vvv -o StrictHostKeyChecking=no }"
+#
+#          eval $SSH_COMMAND << EOF
+#            echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+##            echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
+#
+#            if [ $(docker ps -aq -f name=api-server) ]; then
+#              docker stop api-server
+#              docker rm api-server
+#            fi
+#
+#            echo "Build Timestamp: ${{ needs.build.outputs.timestamp }}" # 타임스탬프 출력
+#
+#            cat > docker-compose.yml << EOL
+#            version: '3'
+#            services:
+#              api-server:
+#                image: ${{secrets.DOCKER_USERNAME}}/api-server:${{ needs.build.outputs.timestamp }}
+#                ports:
+#                  - "8080:8080"
+#                env_file:
+#                  - .env
+#                restart: unless-stopped
+#
+#              prometheus:
+#                image: prom/prometheus:latest
+#                container_name: prometheus
+#                ports:
+#                  - "9090:9090"
+#                volumes:
+#                  - ./prometheus.yml:/etc/prometheus/prometheus.yml
+#
+#              grafana:
+#                image: grafana/grafana:latest
+#                container_name: grafana
+#                user: "1001:1001"
+#                ports:
+#                  - "3000:3000"
+#                volumes:
+#                  - ./grafana-data:/var/lib/grafana
+#                depends_on:
+#                  - prometheus
+#            EOL
+#
+#            docker-compose -f docker-compose.yml up -d
+#
+#            KEEP_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 5)
+#            ALL_TAGS=$(docker images ${{ secrets.DOCKER_USERNAME }}/api-server --format "{{.Tag}}" | grep -E '^[0-9]{14}$')
+#            for tag in $ALL_TAGS; do
+#              if ! echo "$KEEP_TAGS" | grep -q "$tag"; then
+#                docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$tag || echo "Failed to remove image: $tag"
+#              fi
+#            done
+#          EOF
+#
+#      - name: Clean up Bastion Session
+#        if: always()
+#        run: |
+#          oci bastion session delete --session-id ${{ env.SESSION_OCID }} --force
+#
+#      - name: Rollback on Failure
+#        if: failure()
+#        env:
+#          SSH_COMMAND: ${{ env.SSH_COMMAND }}
+#        run: |
+#          chmod 600 ~/.ssh/id_rsa_bastion
+#
+#          eval "$SSH_COMMAND" << EOF
+#            FAILED_TAG=${{ needs.build.outputs.timestamp }}
+#            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$FAILED_TAG || true
+#            LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
+#            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
+#            docker rm -f api-server || true
+#            docker run -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
+#          EOF

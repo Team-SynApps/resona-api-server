@@ -1,5 +1,9 @@
 package synapps.resona.api.external.email;
 
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSendException;
 import synapps.resona.api.external.email.exception.EmailException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -21,10 +25,15 @@ public class MailService {
     }
 
     //이메일 내용 수정 필요
-    public MimeMessage createMail(String mail) {
+    public MimeMessage createMail(String mail) throws EmailException {
         if (mail == null || mail.isEmpty()) {
             throw new IllegalArgumentException("수신자의 이메일 주소가 유효하지 않습니다.");
         }
+
+        if (!isValidEmail(mail)) {
+            throw new IllegalArgumentException("메일이 유효하지 않습니다.");
+        }
+
         createNumber();
         MimeMessage message = javaMailSender.createMimeMessage();
 
@@ -44,18 +53,29 @@ public class MailService {
             body += "</div>";
 
             message.setText(body, "UTF-8", "html");
-        } catch (MessagingException e) {
-            EmailException.emailSendFailed();
+        } catch (MailSendException | MessagingException e) {
+            throw EmailException.emailSendFailed();
         }
-
         return message;
     }
 
+    public int sendMail(String mail) throws EmailException {
+        try{
+            MimeMessage message = createMail(mail);
+            javaMailSender.send(message);
+            return number;
+        } catch (MailException | MessagingException e) {
+            throw EmailException.emailSendFailed();
+        }
+    }
 
-    public int sendMail(String mail) {
-        MimeMessage message = createMail(mail);
-        javaMailSender.send(message);
-
-        return number;
+    private boolean isValidEmail(String email) {
+        try {
+            InternetAddress emailAddr = new InternetAddress(email);
+            emailAddr.validate();
+            return true;
+        } catch (AddressException e) {
+            return false;
+        }
     }
 }
