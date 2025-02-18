@@ -2,12 +2,14 @@ package synapps.resona.api.global.config.security;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
+import synapps.resona.api.mysql.member.security.MemberSecurity;
 import synapps.resona.api.oauth.exception.RestAuthenticationEntryPoint;
 import synapps.resona.api.oauth.filter.TokenAuthenticationFilter;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationFailureHandler;
@@ -43,6 +45,7 @@ import java.util.Arrays;
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
     private final CorsProperties corsProperties;
     private final AppProperties appProperties;
@@ -53,19 +56,11 @@ public class SecurityConfig {
     private final CustomOAuth2UserService oAuth2UserService;
     private final ClientRegistrationRepository clientRegistrationRepository;
     private static final String[] PERMIT_URL_ARRAY = {
-            /* swagger v2 */
-            "/v2/api-docs",
-            "/swagger-resources",
-            "/swagger-resources/**",
-            "/configuration/ui",
-            "/configuration/security",
-            "/swagger-ui.html",
-            "/swagger-ui/index.html",
-            "/webjars/**",
             /* swagger v3 */
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-resources/**",
+            /* basic endpoints */
             "/auth",
             "/auth/refresh-token",
             "/member/join",
@@ -73,7 +68,8 @@ public class SecurityConfig {
             "/email",
             "/email/verification",
             "/metrics",
-            "/email/temp_token"
+            "/email/temp_token",
+            "/apple"
     };
 
     /*
@@ -103,10 +99,11 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorizeHttp)-> authorizeHttp
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                .requestMatchers("/api/v1/actuator/**").permitAll()
+//                .requestMatchers("/api/v1/actuator/**").permitAll()
                 .requestMatchers(PERMIT_URL_ARRAY).permitAll()
                 .requestMatchers("/api/v1/admin/**").hasAnyAuthority(RoleType.ADMIN.getCode())
-                .requestMatchers("/api/v1/**").hasAnyAuthority(RoleType.USER.getCode()).anyRequest().authenticated()
+//                .requestMatchers("/api/v1/**").hasAnyAuthority(RoleType.USER.getCode())
+                .anyRequest().authenticated()
         );
 
 
@@ -210,5 +207,10 @@ public class SecurityConfig {
                         "/oauth2/authorization"
                 );
         return new CustomOAuth2AuthorizationRequestResolver(defaultResolver);
+    }
+
+    @Bean
+    public MemberSecurity memberSecurity(AuthTokenProvider authTokenProvider) {
+        return new MemberSecurity(authTokenProvider);
     }
 }

@@ -38,39 +38,14 @@ public class TempTokenService {
     private final AppProperties appProperties;
 
     @Transactional
-    public ResponseEntity<?> createTemporaryToken(HttpServletRequest request, HttpServletResponse response) {
-        // 임시 이메일 생성 (UUID 활용)
-        String tempEmail = "temp_" + UUID.randomUUID().toString() + "@temp.com";
-
-        // 임시 멤버 생성
-        Member tempMember = Member.of(
-                tempEmail,
-                "temp", // 비밀번호 불필요
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-
-        // 임시 계정 정보 생성
-        AccountInfo tempAccountInfo = AccountInfo.of(
-                tempMember,
-                RoleType.GUEST, // 임시 사용자 role 필요
-                ProviderType.TEMPORARY,
-                AccountStatus.TEMPORARY,
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
-        );
-
-        // DB 저장
-        memberRepository.save(tempMember);
-        accountInfoRepository.save(tempAccountInfo);
+    public ResponseEntity<?> createTemporaryToken(HttpServletRequest request, HttpServletResponse response, String email) {
 
         Date now = new Date();
 
         // 6시간 유효한 access token 생성
         AuthToken accessToken = tokenProvider.createAuthToken(
-                tempEmail,
-                RoleType.GUEST.getCode(),
+                email,
+                RoleType.USER.getCode(),
                 new Date(now.getTime() + TimeUnit.HOURS.toMillis(6))
         );
 

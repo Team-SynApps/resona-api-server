@@ -76,7 +76,7 @@ public class MailController {
         boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         if(isMatch){
-            ResponseDto responseData = new ResponseDto(metaData, List.of(tempTokenService.createTemporaryToken(request, response)));
+            ResponseDto responseData = new ResponseDto(metaData, List.of(tempTokenService.createTemporaryToken(request, response, emailCheckDto.getEmail())));
             return ResponseEntity.ok(responseData);
         }
 
