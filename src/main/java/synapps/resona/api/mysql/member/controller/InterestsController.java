@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
@@ -26,6 +27,7 @@ public class InterestsController {
     }
 
     @PostMapping
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> registerInterests(HttpServletRequest request,
                                                HttpServletResponse response,
                                                @Valid @RequestBody InterestsRequest interestsRequest) throws Exception {
@@ -35,6 +37,7 @@ public class InterestsController {
     }
 
     @GetMapping()
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> getInterests(HttpServletRequest request,
                                           HttpServletResponse response,
                                           @PathVariable Long memberId) throws Exception {
@@ -44,6 +47,7 @@ public class InterestsController {
     }
 
     @PutMapping()
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> editInterests(HttpServletRequest request,
                                            HttpServletResponse response,
                                            @PathVariable Long memberId,
@@ -54,6 +58,7 @@ public class InterestsController {
     }
 
     @DeleteMapping()
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> deleteInterests(HttpServletRequest request,
                                              HttpServletResponse response,
                                              @PathVariable Long memberId) throws Exception {
