@@ -1,16 +1,18 @@
 package synapps.resona.api.global.config.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
+import synapps.resona.api.global.config.ServerInfoConfig;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
 import synapps.resona.api.mysql.member.security.MemberSecurity;
-import synapps.resona.api.oauth.exception.RestAuthenticationEntryPoint;
+import synapps.resona.api.oauth.exception.CustomAuthenticationEntryPoint;
 import synapps.resona.api.oauth.filter.TokenAuthenticationFilter;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationFailureHandler;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationSuccessHandler;
@@ -50,11 +52,14 @@ public class SecurityConfig {
     private final CorsProperties corsProperties;
     private final AppProperties appProperties;
     private final AuthTokenProvider tokenProvider;
+    private final ObjectMapper objectMapper;
+    private final ServerInfoConfig serverInfo;
     private final CustomUserDetailsService userDetailsService;
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
     private final TokenAccessDeniedHandler tokenAccessDeniedHandler;
     private final CustomOAuth2UserService oAuth2UserService;
     private final ClientRegistrationRepository clientRegistrationRepository;
+
     private static final String[] PERMIT_URL_ARRAY = {
             /* swagger v3 */
             "/v3/api-docs/**",
@@ -107,7 +112,7 @@ public class SecurityConfig {
         );
 
 
-        http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new RestAuthenticationEntryPoint())
+        http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new CustomAuthenticationEntryPoint(objectMapper, serverInfo))
                 .accessDeniedHandler(((request, response, accessDeniedException) -> {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write("Access Denied: " + accessDeniedException.getMessage());
@@ -187,7 +192,7 @@ public class SecurityConfig {
      * */
     @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
-        return new TokenAuthenticationFilter(tokenProvider);
+        return new TokenAuthenticationFilter(tokenProvider, objectMapper, serverInfo);
     }
 
     /*

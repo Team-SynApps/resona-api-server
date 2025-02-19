@@ -21,11 +21,13 @@ public enum ErrorCode {
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH004", "Refresh token not found"),
     TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH005", "Token not found"),
     INVALID_CLIENT(HttpStatus.UNAUTHORIZED, "AUTH006", "Invalid client"),
+    UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "AUTH000", "Invalid token"),
 
     //email
     INVALID_EMAIL_CODE(HttpStatus.UNAUTHORIZED, "EMAIL001", "Invalid email code"),
     EMAIL_SEND_FAILED(HttpStatus.CONFLICT, "EMAIL002", "Email send failed"),
     BLANK_CODE(HttpStatus.NOT_FOUND, "EMAIL003", "Blank code"),
+    TRIAL_EXCEEDED(HttpStatus.BAD_REQUEST, "EMAIL004", "Email trial exceeded"),
 
     //profile
     PROFILE_INPUT_INVALID(HttpStatus.CONFLICT, "PROFILE001", "Invalid profile"),

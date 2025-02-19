@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.mysql.member.service.TempTokenService;
 
 import java.util.HashMap;
@@ -30,26 +31,22 @@ public class MailController {
 
     // 인증 이메일 전송
     @PostMapping()
-    public ResponseEntity<?> sendMail(HttpServletRequest request, String mail) {
+    public ResponseEntity<?> sendMail(HttpServletRequest request, String mail) throws EmailException {
         HashMap<String, Object> map = new HashMap<>();
 
-        try {
-            // 발송 가능 여부 확인
-            if (!redisService.canSendEmail(mail)) {
-                map.put("success", Boolean.FALSE);
-                map.put("error", "일일 최대 발송 횟수를 초과했습니다.");
-                map.put("remainingAttempts", 0);
-            } else {
-                int number = mailService.sendMail(mail);
-                String num = String.valueOf(number);
-
-                redisService.setCode(mail, num);
-                map.put("success", Boolean.TRUE);
-                map.put("remainingAttempts", redisService.getRemainingEmailSends(mail));
-            }
-        } catch (Exception e) {
+        if (!redisService.canSendEmail(mail)) {
             map.put("success", Boolean.FALSE);
-            map.put("error", e.getMessage());
+            map.put("error", "일일 최대 발송 횟수를 초과했습니다.");
+            map.put("remainingAttempts", 0);
+            throw EmailException.trialExceeded();
+
+        } else {
+            int number = mailService.sendMail(mail);
+            String num = String.valueOf(number);
+
+            redisService.setCode(mail, num);
+            map.put("success", Boolean.TRUE);
+            map.put("remainingAttempts", redisService.getRemainingEmailSends(mail));
         }
 
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());

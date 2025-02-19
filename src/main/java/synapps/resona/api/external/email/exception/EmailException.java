@@ -31,4 +31,8 @@ public class EmailException extends MessagingException {
     public static EmailException blankCode(){
         return of(ErrorCode.BLANK_CODE);
     }
+
+    public static EmailException trialExceeded() {
+        return of(ErrorCode.TRIAL_EXCEEDED);
+    }
 }
