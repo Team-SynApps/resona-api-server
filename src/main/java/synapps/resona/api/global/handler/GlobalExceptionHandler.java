@@ -9,20 +9,31 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import synapps.resona.api.external.email.exception.EmailException;
-import synapps.resona.api.global.config.ServerInfoConfig;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
 import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.global.exception.AuthException;
+import synapps.resona.api.mysql.member.exception.AuthException;
 import synapps.resona.api.global.exception.BaseException;
 import synapps.resona.api.global.exception.ErrorCode;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
+/**
+ * 전역 예외 처리를 담당하는 핵심 클래스
+ * 애플리케이션에서 발생하는 모든 예외를 일관된 형식으로 처리하고 클라이언트에게 적절한 응답을 제공
+ *
+ * 주요 기능:
+ * - 기본 예외(BaseException) 처리
+ * - 일반적인 예외(Exception) 처리
+ * - 데이터 유효성 검증 실패(MethodArgumentNotValidException) 처리
+ * - 이메일 관련 예외(EmailException) 처리
+ *
+ * 모든 예외 응답은 ErrorMetaDataDto를 포함하여 일관된 형식으로 반환
+ * 서버 정보, API 버전, 에러 코드 등의 메타데이터와 함께 구체적인 에러 메시지를 제공
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     private static final Logger logger = LogManager.getLogger(GlobalExceptionHandler.class);
@@ -114,15 +125,15 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(AuthException.class)
-    public ResponseEntity<?> handleAuthException(AuthException ex, HttpServletRequest request) {
+    @ExceptionHandler(EmailException.class)
+    public ResponseEntity<?> handleEmailException(EmailException ex, HttpServletRequest request) {
         ErrorMetaDataDto metaData = createErrorMetaData(ex.getStatus().value(), ex.getMessage(), request.getRequestURI(), ex.getErrorCode());
         logger.error(ex.getMessage(), ex);
         return createErrorResponse(metaData, ex.getStatus(), ex.getMessage());
     }
 
-    @ExceptionHandler(EmailException.class)
-    public ResponseEntity<?> handleEmailException(EmailException ex, HttpServletRequest request) {
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<?> handleAuthException(EmailException ex, HttpServletRequest request) {
         ErrorMetaDataDto metaData = createErrorMetaData(ex.getStatus().value(), ex.getMessage(), request.getRequestURI(), ex.getErrorCode());
         logger.error(ex.getMessage(), ex);
         return createErrorResponse(metaData, ex.getStatus(), ex.getMessage());

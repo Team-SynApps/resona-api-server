@@ -1,6 +1,8 @@
-package synapps.resona.api.global.exception;
+package synapps.resona.api.mysql.member.exception;
 
 import org.springframework.http.HttpStatus;
+import synapps.resona.api.global.exception.BaseException;
+import synapps.resona.api.global.exception.ErrorCode;
 
 public class AuthException extends BaseException {
 
@@ -34,6 +36,10 @@ public class AuthException extends BaseException {
 
     public static AuthException accessTokenNotFound() {
         return of(ErrorCode.TOKEN_NOT_FOUND);
+    }
+
+    public static AuthException accessTokenNotExpired() {
+        return of(ErrorCode.NOT_EXPIRED);
     }
 
 }

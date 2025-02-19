@@ -1,4 +1,4 @@
-package synapps.resona.api.oauth.exception;
+package synapps.resona.api.global.handler;
 
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,11 +16,30 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import synapps.resona.api.global.config.ServerInfoConfig;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.global.exception.ErrorCode;
 
+/**
+ * Spring Security의 인증 실패 처리를 담당하는 커스텀 엔트리포인트 클래스
+ * 인증되지 않은 사용자의 보호된 리소스 접근 시도를 처리
+ *
+ * 주요 기능:
+ * - 인증되지 않은 요청 감지 및 처리
+ * - 표준화된 에러 응답 생성 (JSON 형식)
+ * - 상세한 에러 로깅
+ *
+ * 응답에는 다음 정보가 포함됨:
+ * - HTTP 상태 코드
+ * - 에러 메시지
+ * - 서버 정보
+ * - API 버전
+ * - 요청 URI
+ *
+ * 기본적으로 모든 인증 실패는 TOKEN_NOT_FOUND로 처리
+ * 응답은 항상 JSON 형식으로 반환
+ */
 @Component
 @RequiredArgsConstructor
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {

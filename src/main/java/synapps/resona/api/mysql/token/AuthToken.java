@@ -1,4 +1,4 @@
-package synapps.resona.api.oauth.token;
+package synapps.resona.api.mysql.token;
 
 import io.jsonwebtoken.*;
 import lombok.Getter;

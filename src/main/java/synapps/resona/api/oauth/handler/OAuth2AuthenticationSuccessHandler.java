@@ -1,12 +1,8 @@
 package synapps.resona.api.oauth.handler;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
-import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.utils.CookieUtil;
 import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
@@ -15,13 +11,12 @@ import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
 import synapps.resona.api.oauth.info.OAuth2UserInfo;
 import synapps.resona.api.oauth.info.OAuth2UserInfoFactory;
-import synapps.resona.api.oauth.respository.OAuth2AuthorizationRequestBasedOnCookieRepository;
-import synapps.resona.api.oauth.token.AuthToken;
-import synapps.resona.api.oauth.token.AuthTokenProvider;
+import synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
+import synapps.resona.api.mysql.token.AuthToken;
+import synapps.resona.api.mysql.token.AuthTokenProvider;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -41,24 +36,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final AuthTokenProvider tokenProvider;
     private final AppProperties appProperties;
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
-    private final OAuth2AuthorizationRequestBasedOnCookieRepository authorizationRequestRepository;
+    private final CustomOAuth2AuthorizationRequestRepository authorizationRequestRepository;
 
     @Value("${oauth.redirect-scheme}")
     private String redirectScheme;
 
-
-//    @Override
-//    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-//        String targetUrl = determineTargetUrl(request, response, authentication);
-//
-//        if (response.isCommitted()) {
-//            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
-//            return;
-//        }
-//
-//        clearAuthenticationAttributes(request, response);
-//        getRedirectStrategy().sendRedirect(request, response, targetUrl);
-//    }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -76,7 +58,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         String baseRedirectUri = (String) request.getSession().getAttribute(redirectScheme);
 
-        // 토큰 생성 로직
         OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
         ProviderType providerType = ProviderType.valueOf(authToken.getAuthorizedClientRegistrationId().toUpperCase());
 
@@ -93,15 +74,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 new Date(now.getTime() + appProperties.getAuth().getTokenExpiry())
         );
 
-        // refresh 토큰 설정
         long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
-
         AuthToken refreshToken = tokenProvider.createAuthToken(
                 appProperties.getAuth().getTokenSecret(),
                 new Date(now.getTime() + refreshTokenExpiry)
         );
 
-        // DB 저장 및 신규 사용자 확인
         boolean isNewUser = false;
         MemberRefreshToken userRefreshToken = memberRefreshTokenRepository.findByMemberEmail(userInfo.getEmail());
         if (userRefreshToken != null) {
@@ -113,17 +91,12 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             isNewUser = true;
         }
 
-        int cookieMaxAge = (int) refreshTokenExpiry / 60;
-
-        CookieUtil.deleteCookie(request, response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN);
-        CookieUtil.addCookie(response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
-
         Map<String,Object> queryParams = new HashMap<>();
-        queryParams.put("isRegistered", !isNewUser);  // 신규 사용자가 아닐 경우에만 true
+        queryParams.put("isRegistered", !isNewUser);
         queryParams.put("accessToken", accessToken.getToken());
         queryParams.put("refreshToken", refreshToken.getToken());
 
-        return createRedirectScheme(baseRedirectUri,queryParams);
+        return createRedirectScheme(baseRedirectUri, queryParams);
     }
 
     private String createRedirectScheme(String baseRedirectUri, Map<String, Object> queryParams) {

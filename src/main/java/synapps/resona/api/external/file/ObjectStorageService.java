@@ -1,6 +1,5 @@
 package synapps.resona.api.external.file;
 
-import com.oracle.bmc.model.BmcException;
 import com.oracle.bmc.objectstorage.ObjectStorage;
 import com.oracle.bmc.objectstorage.model.CopyObjectDetails;
 import com.oracle.bmc.objectstorage.requests.CopyObjectRequest;
@@ -11,17 +10,13 @@ import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import synapps.resona.api.external.file.dto.FileMetadataDto;
 import synapps.resona.api.external.file.exception.FileEmptyException;
-import synapps.resona.api.global.config.StorageProperties;
+import synapps.resona.api.global.config.database.StorageProperties;
 import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 
 import javax.imageio.ImageIO;
