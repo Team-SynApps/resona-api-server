@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
+import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.response.ResponseDto;
+import synapps.resona.api.global.exception.AuthException;
 import synapps.resona.api.global.exception.BaseException;
 import synapps.resona.api.global.exception.ErrorCode;
 
@@ -112,11 +114,18 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<?> handleAuthException(AuthException ex, HttpServletRequest request) {
+        ErrorMetaDataDto metaData = createErrorMetaData(ex.getStatus().value(), ex.getMessage(), request.getRequestURI(), ex.getErrorCode());
+        logger.error(ex.getMessage(), ex);
+        return createErrorResponse(metaData, ex.getStatus(), ex.getMessage());
+    }
+
     @ExceptionHandler(EmailException.class)
     public ResponseEntity<?> handleEmailException(EmailException ex, HttpServletRequest request) {
         ErrorMetaDataDto metaData = createErrorMetaData(ex.getStatus().value(), ex.getMessage(), request.getRequestURI(), ex.getErrorCode());
         logger.error(ex.getMessage(), ex);
-        return createErrorResponse(metaData, ex.getStatus());
+        return createErrorResponse(metaData, ex.getStatus(), ex.getMessage());
     }
 
     private ErrorMetaDataDto createErrorMetaData(int statusCode, String message, String requestUri, String errorCode) {
@@ -130,8 +139,8 @@ public class GlobalExceptionHandler {
         );
     }
 
-    private ResponseEntity<?> createErrorResponse(ErrorMetaDataDto metaData, HttpStatus status) {
-        ResponseDto responseData = new ResponseDto(metaData, Collections.emptyList());
+    private ResponseEntity<?> createErrorResponse(ErrorMetaDataDto metaData, HttpStatus status, String message) {
+        ResponseDto responseData = new ResponseDto(metaData, List.of(new ErrorResponse(message)));
         return new ResponseEntity<>(responseData, status);
     }
 }

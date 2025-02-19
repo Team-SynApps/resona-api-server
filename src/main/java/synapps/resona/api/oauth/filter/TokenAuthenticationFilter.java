@@ -1,8 +1,16 @@
 package synapps.resona.api.oauth.filter;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import synapps.resona.api.global.config.ServerInfoConfig;
+import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
+import synapps.resona.api.global.dto.response.ResponseDto;
+import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.global.utils.HeaderUtil;
 import synapps.resona.api.oauth.token.AuthToken;
 import synapps.resona.api.oauth.token.AuthTokenProvider;
@@ -17,50 +25,51 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.*;
 
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
+    private static final Logger logger = LogManager.getLogger(TokenAuthenticationFilter.class);
+
     private final AuthTokenProvider tokenProvider;
+    private final ObjectMapper objectMapper;
+    private final ServerInfoConfig serverInfo;
 
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
-        final Logger logger = LogManager.getLogger(TokenAuthenticationFilter.class);
-        logger.debug("TokenAuthenticationFilter started for URI: {}", request.getRequestURI());
 
         String tokenStr = HeaderUtil.getAccessToken(request);
         logger.debug("Received token: {}", tokenStr);
 
         if (StringUtils.hasText(tokenStr)) {
             try {
-                logger.debug("Attempting to convert and validate token");
                 AuthToken token = tokenProvider.convertAuthToken(tokenStr);
 
-                logger.debug("Token converted, validating...");
                 if (token.validate()) {
-                    logger.debug("Token is valid, getting authentication");
                     Authentication authentication = tokenProvider.getAuthentication(token);
-                    logger.debug("Authentication object created: {}", authentication);
-
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    logger.debug("Set Authentication to security context for '{}', uri: {}", authentication.getName(), request.getRequestURI());
-
-                    // 현재 SecurityContext의 상태 로깅
-                    logger.debug("Current SecurityContext: {}", SecurityContextHolder.getContext());
+                    logger.debug("Set Authentication to security context for '{}', uri: {}",
+                            authentication.getName(), request.getRequestURI());
                 } else {
                     logger.warn("Invalid token, uri: {}", request.getRequestURI());
                     SecurityContextHolder.clearContext();
-                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                    response.getWriter().write("Invalid token");
+                    handleAuthenticationError(request, response, ErrorCode.INVALID_TOKEN);
                     return;
                 }
-            } catch (Exception e) {
+            }
+            catch (ExpiredJwtException e) {
+                logger.error("Token expired", e);
+                SecurityContextHolder.clearContext();
+                handleAuthenticationError(request, response, ErrorCode.EXPIRED_TOKEN);
+                return;
+            }
+            catch (Exception e) {
                 logger.error("Could not set user authentication in security context", e);
                 SecurityContextHolder.clearContext();
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Token processing error: " + e.getMessage());
+                handleAuthenticationError(request, response, ErrorCode.INVALID_TOKEN);
                 return;
             }
         } else {
@@ -68,14 +77,38 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.clearContext();
         }
 
-        logger.debug("TokenAuthenticationFilter completed for URI: {}", request.getRequestURI());
-        logger.debug("Final SecurityContext state: {}", SecurityContextHolder.getContext());
         filterChain.doFilter(request, response);
+    }
+
+    private void handleAuthenticationError(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            ErrorCode errorCode) throws IOException {
+
+        ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
+                errorCode.getStatus().value(),
+                errorCode.getMessage(),
+                request.getRequestURI(),
+                serverInfo.getVersionNumber(),
+                serverInfo.getServerName(),
+                errorCode.getCode()
+        );
+
+        ResponseDto responseData = new ResponseDto(
+                metaData,
+                List.of(Map.of("error", errorCode.getMessage()))
+        );
+
+        response.setStatus(errorCode.getStatus().value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding("UTF-8");
+
+        String jsonResponse = objectMapper.writeValueAsString(responseData);
+        response.getWriter().write(jsonResponse);
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        final Logger logger = LogManager.getLogger(TokenAuthenticationFilter.class);
         String path = request.getRequestURI();
         logger.debug("Checking if should not filter for path: {}", path);
         boolean shouldNotFilter = path.startsWith("/public") || path.equals("/error");
