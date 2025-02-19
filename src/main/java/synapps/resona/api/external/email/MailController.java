@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.mysql.member.service.TempTokenService;
 
 import java.util.HashMap;
@@ -28,6 +29,10 @@ public class MailController {
         return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
     }
 
+    private MetaDataDto createFailedMetaData(String queryString, int statusCode, String errorMessage) {
+        return MetaDataDto.createErrorMetaData(statusCode, errorMessage, queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
+    }
+
     // 인증 이메일 전송
     @PostMapping()
     public ResponseEntity<?> sendMail(HttpServletRequest request, String mail) {
@@ -39,6 +44,10 @@ public class MailController {
                 map.put("success", Boolean.FALSE);
                 map.put("error", "일일 최대 발송 횟수를 초과했습니다.");
                 map.put("remainingAttempts", 0);
+                MetaDataDto metaData = createFailedMetaData(request.getQueryString(), ErrorCode.TRIAL_EXCEEDED.getStatus().value(), ErrorCode.TRIAL_EXCEEDED.getMessage());
+                ResponseDto responseData = new ResponseDto(metaData, List.of(map));
+
+                return ResponseEntity.badRequest().body(responseData);
             } else {
                 int number = mailService.sendMail(mail);
                 String num = String.valueOf(number);
