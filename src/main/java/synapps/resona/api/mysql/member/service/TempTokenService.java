@@ -12,6 +12,7 @@ import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.utils.CookieUtil;
+import synapps.resona.api.mysql.member.dto.response.TokenResponse;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
@@ -36,8 +37,7 @@ public class TempTokenService {
     private final AppProperties appProperties;
 
     @Transactional
-    public ResponseEntity<?> createTemporaryToken(HttpServletRequest request, HttpServletResponse response, String email) {
-
+    public TokenResponse createTemporaryToken(HttpServletRequest request, HttpServletResponse response, String email) {
         Date now = new Date();
 
         // 6시간 유효한 access token 생성
@@ -54,20 +54,13 @@ public class TempTokenService {
                 new Date(now.getTime() + refreshTokenExpiry)
         );
 
-        // 쿠키에 refresh token 저장
-        int cookieMaxAge = (int) refreshTokenExpiry / 60;
-        CookieUtil.deleteCookie(request, response, "refresh_token");
-        CookieUtil.addCookie(response, "refresh_token", refreshToken.getToken(), cookieMaxAge);
-
         // 응답 생성
         MetaDataDto metaData = MetaDataDto.createSuccessMetaData(
                 request.getQueryString(),
                 "1",
                 "api server"
         );
-
-        ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken));
-        return ResponseEntity.ok(responseData);
+        return new TokenResponse(accessToken, refreshToken);
     }
 
     // 임시 토큰 유효성 검증

@@ -15,7 +15,7 @@ import synapps.resona.api.oauth.handler.OAuth2AuthenticationFailureHandler;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationSuccessHandler;
 import synapps.resona.api.oauth.handler.TokenAccessDeniedHandler;
 import synapps.resona.api.oauth.resolver.CustomOAuth2AuthorizationRequestResolver;
-import synapps.resona.api.oauth.respository.OAuth2AuthorizationRequestBasedOnCookieRepository;
+import synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
 import synapps.resona.api.oauth.service.CustomOAuth2UserService;
 import synapps.resona.api.oauth.service.CustomUserDetailsService;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
@@ -119,7 +119,7 @@ public class SecurityConfig {
         http.oauth2Login((oauth2LoginConfig)-> {oauth2LoginConfig
                 .authorizationEndpoint((endpoint)-> endpoint
                         .baseUri("/oauth2/authorization")
-                        .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository())
+                        .authorizationRequestRepository(oAuth2AuthorizationRequestRepository())
                         .authorizationRequestResolver(customOAuth2AuthorizationRequestResolver())
                 )
                 .redirectionEndpoint((endpoint) ->
@@ -144,7 +144,7 @@ public class SecurityConfig {
                 tokenProvider,
                 appProperties,
                 memberRefreshTokenRepository,
-                oAuth2AuthorizationRequestBasedOnCookieRepository()
+                oAuth2AuthorizationRequestRepository()
         );
     }
 
@@ -153,7 +153,7 @@ public class SecurityConfig {
      * */
     @Bean
     public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler() {
-        return new OAuth2AuthenticationFailureHandler(oAuth2AuthorizationRequestBasedOnCookieRepository());
+        return new OAuth2AuthenticationFailureHandler(oAuth2AuthorizationRequestRepository());
     }
 
 
@@ -197,8 +197,8 @@ public class SecurityConfig {
      * 인가 응답을 연계 하고 검증할 때 사용.
      * */
     @Bean
-    public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository() {
-        return new OAuth2AuthorizationRequestBasedOnCookieRepository();
+    public CustomOAuth2AuthorizationRequestRepository oAuth2AuthorizationRequestRepository() {
+        return new CustomOAuth2AuthorizationRequestRepository();
     }
 
     @Bean

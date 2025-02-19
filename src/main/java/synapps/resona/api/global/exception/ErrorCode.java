@@ -22,6 +22,7 @@ public enum ErrorCode {
     TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "AUTH005", "Token not found"),
     INVALID_CLIENT(HttpStatus.UNAUTHORIZED, "AUTH006", "Invalid client"),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "AUTH000", "Invalid token"),
+    NOT_EXPIRED(HttpStatus.NOT_ACCEPTABLE, "AUTH007", "Access token not Expired"),
 
     //email
     INVALID_EMAIL_CODE(HttpStatus.UNAUTHORIZED, "EMAIL001", "Invalid email code"),

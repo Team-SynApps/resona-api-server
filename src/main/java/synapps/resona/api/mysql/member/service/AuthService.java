@@ -9,8 +9,10 @@ import synapps.resona.api.global.utils.CookieUtil;
 import synapps.resona.api.global.utils.HeaderUtil;
 import synapps.resona.api.mysql.member.dto.request.auth.AppleLoginRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.LoginRequest;
+import synapps.resona.api.mysql.member.dto.request.auth.RefreshRequest;
 import synapps.resona.api.mysql.member.dto.response.ChatMemberDto;
 import synapps.resona.api.mysql.member.dto.response.OAuthPlatformMemberResponse;
+import synapps.resona.api.mysql.member.dto.response.TokenResponse;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
@@ -35,9 +37,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import synapps.resona.api.global.exception.AuthException;
-
-import jakarta.servlet.http.Cookie;
+import synapps.resona.api.mysql.member.exception.AuthException;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -55,7 +55,7 @@ public class AuthService {
     private final AppleOAuthUserProvider appleOAuthUserProvider;
 
     private final static long THREE_DAYS_MSEC = 259200;
-    private final static String REFRESH_TOKEN = "refresh_token";
+//    private final static String REFRESH_TOKEN = "refresh_token";
 
     @Transactional
     public ResponseEntity<?> login(HttpServletRequest request,
@@ -71,14 +71,12 @@ public class AuthService {
         long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
 
         AuthToken accessToken = createToken(memberEmail, authentication, now);
-        AuthToken refreshToken = getRefreshToken(now, refreshTokenExpiry);
+        AuthToken refreshToken = createRefreshToken(now, refreshTokenExpiry);
 
         checkRefreshToken(memberEmail, refreshToken);
-        executeCookie(request, response, refreshTokenExpiry, refreshToken);
 
-        // hard coded datas here
         MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
-        ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken)));
         return ResponseEntity.ok(responseData);
     }
 
@@ -98,22 +96,20 @@ public class AuthService {
             long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
 
             AuthToken accessToken = createToken(memberEmail, authentication, now);
-            AuthToken refreshToken = getRefreshToken(now, refreshTokenExpiry);
+            AuthToken refreshToken = createRefreshToken(now, refreshTokenExpiry);
 
             checkRefreshToken(memberEmail, refreshToken);
-            executeCookie(request, response, refreshTokenExpiry, refreshToken);
 
-            // hard coded datas here
             MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
-            ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken));
+            ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken)));
             return ResponseEntity.ok(responseData);
 
         } else {
             Member member = Member.of(
-                    applePlatformMember.getEmail(),       // email
-                    applePlatformMember.getPlatformId(), // password (OAuth2 로그인이므로 빈 문자열)
-                    LocalDateTime.now(),         // createdAt
-                    LocalDateTime.now()         // modifiedAt
+                    applePlatformMember.getEmail(),
+                    applePlatformMember.getPlatformId(),
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
             );
 
             AccountInfo accountInfo = AccountInfo.of(
@@ -137,64 +133,58 @@ public class AuthService {
             Date now = new Date();
 
             AuthToken accessToken = createToken(memberEmail, authentication, now);
-            AuthToken refreshToken = getRefreshToken(now, refreshTokenExpiry);
+            AuthToken refreshToken = createRefreshToken(now, refreshTokenExpiry);
 
             checkRefreshToken(memberEmail, refreshToken);
-            executeCookie(request, response, refreshTokenExpiry, refreshToken);
 
-            // hard coded datas here
             MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
-            ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken));
+            ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken)));
             return ResponseEntity.ok(responseData);
         }
     }
 
     @Transactional
-    public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response) {
+    public ResponseEntity<?> refresh(HttpServletRequest request, HttpServletResponse response, RefreshRequest refreshRequest) {
         Date now = new Date();
-        // access token 확인
         String accessToken = HeaderUtil.getAccessToken(request);
         AuthToken authToken = tokenProvider.convertAuthToken(accessToken);
 
-        // expired access token 인지 확인
         Claims claims = authToken.getExpiredTokenClaims();
-
         if (claims == null) {
-            return errorResponse("아직 accessToken이 만료되지 않았습니다.");
+            throw AuthException.accessTokenNotExpired();
         }
 
         String memberEmail = claims.getSubject();
         RoleType roleType = RoleType.of(claims.get("role", String.class));
 
-        String refreshToken = CookieUtil.getCookie(request, REFRESH_TOKEN)
-                .map(Cookie::getValue)
-                .orElseThrow(AuthException::refreshTokenNotFound);
-
-        AuthToken authRefreshToken = tokenProvider.convertAuthToken(refreshToken);
-
-        if (!authRefreshToken.validate()) {
-            return errorResponse("refreshToken이 올바르지 않습니다.");
+        String refreshToken = refreshRequest.getRefreshToken();
+        if (refreshToken == null) {
+            throw AuthException.refreshTokenNotFound();
         }
 
-        // userId refresh token 으로 DB 확인
-        MemberRefreshToken memberRefreshToken = memberRefreshTokenRepository.findByMemberEmailAndRefreshToken(memberEmail, refreshToken);
+        AuthToken authRefreshToken = tokenProvider.convertAuthToken(refreshToken);
+        if (!authRefreshToken.validate()) {
+            throw AuthException.invalidRefreshToken();
+        }
 
+        MemberRefreshToken memberRefreshToken = memberRefreshTokenRepository.findByMemberEmailAndRefreshToken(memberEmail, refreshToken);
         if (memberRefreshToken == null) {
-            return errorResponse("refreshToken이 올바르지 않습니다.");
+            throw AuthException.invalidRefreshToken();
         }
 
         long validTime = calculateValidTime(authRefreshToken);
+        AuthToken newRefreshToken = authRefreshToken;
 
-        // refresh 토큰 기간이 3일 이하로 남은 경우, refresh 토큰 갱신
         if (validTime <= THREE_DAYS_MSEC) {
             long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
-            authRefreshToken = getRefreshToken(now, refreshTokenExpiry);
-            memberRefreshToken.setRefreshToken(authRefreshToken.getToken());
-
-            executeCookie(request, response, refreshTokenExpiry, authRefreshToken);
+            newRefreshToken = createRefreshToken(now, refreshTokenExpiry);
+            memberRefreshToken.setRefreshToken(newRefreshToken.getToken());
         }
+
+        AuthToken newAccessToken = createNewAccessToken(memberEmail, roleType, now);
+
         MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
-        ResponseDto responseDto = new ResponseDto(metaData,List.of(createNewAccessToken(memberEmail, roleType, now).getToken()));
+        ResponseDto responseDto = new ResponseDto(metaData, List.of(new TokenResponse(newAccessToken, newRefreshToken)));
         return ResponseEntity.ok(responseDto);
     }
 
@@ -227,12 +217,13 @@ public class AuthService {
         );
     }
 
-    private AuthToken getRefreshToken(Date currentTime, long refreshTokenExpiry) {
+    private AuthToken createRefreshToken(Date currentTime, long refreshTokenExpiry) {
         return tokenProvider.createAuthToken(
                 appProperties.getAuth().getTokenSecret(),
                 new Date(currentTime.getTime() + refreshTokenExpiry)
         );
     }
+
     private AuthToken createNewAccessToken(String memberEmail, RoleType roleType, Date currentTime) {
         return tokenProvider.createAuthToken(
                 memberEmail,
@@ -243,23 +234,12 @@ public class AuthService {
 
     private void checkRefreshToken(String memberEmail, AuthToken refreshToken) {
         MemberRefreshToken memberRefreshToken = memberRefreshTokenRepository.findByMemberEmail(memberEmail);
-        if (memberRefreshToken == null) {
-            // 없는 경우 새로 등록
+        if (memberRefreshToken == null) { // refresh token이 없는 경우 새로 등록
             memberRefreshToken = new MemberRefreshToken(memberEmail, refreshToken.getToken());
             memberRefreshTokenRepository.saveAndFlush(memberRefreshToken);
-        } else {
-            // DB에 refresh 토큰 업데이트
+        } else { // DB에 refresh token 업데이트
             memberRefreshToken.setRefreshToken(refreshToken.getToken());
         }
-    }
-
-    private void executeCookie(HttpServletRequest request,
-                               HttpServletResponse response,
-                               long refreshTokenExpiry,
-                               AuthToken refreshToken) {
-        int cookieMaxAge = (int) refreshTokenExpiry / 60;
-        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN);
-        CookieUtil.addCookie(response, REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
     }
 
     private long calculateValidTime(AuthToken authToken) {
@@ -267,7 +247,13 @@ public class AuthService {
         return authToken.getTokenClaims().getExpiration().getTime() - now.getTime();
     }
 
-    private ResponseEntity<?> errorResponse(String message) {
-        return ResponseEntity.ok(new ResponseHeader(500, message));
-    }
+//    private void executeCookie(HttpServletRequest request,
+//                               HttpServletResponse response,
+//                               long refreshTokenExpiry,
+//                               AuthToken refreshToken) {
+//        int cookieMaxAge = (int) refreshTokenExpiry / 60;
+//        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN);
+//        CookieUtil.addCookie(response, REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
+//    }
+
 }

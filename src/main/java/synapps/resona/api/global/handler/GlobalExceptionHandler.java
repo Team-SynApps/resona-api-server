@@ -13,7 +13,7 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
 import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.global.exception.AuthException;
+import synapps.resona.api.mysql.member.exception.AuthException;
 import synapps.resona.api.global.exception.BaseException;
 import synapps.resona.api.global.exception.ErrorCode;
 
@@ -127,6 +127,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EmailException.class)
     public ResponseEntity<?> handleEmailException(EmailException ex, HttpServletRequest request) {
+        ErrorMetaDataDto metaData = createErrorMetaData(ex.getStatus().value(), ex.getMessage(), request.getRequestURI(), ex.getErrorCode());
+        logger.error(ex.getMessage(), ex);
+        return createErrorResponse(metaData, ex.getStatus(), ex.getMessage());
+    }
+
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<?> handleAuthException(EmailException ex, HttpServletRequest request) {
         ErrorMetaDataDto metaData = createErrorMetaData(ex.getStatus().value(), ex.getMessage(), request.getRequestURI(), ex.getErrorCode());
         logger.error(ex.getMessage(), ex);
         return createErrorResponse(metaData, ex.getStatus(), ex.getMessage());
