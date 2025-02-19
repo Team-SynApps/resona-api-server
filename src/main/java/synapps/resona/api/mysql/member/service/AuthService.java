@@ -3,9 +3,7 @@ package synapps.resona.api.mysql.member.service;
 
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.global.dto.response.ResponseHeader;
 import synapps.resona.api.global.properties.AppProperties;
-import synapps.resona.api.global.utils.CookieUtil;
 import synapps.resona.api.global.utils.HeaderUtil;
 import synapps.resona.api.mysql.member.dto.request.auth.AppleLoginRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.LoginRequest;
@@ -22,7 +20,7 @@ import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.apple.AppleOAuthUserProvider;
 import synapps.resona.api.oauth.entity.ProviderType;
-import synapps.resona.api.oauth.entity.RoleType;
+import synapps.resona.api.mysql.member.entity.member.RoleType;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;

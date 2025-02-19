@@ -1,19 +1,18 @@
 package synapps.resona.api.global.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
+import synapps.resona.api.global.handler.CustomAccessDeniedHandler;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
-import synapps.resona.api.mysql.member.security.MemberSecurity;
 import synapps.resona.api.global.handler.CustomAuthenticationEntryPoint;
 import synapps.resona.api.global.filter.TokenAuthenticationFilter;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationFailureHandler;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationSuccessHandler;
-import synapps.resona.api.oauth.handler.TokenAccessDeniedHandler;
 import synapps.resona.api.oauth.resolver.CustomOAuth2AuthorizationRequestResolver;
 import synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
 import synapps.resona.api.oauth.service.CustomOAuth2UserService;
@@ -37,14 +36,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import synapps.resona.api.oauth.entity.RoleType;
+import synapps.resona.api.mysql.member.entity.member.RoleType;
 
 import java.util.Arrays;
 
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
-@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
     private final CorsProperties corsProperties;
     private final AppProperties appProperties;
@@ -53,9 +51,10 @@ public class SecurityConfig {
     private final ServerInfoConfig serverInfo;
     private final CustomUserDetailsService userDetailsService;
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
-    private final TokenAccessDeniedHandler tokenAccessDeniedHandler;
     private final CustomOAuth2UserService oAuth2UserService;
     private final ClientRegistrationRepository clientRegistrationRepository;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+
 
     private static final String[] PERMIT_URL_ARRAY = {
             /* swagger v3 */
@@ -71,6 +70,11 @@ public class SecurityConfig {
             "/metrics",
             "/email/temp_token",
             "/auth/apple"
+    };
+
+    private static final String[] GUEST_PERMIT_URL_ARRAY = {
+            "/member/password",
+            "/member/join"
     };
 
     /*
@@ -100,19 +104,17 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorizeHttp)-> authorizeHttp
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-//                .requestMatchers("/api/v1/actuator/**").permitAll()
+                .requestMatchers("/api/v1/actuator/**").permitAll()
+                .requestMatchers("/api/v1/**").hasAnyAuthority(RoleType.ADMIN.getCode())
+                .requestMatchers(GUEST_PERMIT_URL_ARRAY).hasAnyAuthority(RoleType.GUEST.getCode(), RoleType.USER.getCode(), RoleType.ADMIN.getCode())
                 .requestMatchers(PERMIT_URL_ARRAY).permitAll()
-                .requestMatchers("/api/v1/admin/**").hasAnyAuthority(RoleType.ADMIN.getCode())
-//                .requestMatchers("/api/v1/**").hasAnyAuthority(RoleType.USER.getCode())
-                .anyRequest().authenticated()
+                .anyRequest().denyAll());
+
+        http.exceptionHandling(exceptionHandling ->
+                exceptionHandling
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint(objectMapper, serverInfo))
+                        .accessDeniedHandler(new CustomAccessDeniedHandler(serverInfo))
         );
-
-
-        http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new CustomAuthenticationEntryPoint(objectMapper, serverInfo))
-                .accessDeniedHandler(((request, response, accessDeniedException) -> {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("Access Denied: " + accessDeniedException.getMessage());
-        })));
 
 
         http.oauth2Login((oauth2LoginConfig)-> {oauth2LoginConfig
@@ -209,9 +211,9 @@ public class SecurityConfig {
                 );
         return new CustomOAuth2AuthorizationRequestResolver(defaultResolver);
     }
-
-    @Bean
-    public MemberSecurity memberSecurity(AuthTokenProvider authTokenProvider) {
-        return new MemberSecurity(authTokenProvider);
-    }
+//
+//    @Bean
+//    public MemberSecurity memberSecurity(AuthTokenProvider authTokenProvider) {
+//        return new MemberSecurity(authTokenProvider);
+//    }
 }

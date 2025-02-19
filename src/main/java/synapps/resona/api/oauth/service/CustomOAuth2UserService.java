@@ -8,7 +8,7 @@ import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
-import synapps.resona.api.oauth.entity.RoleType;
+import synapps.resona.api.mysql.member.entity.member.RoleType;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 import synapps.resona.api.oauth.exception.OAuthProviderMissMatchException;
 import synapps.resona.api.oauth.info.OAuth2UserInfo;
