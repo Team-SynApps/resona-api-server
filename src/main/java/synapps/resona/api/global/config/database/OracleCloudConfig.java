@@ -1,4 +1,4 @@
-package synapps.resona.api.global.config;
+package synapps.resona.api.global.config.database;
 
 import com.oracle.bmc.Region;
 import com.oracle.bmc.auth.AuthenticationDetailsProvider;

@@ -5,8 +5,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import synapps.resona.api.global.config.ServerInfoConfig;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.member.dto.request.personal_info.PersonalInfoRequest;
@@ -26,6 +27,7 @@ public class PersonalInfoController {
     }
 
     @PostMapping
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> registerPersonalInfo(HttpServletRequest request,
                                                   HttpServletResponse response,
                                                   @Valid @RequestBody PersonalInfoRequest personalInfoRequest) throws Exception {
@@ -35,6 +37,7 @@ public class PersonalInfoController {
     }
 
     @GetMapping
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> readPersonalInfo(HttpServletRequest request,
                                               HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
@@ -43,6 +46,7 @@ public class PersonalInfoController {
     }
 
     @PutMapping
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> editPersonalInfo(HttpServletRequest request,
                                               HttpServletResponse response,
                                               @Valid @RequestBody PersonalInfoRequest personalInfoRequest) throws Exception {
@@ -52,6 +56,7 @@ public class PersonalInfoController {
     }
 
     @DeleteMapping
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> deletePersonalInfo(HttpServletRequest request,
                                                 HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());

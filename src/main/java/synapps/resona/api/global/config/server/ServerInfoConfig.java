@@ -1,4 +1,4 @@
-package synapps.resona.api.global.config;
+package synapps.resona.api.global.config.server;
 
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;

@@ -96,6 +96,7 @@ jwt:
   secret: ${JWT_SECRET}
 
 oauth:
+  redirect-scheme: redirect-uri
   apple:
     iss: https://appleid.apple.com
     client-id: ${APPLE_CLIENT_ID}
@@ -136,6 +137,10 @@ oci:
     region: ${OCI_BUCKET_REGION}
     buffer-bucket-name: ${OCI_BUFFER_BUCKET_NAME}
     disk-bucket-name: ${OCI_DISK_BUCKET_NAME}
+
+swagger:
+  server:
+    url: ${SWAGGER_SERVER_URL:http://localhost:8080/api/v1}
 
 # actuator
 management:

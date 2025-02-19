@@ -17,6 +17,10 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	all {
+		exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j2-impl'
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+	}
 }
 
 repositories {
@@ -89,12 +93,6 @@ dependencies {
 	// stress test: gatling
 	testImplementation 'io.gatling:gatling-test-framework:3.13.1'
 	testImplementation 'io.gatling.highcharts:gatling-charts-highcharts:3.13.1'
-}
-
-configurations {
-	configureEach {
-		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-	}
 }
 
 tasks.named('test') {

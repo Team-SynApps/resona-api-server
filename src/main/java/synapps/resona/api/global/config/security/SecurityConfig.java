@@ -1,19 +1,24 @@
 package synapps.resona.api.global.config.security;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
-import synapps.resona.api.oauth.exception.RestAuthenticationEntryPoint;
-import synapps.resona.api.oauth.filter.TokenAuthenticationFilter;
+import synapps.resona.api.mysql.member.security.MemberSecurity;
+import synapps.resona.api.global.handler.CustomAuthenticationEntryPoint;
+import synapps.resona.api.global.filter.TokenAuthenticationFilter;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationFailureHandler;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationSuccessHandler;
 import synapps.resona.api.oauth.handler.TokenAccessDeniedHandler;
-import synapps.resona.api.oauth.respository.OAuth2AuthorizationRequestBasedOnCookieRepository;
+import synapps.resona.api.oauth.resolver.CustomOAuth2AuthorizationRequestResolver;
+import synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
 import synapps.resona.api.oauth.service.CustomOAuth2UserService;
 import synapps.resona.api.oauth.service.CustomUserDetailsService;
-import synapps.resona.api.oauth.token.AuthTokenProvider;
+import synapps.resona.api.mysql.token.AuthTokenProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -39,36 +44,33 @@ import java.util.Arrays;
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
     private final CorsProperties corsProperties;
     private final AppProperties appProperties;
     private final AuthTokenProvider tokenProvider;
+    private final ObjectMapper objectMapper;
+    private final ServerInfoConfig serverInfo;
     private final CustomUserDetailsService userDetailsService;
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
     private final TokenAccessDeniedHandler tokenAccessDeniedHandler;
     private final CustomOAuth2UserService oAuth2UserService;
+    private final ClientRegistrationRepository clientRegistrationRepository;
+
     private static final String[] PERMIT_URL_ARRAY = {
-            /* swagger v2 */
-            "/v2/api-docs",
-            "/swagger-resources",
-            "/swagger-resources/**",
-            "/configuration/ui",
-            "/configuration/security",
-            "/swagger-ui.html",
-            "/swagger-ui/index.html",
-            "/webjars/**",
             /* swagger v3 */
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-resources/**",
+            /* basic endpoints */
             "/auth",
             "/auth/refresh-token",
-            "/member/join",
             "/actuator/**",
             "/email",
             "/email/verification",
             "/metrics",
-            "/auth/temp"
+            "/email/temp_token",
+            "/auth/apple"
     };
 
     /*
@@ -98,14 +100,15 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorizeHttp)-> authorizeHttp
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                .requestMatchers("/api/v1/actuator/**").permitAll()
+//                .requestMatchers("/api/v1/actuator/**").permitAll()
                 .requestMatchers(PERMIT_URL_ARRAY).permitAll()
                 .requestMatchers("/api/v1/admin/**").hasAnyAuthority(RoleType.ADMIN.getCode())
-                .requestMatchers("/api/v1/**").hasAnyAuthority(RoleType.USER.getCode()).anyRequest().authenticated()
+//                .requestMatchers("/api/v1/**").hasAnyAuthority(RoleType.USER.getCode())
+                .anyRequest().authenticated()
         );
 
 
-        http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new RestAuthenticationEntryPoint())
+        http.exceptionHandling(exceptionHandling -> exceptionHandling.authenticationEntryPoint(new CustomAuthenticationEntryPoint(objectMapper, serverInfo))
                 .accessDeniedHandler(((request, response, accessDeniedException) -> {
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
             response.getWriter().write("Access Denied: " + accessDeniedException.getMessage());
@@ -115,7 +118,8 @@ public class SecurityConfig {
         http.oauth2Login((oauth2LoginConfig)-> {oauth2LoginConfig
                 .authorizationEndpoint((endpoint)-> endpoint
                         .baseUri("/oauth2/authorization")
-                        .authorizationRequestRepository(oAuth2AuthorizationRequestBasedOnCookieRepository())
+                        .authorizationRequestRepository(oAuth2AuthorizationRequestRepository())
+                        .authorizationRequestResolver(customOAuth2AuthorizationRequestResolver())
                 )
                 .redirectionEndpoint((endpoint) ->
                         endpoint.baseUri("/*/oauth2/code/*")
@@ -139,7 +143,7 @@ public class SecurityConfig {
                 tokenProvider,
                 appProperties,
                 memberRefreshTokenRepository,
-                oAuth2AuthorizationRequestBasedOnCookieRepository()
+                oAuth2AuthorizationRequestRepository()
         );
     }
 
@@ -148,7 +152,7 @@ public class SecurityConfig {
      * */
     @Bean
     public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler() {
-        return new OAuth2AuthenticationFailureHandler(oAuth2AuthorizationRequestBasedOnCookieRepository());
+        return new OAuth2AuthenticationFailureHandler(oAuth2AuthorizationRequestRepository());
     }
 
 
@@ -184,7 +188,7 @@ public class SecurityConfig {
      * */
     @Bean
     public TokenAuthenticationFilter tokenAuthenticationFilter() {
-        return new TokenAuthenticationFilter(tokenProvider);
+        return new TokenAuthenticationFilter(tokenProvider, objectMapper, serverInfo);
     }
 
     /*
@@ -192,7 +196,22 @@ public class SecurityConfig {
      * 인가 응답을 연계 하고 검증할 때 사용.
      * */
     @Bean
-    public OAuth2AuthorizationRequestBasedOnCookieRepository oAuth2AuthorizationRequestBasedOnCookieRepository() {
-        return new OAuth2AuthorizationRequestBasedOnCookieRepository();
+    public CustomOAuth2AuthorizationRequestRepository oAuth2AuthorizationRequestRepository() {
+        return new CustomOAuth2AuthorizationRequestRepository();
+    }
+
+    @Bean
+    public CustomOAuth2AuthorizationRequestResolver customOAuth2AuthorizationRequestResolver() {
+        DefaultOAuth2AuthorizationRequestResolver defaultResolver =
+                new DefaultOAuth2AuthorizationRequestResolver(
+                        clientRegistrationRepository,
+                        "/oauth2/authorization"
+                );
+        return new CustomOAuth2AuthorizationRequestResolver(defaultResolver);
+    }
+
+    @Bean
+    public MemberSecurity memberSecurity(AuthTokenProvider authTokenProvider) {
+        return new MemberSecurity(authTokenProvider);
     }
 }

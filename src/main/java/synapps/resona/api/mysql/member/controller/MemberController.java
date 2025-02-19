@@ -1,7 +1,8 @@
 package synapps.resona.api.mysql.member.controller;
 
 
-import synapps.resona.api.global.config.ServerInfoConfig;
+import org.springframework.security.access.prepost.PreAuthorize;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
@@ -39,6 +40,7 @@ public class MemberController {
     }
 
     @GetMapping("/info")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> getUser(HttpServletRequest request,
                                      HttpServletResponse response) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
@@ -56,15 +58,17 @@ public class MemberController {
     }
 
     @PostMapping("/password")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> changePassword(HttpServletRequest request,
                                             HttpServletResponse response,
                                             @RequestBody MemberPasswordChangeDto requestBody) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseDto = new ResponseDto(metaData, List.of(memberService.changePassword(requestBody)));
+        ResponseDto responseDto = new ResponseDto(metaData, List.of(memberService.changePassword(request, requestBody)));
         return ResponseEntity.ok(responseDto);
     }
 
     @DeleteMapping()
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> deleteUser(HttpServletRequest request,
                                         HttpServletResponse response) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());

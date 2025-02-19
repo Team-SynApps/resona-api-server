@@ -20,7 +20,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import synapps.resona.api.oauth.token.AuthTokenProvider;
+import synapps.resona.api.mysql.token.AuthTokenProvider;
 
 import java.time.LocalDateTime;
 
@@ -58,7 +58,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         );
 
         Member savedMember = memberRepository.findByEmail(userInfo.getEmail()).orElse(null);
+        if (savedMember == null) {
+            savedMember = createMember(userInfo, providerType);
+        }
+
         AccountInfo accountInfo = accountInfoRepository.findByMember(savedMember);
+
 
         if (providerType != accountInfo.getProviderType()) {
             throw new OAuthProviderMissMatchException(
@@ -73,15 +78,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private Member createMember(OAuth2UserInfo userInfo, ProviderType providerType) {
         LocalDateTime now = LocalDateTime.now();
 
-        // Apple 사용자의 이름이 없을 수 있으므로 기본 이름 설정
-        String nickname = userInfo.getName() != null ? userInfo.getName() : "User" + now.getNano();
-
         Member member = Member.of(
                 userInfo.getEmail(),       // email
                 "",                         // password
                 now,                       // createdAt
                 now                       // modifiedAt
         );
+        member = memberRepository.saveAndFlush(member);
         AccountInfo accountInfo = AccountInfo.of(
                 member,
                 RoleType.USER,
@@ -93,7 +96,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         );
         accountInfoRepository.save(accountInfo);
 
-        return memberRepository.saveAndFlush(member);
+        return member;
     }
 
 //    private OAuth2User processAppleUser(OAuth2UserRequest userRequest, OAuth2User user) {

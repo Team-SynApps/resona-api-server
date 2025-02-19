@@ -27,4 +27,5 @@ public class MemberException extends BaseException {
   public static MemberException invalidTimeStamp(){
     return of(ErrorCode.INVALID_TIMESTAMP);
   }
+  public static MemberException unAuthenticatedRequest() {return of(ErrorCode.UNAUTHENTICATED_REQUEST);}
 }
