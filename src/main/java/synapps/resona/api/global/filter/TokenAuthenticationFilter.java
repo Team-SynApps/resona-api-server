@@ -1,4 +1,4 @@
-package synapps.resona.api.oauth.filter;
+package synapps.resona.api.global.filter;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,14 +6,13 @@ import io.jsonwebtoken.ExpiredJwtException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import synapps.resona.api.global.config.ServerInfoConfig;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.global.utils.HeaderUtil;
-import synapps.resona.api.oauth.token.AuthToken;
-import synapps.resona.api.oauth.token.AuthTokenProvider;
+import synapps.resona.api.mysql.token.AuthToken;
+import synapps.resona.api.mysql.token.AuthTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

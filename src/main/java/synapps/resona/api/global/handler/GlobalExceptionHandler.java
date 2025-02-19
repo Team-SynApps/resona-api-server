@@ -9,7 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import synapps.resona.api.external.email.exception.EmailException;
-import synapps.resona.api.global.config.ServerInfoConfig;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
 import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.response.ResponseDto;
@@ -17,7 +17,6 @@ import synapps.resona.api.global.exception.AuthException;
 import synapps.resona.api.global.exception.BaseException;
 import synapps.resona.api.global.exception.ErrorCode;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -112,13 +111,6 @@ public class GlobalExceptionHandler {
                 responseData,
                 HttpStatus.BAD_REQUEST
         );
-    }
-
-    @ExceptionHandler(AuthException.class)
-    public ResponseEntity<?> handleAuthException(AuthException ex, HttpServletRequest request) {
-        ErrorMetaDataDto metaData = createErrorMetaData(ex.getStatus().value(), ex.getMessage(), request.getRequestURI(), ex.getErrorCode());
-        logger.error(ex.getMessage(), ex);
-        return createErrorResponse(metaData, ex.getStatus(), ex.getMessage());
     }
 
     @ExceptionHandler(EmailException.class)

@@ -3,14 +3,13 @@ package synapps.resona.api.external.email;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import synapps.resona.api.external.email.exception.EmailException;
-import synapps.resona.api.global.config.ServerInfoConfig;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.mysql.member.service.TempTokenService;
 
 import java.util.HashMap;

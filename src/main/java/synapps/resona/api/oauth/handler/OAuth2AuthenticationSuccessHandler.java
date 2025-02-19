@@ -1,12 +1,8 @@
 package synapps.resona.api.oauth.handler;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
-import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.utils.CookieUtil;
 import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
@@ -16,12 +12,11 @@ import synapps.resona.api.oauth.entity.RoleType;
 import synapps.resona.api.oauth.info.OAuth2UserInfo;
 import synapps.resona.api.oauth.info.OAuth2UserInfoFactory;
 import synapps.resona.api.oauth.respository.OAuth2AuthorizationRequestBasedOnCookieRepository;
-import synapps.resona.api.oauth.token.AuthToken;
-import synapps.resona.api.oauth.token.AuthTokenProvider;
+import synapps.resona.api.mysql.token.AuthToken;
+import synapps.resona.api.mysql.token.AuthTokenProvider;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

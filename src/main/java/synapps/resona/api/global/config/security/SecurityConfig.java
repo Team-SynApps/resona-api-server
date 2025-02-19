@@ -1,19 +1,16 @@
 package synapps.resona.api.global.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
-import org.springframework.security.oauth2.client.web.OAuth2AuthorizationRequestResolver;
-import synapps.resona.api.global.config.ServerInfoConfig;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
 import synapps.resona.api.mysql.member.security.MemberSecurity;
-import synapps.resona.api.oauth.exception.CustomAuthenticationEntryPoint;
-import synapps.resona.api.oauth.filter.TokenAuthenticationFilter;
+import synapps.resona.api.global.handler.CustomAuthenticationEntryPoint;
+import synapps.resona.api.global.filter.TokenAuthenticationFilter;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationFailureHandler;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationSuccessHandler;
 import synapps.resona.api.oauth.handler.TokenAccessDeniedHandler;
@@ -21,7 +18,7 @@ import synapps.resona.api.oauth.resolver.CustomOAuth2AuthorizationRequestResolve
 import synapps.resona.api.oauth.respository.OAuth2AuthorizationRequestBasedOnCookieRepository;
 import synapps.resona.api.oauth.service.CustomOAuth2UserService;
 import synapps.resona.api.oauth.service.CustomUserDetailsService;
-import synapps.resona.api.oauth.token.AuthTokenProvider;
+import synapps.resona.api.mysql.token.AuthTokenProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
