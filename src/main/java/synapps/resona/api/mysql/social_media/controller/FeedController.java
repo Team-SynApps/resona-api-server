@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import synapps.resona.api.global.config.ServerInfoConfig;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.global.dto.metadata.CursorBasedMetaDataDto;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;

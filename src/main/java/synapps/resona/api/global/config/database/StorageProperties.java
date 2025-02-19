@@ -1,4 +1,4 @@
-package synapps.resona.api.global.config;
+package synapps.resona.api.global.config.database;
 
 import lombok.Getter;
 import lombok.Setter;

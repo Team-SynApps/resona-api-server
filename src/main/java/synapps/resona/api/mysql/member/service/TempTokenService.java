@@ -12,6 +12,7 @@ import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.utils.CookieUtil;
+import synapps.resona.api.mysql.member.dto.response.TokenResponse;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
@@ -19,8 +20,8 @@ import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
-import synapps.resona.api.oauth.token.AuthToken;
-import synapps.resona.api.oauth.token.AuthTokenProvider;
+import synapps.resona.api.mysql.token.AuthToken;
+import synapps.resona.api.mysql.token.AuthTokenProvider;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -38,7 +39,32 @@ public class TempTokenService {
     private final AppProperties appProperties;
 
     @Transactional
-    public ResponseEntity<?> createTemporaryToken(HttpServletRequest request, HttpServletResponse response, String email) {
+    public TokenResponse createTemporaryToken(HttpServletRequest request, HttpServletResponse response, String email) {
+        if (!memberRepository.existsByEmail(email)) {
+            // 새로운 멤버 생성
+            Member newMember = Member.of(
+                    email,
+                    generateRandomPassword(), // 임시 비밀번호 생성
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
+
+            // AccountInfo 생성
+            AccountInfo accountInfo = AccountInfo.of(
+                    newMember,
+                    RoleType.GUEST,
+                    ProviderType.LOCAL,
+                    AccountStatus.TEMPORARY,
+                    LocalDateTime.now(),
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
+
+            // 비밀번호 인코딩 및 저장
+            newMember.encodePassword(newMember.getPassword());
+            memberRepository.save(newMember);
+            accountInfoRepository.save(accountInfo);
+        }
 
         Date now = new Date();
 
@@ -56,20 +82,7 @@ public class TempTokenService {
                 new Date(now.getTime() + refreshTokenExpiry)
         );
 
-        // 쿠키에 refresh token 저장
-        int cookieMaxAge = (int) refreshTokenExpiry / 60;
-        CookieUtil.deleteCookie(request, response, "refresh_token");
-        CookieUtil.addCookie(response, "refresh_token", refreshToken.getToken(), cookieMaxAge);
-
-        // 응답 생성
-        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(
-                request.getQueryString(),
-                "1",
-                "api server"
-        );
-
-        ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken));
-        return ResponseEntity.ok(responseData);
+        return new TokenResponse(accessToken, refreshToken);
     }
 
     // 임시 토큰 유효성 검증
@@ -97,5 +110,10 @@ public class TempTokenService {
             accountInfoRepository.delete(account);
             memberRepository.delete(member);
         }
+    }
+
+    private String generateRandomPassword() {
+        // 임시 비밀번호 생성 로직
+        return UUID.randomUUID().toString();
     }
 }

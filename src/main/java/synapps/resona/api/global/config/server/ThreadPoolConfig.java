@@ -1,4 +1,4 @@
-package synapps.resona.api.global.config;
+package synapps.resona.api.global.config.server;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
