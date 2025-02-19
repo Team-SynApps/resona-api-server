@@ -78,9 +78,6 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private Member createMember(OAuth2UserInfo userInfo, ProviderType providerType) {
         LocalDateTime now = LocalDateTime.now();
 
-        // Apple 사용자의 이름이 없을 수 있으므로 기본 이름 설정
-        String nickname = userInfo.getName() != null ? userInfo.getName() : "User" + now.getNano();
-
         Member member = Member.of(
                 userInfo.getEmail(),       // email
                 "",                         // password

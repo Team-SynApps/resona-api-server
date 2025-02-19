@@ -101,22 +101,25 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 new Date(now.getTime() + refreshTokenExpiry)
         );
 
-        // DB 저장
+        // DB 저장 및 신규 사용자 확인
+        boolean isNewUser = false;
         MemberRefreshToken userRefreshToken = memberRefreshTokenRepository.findByMemberEmail(userInfo.getEmail());
         if (userRefreshToken != null) {
             userRefreshToken.setRefreshToken(refreshToken.getToken());
-            memberRefreshTokenRepository.saveAndFlush(userRefreshToken); // 변경된 토큰 저장 추가
+            memberRefreshTokenRepository.saveAndFlush(userRefreshToken);
         } else {
             userRefreshToken = new MemberRefreshToken(userInfo.getEmail(), refreshToken.getToken());
             memberRefreshTokenRepository.saveAndFlush(userRefreshToken);
+            isNewUser = true;
         }
+
         int cookieMaxAge = (int) refreshTokenExpiry / 60;
 
         CookieUtil.deleteCookie(request, response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN);
         CookieUtil.addCookie(response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
 
         Map<String,Object> queryParams = new HashMap<>();
-        queryParams.put("isRegistered", "true");
+        queryParams.put("isRegistered", !isNewUser);  // 신규 사용자가 아닐 경우에만 true
         queryParams.put("accessToken", accessToken.getToken());
         queryParams.put("refreshToken", refreshToken.getToken());
 
