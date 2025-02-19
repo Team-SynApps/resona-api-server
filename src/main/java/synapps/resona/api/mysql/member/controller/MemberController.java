@@ -40,7 +40,6 @@ public class MemberController {
     }
 
     @GetMapping("/info")
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> getUser(HttpServletRequest request,
                                      HttpServletResponse response) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
@@ -49,7 +48,6 @@ public class MemberController {
     }
 
     @GetMapping("/detail")
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> getMemberDetailInfo(HttpServletRequest request,
                                                  HttpServletResponse response) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
@@ -67,7 +65,6 @@ public class MemberController {
     }
 
     @PostMapping("/password")
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> changePassword(HttpServletRequest request,
                                             HttpServletResponse response,
                                             @RequestBody MemberPasswordChangeDto requestBody) throws Exception {
@@ -77,7 +74,6 @@ public class MemberController {
     }
 
     @DeleteMapping()
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> deleteUser(HttpServletRequest request,
                                         HttpServletResponse response) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());

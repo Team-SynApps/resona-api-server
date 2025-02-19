@@ -49,9 +49,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
                 if (token.validate()) {
                     Authentication authentication = tokenProvider.getAuthentication(token);
+                    logger.debug("Token authorities before setting context: {}",
+                            authentication.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    logger.debug("Set Authentication to security context for '{}', uri: {}",
-                            authentication.getName(), request.getRequestURI());
+                    logger.debug("Set Authentication to security context for '{}', uri: {}, authorities: {}",
+                            authentication.getName(),
+                            request.getRequestURI(),
+                            authentication.getAuthorities());
                 } else {
                     logger.warn("Invalid token, uri: {}", request.getRequestURI());
                     SecurityContextHolder.clearContext();

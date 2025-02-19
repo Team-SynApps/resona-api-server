@@ -4,14 +4,10 @@ import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
-import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.global.properties.AppProperties;
-import synapps.resona.api.global.utils.CookieUtil;
 import synapps.resona.api.mysql.member.dto.response.TokenResponse;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
@@ -19,7 +15,7 @@ import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
-import synapps.resona.api.oauth.entity.RoleType;
+import synapps.resona.api.mysql.member.entity.member.RoleType;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 
@@ -71,7 +67,7 @@ public class TempTokenService {
         // 6시간 유효한 access token 생성
         AuthToken accessToken = tokenProvider.createAuthToken(
                 email,
-                RoleType.USER.getCode(),
+                RoleType.GUEST.getCode(),
                 new Date(now.getTime() + TimeUnit.HOURS.toMillis(6))
         );
 
