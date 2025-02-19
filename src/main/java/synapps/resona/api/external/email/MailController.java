@@ -63,15 +63,25 @@ public class MailController {
     @PostMapping("/verification")
     public ResponseEntity<?> mailCheck(HttpServletRequest request, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
         boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
+        HashMap<String, Object> map = new HashMap<>();
 
         if (!redisService.canCheckNumber(emailCheckDto.getEmail())) {
             throw EmailException.trialExceeded();
-        } else if(!isMatch){
-            throw EmailException.invalidEmailCode();
+        } else if(!isMatch) {
+            MetaDataDto metaData = createFailMetaData(406, "인증번호가 일치하지 않습니다.", request.getQueryString());
+
+            int remainingCount = redisService.getRemainingNumberMatch(emailCheckDto.getEmail());
+            map.put("remaining count", remainingCount);
+
+            ResponseDto responseData = new ResponseDto(metaData, List.of(map));
+            return new ResponseEntity(responseData, HttpStatus.NOT_ACCEPTABLE);
         }
 
+        int remainingCount = redisService.getRemainingNumberMatch(emailCheckDto.getEmail());
+        map.put("remaining count", remainingCount);
+        map.put("isMatch", isMatch);
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(isMatch));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(map));
         return ResponseEntity.ok(responseData);
     }
 
