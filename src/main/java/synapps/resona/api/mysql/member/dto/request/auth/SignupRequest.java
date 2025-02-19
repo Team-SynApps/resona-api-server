@@ -12,8 +12,6 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class SignupRequest {
-    // 수정해야 함
-
     @NotBlank
     @Size(max = 15)
     private String nickname;
@@ -57,7 +55,4 @@ public class SignupRequest {
     private String category;
 
     private String profileImageUrl;
-
-    // code 필드는 유지
-    private String code;
 }

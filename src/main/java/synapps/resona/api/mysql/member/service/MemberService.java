@@ -55,11 +55,6 @@ public class MemberService {
 
     @Transactional
     public MemberDto signUp(SignupRequest request) throws Exception {
-        // code 부분 다른 방식을 적용할 예정 - 삭제해야 함
-        if (!request.getCode().equals("code")) {
-            throw new Exception("코드가 일치하지 않습니다");
-        }
-
         if (memberRepository.existsByEmail(request.getEmail())) {
             throw MemberException.duplicateEmail();
         }

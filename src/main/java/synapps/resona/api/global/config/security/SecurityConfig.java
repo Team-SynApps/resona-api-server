@@ -65,7 +65,6 @@ public class SecurityConfig {
             /* basic endpoints */
             "/auth",
             "/auth/refresh-token",
-            "/member/join",
             "/actuator/**",
             "/email",
             "/email/verification",
