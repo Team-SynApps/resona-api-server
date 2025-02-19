@@ -2,16 +2,22 @@ package synapps.resona.api.mysql.member.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
+import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.SignupRequest;
 import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
+import synapps.resona.api.mysql.member.dto.response.MemberDetailInfoDto;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
+import synapps.resona.api.mysql.member.entity.personal_info.PersonalInfo;
+import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.repository.PersonalInfoRepository;
+import synapps.resona.api.mysql.member.repository.ProfileRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
 import jakarta.transaction.Transactional;
@@ -31,6 +37,8 @@ import java.time.LocalDateTime;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final AccountInfoRepository accountInfoRepository;
+    private final PersonalInfoRepository personalInfoRepository;
+    private final ProfileRepository profileRepository;
     private final AuthTokenProvider authTokenProvider;
 
     /**
@@ -51,6 +59,51 @@ public class MemberService {
                 .id(member.getId())
                 .email(member.getEmail())
                 .build();
+    }
+
+    @Transactional
+    public MemberDetailInfoDto getMemberDetailInfo() {
+        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Member member = memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
+        AccountInfo accountInfo = accountInfoRepository.findByMember(member);
+        accountInfo.updateLastAccessedAt();
+        PersonalInfo personalInfo = personalInfoRepository.findByMember(member).orElse(null);
+        Profile profile = profileRepository.findByMember(member).orElse(null);
+
+        return MemberDetailInfoDto.builder()
+                // Account Info
+                .roleType(nullToEmpty(accountInfo != null ? accountInfo.getRoleType().toString() : null))
+                .accountStatus(nullToEmpty(accountInfo != null ? accountInfo.getStatus().toString() : null))
+                .lastAccessedAt(accountInfo != null ? DateTimeUtil.localDateTimeToString(accountInfo.getLastAccessedAt()) : null)
+                .providerType(nullToEmpty(accountInfo != null ? accountInfo.getProviderType().toString() : null))
+
+                // Personal Info
+                .nationality(nullToEmpty(personalInfo != null ? personalInfo.getNationality().toString() : null))
+                .countryOfResidence(nullToEmpty(personalInfo != null ? personalInfo.getCountryOfResidence().toString() : null))
+                .phoneNumber(nullToEmpty(personalInfo != null ? personalInfo.getPhoneNumber() : null))
+                .timezone(nullToZero(personalInfo != null ? personalInfo.getTimezone() : null))
+                .birth(personalInfo != null ? DateTimeUtil.localDateTimeToStringSimpleFormat(personalInfo.getBirth()) : null)
+                .age(nullToZero(personalInfo != null ? personalInfo.getAge() : null))
+                .gender(nullToEmpty(personalInfo != null ? personalInfo.getGender().toString() : null))
+                .location(nullToEmpty(personalInfo != null ? personalInfo.getLocation() : null))
+
+                // Profile
+                .nickname(nullToEmpty(profile != null ? profile.getNickname() : null))
+                .tag(nullToEmpty(profile != null ? profile.getTag() : null))
+                .profileImageUrl(nullToEmpty(profile != null ? profile.getProfileImageUrl() : null))
+                .backgroundImageUrl(nullToEmpty(profile != null ? profile.getBackgroundImageUrl() : null))
+                .mbti(nullToEmpty(profile != null ? profile.getMbti().toString() : null))
+                .aboutMe(nullToEmpty(profile != null ? profile.getAboutMe() : null))
+                .comment(nullToEmpty(profile != null ? profile.getComment() : null))
+                .build();
+    }
+
+    private String nullToEmpty(String value) {
+        return value != null ? value : "";
+    }
+
+    private Integer nullToZero(Integer value) {
+        return value != null ? value : 0;
     }
 
     @Transactional

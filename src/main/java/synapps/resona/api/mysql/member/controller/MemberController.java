@@ -48,6 +48,15 @@ public class MemberController {
         return ResponseEntity.ok(responseData);
     }
 
+    @GetMapping("/detail")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    public ResponseEntity<?> getMemberDetailInfo(HttpServletRequest request,
+                                                 HttpServletResponse response) {
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.getMemberDetailInfo()));
+        return ResponseEntity.ok(responseData);
+    }
+
     @PostMapping("/duplicate-id")
     public ResponseEntity<?> checkDuplicateId(HttpServletRequest request,
                                               HttpServletResponse response,
