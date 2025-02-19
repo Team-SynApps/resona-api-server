@@ -59,6 +59,7 @@ public class MemberService {
         if (!request.getCode().equals("code")) {
             throw new Exception("코드가 일치하지 않습니다");
         }
+
         if (memberRepository.existsByEmail(request.getEmail())) {
             throw MemberException.duplicateEmail();
         }

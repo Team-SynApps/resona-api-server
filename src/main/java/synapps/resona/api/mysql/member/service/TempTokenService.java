@@ -18,6 +18,7 @@ import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.RoleType;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
@@ -25,6 +26,7 @@ import synapps.resona.api.mysql.token.AuthTokenProvider;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 
@@ -38,6 +40,32 @@ public class TempTokenService {
 
     @Transactional
     public TokenResponse createTemporaryToken(HttpServletRequest request, HttpServletResponse response, String email) {
+        if (!memberRepository.existsByEmail(email)) {
+            // 새로운 멤버 생성
+            Member newMember = Member.of(
+                    email,
+                    generateRandomPassword(), // 임시 비밀번호 생성
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
+
+            // AccountInfo 생성
+            AccountInfo accountInfo = AccountInfo.of(
+                    newMember,
+                    RoleType.GUEST,
+                    ProviderType.LOCAL,
+                    AccountStatus.TEMPORARY,
+                    LocalDateTime.now(),
+                    LocalDateTime.now(),
+                    LocalDateTime.now()
+            );
+
+            // 비밀번호 인코딩 및 저장
+            newMember.encodePassword(newMember.getPassword());
+            memberRepository.save(newMember);
+            accountInfoRepository.save(accountInfo);
+        }
+
         Date now = new Date();
 
         // 6시간 유효한 access token 생성
@@ -54,12 +82,6 @@ public class TempTokenService {
                 new Date(now.getTime() + refreshTokenExpiry)
         );
 
-        // 응답 생성
-        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(
-                request.getQueryString(),
-                "1",
-                "api server"
-        );
         return new TokenResponse(accessToken, refreshToken);
     }
 
@@ -88,5 +110,10 @@ public class TempTokenService {
             accountInfoRepository.delete(account);
             memberRepository.delete(member);
         }
+    }
+
+    private String generateRandomPassword() {
+        // 임시 비밀번호 생성 로직
+        return UUID.randomUUID().toString();
     }
 }
