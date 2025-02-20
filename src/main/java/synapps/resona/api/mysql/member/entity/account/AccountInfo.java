@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.oauth.entity.ProviderType;
-import synapps.resona.api.oauth.entity.RoleType;
+import synapps.resona.api.mysql.member.entity.member.RoleType;
 
 import java.time.LocalDateTime;
 
