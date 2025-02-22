@@ -11,12 +11,12 @@ import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
-import synapps.resona.api.mysql.member.entity.personal_info.PersonalInfo;
+import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
-import synapps.resona.api.mysql.member.repository.PersonalInfoRepository;
+import synapps.resona.api.mysql.member.repository.MemberDetailsRepository;
 import synapps.resona.api.mysql.member.repository.ProfileRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.mysql.member.entity.member.RoleType;
@@ -37,7 +37,7 @@ import java.time.LocalDateTime;
 public class MemberService {
     private final MemberRepository memberRepository;
     private final AccountInfoRepository accountInfoRepository;
-    private final PersonalInfoRepository personalInfoRepository;
+    private final MemberDetailsRepository memberDetailsRepository;
     private final ProfileRepository profileRepository;
     private final AuthTokenProvider authTokenProvider;
 
@@ -64,10 +64,13 @@ public class MemberService {
     @Transactional
     public MemberDetailInfoDto getMemberDetailInfo() {
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Member member = memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
+        Member member = memberRepository.findByEmail(userPrincipal.getUsername())
+                .orElseThrow(MemberException::memberNotFound);
+
         AccountInfo accountInfo = accountInfoRepository.findByMember(member);
         accountInfo.updateLastAccessedAt();
-        PersonalInfo personalInfo = personalInfoRepository.findByMember(member).orElse(null);
+
+        MemberDetails memberDetails = memberDetailsRepository.findByMember(member).orElse(null);
         Profile profile = profileRepository.findByMember(member).orElse(null);
 
         return MemberDetailInfoDto.builder()
@@ -77,23 +80,25 @@ public class MemberService {
                 .lastAccessedAt(accountInfo != null ? DateTimeUtil.localDateTimeToString(accountInfo.getLastAccessedAt()) : null)
                 .providerType(nullToEmpty(accountInfo != null ? accountInfo.getProviderType().toString() : null))
 
-                // Personal Info
-                .nationality(nullToEmpty(personalInfo != null ? personalInfo.getNationality().toString() : null))
-                .countryOfResidence(nullToEmpty(personalInfo != null ? personalInfo.getCountryOfResidence().toString() : null))
-                .phoneNumber(nullToEmpty(personalInfo != null ? personalInfo.getPhoneNumber() : null))
-                .timezone(nullToZero(personalInfo != null ? personalInfo.getTimezone() : null))
-                .birth(personalInfo != null ? DateTimeUtil.localDateTimeToStringSimpleFormat(personalInfo.getBirth()) : null)
-                .age(nullToZero(personalInfo != null ? personalInfo.getAge() : null))
-                .gender(nullToEmpty(personalInfo != null ? personalInfo.getGender().toString() : null))
-                .location(nullToEmpty(personalInfo != null ? personalInfo.getLocation() : null))
+                // Member Details
+                .timezone(nullToZero(memberDetails != null ? memberDetails.getTimezone() : null))
+                .phoneNumber(nullToEmpty(memberDetails != null ? memberDetails.getPhoneNumber() : null))
+                .location(nullToEmpty(memberDetails != null ? memberDetails.getLocation() : null))
+                .mbti(nullToEmpty(memberDetails != null ? memberDetails.getMbti() != null ? memberDetails.getMbti().toString() : null : null))
+                .aboutMe(nullToEmpty(memberDetails != null ? memberDetails.getAboutMe() : null))
 
                 // Profile
                 .nickname(nullToEmpty(profile != null ? profile.getNickname() : null))
                 .tag(nullToEmpty(profile != null ? profile.getTag() : null))
+                .nationality(nullToEmpty(profile != null ? profile.getNationality().toString() : null))
+                .countryOfResidence(nullToEmpty(profile != null ? profile.getCountryOfResidence().toString() : null))
+                .nativeLanguages(profile != null ? profile.getNativeLanguages() : null)
+                .interestingLanguages(profile != null ? profile.getInterestingLanguages() : null)
                 .profileImageUrl(nullToEmpty(profile != null ? profile.getProfileImageUrl() : null))
                 .backgroundImageUrl(nullToEmpty(profile != null ? profile.getBackgroundImageUrl() : null))
-                .mbti(nullToEmpty(profile != null ? profile.getMbti().toString() : null))
-                .aboutMe(nullToEmpty(profile != null ? profile.getAboutMe() : null))
+                .birth(profile != null ? DateTimeUtil.localDateTimeToStringSimpleFormat(profile.getBirth()) : null)
+                .age(nullToZero(profile != null ? profile.getAge() : null))
+                .gender(nullToEmpty(profile != null ? profile.getGender() != null ? profile.getGender().toString() : null : null))
                 .comment(nullToEmpty(profile != null ? profile.getComment() : null))
                 .build();
     }

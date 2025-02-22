@@ -10,16 +10,16 @@ import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.mysql.member.dto.request.personal_info.PersonalInfoRequest;
-import synapps.resona.api.mysql.member.service.PersonalInfoService;
+import synapps.resona.api.mysql.member.dto.request.member_details.MemberDetailsRequest;
+import synapps.resona.api.mysql.member.service.MemberDetailsService;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/personal-info")
 @RequiredArgsConstructor
-public class PersonalInfoController {
-    private final PersonalInfoService personalInfoService;
+public class MemberDetailsController {
+    private final MemberDetailsService memberDetailsService;
     private final ServerInfoConfig serverInfo;
 
     private MetaDataDto createSuccessMetaData(String queryString) {
@@ -30,9 +30,9 @@ public class PersonalInfoController {
     @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> registerPersonalInfo(HttpServletRequest request,
                                                   HttpServletResponse response,
-                                                  @Valid @RequestBody PersonalInfoRequest personalInfoRequest) throws Exception {
+                                                  @Valid @RequestBody MemberDetailsRequest memberDetailsRequest) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(personalInfoService.register(personalInfoRequest)));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.register(memberDetailsRequest)));
         return ResponseEntity.ok(responseData);
     }
 
@@ -41,7 +41,7 @@ public class PersonalInfoController {
     public ResponseEntity<?> readPersonalInfo(HttpServletRequest request,
                                               HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(personalInfoService.getPersonalInfo()));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.getPersonalInfo()));
         return ResponseEntity.ok(responseData);
     }
 
@@ -49,9 +49,9 @@ public class PersonalInfoController {
     @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> editPersonalInfo(HttpServletRequest request,
                                               HttpServletResponse response,
-                                              @Valid @RequestBody PersonalInfoRequest personalInfoRequest) throws Exception {
+                                              @Valid @RequestBody MemberDetailsRequest memberDetailsRequest) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(personalInfoService.editPersonalInfo(personalInfoRequest)));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.editPersonalInfo(memberDetailsRequest)));
         return ResponseEntity.ok(responseData);
     }
 
@@ -60,8 +60,8 @@ public class PersonalInfoController {
     public ResponseEntity<?> deletePersonalInfo(HttpServletRequest request,
                                                 HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        personalInfoService.deletePersonalInfo();
-        ResponseDto responseData = new ResponseDto(metaData, List.of(personalInfoService.deletePersonalInfo()));
+        memberDetailsService.deletePersonalInfo();
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.deletePersonalInfo()));
         return ResponseEntity.ok(responseData);
     }
 }
