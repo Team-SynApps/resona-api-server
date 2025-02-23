@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -17,10 +18,16 @@ public class AuthToken {
     private final Key key;
 
     private static final String AUTHORITIES_KEY = "role";
+    private static final String PERMISSIONS_KEY = "permissions";
 
     AuthToken(String id, Date expiry, Key key) {
         this.key = key;
         this.token = createAuthToken(id, expiry);
+    }
+
+    AuthToken(String id, String role, List<String> permissions, Date expiry, Key key) {
+        this.key = key;
+        this.token = createAuthToken(id, role, permissions, expiry);
     }
 
     AuthToken(String id, String role, Date expiry, Key key) {
@@ -40,6 +47,16 @@ public class AuthToken {
         return Jwts.builder()
                 .setSubject(id)
                 .claim(AUTHORITIES_KEY, role)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .setExpiration(expiry)
+                .compact();
+    }
+
+    private String createAuthToken(String id, String role, List<String> permissions, Date expiry) {
+        return Jwts.builder()
+                .setSubject(id)
+                .claim(AUTHORITIES_KEY, role)
+                .claim(PERMISSIONS_KEY, permissions)  // 권한
                 .signWith(key, SignatureAlgorithm.HS256)
                 .setExpiration(expiry)
                 .compact();
