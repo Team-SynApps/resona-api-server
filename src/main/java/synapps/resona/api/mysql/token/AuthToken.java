@@ -4,14 +4,17 @@ import io.jsonwebtoken.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import synapps.resona.api.mysql.member.exception.AuthException;
 
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
 
-@Slf4j
 @RequiredArgsConstructor
 public class AuthToken {
+    private final Logger logger = LogManager.getLogger(AuthToken.class);
 
     @Getter
     private final String token;
@@ -74,15 +77,15 @@ public class AuthToken {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (SecurityException e) {
-            log.info("Invalid JWT signature.");
+            logger.error("Invalid JWT signature.");
         } catch (MalformedJwtException e) {
-            log.info("Invalid JWT token.");
+            logger.error("Invalid JWT token.");
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT token.");
+            logger.error("Expired JWT token.");
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT token.");
+            logger.error("Unsupported JWT token.");
         } catch (IllegalArgumentException e) {
-            log.info("JWT token compact of handler are invalid.");
+            logger.error("JWT token compact of handler are invalid.");
         }
         return null;
     }
@@ -95,7 +98,7 @@ public class AuthToken {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT token.");
+            logger.error("Expired JWT token.");
             return e.getClaims();
         }
         return null;
