@@ -73,8 +73,8 @@ public class SecurityConfig {
     };
 
     private static final String[] GUEST_PERMIT_URL_ARRAY = {
-            "/member/password",
-            "/member/join"
+            "/api/v1/member/password",
+            "/api/v1/member/join"
     };
 
     /*
@@ -104,10 +104,10 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorizeHttp)-> authorizeHttp
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                .requestMatchers("/member/join", "/member/password").hasAnyAuthority(RoleType.GUEST.getCode())
                 .requestMatchers("/api/v1/actuator/**").permitAll()
-                .requestMatchers("/api/v1/**").hasAnyAuthority(RoleType.ADMIN.getCode())
-                .requestMatchers(GUEST_PERMIT_URL_ARRAY).hasAnyAuthority(RoleType.GUEST.getCode(), RoleType.USER.getCode(), RoleType.ADMIN.getCode())
                 .requestMatchers(PERMIT_URL_ARRAY).permitAll()
+                .requestMatchers("/api/v1/**").hasAnyAuthority(RoleType.ADMIN.getCode())
                 .anyRequest().denyAll());
 
         http.exceptionHandling(exceptionHandling ->
