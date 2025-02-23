@@ -5,6 +5,10 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.global.properties.AppProperties;
@@ -32,6 +36,7 @@ public class TempTokenService {
     private final AuthTokenProvider tokenProvider;
     private final MemberRepository memberRepository;
     private final AccountInfoRepository accountInfoRepository;
+    private final AuthenticationManager authenticationManager;
     private final AppProperties appProperties;
 
     @Transactional
@@ -111,5 +116,13 @@ public class TempTokenService {
     private String generateRandomPassword() {
         // 임시 비밀번호 생성 로직
         return UUID.randomUUID().toString();
+    }
+
+    private Authentication getAuthentication(String memberEmail, String memberPassword) {
+        return authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        memberEmail,
+                        memberPassword)
+        );
     }
 }

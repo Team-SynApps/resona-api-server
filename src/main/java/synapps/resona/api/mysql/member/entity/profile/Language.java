@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.member.entity;
+package synapps.resona.api.mysql.member.entity.profile;
 
 public enum Language {
     AFRIKAANS("af", "Afrikaans"),

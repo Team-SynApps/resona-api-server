@@ -72,4 +72,12 @@ public class AccountInfo {
         this.lastAccessedAt = LocalDateTime.now();
     }
 
+    public void updateStatus(AccountStatus accountStatus) {
+        this.status = accountStatus;
+    }
+
+    public void updateRoleType(RoleType roleType) {
+        this.roleType = roleType;
+    }
+
 }

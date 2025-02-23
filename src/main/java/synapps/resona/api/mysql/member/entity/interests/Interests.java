@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.member.entity.Language;
+import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.member.Member;
 
 import java.time.LocalDateTime;

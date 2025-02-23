@@ -3,7 +3,9 @@ package synapps.resona.api.mysql.member.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import java.time.LocalDateTime;
+import synapps.resona.api.mysql.member.entity.profile.Language;
+
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -15,22 +17,24 @@ public class MemberDetailInfoDto {
     private String lastAccessedAt;
     private String providerType;
 
-    // Personal Info
-    private String nationality;
-    private String countryOfResidence;
-    private String phoneNumber;
+    // Member Details
     private Integer timezone;
-    private String birth;
-    private Integer age;
-    private String gender;
+    private String phoneNumber;
     private String location;
+    private String mbti;
+    private String aboutMe;
 
     // Profile
     private String nickname;
     private String tag;
+    private String nationality;
+    private String countryOfResidence;
+    private Set<Language> nativeLanguages;
+    private Set<Language> interestingLanguages;
     private String profileImageUrl;
     private String backgroundImageUrl;
-    private String mbti;
-    private String aboutMe;
+    private String birth;
+    private Integer age;
+    private String gender;
     private String comment;
 }

@@ -104,10 +104,10 @@ public class SecurityConfig {
 
         http.authorizeHttpRequests((authorizeHttp)-> authorizeHttp
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
+                .requestMatchers(GUEST_PERMIT_URL_ARRAY).hasAnyRole(RoleType.GUEST.getCode(), RoleType.USER.getCode(), RoleType.ADMIN.getCode())
                 .requestMatchers("/api/v1/actuator/**").permitAll()
-                .requestMatchers("/api/v1/**").hasAnyAuthority(RoleType.ADMIN.getCode())
-                .requestMatchers(GUEST_PERMIT_URL_ARRAY).hasAnyAuthority(RoleType.GUEST.getCode(), RoleType.USER.getCode(), RoleType.ADMIN.getCode())
                 .requestMatchers(PERMIT_URL_ARRAY).permitAll()
+                .requestMatchers("/api/v1/**").hasAnyRole(RoleType.ADMIN.getCode())
                 .anyRequest().denyAll());
 
         http.exceptionHandling(exceptionHandling ->
