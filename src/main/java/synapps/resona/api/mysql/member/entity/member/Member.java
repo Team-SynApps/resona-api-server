@@ -79,4 +79,8 @@ public class Member {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(rawPassword);
     }
+
+    public void updateModifiedAt() {
+        this.modifiedAt = LocalDateTime.now();
+    }
 }

@@ -114,7 +114,26 @@ public class MemberService {
     @Transactional
     public MemberDto signUp(SignupRequest request) throws Exception {
         if (memberRepository.existsByEmail(request.getEmail())) {
-            throw MemberException.duplicateEmail();
+            Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(MemberException::memberNotFound);
+            AccountInfo accountInfo = accountInfoRepository.findByMember(member);
+            // 임시 계정인 경우
+            if (accountInfo.getStatus().equals(AccountStatus.TEMPORARY)) {
+                accountInfo.updateStatus(AccountStatus.ACTIVE);
+                accountInfo.updateRoleType(RoleType.USER);
+
+                member.encodePassword(request.getPassword());
+                member.updateModifiedAt();
+                memberRepository.save(member);
+                accountInfoRepository.save(accountInfo);
+                return new MemberDto(member.getId(), member.getEmail());
+            }
+            // 차단당한 계정인 경우
+            else if (accountInfo.getStatus().equals(AccountStatus.BANNED)) {
+                throw MemberException.unAuthenticatedRequest();
+            }
+            else {
+                throw MemberException.duplicateEmail();
+            }
         }
 
         Member member = Member.of(
