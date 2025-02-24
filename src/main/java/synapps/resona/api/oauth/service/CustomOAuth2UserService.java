@@ -81,6 +81,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Member member = Member.of(
                 userInfo.getEmail(),       // email
                 "",                         // password
+                now,                        // lastAccessedAt
                 now,                       // createdAt
                 now                       // modifiedAt
         );

@@ -139,6 +139,7 @@ public class MemberService {
         Member member = Member.of(
                 request.getEmail(),
                 request.getPassword(),
+                LocalDateTime.now(), // lastAccessedAt
                 LocalDateTime.now(), // createdAt
                 LocalDateTime.now() // modifiedAt
         );

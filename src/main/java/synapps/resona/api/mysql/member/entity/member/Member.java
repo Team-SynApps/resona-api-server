@@ -49,6 +49,11 @@ public class Member {
     private List<Scrap> scraps = new ArrayList<>();
 
     @NotNull
+    @Column(name = "last_accessed_at")
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime lastAccessedAt;
+
+    @NotNull
     @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
@@ -60,19 +65,22 @@ public class Member {
 
     private Member(String email,
                    String password,
+                   LocalDateTime lastAccessedAt,
                    LocalDateTime createdAt,
                    LocalDateTime modifiedAt) {
         this.email = email;
         this.password = password;
+        this.lastAccessedAt = lastAccessedAt;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
     public static Member of(String email,
                             String password,
+                            LocalDateTime lastAccessedAt,
                             LocalDateTime createdAt,
                             LocalDateTime modifiedAt) {
-        return new Member(email, password, createdAt, modifiedAt);
+        return new Member(email, password, lastAccessedAt, createdAt, modifiedAt);
     }
 
     public void encodePassword(String rawPassword) {
