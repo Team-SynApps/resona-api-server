@@ -8,8 +8,8 @@ import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.exception.MemberException;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.repository.MemberDetailsRepository;
+import synapps.resona.api.mysql.member.repository.MemberRepository;
 
 @Service
 @RequiredArgsConstructor

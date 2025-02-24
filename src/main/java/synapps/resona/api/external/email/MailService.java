@@ -1,27 +1,27 @@
 package synapps.resona.api.external.email;
 
+import jakarta.mail.MessagingException;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
-import org.springframework.mail.MailException;
-import org.springframework.mail.MailSendException;
-import synapps.resona.api.external.email.exception.EmailException;
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import synapps.resona.api.external.email.exception.EmailException;
 
 @Service
 @RequiredArgsConstructor
 public class MailService {
 
-    private final JavaMailSender javaMailSender;
-    private static final String senderEmail= "synapps99@gmail.com";
+    private static final String senderEmail = "synapps99@gmail.com";
     private static int number;
+    private final JavaMailSender javaMailSender;
 
     // 랜덤으로 숫자 생성
     public static void createNumber() {
-        number = (int)(Math.random() * (90000)) + 100000; //(int) Math.random() * (최댓값-최소값+1) + 최소값
+        number = (int) (Math.random() * (90000)) + 100000; //(int) Math.random() * (최댓값-최소값+1) + 최소값
     }
 
     //이메일 내용 수정 필요
@@ -60,7 +60,7 @@ public class MailService {
     }
 
     public int sendMail(String mail) throws EmailException {
-        try{
+        try {
             MimeMessage message = createMail(mail);
             javaMailSender.send(message);
             return number;

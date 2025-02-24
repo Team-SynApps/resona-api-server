@@ -11,9 +11,9 @@ import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.social_media.dto.comment.request.CommentRequest;
 import synapps.resona.api.mysql.social_media.dto.comment.request.CommentUpdateRequest;
-import synapps.resona.api.mysql.social_media.service.CommentService;
 import synapps.resona.api.mysql.social_media.exception.CommentNotFoundException;
 import synapps.resona.api.mysql.social_media.exception.FeedNotFoundException;
+import synapps.resona.api.mysql.social_media.service.CommentService;
 
 import java.util.List;
 

@@ -38,8 +38,8 @@ public class InterestsController {
 
     @GetMapping()
     public ResponseEntity<?> readInterests(HttpServletRequest request,
-                                          HttpServletResponse response,
-                                          @PathVariable Long memberId) throws Exception {
+                                           HttpServletResponse response,
+                                           @PathVariable Long memberId) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(interestsService.getInterests()));
         return ResponseEntity.ok(responseData);

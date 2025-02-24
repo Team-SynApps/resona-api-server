@@ -50,7 +50,7 @@ public class FeedController {
 
     @GetMapping("/feed")
     public ResponseEntity<?> readFeed(HttpServletRequest request,
-                                              HttpServletResponse response,
+                                      HttpServletResponse response,
                                       @RequestParam Long feedId) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.readFeed(feedId)));
@@ -59,7 +59,7 @@ public class FeedController {
 
     @GetMapping("/feed/test/all")
     public ResponseEntity<?> readAllFeed(HttpServletRequest request,
-                                      HttpServletResponse response) throws Exception {
+                                         HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.readAllFeeds()));
         return ResponseEntity.ok(responseData);
@@ -78,8 +78,8 @@ public class FeedController {
 
     @PutMapping("/feed")
     public ResponseEntity<?> editFeed(HttpServletRequest request,
-                                              HttpServletResponse response,
-                                              @Valid @RequestBody FeedUpdateRequest feedRequest) throws Exception {
+                                      HttpServletResponse response,
+                                      @Valid @RequestBody FeedUpdateRequest feedRequest) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.updateFeed(feedRequest)));
         return ResponseEntity.ok(responseData);

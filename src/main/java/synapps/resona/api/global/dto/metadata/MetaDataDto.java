@@ -1,7 +1,7 @@
 package synapps.resona.api.global.dto.metadata;
 
-import synapps.resona.api.global.utils.DateTimeUtil;
 import lombok.Getter;
+import synapps.resona.api.global.utils.DateTimeUtil;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -38,6 +38,7 @@ public class MetaDataDto {
     public static MetaDataDto createSuccessMetaData(String path, String apiVersion, String serverName) {
         return new MetaDataDto(200, "Success", path, apiVersion, serverName);
     }
+
     public static MetaDataDto createErrorMetaData(int status, String message, String path, String apiVersion, String serverName) {
         return new MetaDataDto(status, message, path, apiVersion, serverName);
     }

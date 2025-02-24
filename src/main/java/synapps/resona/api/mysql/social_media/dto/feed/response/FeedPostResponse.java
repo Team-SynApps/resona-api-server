@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.mysql.social_media.dto.feed.FeedImageDto;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Data

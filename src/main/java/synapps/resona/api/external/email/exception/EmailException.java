@@ -1,9 +1,9 @@
 package synapps.resona.api.external.email.exception;
 
-import synapps.resona.api.global.exception.ErrorCode;
 import jakarta.mail.MessagingException;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+import synapps.resona.api.global.exception.ErrorCode;
 
 @Getter
 public class EmailException extends MessagingException {
@@ -28,7 +28,7 @@ public class EmailException extends MessagingException {
         return of(ErrorCode.EMAIL_SEND_FAILED);
     }
 
-    public static EmailException blankCode(){
+    public static EmailException blankCode() {
         return of(ErrorCode.BLANK_CODE);
     }
 
