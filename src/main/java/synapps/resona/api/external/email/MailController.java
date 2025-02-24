@@ -86,7 +86,7 @@ public class MailController {
     }
 
     // 인증번호 일치여부 확인 후 토큰 발급
-    @PostMapping("/temp_token")
+    @PostMapping("/temp-token")
     public ResponseEntity<?> mailCheckAndIssueToken(HttpServletRequest request, HttpServletResponse response, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
         boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
 

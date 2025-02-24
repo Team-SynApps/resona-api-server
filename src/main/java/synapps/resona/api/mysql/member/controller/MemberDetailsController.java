@@ -16,7 +16,7 @@ import synapps.resona.api.mysql.member.service.MemberDetailsService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/personal-info")
+@RequestMapping("/member-details")
 @RequiredArgsConstructor
 public class MemberDetailsController {
     private final MemberDetailsService memberDetailsService;

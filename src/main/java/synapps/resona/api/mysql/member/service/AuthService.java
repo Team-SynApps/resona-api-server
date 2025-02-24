@@ -107,6 +107,7 @@ public class AuthService {
                     applePlatformMember.getEmail(),
                     applePlatformMember.getPlatformId(),
                     LocalDateTime.now(),
+                    LocalDateTime.now(),
                     LocalDateTime.now()
             );
 
