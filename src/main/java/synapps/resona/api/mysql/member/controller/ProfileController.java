@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
@@ -26,6 +27,7 @@ public class ProfileController {
     }
 
     @PostMapping
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> registerProfile(HttpServletRequest request,
                                              HttpServletResponse response,
                                              @Valid @RequestBody ProfileRegisterRequest profileRequest) throws Exception {
@@ -43,6 +45,7 @@ public class ProfileController {
     }
 
     @PutMapping
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> editProfile(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @Valid @RequestBody ProfileRegisterRequest profileRequest) throws Exception {
@@ -52,6 +55,7 @@ public class ProfileController {
     }
 
     @DeleteMapping
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> deleteProfile(HttpServletRequest request,
                                            HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());

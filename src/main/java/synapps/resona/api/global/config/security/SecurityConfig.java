@@ -1,9 +1,9 @@
 package synapps.resona.api.global.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.handler.CustomAccessDeniedHandler;
 import synapps.resona.api.global.properties.AppProperties;
@@ -43,6 +43,7 @@ import java.util.Arrays;
 @Configuration
 @RequiredArgsConstructor
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
     private final CorsProperties corsProperties;
     private final AppProperties appProperties;
@@ -108,7 +109,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/actuator/**").permitAll()
                 .requestMatchers(PERMIT_URL_ARRAY).permitAll()
                 .requestMatchers("/api/v1/**").hasAnyRole(RoleType.ADMIN.getCode())
-                .anyRequest().denyAll());
+                .anyRequest().hasAnyRole(RoleType.USER.getCode(), RoleType.ADMIN.getCode()));
 
         http.exceptionHandling(exceptionHandling ->
                 exceptionHandling
