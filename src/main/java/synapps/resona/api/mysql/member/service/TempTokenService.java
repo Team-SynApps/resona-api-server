@@ -47,6 +47,7 @@ public class TempTokenService {
                     email,
                     generateRandomPassword(), // 임시 비밀번호 생성
                     LocalDateTime.now(),
+                    LocalDateTime.now(),
                     LocalDateTime.now()
             );
 
