@@ -37,8 +37,7 @@ public class InterestsController {
     }
 
     @GetMapping()
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
-    public ResponseEntity<?> getInterests(HttpServletRequest request,
+    public ResponseEntity<?> readInterests(HttpServletRequest request,
                                           HttpServletResponse response,
                                           @PathVariable Long memberId) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());

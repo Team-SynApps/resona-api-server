@@ -37,7 +37,6 @@ public class MemberDetailsController {
     }
 
     @GetMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> readPersonalInfo(HttpServletRequest request,
                                               HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
