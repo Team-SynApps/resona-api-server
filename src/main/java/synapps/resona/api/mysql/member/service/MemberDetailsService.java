@@ -44,7 +44,7 @@ public class MemberDetailsService {
     /**
      * PersonalInfo 조회
      */
-    public MemberDetails getPersonalInfo() {
+    public MemberDetails getMemberDetails() {
         MemberDto memberDto = memberService.getMember();
         Member member = memberRepository.findById(memberDto.getId())
                 .orElseThrow(MemberException::memberNotFound);
@@ -53,11 +53,15 @@ public class MemberDetailsService {
                 .orElseThrow(MemberException::memberNotFound);
     }
 
+    public MemberDetails getMemberDetailsByMemberId(Long memberId) {
+        return memberDetailsRepository.findByMemberId(memberId).orElseThrow(MemberException::memberNotFound);
+    }
+
     /**
      * PersonalInfo 수정
      */
     @Transactional
-    public MemberDetails editPersonalInfo(MemberDetailsRequest request) {
+    public MemberDetails editMemberDetails(MemberDetailsRequest request) {
         MemberDto memberDto = memberService.getMember();
         Member member = memberRepository.findById(memberDto.getId())
                 .orElseThrow(MemberException::memberNotFound);
@@ -80,7 +84,7 @@ public class MemberDetailsService {
      * PersonalInfo 삭제
      */
     @Transactional
-    public MemberDetails deletePersonalInfo() {
+    public MemberDetails deleteMemberDetails() {
         MemberDto memberDto = memberService.getMember();
         Member member = memberRepository.findById(memberDto.getId())
                 .orElseThrow(MemberException::memberNotFound);

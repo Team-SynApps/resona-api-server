@@ -61,6 +61,10 @@ public class ProfileService {
                 .orElseThrow(MemberException::memberNotFound);
     }
 
+    public Profile getProfileByMemberId(Long memberId) {
+        return profileRepository.findByMemberId(memberId).orElseThrow(MemberException::memberNotFound);
+    }
+
     @Transactional
     public Profile editProfile(ProfileRegisterRequest request) {
         validateData(request);

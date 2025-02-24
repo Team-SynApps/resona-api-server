@@ -44,6 +44,15 @@ public class ProfileController {
         return ResponseEntity.ok(responseData);
     }
 
+    @GetMapping("/{memberId}")
+    public ResponseEntity<?> getProfileByMemberId(HttpServletRequest request,
+                                                  HttpServletResponse response,
+                                                  @PathVariable Long memberId) throws Exception {
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        ResponseDto responseData = new ResponseDto(metaData, List.of(profileService.getProfileByMemberId(memberId)));
+        return ResponseEntity.ok(responseData);
+    }
+
     @PutMapping
     @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> editProfile(HttpServletRequest request,
