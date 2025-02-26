@@ -11,11 +11,11 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class RedisService {
-    private final RedisTemplate<String, Object> redisEmailSendTemplate;
-    private final RedisTemplate<String, Object> redisNumberCheckTemplate;
     private static final int MAX_DAILY_SENDS = 10;
     private static final String SEND_COUNT_KEY = ":daily_send_count";
     private static final String NUMBER_CHECK_COUNT_KEY = ":daily_check_count";
+    private final RedisTemplate<String, Object> redisEmailSendTemplate;
+    private final RedisTemplate<String, Object> redisNumberCheckTemplate;
 
     // 이메일 발송 가능 여부 확인 및 카운트 증가
     public boolean canSendEmail(String email) throws EmailException {
@@ -106,7 +106,7 @@ public class RedisService {
     public String getCode(String email) throws EmailException {
         ValueOperations<String, Object> valOperations = redisEmailSendTemplate.opsForValue();
         Object code = valOperations.get(email);
-        if(code == null) {
+        if (code == null) {
             throw EmailException.blankCode();
         }
         return code.toString();

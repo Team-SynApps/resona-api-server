@@ -1,27 +1,28 @@
 package synapps.resona.api.mysql.token;
 
 
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.LogManager;
-import synapps.resona.api.oauth.exception.TokenValidFailedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.security.Keys;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
+import synapps.resona.api.oauth.exception.TokenValidFailedException;
 
 import java.security.Key;
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 public class AuthTokenProvider {
-    private final Key key;
     private static final String AUTHORITIES_KEY = "role";
     private static final String PERMISSIONS_KEY = "permissions";
     private static final Logger logger = LogManager.getLogger(AuthTokenProvider.class);
+    private final Key key;
 
 
     public AuthTokenProvider(String secret) {
@@ -45,7 +46,7 @@ public class AuthTokenProvider {
     }
 
     public Authentication getAuthentication(AuthToken authToken) {
-        if(authToken.validate()) {
+        if (authToken.validate()) {
             Claims claims = authToken.getTokenClaims();
 
             List<GrantedAuthority> authorities = new ArrayList<>();

@@ -5,15 +5,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.social_media.dto.comment.request.CommentRequest;
 import synapps.resona.api.mysql.social_media.dto.comment.request.CommentUpdateRequest;
-import synapps.resona.api.mysql.social_media.service.CommentService;
 import synapps.resona.api.mysql.social_media.exception.CommentNotFoundException;
 import synapps.resona.api.mysql.social_media.exception.FeedNotFoundException;
+import synapps.resona.api.mysql.social_media.service.CommentService;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ public class CommentController {
     }
 
     @PostMapping
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerComment(HttpServletRequest request,
                                              HttpServletResponse response,
                                              @Valid @RequestBody CommentRequest commentRequest) throws FeedNotFoundException {
@@ -65,6 +67,7 @@ public class CommentController {
     }
 
     @PutMapping("/{commentId}")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> editComment(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @PathVariable Long commentId,
@@ -76,6 +79,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/{commentId}")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteComment(HttpServletRequest request,
                                            HttpServletResponse response,
                                            @PathVariable Long commentId) throws CommentNotFoundException {

@@ -104,7 +104,7 @@ public class FeedService {
         }
 
         String nextCursor = hasNext ?
-                feeds.get(feeds.size()-1).getCreatedAt().toString() : null;
+                feeds.get(feeds.size() - 1).getCreatedAt().toString() : null;
 
 
         return new CursorResult<>(
@@ -118,13 +118,14 @@ public class FeedService {
 
     @Transactional
     public Feed deleteFeed(Long feedId) throws FeedNotFoundException {
-        Feed feed  = feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
+        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
         feed.softDelete();
         return feed;
     }
 
     /**
      * 불필요하게 피드를 한번 더 조회해서 반환하고 있음. 부분 수정해야 함
+     *
      * @param metadataList
      * @param feedRequest
      * @return
@@ -135,7 +136,7 @@ public class FeedService {
         Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
         // save feed entity
-        Feed feed = Feed.of(member, feedRequest.getContent(),feedRequest.getCategory(), LocalDateTime.now(), LocalDateTime.now());
+        Feed feed = Feed.of(member, feedRequest.getContent(), feedRequest.getCategory(), LocalDateTime.now(), LocalDateTime.now());
         feedRepository.save(feed);
 
         // finalizing feedImages: move buffer bucket images to disk bucket
@@ -148,7 +149,7 @@ public class FeedService {
                                 feed.getId(),
                                 "width=" + metadata.getWidth() + "&height=" + metadata.getHeight(),
                                 "index=" + metadata.getIndex());
-                        String diskUrl = objectStorageService.copyToDisk(metadata,finalFileName);
+                        String diskUrl = objectStorageService.copyToDisk(metadata, finalFileName);
 
                         return FeedImageDto.builder()
                                 .url(diskUrl)
@@ -169,7 +170,7 @@ public class FeedService {
         // save location entity if exist
         LocationRequest locationRequest = feedRequest.getLocation();
 
-        if(locationRequest.getAddress()!= null) {
+        if (locationRequest.getAddress() != null) {
             Location location = Location.of(feed, locationRequest.getCoordinate(), locationRequest.getAddress(), locationRequest.getName(), LocalDateTime.now(), LocalDateTime.now());
             locationRepository.save(location);
         }

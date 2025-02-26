@@ -7,10 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.global.utils.DateTimeUtil;
-import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.profile.Gender;
 
 import java.time.LocalDateTime;
 
@@ -32,7 +29,7 @@ public class MemberDetails {
 
 
     @Size(max = 20)
-    @Column(name="phone_number")
+    @Column(name = "phone_number")
     @NotNull
     private String phoneNumber;
 
@@ -49,16 +46,16 @@ public class MemberDetails {
     private String location;
 
     @NotNull
-    @Column(name="created_at")
+    @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @NotNull
-    @Column(name="modified_at")
+    @Column(name = "modified_at")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
 
-    @Column(name="is_deleted")
+    @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
     private MemberDetails(Member member,

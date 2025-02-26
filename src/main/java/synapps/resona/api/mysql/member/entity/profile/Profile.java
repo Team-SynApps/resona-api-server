@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.member_details.MBTI;
 import synapps.resona.api.mysql.member.util.HashGenerator;
 import synapps.resona.api.mysql.member.util.MD5Generator;
 
@@ -41,12 +40,12 @@ public class Profile {
     private String nickname;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="nationality")
+    @Column(name = "nationality")
     @NotNull
     private CountryCode nationality;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="country_of_residence")
+    @Column(name = "country_of_residence")
     @NotNull
     private CountryCode countryOfResidence;
 
@@ -70,11 +69,11 @@ public class Profile {
     @Column(name = "comment")
     private String comment;
 
-    @Column(name="age")
+    @Column(name = "age")
     @NotNull
     private Integer age;
 
-    @Column(name="birth")
+    @Column(name = "birth")
     @NotNull
     private LocalDateTime birth;
 
@@ -125,6 +124,22 @@ public class Profile {
         this.modifiedAt = LocalDateTime.now();
     }
 
+    public static Profile of(Member member,
+                             String nickname,
+                             CountryCode nationality,
+                             CountryCode countryOfResidence,
+                             Set<Language> nativeLanguages,
+                             Set<Language> interestingLanguages,
+                             String profileImageUrl,
+                             String backgroundImageUrl,
+                             String birth,
+                             Gender gender,
+                             String comment) {
+        return new Profile(member, nickname, nationality, countryOfResidence,
+                nativeLanguages, interestingLanguages, profileImageUrl,
+                backgroundImageUrl, birth, gender, comment);
+    }
+
     public void modifyProfile(String nickname,
                               CountryCode nationality,
                               CountryCode countryOfResidence,
@@ -166,7 +181,6 @@ public class Profile {
         return md5generator.generateHash(input);
     }
 
-
     private Set<Language> parseUsingLanguages(List<String> unParsedLanguages) {
         Set<Language> languages = new HashSet<>();
         for (String language : unParsedLanguages) {
@@ -175,24 +189,8 @@ public class Profile {
         return languages;
     }
 
-    public static Profile of(Member member,
-                             String nickname,
-                             CountryCode nationality,
-                             CountryCode countryOfResidence,
-                             Set<Language> nativeLanguages,
-                             Set<Language> interestingLanguages,
-                             String profileImageUrl,
-                             String backgroundImageUrl,
-                             String birth,
-                             Gender gender,
-                             String comment) {
-        return new Profile(member, nickname, nationality, countryOfResidence,
-                nativeLanguages, interestingLanguages, profileImageUrl,
-                backgroundImageUrl, birth, gender, comment);
-    }
-
     private Integer birthToAge(LocalDateTime birth) {
-        if(birth == null) {
+        if (birth == null) {
             return 0;
         }
         int birthYear = birth.getYear();

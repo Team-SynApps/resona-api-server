@@ -27,7 +27,7 @@ public class ProfileController {
     }
 
     @PostMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerProfile(HttpServletRequest request,
                                              HttpServletResponse response,
                                              @Valid @RequestBody ProfileRegisterRequest profileRequest) throws Exception {
@@ -44,8 +44,17 @@ public class ProfileController {
         return ResponseEntity.ok(responseData);
     }
 
+    @GetMapping("/{memberId}")
+    public ResponseEntity<?> getProfileByMemberId(HttpServletRequest request,
+                                                  HttpServletResponse response,
+                                                  @PathVariable Long memberId) throws Exception {
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        ResponseDto responseData = new ResponseDto(metaData, List.of(profileService.getProfileByMemberId(memberId)));
+        return ResponseEntity.ok(responseData);
+    }
+
     @PutMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> editProfile(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @Valid @RequestBody ProfileRegisterRequest profileRequest) throws Exception {
@@ -55,7 +64,7 @@ public class ProfileController {
     }
 
     @DeleteMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteProfile(HttpServletRequest request,
                                            HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.CursorResult;
@@ -35,6 +36,7 @@ public class FeedController {
     }
 
     @PostMapping("/feed")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerFeed(HttpServletRequest request,
                                           HttpServletResponse response,
                                           @Valid @RequestBody FeedRegistrationRequest feedRegistrationRequest) throws Exception {
@@ -50,7 +52,7 @@ public class FeedController {
 
     @GetMapping("/feed")
     public ResponseEntity<?> readFeed(HttpServletRequest request,
-                                              HttpServletResponse response,
+                                      HttpServletResponse response,
                                       @RequestParam Long feedId) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.readFeed(feedId)));
@@ -59,7 +61,7 @@ public class FeedController {
 
     @GetMapping("/feed/test/all")
     public ResponseEntity<?> readAllFeed(HttpServletRequest request,
-                                      HttpServletResponse response) throws Exception {
+                                         HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.readAllFeeds()));
         return ResponseEntity.ok(responseData);
@@ -77,15 +79,17 @@ public class FeedController {
     }
 
     @PutMapping("/feed")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> editFeed(HttpServletRequest request,
-                                              HttpServletResponse response,
-                                              @Valid @RequestBody FeedUpdateRequest feedRequest) throws Exception {
+                                      HttpServletResponse response,
+                                      @Valid @RequestBody FeedUpdateRequest feedRequest) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.updateFeed(feedRequest)));
         return ResponseEntity.ok(responseData);
     }
 
     @DeleteMapping("/feed")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> deletePersonalInfo(HttpServletRequest request,
                                                 HttpServletResponse response,
                                                 @RequestParam Long feedId) throws Exception {

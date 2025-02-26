@@ -40,9 +40,9 @@ public enum ErrorCode {
     FILE_EMPTY_EXCEPTION(HttpStatus.CONFLICT, "FILE001", "File is empty"),
     ;
 
-    private HttpStatus status;
     private final String code;
     private final String message;
+    private final HttpStatus status;
 
     ErrorCode(final HttpStatus status, final String code, final String message) {
         this.code = code;

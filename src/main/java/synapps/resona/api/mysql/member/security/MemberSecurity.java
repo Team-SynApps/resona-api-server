@@ -11,8 +11,8 @@ import synapps.resona.api.mysql.token.AuthTokenProvider;
 
 @Component("memberSecurity")
 public class MemberSecurity {
-    private final AuthTokenProvider authTokenProvider;
     private static final Logger log = LogManager.getLogger(MemberSecurity.class);
+    private final AuthTokenProvider authTokenProvider;
 
     public MemberSecurity(AuthTokenProvider authTokenProvider) {
         log.debug("MemberSecurity bean created with authTokenProvider: {}", authTokenProvider);

@@ -3,10 +3,8 @@ package synapps.resona.api.mysql.token;
 import io.jsonwebtoken.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import synapps.resona.api.mysql.member.exception.AuthException;
 
 import java.security.Key;
 import java.util.Date;
@@ -14,14 +12,12 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class AuthToken {
+    private static final String AUTHORITIES_KEY = "role";
+    private static final String PERMISSIONS_KEY = "permissions";
     private final Logger logger = LogManager.getLogger(AuthToken.class);
-
     @Getter
     private final String token;
     private final Key key;
-
-    private static final String AUTHORITIES_KEY = "role";
-    private static final String PERMISSIONS_KEY = "permissions";
 
     AuthToken(String id, Date expiry, Key key) {
         this.key = key;
