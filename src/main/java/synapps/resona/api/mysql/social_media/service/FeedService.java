@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.external.file.ObjectStorageService;
 import synapps.resona.api.external.file.dto.FileMetadataDto;
 import synapps.resona.api.global.dto.CursorResult;
+import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
@@ -16,7 +17,7 @@ import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.social_media.dto.feed.FeedImageDto;
 import synapps.resona.api.mysql.social_media.dto.feed.request.FeedRequest;
 import synapps.resona.api.mysql.social_media.dto.feed.request.FeedUpdateRequest;
-import synapps.resona.api.mysql.social_media.dto.feed.response.FeedPostResponse;
+import synapps.resona.api.mysql.social_media.dto.feed.response.FeedResponse;
 import synapps.resona.api.mysql.social_media.dto.feed.response.FeedReadResponse;
 import synapps.resona.api.mysql.social_media.dto.location.LocationRequest;
 import synapps.resona.api.mysql.social_media.entity.Feed;
@@ -45,11 +46,22 @@ public class FeedService {
     private final Logger logger = LogManager.getLogger(FeedService.class);
 
     @Transactional
-    public Feed updateFeed(FeedUpdateRequest feedRequest) throws FeedNotFoundException {
+    public FeedResponse updateFeed(FeedUpdateRequest feedRequest) throws FeedNotFoundException {
         // 예외처리 해줘야 함
         Feed feed = feedRepository.findById(feedRequest.getFeedId()).orElseThrow(FeedNotFoundException::new);
         feed.updateContent(feedRequest.getContent());
-        return feed;
+
+        List<FeedImageDto> feedImageDtos =new ArrayList<>();
+        for (FeedMedia media : feed.getImages()) {
+            FeedImageDto imageDto = FeedImageDto.from(media);
+            feedImageDtos.add(imageDto);
+        }
+        return FeedResponse.builder()
+                .id(feed.getId().toString())
+                .content(feed.getContent())
+                .feedImageDtos(feedImageDtos)
+                .createdAt(DateTimeUtil.localDateTimeToString(feed.getCreatedAt()))
+                .build();
     }
 
     @Transactional
@@ -131,7 +143,7 @@ public class FeedService {
      * @return
      */
     @Transactional
-    public FeedPostResponse registerFeed(List<FileMetadataDto> metadataList, FeedRequest feedRequest) {
+    public FeedResponse registerFeed(List<FileMetadataDto> metadataList, FeedRequest feedRequest) {
         MemberDto memberDto = memberService.getMember();
         Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
@@ -175,7 +187,7 @@ public class FeedService {
             locationRepository.save(location);
         }
 
-        return FeedPostResponse.builder()
+        return FeedResponse.builder()
                 .id(feed.getId().toString())
                 .feedImageDtos(finalizedFeed)
                 .createdAt(feed.getCreatedAt().toString())
