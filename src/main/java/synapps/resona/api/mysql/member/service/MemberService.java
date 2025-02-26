@@ -49,7 +49,6 @@ public class MemberService {
      */
     @Transactional
     public MemberDto getMember() {
-        log.info("get member");
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info(userPrincipal.getUsername());
         Member member = memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
@@ -60,6 +59,11 @@ public class MemberService {
                 .id(member.getId())
                 .email(member.getEmail())
                 .build();
+    }
+
+    public Member getMemberUsingSecurityContext() {
+        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
     }
 
     @Transactional

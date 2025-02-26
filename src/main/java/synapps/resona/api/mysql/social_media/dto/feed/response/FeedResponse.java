@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FeedPostResponse {
+public class FeedResponse {
     private String id;
     private String content;
     private List<FeedImageDto> feedImageDtos;

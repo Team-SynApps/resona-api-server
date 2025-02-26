@@ -14,7 +14,7 @@ import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.social_media.dto.feed.request.FeedRegistrationRequest;
 import synapps.resona.api.mysql.social_media.dto.feed.request.FeedUpdateRequest;
-import synapps.resona.api.mysql.social_media.dto.feed.response.FeedPostResponse;
+import synapps.resona.api.mysql.social_media.dto.feed.response.FeedResponse;
 import synapps.resona.api.mysql.social_media.dto.feed.response.FeedReadResponse;
 import synapps.resona.api.mysql.social_media.service.FeedService;
 
@@ -41,7 +41,7 @@ public class FeedController {
                                           HttpServletResponse response,
                                           @Valid @RequestBody FeedRegistrationRequest feedRegistrationRequest) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        FeedPostResponse feedResponse = feedService.registerFeed(
+        FeedResponse feedResponse = feedService.registerFeed(
                 feedRegistrationRequest.getMetadataList(),
                 feedRegistrationRequest.getFeedRequest()
         );
