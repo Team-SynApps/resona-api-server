@@ -4,14 +4,16 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.global.exception.ErrorCode;
-import synapps.resona.api.mysql.member.dto.request.profile.ProfileRegisterRequest;
+import synapps.resona.api.global.utils.DateTimeUtil;
+import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
+import synapps.resona.api.mysql.member.dto.response.ProfileDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
+import synapps.resona.api.mysql.member.entity.profile.Gender;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.exception.InvalidTimeStampException;
 import synapps.resona.api.mysql.member.exception.MemberException;
-import synapps.resona.api.mysql.member.exception.ProfileException;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.repository.ProfileRepository;
 
@@ -22,73 +24,71 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 public class ProfileService {
-    private final MemberRepository memberRepository;
     private final ProfileRepository profileRepository;
     private final MemberService memberService;
 
+    /**
+     * TODO: 프로필의 언어들 처리를 안하고 데이터베이스에 저장함. 수정해야 함.
+     * @param request
+     * @return
+     */
     @Transactional
-    public Profile register(ProfileRegisterRequest request) {
+    public ProfileDto register(ProfileRequest request) {
         validateData(request);
+        Member member = memberService.getMemberUsingSecurityContext();
 
-        Long memberId = request.getMemberId();
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(MemberException::memberNotFound);
+        Profile newProfile = createProfileFromRequest(member, request);
+        Profile savedProfile = profileRepository.save(newProfile);
 
-        try {
-            Profile newProfile = Profile.of(
-                    member,
-                    request.getNickname(),
-                    CountryCode.fromCode(request.getNationality()),
-                    CountryCode.fromCode(request.getCountryOfResidence()),
-                    convertLanguages(request.getNativeLanguages()),
-                    convertLanguages(request.getInterestingLanguages()),
-                    request.getProfileImageUrl(),
-                    request.getBackgroundImageUrl(),
-                    request.getBirth(),
-                    request.getGender(),
-                    request.getComment()
-            );
-
-            return profileRepository.save(newProfile);
-        } catch (Exception e) {
-            throw ProfileException.invalidProfile();
-        }
+        return convertToProfileDto(savedProfile);
     }
 
-    public Profile getProfile() {
+    @Transactional
+    public ProfileDto getProfile() {
         Long memberId = memberService.getMember().getId();
-        return profileRepository.findByMemberId(memberId)
-                .orElseThrow(MemberException::memberNotFound);
-    }
-
-    public Profile getProfileByMemberId(Long memberId) {
-        return profileRepository.findByMemberId(memberId).orElseThrow(MemberException::memberNotFound);
-    }
-
-    @Transactional
-    public Profile editProfile(ProfileRegisterRequest request) {
-        validateData(request);
-
-        Long memberId = request.getMemberId();
         Profile profile = profileRepository.findByMemberId(memberId)
                 .orElseThrow(MemberException::memberNotFound);
 
-        profile.modifyProfile(
-                request.getNickname(),
-                CountryCode.fromCode(request.getNationality()),
-                CountryCode.fromCode(request.getCountryOfResidence()),
-                convertLanguages(request.getNativeLanguages()),
-                convertLanguages(request.getInterestingLanguages()),
-                request.getProfileImageUrl(),
-                request.getBackgroundImageUrl(),
-                request.getBirth(),
-                request.getGender(),
-                request.getComment()
-        );
-
-        return profile;
+        return convertToProfileDto(profile);
     }
 
+    /**
+     * TODO: 프로필의 언어들 처리가 안되서 들어옴 수정해야 함.
+     * @param memberId
+     * @return
+     */
+    @Transactional
+    public ProfileDto getProfileByMemberId(Long memberId) {
+        Profile profile = profileRepository.findByMemberId(memberId)
+                .orElseThrow(MemberException::memberNotFound);
+
+        return convertToProfileDto(profile);
+    }
+
+    /**
+     * TODO: 프로필의 언어들 처리가 안됨. 수정해야 함.
+     * TODO: 커스텀 쿼리 작성 필요. 유저 이메일로 프로필을 가져오는 쿼리 작성하는게 제일 좋음.
+     * @param request
+     * @return
+     */
+    @Transactional
+    public ProfileDto editProfile(ProfileRequest request) {
+        validateData(request);
+
+        Long memberId = memberService.getMemberUsingSecurityContext().getId();
+
+        Profile profile = profileRepository.findByMemberId(memberId)
+                .orElseThrow(MemberException::memberNotFound);
+
+        updateProfileFromRequest(profile, request);
+
+        return convertToProfileDto(profile);
+    }
+
+    /**
+     * TODO: 프로필 언어들 처리가 안됨. 수정해야 함.
+     * @return
+     */
     @Transactional
     public Profile deleteProfile() {
         Long memberId = memberService.getMember().getId();
@@ -99,7 +99,7 @@ public class ProfileService {
         return profile;
     }
 
-    private void validateData(ProfileRegisterRequest request) {
+    private void validateData(ProfileRequest request) {
         validateTimeStamp(request.getBirth());
     }
 
@@ -121,5 +121,55 @@ public class ProfileService {
             languages.add(language);
         }
         return languages;
+    }
+
+    private Profile createProfileFromRequest(Member member, ProfileRequest request) {
+        return Profile.of(
+                member,
+                request.getNickname(),
+                CountryCode.fromCode(request.getNationality()),
+                CountryCode.fromCode(request.getCountryOfResidence()),
+                convertLanguages(request.getNativeLanguages()),
+                convertLanguages(request.getInterestingLanguages()),
+                request.getProfileImageUrl(),
+                request.getBackgroundImageUrl(),
+                request.getBirth(),
+                Gender.of(request.getGender()),
+                request.getComment()
+        );
+    }
+
+    private void updateProfileFromRequest(Profile profile, ProfileRequest request) {
+        profile.modifyProfile(
+                request.getNickname(),
+                CountryCode.fromCode(request.getNationality()),
+                CountryCode.fromCode(request.getCountryOfResidence()),
+                convertLanguages(request.getNativeLanguages()),
+                convertLanguages(request.getInterestingLanguages()),
+                request.getProfileImageUrl(),
+                request.getBackgroundImageUrl(),
+                request.getBirth(),
+                Gender.of(request.getGender()),
+                request.getComment()
+        );
+    }
+
+    private ProfileDto convertToProfileDto(Profile profile) {
+        return ProfileDto.builder()
+                .id(profile.getId())
+                .memberId(profile.getMember().getId())
+                .tag(profile.getTag())
+                .nickname(profile.getNickname())
+                .nationality(profile.getNationality().toString())
+                .countryOfResidence(profile.getCountryOfResidence().toString())
+//                .nativeLanguages(profile.getNativeLanguages().stream().map((Enum::toString)).toList())
+//                .interestingLanguages(profile.getInterestingLanguages().stream().map((Enum::toString)).toList())
+                .profileImageUrl(profile.getProfileImageUrl())
+                .backgroundImageUrl(profile.getBackgroundImageUrl())
+                .comment(profile.getComment())
+                .age(profile.getAge())
+                .birth(DateTimeUtil.localDateTimeToString(profile.getBirth()))
+                .gender(profile.getGender().toString())
+                .build();
     }
 }

@@ -6,18 +6,13 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.member.entity.profile.Gender;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProfileRegisterRequest {
-
-    @NotNull
-    private Long memberId;
-
+public class ProfileRequest {
     @NotBlank
     @Size(max = 15)
     private String nickname;
@@ -44,7 +39,7 @@ public class ProfileRegisterRequest {
     private String birth;
 
     @NotNull
-    private Gender gender;
+    private String gender;
 
     @Size(max = 512)
     private String comment;
