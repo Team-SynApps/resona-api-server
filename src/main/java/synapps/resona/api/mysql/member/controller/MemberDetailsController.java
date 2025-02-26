@@ -27,7 +27,7 @@ public class MemberDetailsController {
     }
 
     @PostMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerPersonalInfo(HttpServletRequest request,
                                                   HttpServletResponse response,
                                                   @Valid @RequestBody MemberDetailsRequest memberDetailsRequest) throws Exception {
@@ -54,7 +54,7 @@ public class MemberDetailsController {
     }
 
     @PutMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> editPersonalInfo(HttpServletRequest request,
                                               HttpServletResponse response,
                                               @Valid @RequestBody MemberDetailsRequest memberDetailsRequest) throws Exception {
@@ -64,7 +64,7 @@ public class MemberDetailsController {
     }
 
     @DeleteMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> deletePersonalInfo(HttpServletRequest request,
                                                 HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());

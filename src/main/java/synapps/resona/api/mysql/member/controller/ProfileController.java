@@ -27,7 +27,7 @@ public class ProfileController {
     }
 
     @PostMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerProfile(HttpServletRequest request,
                                              HttpServletResponse response,
                                              @Valid @RequestBody ProfileRegisterRequest profileRequest) throws Exception {
@@ -54,7 +54,7 @@ public class ProfileController {
     }
 
     @PutMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> editProfile(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @Valid @RequestBody ProfileRegisterRequest profileRequest) throws Exception {
@@ -64,7 +64,7 @@ public class ProfileController {
     }
 
     @DeleteMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteProfile(HttpServletRequest request,
                                            HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());

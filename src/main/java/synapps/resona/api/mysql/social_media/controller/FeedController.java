@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.CursorResult;
@@ -35,6 +36,7 @@ public class FeedController {
     }
 
     @PostMapping("/feed")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerFeed(HttpServletRequest request,
                                           HttpServletResponse response,
                                           @Valid @RequestBody FeedRegistrationRequest feedRegistrationRequest) throws Exception {
@@ -77,6 +79,7 @@ public class FeedController {
     }
 
     @PutMapping("/feed")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> editFeed(HttpServletRequest request,
                                       HttpServletResponse response,
                                       @Valid @RequestBody FeedUpdateRequest feedRequest) throws Exception {
@@ -86,6 +89,7 @@ public class FeedController {
     }
 
     @DeleteMapping("/feed")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> deletePersonalInfo(HttpServletRequest request,
                                                 HttpServletResponse response,
                                                 @RequestParam Long feedId) throws Exception {

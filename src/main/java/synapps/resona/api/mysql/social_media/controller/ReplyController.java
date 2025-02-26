@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
@@ -29,6 +30,7 @@ public class ReplyController {
     }
 
     @PostMapping
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerReply(HttpServletRequest request,
                                            HttpServletResponse response,
                                            @Valid @RequestBody ReplyRequest replyRequest) throws CommentNotFoundException {
@@ -58,6 +60,7 @@ public class ReplyController {
     }
 
     @DeleteMapping("/{replyId}")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteReply(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @PathVariable Long replyId) throws ReplyNotFoundException {
