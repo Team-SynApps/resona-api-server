@@ -30,7 +30,6 @@ public class ReplyController {
     }
 
     @PostMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerReply(HttpServletRequest request,
                                            HttpServletResponse response,
                                            @Valid @RequestBody ReplyRequest replyRequest) throws CommentNotFoundException {
@@ -49,6 +48,7 @@ public class ReplyController {
     }
 
     @PutMapping("/{replyId}")
+    @PreAuthorize("@socialSecurity.isReplyMemberProperty(#replyId) or hasRole('ADMIN')")
     public ResponseEntity<?> updateReply(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @PathVariable Long replyId,
@@ -60,7 +60,7 @@ public class ReplyController {
     }
 
     @DeleteMapping("/{replyId}")
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
+    @PreAuthorize("@socialSecurity.isReplyMemberProperty(#replyId) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteReply(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @PathVariable Long replyId) throws ReplyNotFoundException {
