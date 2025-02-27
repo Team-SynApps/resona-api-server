@@ -27,7 +27,7 @@ import synapps.resona.api.global.handler.CustomAccessDeniedHandler;
 import synapps.resona.api.global.handler.CustomAuthenticationEntryPoint;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
-import synapps.resona.api.mysql.member.entity.member.RoleType;
+import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationFailureHandler;

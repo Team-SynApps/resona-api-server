@@ -1,6 +1,7 @@
 package synapps.resona.api.oauth.service;
 
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
@@ -12,7 +13,7 @@ import org.springframework.stereotype.Service;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.member.RoleType;
+import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
@@ -72,10 +73,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             );
         }
 
-        return UserPrincipal.create(savedMember, accountInfo, user.getAttributes());
+//        return UserPrincipal.create(savedMember, accountInfo, user.getAttributes());
+        return savedMember;
     }
 
-    private Member createMember(OAuth2UserInfo userInfo, ProviderType providerType) {
+    @Transactional
+    protected Member createMember(OAuth2UserInfo userInfo, ProviderType providerType) {
         LocalDateTime now = LocalDateTime.now();
 
         Member member = Member.of(
@@ -85,6 +88,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 now,                       // createdAt
                 now                       // modifiedAt
         );
+
         member = memberRepository.saveAndFlush(member);
         AccountInfo accountInfo = AccountInfo.of(
                 member,

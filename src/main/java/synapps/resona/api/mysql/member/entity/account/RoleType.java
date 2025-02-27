@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.member.entity.member;
+package synapps.resona.api.mysql.member.entity.account;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
