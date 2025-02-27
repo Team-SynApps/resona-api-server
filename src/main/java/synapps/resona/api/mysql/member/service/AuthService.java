@@ -26,7 +26,7 @@ import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
-import synapps.resona.api.mysql.member.entity.member.RoleType;
+import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.exception.AuthException;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
@@ -210,7 +210,8 @@ public class AuthService {
     private AuthToken createToken(String memberEmail, Authentication authentication, Date currentTime) {
         return tokenProvider.createAuthToken(
                 memberEmail,
-                ((UserPrincipal) authentication.getPrincipal()).getRoleType().getCode(),
+//                ((UserPrincipal) authentication.getPrincipal()).getRoleType().getCode(),
+                ((Member) authentication.getPrincipal()).getAccountInfo().getRoleType().getCode(),
                 new Date(currentTime.getTime() + appProperties.getAuth().getTokenExpiry())
         );
     }
