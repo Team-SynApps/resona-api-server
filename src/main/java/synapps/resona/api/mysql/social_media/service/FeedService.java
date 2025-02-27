@@ -46,9 +46,9 @@ public class FeedService {
     private final Logger logger = LogManager.getLogger(FeedService.class);
 
     @Transactional
-    public FeedResponse updateFeed(FeedUpdateRequest feedRequest) throws FeedNotFoundException {
+    public FeedResponse updateFeed(Long feedId, FeedUpdateRequest feedRequest) throws FeedNotFoundException {
         // 예외처리 해줘야 함
-        Feed feed = feedRepository.findById(feedRequest.getFeedId()).orElseThrow(FeedNotFoundException::new);
+        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
         feed.updateContent(feedRequest.getContent());
 
         List<FeedImageDto> feedImageDtos =new ArrayList<>();

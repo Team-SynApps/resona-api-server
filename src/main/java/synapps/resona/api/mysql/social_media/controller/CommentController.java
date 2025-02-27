@@ -30,7 +30,6 @@ public class CommentController {
     }
 
     @PostMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerComment(HttpServletRequest request,
                                              HttpServletResponse response,
                                              @Valid @RequestBody CommentRequest commentRequest) throws FeedNotFoundException {
@@ -67,7 +66,7 @@ public class CommentController {
     }
 
     @PutMapping("/{commentId}")
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
+    @PreAuthorize("@socialSecurity.isCommentMemberProperty(#commentId) or hasRole('ADMIN')")
     public ResponseEntity<?> editComment(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @PathVariable Long commentId,
@@ -79,7 +78,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/{commentId}")
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
+    @PreAuthorize("@socialSecurity.isCommentMemberProperty(#commentId) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteComment(HttpServletRequest request,
                                            HttpServletResponse response,
                                            @PathVariable Long commentId) throws CommentNotFoundException {

@@ -36,7 +36,6 @@ public class FeedController {
     }
 
     @PostMapping("/feed")
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerFeed(HttpServletRequest request,
                                           HttpServletResponse response,
                                           @Valid @RequestBody FeedRegistrationRequest feedRegistrationRequest) throws Exception {
@@ -78,21 +77,22 @@ public class FeedController {
         return ResponseEntity.ok(responseData);
     }
 
-    @PutMapping("/feed")
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
+    @PutMapping("/feed/{feedId}")
+    @PreAuthorize("@socialSecurity.isFeedMemberProperty(#feedId) or hasRole('ADMIN')")
     public ResponseEntity<?> editFeed(HttpServletRequest request,
                                       HttpServletResponse response,
+                                      @PathVariable Long feedId,
                                       @Valid @RequestBody FeedUpdateRequest feedRequest) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.updateFeed(feedRequest)));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.updateFeed(feedId, feedRequest)));
         return ResponseEntity.ok(responseData);
     }
 
-    @DeleteMapping("/feed")
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
-    public ResponseEntity<?> deletePersonalInfo(HttpServletRequest request,
+    @DeleteMapping("/feed/{feedId}")
+    @PreAuthorize("@socialSecurity.isFeedMemberProperty(#feedId) or hasRole('ADMIN')")
+    public ResponseEntity<?> deleteFeed(HttpServletRequest request,
                                                 HttpServletResponse response,
-                                                @RequestParam Long feedId) throws Exception {
+                                                @PathVariable Long feedId) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.deleteFeed(feedId)));
         return ResponseEntity.ok(responseData);
