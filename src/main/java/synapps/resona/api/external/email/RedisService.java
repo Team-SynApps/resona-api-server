@@ -109,6 +109,13 @@ public class RedisService {
         if (code == null) {
             throw EmailException.blankCode();
         }
+        // Redis의 TTL(Time To Live) 확인
+        Long ttl = redisEmailSendTemplate.getExpire(email);
+
+        if (ttl != null && ttl <= 0) {
+            // 만료된 경우 예외
+            throw EmailException.emailCodeExpired();
+        }
         return code.toString();
     }
 }
