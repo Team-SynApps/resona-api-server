@@ -35,4 +35,8 @@ public class EmailException extends MessagingException {
     public static EmailException trialExceeded() {
         return of(ErrorCode.TRIAL_EXCEEDED);
     }
+
+    public static EmailException emailCodeExpired() {
+        return of(ErrorCode.CODE_EXPIRED);
+    }
 }
