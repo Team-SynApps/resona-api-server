@@ -14,6 +14,7 @@ import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
+import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.mysql.member.service.TempTokenService;
 
 import java.util.HashMap;
@@ -71,7 +72,7 @@ public class MailController {
         if (!redisService.canCheckNumber(emailCheckDto.getEmail())) {
             throw EmailException.trialExceeded();
         } else if (!isMatch) {
-            MetaDataDto metaData = createFailMetaData(406, "인증번호가 일치하지 않습니다.", request.getQueryString());
+            MetaDataDto metaData = createFailMetaData(ErrorCode.NOT_ACCEPTABLE.getStatus().value(), ErrorCode.NOT_ACCEPTABLE.getMessage(), request.getQueryString());
 
             int remainingCount = redisService.getRemainingNumberMatch(emailCheckDto.getEmail());
             map.put("remaining count", remainingCount);
@@ -101,7 +102,7 @@ public class MailController {
             return ResponseEntity.ok(responseData);
         }
 
-        MetaDataDto metaData = createFailMetaData(406, "인증번호가 일치하지 않습니다.", request.getQueryString());
+        MetaDataDto metaData = createFailMetaData(ErrorCode.NOT_ACCEPTABLE.getStatus().value(), ErrorCode.NOT_ACCEPTABLE.getMessage(), request.getQueryString());
         HashMap<String, Object> map = new HashMap<>();
 
         int remainingCount = redisService.getRemainingNumberMatch(emailCheckDto.getEmail());
