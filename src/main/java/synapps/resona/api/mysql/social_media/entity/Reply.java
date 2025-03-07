@@ -26,7 +26,7 @@ public class Reply {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(name="content")
+    @Column(name = "content")
     private String content;
 
     @NotNull
@@ -56,6 +56,7 @@ public class Reply {
 
     public void softDelete() {
         this.isDeleted = true;
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public void update(String content) {

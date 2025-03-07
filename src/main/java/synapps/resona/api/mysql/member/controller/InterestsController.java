@@ -5,10 +5,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import synapps.resona.api.global.config.ServerInfoConfig;
-import synapps.resona.api.global.dto.MetaDataDto;
-import synapps.resona.api.global.dto.ResponseDto;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
+import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.member.dto.request.interests.InterestsRequest;
 import synapps.resona.api.mysql.member.service.InterestsService;
 
@@ -26,6 +27,7 @@ public class InterestsController {
     }
 
     @PostMapping
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerInterests(HttpServletRequest request,
                                                HttpServletResponse response,
                                                @Valid @RequestBody InterestsRequest interestsRequest) throws Exception {
@@ -35,15 +37,16 @@ public class InterestsController {
     }
 
     @GetMapping()
-    public ResponseEntity<?> getInterests(HttpServletRequest request,
-                                          HttpServletResponse response,
-                                          @PathVariable Long memberId) throws Exception {
+    public ResponseEntity<?> readInterests(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           @PathVariable Long memberId) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(interestsService.getInterests()));
         return ResponseEntity.ok(responseData);
     }
 
     @PutMapping()
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> editInterests(HttpServletRequest request,
                                            HttpServletResponse response,
                                            @PathVariable Long memberId,
@@ -54,6 +57,7 @@ public class InterestsController {
     }
 
     @DeleteMapping()
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteInterests(HttpServletRequest request,
                                              HttpServletResponse response,
                                              @PathVariable Long memberId) throws Exception {

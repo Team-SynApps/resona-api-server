@@ -17,11 +17,24 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
+	all {
+		exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j2-impl'
+		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
+	}
 }
 
 repositories {
 	mavenCentral()
 }
+
+dependencyManagement {
+	// for oci bucket storage
+	imports {
+		mavenBom 'com.oracle.oci.sdk:oci-java-sdk-bom:3.43.1'
+		mavenBom 'org.springframework.boot:spring-boot-dependencies:3.2.3'
+	}
+}
+
 
 dependencies {
 	// web
@@ -42,6 +55,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb:3.2.3'
 	runtimeOnly 'com.mysql:mysql-connector-j:8.2.0'
 
+	// Redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	// Swagger
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
 
@@ -50,14 +66,11 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-
-	//S3
-	implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.1000')
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+	// OCI SDK
+	implementation 'com.oracle.oci.sdk:oci-java-sdk-shaded-full'
 
 	// email
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
-
 
 	// lombok
 	compileOnly 'org.projectlombok:lombok:1.18.20'
@@ -67,8 +80,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 	implementation 'org.apache.logging.log4j:log4j-mongodb4:2.21.1'
 
-	// Actuator: for health check
+	// Actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// prometheus
+	implementation 'io.micrometer:micrometer-registry-prometheus'
 
 	// test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -77,12 +93,6 @@ dependencies {
 	// stress test: gatling
 	testImplementation 'io.gatling:gatling-test-framework:3.13.1'
 	testImplementation 'io.gatling.highcharts:gatling-charts-highcharts:3.13.1'
-}
-
-configurations {
-	configureEach {
-		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-	}
 }
 
 tasks.named('test') {

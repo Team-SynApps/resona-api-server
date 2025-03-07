@@ -18,14 +18,26 @@ public class AppleOAuthUserProvider {
     private final AppleClaimsValidator appleClaimsValidator;
 
     public OAuthPlatformMemberResponse getApplePlatformMember(String identityToken) throws Exception {
-        Map<String, String> headers = appleJwtParser.parseHeaders(identityToken);
-        ApplePublicKeys applePublicKeys = appleClient.getApplePublicKeys();
+        // 받은 토큰 값 로깅
+        System.out.println("Received identity token: " + identityToken);
 
-        PublicKey publicKey = publicKeyGenerator.generatePublicKey(headers, applePublicKeys);
+        try {
+            Map<String, String> headers = appleJwtParser.parseHeaders(identityToken);
+            // 파싱된 헤더 값 로깅
+            System.out.println("Parsed headers: " + headers);
 
-        Claims claims = appleJwtParser.parsePublicKeyAndGetClaims(identityToken, publicKey);
-        validateClaims(claims);
-        return new OAuthPlatformMemberResponse(claims.getSubject(), claims.get("email", String.class));
+            ApplePublicKeys applePublicKeys = appleClient.getApplePublicKeys();
+            PublicKey publicKey = publicKeyGenerator.generatePublicKey(headers, applePublicKeys);
+
+            Claims claims = appleJwtParser.parsePublicKeyAndGetClaims(identityToken, publicKey);
+            validateClaims(claims);
+            return new OAuthPlatformMemberResponse(claims.getSubject(), claims.get("email", String.class));
+        } catch (Exception e) {
+            // 상세한 에러 정보 로깅
+            System.err.println("Error processing token: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private void validateClaims(Claims claims) throws Exception {

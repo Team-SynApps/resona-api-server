@@ -29,12 +29,12 @@ public class Comment {
     private Member member;
 
     @OneToMany(mappedBy = "comment")
-    private List<Reply> replies = new ArrayList<>();
+    private final List<Reply> replies = new ArrayList<>();
 
     @OneToMany(mappedBy = "comment")
-    private List<Mention> mentions = new ArrayList<>();
+    private final List<Mention> mentions = new ArrayList<>();
 
-    @Column(name="content")
+    @Column(name = "content")
     private String content;
 
     @NotNull
@@ -67,6 +67,7 @@ public class Comment {
 
     public void softDelete() {
         this.isDeleted = true;
+        this.modifiedAt = LocalDateTime.now();
     }
 
     public void addReply() {

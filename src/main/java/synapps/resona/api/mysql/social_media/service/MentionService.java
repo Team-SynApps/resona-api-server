@@ -3,7 +3,9 @@ package synapps.resona.api.mysql.social_media.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.social_media.entity.Comment;
 import synapps.resona.api.mysql.social_media.entity.Mention;
@@ -20,11 +22,14 @@ public class MentionService {
     private final MentionRepository mentionRepository;
     private final MemberService memberService;
     private final CommentRepository commentRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public Mention register(Long commentId) throws CommentNotFoundException {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
-        Member member = memberService.getMember();
+        MemberDto memberDto = memberService.getMember();
+        Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+
         Mention mention = Mention.of(member, comment, LocalDateTime.now());
         mentionRepository.save(mention);
 

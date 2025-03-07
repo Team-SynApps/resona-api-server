@@ -1,12 +1,21 @@
 package synapps.resona.api.external.email;
 
-import synapps.resona.api.global.config.ServerInfoConfig;
-import synapps.resona.api.global.dto.MetaDataDto;
-import synapps.resona.api.global.dto.ResponseDto;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import synapps.resona.api.external.email.exception.EmailException;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
+import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.response.ResponseDto;
+import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.mysql.member.service.TempTokenService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,41 +26,72 @@ import java.util.List;
 public class MailController {
     private final MailService mailService;
     private final ServerInfoConfig serverInfo;
-    private int number; // 이메일 인증 숫자를 저장하는 변수
 
-    private MetaDataDto createSuccessMetaData(String queryString){
+    private MetaDataDto createSuccessMetaData(String queryString) {
         return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
     }
 
-    // 인증 이메일 전송
+    private MetaDataDto createFailMetaData(int status, String message, String queryString) {
+        return MetaDataDto.createErrorMetaData(status, message, queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
+    }
+
+    /**
+     * 이메일 인증번호 전송을 위한 API
+     * @param request HttpServletRequest
+     * @param mail 이메일
+     * @return  남은 발송 횟수 리턴
+     * @throws EmailException 예외 발생시 이메일 예외 던짐
+     */
     @PostMapping()
-    public ResponseEntity<?> sendMail(HttpServletRequest request, String mail) {
-        HashMap<String, Object> map = new HashMap<>();
+    public ResponseEntity<?> sendMail(HttpServletRequest request, String mail) throws EmailException {
+        HashMap<String, Object> result = mailService.send(mail);
 
-        try {
-            number = mailService.sendMail(mail);
-            String num = String.valueOf(number);
-
-            map.put("success", Boolean.TRUE);
-            map.put("number", num);
-        } catch (Exception e) {
-            map.put("success", Boolean.FALSE);
-            map.put("error", e.getMessage());
-        }
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(map));
-
+        ResponseDto responseData = new ResponseDto(metaData, List.of(result));
         return ResponseEntity.ok(responseData);
     }
+
+    /**
+     *
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @param emailCheckDto email, number
+     * @return accessToken
+     * @throws EmailException 예외 발생시 이메일 예외
+     */
+    @PostMapping("/temp-token")
+    public ResponseEntity<?> mailCheckAndIssueToken(HttpServletRequest request, HttpServletResponse response, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        ResponseDto responseData = new ResponseDto(metaData, mailService.verifyMailAndIssueToken(emailCheckDto.getEmail(), emailCheckDto.getNumber()));
+        return ResponseEntity.ok(responseData);
+    }
+
 
     // 인증번호 일치여부 확인
-    @GetMapping()
-    public ResponseEntity<?> mailCheck(HttpServletRequest request, @RequestParam String userNumber) {
-
-        boolean isMatch = userNumber.equals(String.valueOf(number));
-        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(isMatch));
-
-        return ResponseEntity.ok(responseData);
-    }
+//    @PostMapping("/verification")
+//    public ResponseEntity<?> mailCheck(HttpServletRequest request, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
+//        boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
+//        HashMap<String, Object> map = new HashMap<>();
+//
+//        if (redisService.isEmailCheckAvailable(emailCheckDto.getEmail())) {
+//            throw EmailException.trialExceeded();
+//        }
+//
+//        if (isMatch) {
+//            int remainingCount = redisService.getRemainingEmailAuthenticates(emailCheckDto.getEmail());
+//            map.put("remaining count", remainingCount);
+//            map.put("isMatch", isMatch);
+//            MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+//            ResponseDto responseData = new ResponseDto(metaData, List.of(map));
+//            return ResponseEntity.ok(responseData);
+//        }
+//
+//        MetaDataDto metaData = createFailMetaData(ErrorCode.NOT_ACCEPTABLE.getStatus().value(), ErrorCode.NOT_ACCEPTABLE.getMessage(), request.getQueryString());
+//
+//        int remainingCount = redisService.getRemainingEmailAuthenticates(emailCheckDto.getEmail());
+//        map.put("remaining count", remainingCount);
+//
+//        ResponseDto responseData = new ResponseDto(metaData, List.of(map));
+//        return new ResponseEntity<>(responseData, HttpStatus.NOT_ACCEPTABLE);
+//    }
 }

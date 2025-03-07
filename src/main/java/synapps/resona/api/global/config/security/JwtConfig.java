@@ -1,9 +1,9 @@
 package synapps.resona.api.global.config.security;
 
-import synapps.resona.api.oauth.token.AuthTokenProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import synapps.resona.api.mysql.token.AuthTokenProvider;
 
 @Configuration
 public class JwtConfig {

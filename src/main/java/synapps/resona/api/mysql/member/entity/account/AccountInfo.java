@@ -6,8 +6,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.entity.member.RoleType;
 import synapps.resona.api.oauth.entity.ProviderType;
-import synapps.resona.api.oauth.entity.RoleType;
 
 import java.time.LocalDateTime;
 
@@ -25,32 +25,32 @@ public class AccountInfo {
     private Member member;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="role_type")
+    @Column(name = "role_type")
     @NotNull
     private RoleType roleType;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name="provider_type")
+    @Column(name = "provider_type")
     private ProviderType providerType;
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    @Column(name="account_status")
+    @Column(name = "account_status")
     private AccountStatus status;
 
     @NotNull
-    @Column(name="last_accessed_at")
+    @Column(name = "last_accessed_at")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime lastAccessedAt;
 
     @NotNull
-    @Column(name="created_at")
+    @Column(name = "created_at")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @NotNull
-    @Column(name="modified_at")
+    @Column(name = "modified_at")
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime modifiedAt;
 
@@ -70,6 +70,14 @@ public class AccountInfo {
 
     public void updateLastAccessedAt() {
         this.lastAccessedAt = LocalDateTime.now();
+    }
+
+    public void updateStatus(AccountStatus accountStatus) {
+        this.status = accountStatus;
+    }
+
+    public void updateRoleType(RoleType roleType) {
+        this.roleType = roleType;
     }
 
 }

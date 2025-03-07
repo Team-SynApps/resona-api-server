@@ -1,20 +1,21 @@
 package synapps.resona.api.mysql.member.controller;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.security.core.AuthenticationException;
-import synapps.resona.api.global.config.ServerInfoConfig;
-import synapps.resona.api.global.dto.ErrorMetaDataDto;
-import synapps.resona.api.global.dto.MetaDataDto;
-import synapps.resona.api.global.dto.ResponseDto;
-import synapps.resona.api.global.exception.ErrorCode;
-import synapps.resona.api.mysql.member.dto.request.auth.AppleLoginRequest;
-import synapps.resona.api.mysql.member.dto.request.auth.LoginRequest;
-import synapps.resona.api.mysql.member.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
+import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
+import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.response.ResponseDto;
+import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.mysql.member.dto.request.auth.AppleLoginRequest;
+import synapps.resona.api.mysql.member.dto.request.auth.LoginRequest;
+import synapps.resona.api.mysql.member.dto.request.auth.RefreshRequest;
+import synapps.resona.api.mysql.member.service.AuthService;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +27,7 @@ public class AuthController {
     private final AuthService authService;
     private final ServerInfoConfig serverInfo;
 
-    private MetaDataDto createSuccessMetaData(String queryString){
+    private MetaDataDto createSuccessMetaData(String queryString) {
         return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
     }
 
@@ -48,8 +49,8 @@ public class AuthController {
     }
 
     @GetMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken (HttpServletRequest request, HttpServletResponse response) {
-        return authService.refresh(request, response);
+    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response, @RequestBody RefreshRequest refreshRequest) {
+        return authService.refresh(request, response, refreshRequest);
     }
 
     @GetMapping("/member")

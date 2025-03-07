@@ -1,13 +1,14 @@
 package synapps.resona.api.oauth.apple;
 
 import org.springframework.stereotype.Component;
-import java.util.Base64;
+
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Base64;
 import java.util.Map;
 
 @Component
@@ -25,8 +26,8 @@ public class PublicKeyGenerator {
     }
 
     private PublicKey generatePublicKeyWithApplePublicKey(ApplePublicKey publicKey) {
-        byte[] nBytes = Base64.getDecoder().decode(publicKey.getN());
-        byte[] eBytes = Base64.getDecoder().decode(publicKey.getE());
+        byte[] nBytes = Base64.getUrlDecoder().decode(publicKey.getN());
+        byte[] eBytes = Base64.getUrlDecoder().decode(publicKey.getE());
 
         BigInteger n = new BigInteger(POSITIVE_SIGN_NUMBER, nBytes);
         BigInteger e = new BigInteger(POSITIVE_SIGN_NUMBER, eBytes);
