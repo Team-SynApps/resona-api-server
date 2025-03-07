@@ -26,8 +26,6 @@ import java.util.List;
 public class MailController {
     private final MailService mailService;
     private final ServerInfoConfig serverInfo;
-    private final RedisService redisService;
-    private final TempTokenService tempTokenService;
 
     private MetaDataDto createSuccessMetaData(String queryString) {
         return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
@@ -37,78 +35,63 @@ public class MailController {
         return MetaDataDto.createErrorMetaData(status, message, queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
     }
 
-    // 인증 이메일 전송
+    /**
+     * 이메일 인증번호 전송을 위한 API
+     * @param request HttpServletRequest
+     * @param mail 이메일
+     * @return  남은 발송 횟수 리턴
+     * @throws EmailException 예외 발생시 이메일 예외 던짐
+     */
     @PostMapping()
     public ResponseEntity<?> sendMail(HttpServletRequest request, String mail) throws EmailException {
-        HashMap<String, Object> map = new HashMap<>();
-
-        if (!redisService.canSendEmail(mail)) {
-            map.put("success", Boolean.FALSE);
-            map.put("error", "일일 최대 발송 횟수를 초과했습니다.");
-            map.put("remainingAttempts", 0);
-            throw EmailException.trialExceeded();
-
-        } else {
-            int number = mailService.sendMail(mail);
-            String num = String.valueOf(number);
-
-            redisService.setCode(mail, num);
-            map.put("success", Boolean.TRUE);
-            map.put("remainingAttempts", redisService.getRemainingEmailSends(mail));
-        }
+        HashMap<String, Object> result = mailService.send(mail);
 
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(map));
-
+        ResponseDto responseData = new ResponseDto(metaData, List.of(result));
         return ResponseEntity.ok(responseData);
     }
 
-    // 인증번호 일치여부 확인
-    @PostMapping("/verification")
-    public ResponseEntity<?> mailCheck(HttpServletRequest request, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
-        boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
-        HashMap<String, Object> map = new HashMap<>();
-
-        if (!redisService.canCheckNumber(emailCheckDto.getEmail())) {
-            throw EmailException.trialExceeded();
-        } else if (!isMatch) {
-            MetaDataDto metaData = createFailMetaData(ErrorCode.NOT_ACCEPTABLE.getStatus().value(), ErrorCode.NOT_ACCEPTABLE.getMessage(), request.getQueryString());
-
-            int remainingCount = redisService.getRemainingNumberMatch(emailCheckDto.getEmail());
-            map.put("remaining count", remainingCount);
-
-            ResponseDto responseData = new ResponseDto(metaData, List.of(map));
-            return new ResponseEntity(responseData, HttpStatus.NOT_ACCEPTABLE);
-        }
-
-        int remainingCount = redisService.getRemainingNumberMatch(emailCheckDto.getEmail());
-        map.put("remaining count", remainingCount);
-        map.put("isMatch", isMatch);
-        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(map));
-        return ResponseEntity.ok(responseData);
-    }
-
-    // 인증번호 일치여부 확인 후 토큰 발급
+    /**
+     *
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @param emailCheckDto email, number
+     * @return accessToken
+     * @throws EmailException 예외 발생시 이메일 예외
+     */
     @PostMapping("/temp-token")
     public ResponseEntity<?> mailCheckAndIssueToken(HttpServletRequest request, HttpServletResponse response, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
-        boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
-
-        if (!redisService.canCheckNumber(emailCheckDto.getEmail())) {
-            throw EmailException.trialExceeded();
-        } else if (isMatch) {
-            MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-            ResponseDto responseData = new ResponseDto(metaData, List.of(tempTokenService.createTemporaryToken(request, response, emailCheckDto.getEmail())));
-            return ResponseEntity.ok(responseData);
-        }
-
-        MetaDataDto metaData = createFailMetaData(ErrorCode.NOT_ACCEPTABLE.getStatus().value(), ErrorCode.NOT_ACCEPTABLE.getMessage(), request.getQueryString());
-        HashMap<String, Object> map = new HashMap<>();
-
-        int remainingCount = redisService.getRemainingNumberMatch(emailCheckDto.getEmail());
-        map.put("remaining count", remainingCount);
-
-        ResponseDto responseData = new ResponseDto(metaData, List.of(map));
-        return new ResponseEntity(responseData, HttpStatus.NOT_ACCEPTABLE);
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        ResponseDto responseData = new ResponseDto(metaData, mailService.verifyMailAndIssueToken(emailCheckDto.getEmail(), emailCheckDto.getNumber()));
+        return ResponseEntity.ok(responseData);
     }
+
+
+    // 인증번호 일치여부 확인
+//    @PostMapping("/verification")
+//    public ResponseEntity<?> mailCheck(HttpServletRequest request, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
+//        boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
+//        HashMap<String, Object> map = new HashMap<>();
+//
+//        if (redisService.isEmailCheckAvailable(emailCheckDto.getEmail())) {
+//            throw EmailException.trialExceeded();
+//        }
+//
+//        if (isMatch) {
+//            int remainingCount = redisService.getRemainingEmailAuthenticates(emailCheckDto.getEmail());
+//            map.put("remaining count", remainingCount);
+//            map.put("isMatch", isMatch);
+//            MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+//            ResponseDto responseData = new ResponseDto(metaData, List.of(map));
+//            return ResponseEntity.ok(responseData);
+//        }
+//
+//        MetaDataDto metaData = createFailMetaData(ErrorCode.NOT_ACCEPTABLE.getStatus().value(), ErrorCode.NOT_ACCEPTABLE.getMessage(), request.getQueryString());
+//
+//        int remainingCount = redisService.getRemainingEmailAuthenticates(emailCheckDto.getEmail());
+//        map.put("remaining count", remainingCount);
+//
+//        ResponseDto responseData = new ResponseDto(metaData, List.of(map));
+//        return new ResponseEntity<>(responseData, HttpStatus.NOT_ACCEPTABLE);
+//    }
 }

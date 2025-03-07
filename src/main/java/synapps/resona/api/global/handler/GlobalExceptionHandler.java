@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import synapps.resona.api.external.email.dto.EmailCheckExceptionDto;
 import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
@@ -128,6 +129,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailException.class)
     public ResponseEntity<?> handleEmailException(EmailException ex, HttpServletRequest request) {
         ErrorMetaDataDto metaData = createErrorMetaData(ex.getStatus().value(), ex.getMessage(), request.getRequestURI(), ex.getErrorCode());
+        if (ex.getErrorCode().equals(ErrorCode.INVALID_EMAIL_CODE.getCode())) {
+            EmailCheckExceptionDto body = new EmailCheckExceptionDto(ex.getMessage(), ex.getMailCheckCountLeft());
+            return createEmailErrorResponse(metaData, ex.getStatus(), body);
+        }
         logger.error(ex.getMessage(), ex);
         return createErrorResponse(metaData, ex.getStatus(), ex.getMessage());
     }
@@ -152,6 +157,11 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<?> createErrorResponse(ErrorMetaDataDto metaData, HttpStatus status, String message) {
         ResponseDto responseData = new ResponseDto(metaData, List.of(new ErrorResponse(message)));
+        return new ResponseEntity<>(responseData, status);
+    }
+
+    private ResponseEntity<?> createEmailErrorResponse(ErrorMetaDataDto metaData, HttpStatus status, EmailCheckExceptionDto body) {
+        ResponseDto responseData = new ResponseDto(metaData, List.of(body));
         return new ResponseEntity<>(responseData, status);
     }
 }
