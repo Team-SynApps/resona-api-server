@@ -39,7 +39,7 @@ public class TempTokenService {
     private final AppProperties appProperties;
 
     @Transactional
-    public TokenResponse createTemporaryToken(HttpServletRequest request, HttpServletResponse response, String email) {
+    public TokenResponse createTemporaryToken(String email) {
         if (!memberRepository.existsByEmail(email)) {
             // 새로운 멤버 생성
             Member newMember = Member.of(
