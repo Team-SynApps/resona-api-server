@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.member.entity;
+package synapps.resona.api.mysql.member.entity.profile;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -254,7 +254,6 @@ public enum CountryCode {
     ZM("Zambia"),
     ZW("Zimbabwe");
 
-    private final String countryName;
     private static final Map<String, CountryCode> codeToEnumMap = new HashMap<>();
     private static final Map<String, CountryCode> nameToEnumMap = new HashMap<>();
 
@@ -265,12 +264,10 @@ public enum CountryCode {
         }
     }
 
+    private final String countryName;
+
     CountryCode(String countryName) {
         this.countryName = countryName;
-    }
-
-    public String getCountryName() {
-        return countryName;
     }
 
     // 국가 코드로 Enum 반환
@@ -281,5 +278,9 @@ public enum CountryCode {
     // 국가 이름으로 Enum 반환
     public static CountryCode fromCountryName(String name) {
         return nameToEnumMap.get(name.toLowerCase());
+    }
+
+    public String getCountryName() {
+        return countryName;
     }
 }

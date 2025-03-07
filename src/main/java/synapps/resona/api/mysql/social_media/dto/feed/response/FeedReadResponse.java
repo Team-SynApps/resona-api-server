@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 import synapps.resona.api.mysql.social_media.dto.feed.FeedImageDto;
 import synapps.resona.api.mysql.social_media.entity.Feed;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor

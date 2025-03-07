@@ -10,16 +10,16 @@ import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.mysql.member.dto.request.personal_info.PersonalInfoRequest;
-import synapps.resona.api.mysql.member.service.PersonalInfoService;
+import synapps.resona.api.mysql.member.dto.request.member_details.MemberDetailsRequest;
+import synapps.resona.api.mysql.member.service.MemberDetailsService;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/personal-info")
+@RequestMapping("/member-details")
 @RequiredArgsConstructor
-public class PersonalInfoController {
-    private final PersonalInfoService personalInfoService;
+public class MemberDetailsController {
+    private final MemberDetailsService memberDetailsService;
     private final ServerInfoConfig serverInfo;
 
     private MetaDataDto createSuccessMetaData(String queryString) {
@@ -27,41 +27,48 @@ public class PersonalInfoController {
     }
 
     @PostMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerPersonalInfo(HttpServletRequest request,
                                                   HttpServletResponse response,
-                                                  @Valid @RequestBody PersonalInfoRequest personalInfoRequest) throws Exception {
+                                                  @Valid @RequestBody MemberDetailsRequest memberDetailsRequest) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(personalInfoService.register(personalInfoRequest)));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.register(memberDetailsRequest)));
         return ResponseEntity.ok(responseData);
     }
 
     @GetMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> readPersonalInfo(HttpServletRequest request,
                                               HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(personalInfoService.getPersonalInfo()));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.getMemberDetails()));
+        return ResponseEntity.ok(responseData);
+    }
+
+    @GetMapping("/{memberId}")
+    public ResponseEntity<?> getMemberDetailsByMemberId(HttpServletRequest request,
+                                                  HttpServletResponse response,
+                                                  @PathVariable Long memberId) throws Exception {
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.getMemberDetailsByMemberId(memberId)));
         return ResponseEntity.ok(responseData);
     }
 
     @PutMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> editPersonalInfo(HttpServletRequest request,
                                               HttpServletResponse response,
-                                              @Valid @RequestBody PersonalInfoRequest personalInfoRequest) throws Exception {
+                                              @Valid @RequestBody MemberDetailsRequest memberDetailsRequest) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(personalInfoService.editPersonalInfo(personalInfoRequest)));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.editMemberDetails(memberDetailsRequest)));
         return ResponseEntity.ok(responseData);
     }
 
     @DeleteMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> deletePersonalInfo(HttpServletRequest request,
                                                 HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        personalInfoService.deletePersonalInfo();
-        ResponseDto responseData = new ResponseDto(metaData, List.of(personalInfoService.deletePersonalInfo()));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.deleteMemberDetails()));
         return ResponseEntity.ok(responseData);
     }
 }

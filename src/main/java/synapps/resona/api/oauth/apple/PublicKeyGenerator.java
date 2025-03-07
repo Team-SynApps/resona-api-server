@@ -1,13 +1,14 @@
 package synapps.resona.api.oauth.apple;
 
 import org.springframework.stereotype.Component;
-import java.util.Base64;
+
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
+import java.util.Base64;
 import java.util.Map;
 
 @Component

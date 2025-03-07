@@ -1,6 +1,5 @@
 package synapps.resona.api.mysql.member.entity.profile;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -8,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.member.entity.Language;
+import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.util.HashGenerator;
 import synapps.resona.api.mysql.member.util.MD5Generator;
@@ -40,9 +39,23 @@ public class Profile {
     @Size(max = 15)
     private String nickname;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "nationality")
+    @NotNull
+    private CountryCode nationality;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "country_of_residence")
+    @NotNull
+    private CountryCode countryOfResidence;
+
     @ElementCollection
     @CollectionTable(name = "language", joinColumns = @JoinColumn(name = "profile_id"))
-    private Set<Language> usingLanguages = new HashSet<>();
+    private Set<Language> nativeLanguages = new HashSet<>();
+
+    @ElementCollection
+    @CollectionTable(name = "language", joinColumns = @JoinColumn(name = "profile_id"))
+    private Set<Language> interestingLanguages = new HashSet<>();
 
     @Size(max = 512)
     @Column(name = "profile_image_url")
@@ -52,17 +65,22 @@ public class Profile {
     @Column(name = "background_image_url")
     private String backgroundImageUrl;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "MBTI")
-    @Nullable
-    private MBTI mbti;
-
     @Size(max = 512)
     @Column(name = "comment")
     private String comment;
 
-    @Column(name = "about_me")
-    private String aboutMe;
+    @Column(name = "age")
+    @NotNull
+    private Integer age;
+
+    @Column(name = "birth")
+    @NotNull
+    private LocalDateTime birth;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
+    @NotNull
+    private Gender gender;
 
     @NotNull
     @Column(name = "created_at")
@@ -78,28 +96,71 @@ public class Profile {
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
-    private Profile(Member member, String nickname, List<String> usingLanguages, String profileImageUrl, String backgroundImageUrl, String mbti, String comment, String aboutMe, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private Profile(Member member,
+                    String nickname,
+                    CountryCode nationality,
+                    CountryCode countryOfResidence,
+                    Set<Language> nativeLanguages,
+                    Set<Language> interestingLanguages,
+                    String profileImageUrl,
+                    String backgroundImageUrl,
+                    String birth,
+                    Gender gender,
+                    String comment) {
         this.member = member;
         this.tag = generateTag(String.valueOf(member.getId()));
         this.nickname = nickname;
-        this.usingLanguages = parseUsingLanguages(usingLanguages);
+        this.nationality = nationality;
+        this.countryOfResidence = countryOfResidence;
+        this.nativeLanguages = nativeLanguages;
+        this.interestingLanguages = interestingLanguages;
         this.profileImageUrl = profileImageUrl;
         this.backgroundImageUrl = backgroundImageUrl;
-        this.mbti = MBTI.of(mbti);
+        this.birth = parseToLocalDate(birth);
+        this.age = birthToAge(parseToLocalDate(birth));
+        this.gender = gender;
         this.comment = comment;
-        this.aboutMe = aboutMe;
-        this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
+        this.createdAt = LocalDateTime.now();
+        this.modifiedAt = LocalDateTime.now();
     }
 
-    public void modifyProfile(String nickname, List<String> usingLanguages, String profileImageUrl, String backgroundImageUrl, String mbti, String comment, String aboutMe) {
+    public static Profile of(Member member,
+                             String nickname,
+                             CountryCode nationality,
+                             CountryCode countryOfResidence,
+                             Set<Language> nativeLanguages,
+                             Set<Language> interestingLanguages,
+                             String profileImageUrl,
+                             String backgroundImageUrl,
+                             String birth,
+                             Gender gender,
+                             String comment) {
+        return new Profile(member, nickname, nationality, countryOfResidence,
+                nativeLanguages, interestingLanguages, profileImageUrl,
+                backgroundImageUrl, birth, gender, comment);
+    }
+
+    public void modifyProfile(String nickname,
+                              CountryCode nationality,
+                              CountryCode countryOfResidence,
+                              Set<Language> nativeLanguages,
+                              Set<Language> interestingLanguages,
+                              String profileImageUrl,
+                              String backgroundImageUrl,
+                              String birth,
+                              Gender gender,
+                              String comment) {
         this.nickname = nickname;
-        this.usingLanguages = parseUsingLanguages(usingLanguages);
+        this.nationality = nationality;
+        this.countryOfResidence = countryOfResidence;
+        this.nativeLanguages = nativeLanguages;
+        this.interestingLanguages = interestingLanguages;
         this.profileImageUrl = profileImageUrl;
         this.backgroundImageUrl = backgroundImageUrl;
-        this.mbti = MBTI.of(mbti);
+        this.birth = parseToLocalDate(birth);
+        this.age = birthToAge(parseToLocalDate(birth));
+        this.gender = gender;
         this.comment = comment;
-        this.aboutMe = aboutMe;
         this.modifiedAt = LocalDateTime.now();
     }
 
@@ -120,7 +181,6 @@ public class Profile {
         return md5generator.generateHash(input);
     }
 
-
     private Set<Language> parseUsingLanguages(List<String> unParsedLanguages) {
         Set<Language> languages = new HashSet<>();
         for (String language : unParsedLanguages) {
@@ -129,7 +189,19 @@ public class Profile {
         return languages;
     }
 
-    public static Profile of(Member member, String nickname, List<String> usingLanguages, String profileImageUrl, String backgroundImageUrl, String mbti, String comment, String aboutMe, LocalDateTime createdAt, LocalDateTime updatedAt) {
-        return new Profile(member, nickname, usingLanguages, profileImageUrl, backgroundImageUrl, mbti, comment, aboutMe, createdAt, updatedAt);
+    private Integer birthToAge(LocalDateTime birth) {
+        if (birth == null) {
+            return 0;
+        }
+        int birthYear = birth.getYear();
+        return LocalDateTime.now().getYear() - birthYear;
+    }
+
+    private LocalDateTime parseToLocalDate(String date) {
+        try {
+            return DateTimeUtil.stringToLocalDateTime(date);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid date format. Expected format: yyyy-MM-dd. Provided: " + date, e);
+        }
     }
 }

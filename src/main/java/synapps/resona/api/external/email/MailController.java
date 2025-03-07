@@ -1,16 +1,20 @@
 package synapps.resona.api.external.email;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.mysql.member.service.TempTokenService;
 
 import java.util.HashMap;
@@ -25,7 +29,7 @@ public class MailController {
     private final RedisService redisService;
     private final TempTokenService tempTokenService;
 
-    private MetaDataDto createSuccessMetaData(String queryString){
+    private MetaDataDto createSuccessMetaData(String queryString) {
         return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
     }
 
@@ -67,8 +71,8 @@ public class MailController {
 
         if (!redisService.canCheckNumber(emailCheckDto.getEmail())) {
             throw EmailException.trialExceeded();
-        } else if(!isMatch) {
-            MetaDataDto metaData = createFailMetaData(406, "인증번호가 일치하지 않습니다.", request.getQueryString());
+        } else if (!isMatch) {
+            MetaDataDto metaData = createFailMetaData(ErrorCode.NOT_ACCEPTABLE.getStatus().value(), ErrorCode.NOT_ACCEPTABLE.getMessage(), request.getQueryString());
 
             int remainingCount = redisService.getRemainingNumberMatch(emailCheckDto.getEmail());
             map.put("remaining count", remainingCount);
@@ -86,19 +90,19 @@ public class MailController {
     }
 
     // 인증번호 일치여부 확인 후 토큰 발급
-    @PostMapping("/temp_token")
+    @PostMapping("/temp-token")
     public ResponseEntity<?> mailCheckAndIssueToken(HttpServletRequest request, HttpServletResponse response, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
         boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
 
         if (!redisService.canCheckNumber(emailCheckDto.getEmail())) {
             throw EmailException.trialExceeded();
-        } else if(isMatch) {
+        } else if (isMatch) {
             MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
             ResponseDto responseData = new ResponseDto(metaData, List.of(tempTokenService.createTemporaryToken(request, response, emailCheckDto.getEmail())));
             return ResponseEntity.ok(responseData);
         }
 
-        MetaDataDto metaData = createFailMetaData(406, "인증번호가 일치하지 않습니다.", request.getQueryString());
+        MetaDataDto metaData = createFailMetaData(ErrorCode.NOT_ACCEPTABLE.getStatus().value(), ErrorCode.NOT_ACCEPTABLE.getMessage(), request.getQueryString());
         HashMap<String, Object> map = new HashMap<>();
 
         int remainingCount = redisService.getRemainingNumberMatch(emailCheckDto.getEmail());

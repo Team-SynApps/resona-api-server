@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.member.entity.personal_info;
+package synapps.resona.api.mysql.member.entity.profile;
 
 import java.util.Arrays;
 

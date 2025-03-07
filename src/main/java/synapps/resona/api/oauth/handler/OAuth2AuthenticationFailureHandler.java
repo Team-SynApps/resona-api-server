@@ -1,15 +1,15 @@
 package synapps.resona.api.oauth.handler;
 
-import synapps.resona.api.global.utils.CookieUtil;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
+import synapps.resona.api.global.utils.CookieUtil;
 import synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
 
 import java.io.IOException;

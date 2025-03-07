@@ -101,7 +101,7 @@ public class ObjectStorageService {
 
     private String generateTemporaryFileName(String userEmail) {
         return String.format("%s_%s_%s",
-                UUID.randomUUID().toString(),
+                UUID.randomUUID(),
                 LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")),
                 userEmail
         );

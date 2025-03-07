@@ -1,33 +1,35 @@
 package synapps.resona.api.oauth.handler;
 
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.properties.AppProperties;
-import synapps.resona.api.global.utils.CookieUtil;
-import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
-import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
-import synapps.resona.api.oauth.entity.ProviderType;
-import synapps.resona.api.oauth.entity.RoleType;
-import synapps.resona.api.oauth.info.OAuth2UserInfo;
-import synapps.resona.api.oauth.info.OAuth2UserInfoFactory;
-import synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
-import synapps.resona.api.mysql.token.AuthToken;
-import synapps.resona.api.mysql.token.AuthTokenProvider;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import synapps.resona.api.global.properties.AppProperties;
+import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
+import synapps.resona.api.mysql.member.entity.member.RoleType;
+import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
+import synapps.resona.api.mysql.token.AuthToken;
+import synapps.resona.api.mysql.token.AuthTokenProvider;
+import synapps.resona.api.oauth.entity.ProviderType;
+import synapps.resona.api.oauth.info.OAuth2UserInfo;
+import synapps.resona.api.oauth.info.OAuth2UserInfoFactory;
+import synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -91,7 +93,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
             isNewUser = true;
         }
 
-        Map<String,Object> queryParams = new HashMap<>();
+        Map<String, Object> queryParams = new HashMap<>();
         queryParams.put("isRegistered", !isNewUser);
         queryParams.put("accessToken", accessToken.getToken());
         queryParams.put("refreshToken", refreshToken.getToken());
@@ -148,11 +150,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                     // Only validate host and port. Let the clients use different paths if they want to
                     URI authorizedURI = URI.create(authorizedRedirectUri);
                     System.out.println("authorizedURI: " + authorizedURI);
-                    if (authorizedURI.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
-                            && authorizedURI.getPort() == clientRedirectUri.getPort()) {
-                        return true;
-                    }
-                    return false;
+                    return authorizedURI.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
+                            && authorizedURI.getPort() == clientRedirectUri.getPort();
                 });
     }
 

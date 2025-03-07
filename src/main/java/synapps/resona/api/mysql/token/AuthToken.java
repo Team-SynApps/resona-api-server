@@ -3,24 +3,30 @@ package synapps.resona.api.mysql.token;
 import io.jsonwebtoken.*;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.security.Key;
 import java.util.Date;
+import java.util.List;
 
-@Slf4j
 @RequiredArgsConstructor
 public class AuthToken {
-
+    private static final String AUTHORITIES_KEY = "role";
+    private static final String PERMISSIONS_KEY = "permissions";
+    private final Logger logger = LogManager.getLogger(AuthToken.class);
     @Getter
     private final String token;
     private final Key key;
 
-    private static final String AUTHORITIES_KEY = "role";
-
     AuthToken(String id, Date expiry, Key key) {
         this.key = key;
         this.token = createAuthToken(id, expiry);
+    }
+
+    AuthToken(String id, String role, List<String> permissions, Date expiry, Key key) {
+        this.key = key;
+        this.token = createAuthToken(id, role, permissions, expiry);
     }
 
     AuthToken(String id, String role, Date expiry, Key key) {
@@ -45,6 +51,16 @@ public class AuthToken {
                 .compact();
     }
 
+    private String createAuthToken(String id, String role, List<String> permissions, Date expiry) {
+        return Jwts.builder()
+                .setSubject(id)
+                .claim(AUTHORITIES_KEY, role)
+                .claim(PERMISSIONS_KEY, permissions)  // 권한
+                .signWith(key, SignatureAlgorithm.HS256)
+                .setExpiration(expiry)
+                .compact();
+    }
+
     public boolean validate() {
         return this.getTokenClaims() != null;
     }
@@ -57,15 +73,15 @@ public class AuthToken {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (SecurityException e) {
-            log.info("Invalid JWT signature.");
+            logger.error("Invalid JWT signature.");
         } catch (MalformedJwtException e) {
-            log.info("Invalid JWT token.");
+            logger.error("Invalid JWT token.");
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT token.");
+            logger.error("Expired JWT token.");
         } catch (UnsupportedJwtException e) {
-            log.info("Unsupported JWT token.");
+            logger.error("Unsupported JWT token.");
         } catch (IllegalArgumentException e) {
-            log.info("JWT token compact of handler are invalid.");
+            logger.error("JWT token compact of handler are invalid.");
         }
         return null;
     }
@@ -78,7 +94,7 @@ public class AuthToken {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (ExpiredJwtException e) {
-            log.info("Expired JWT token.");
+            logger.error("Expired JWT token.");
             return e.getClaims();
         }
         return null;

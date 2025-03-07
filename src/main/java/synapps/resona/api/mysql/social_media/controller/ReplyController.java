@@ -5,15 +5,16 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.social_media.dto.reply.request.ReplyRequest;
 import synapps.resona.api.mysql.social_media.dto.reply.request.ReplyUpdateRequest;
-import synapps.resona.api.mysql.social_media.service.ReplyService;
 import synapps.resona.api.mysql.social_media.exception.CommentNotFoundException;
 import synapps.resona.api.mysql.social_media.exception.ReplyNotFoundException;
+import synapps.resona.api.mysql.social_media.service.ReplyService;
 
 import java.util.List;
 
@@ -47,6 +48,7 @@ public class ReplyController {
     }
 
     @PutMapping("/{replyId}")
+    @PreAuthorize("@socialSecurity.isReplyMemberProperty(#replyId) or hasRole('ADMIN')")
     public ResponseEntity<?> updateReply(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @PathVariable Long replyId,
@@ -58,6 +60,7 @@ public class ReplyController {
     }
 
     @DeleteMapping("/{replyId}")
+    @PreAuthorize("@socialSecurity.isReplyMemberProperty(#replyId) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteReply(HttpServletRequest request,
                                          HttpServletResponse response,
                                          @PathVariable Long replyId) throws ReplyNotFoundException {

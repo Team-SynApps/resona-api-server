@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.external.file.ObjectStorageService;
 import synapps.resona.api.external.file.dto.FileMetadataDto;
 import synapps.resona.api.global.dto.CursorResult;
+import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
@@ -16,7 +17,7 @@ import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.social_media.dto.feed.FeedImageDto;
 import synapps.resona.api.mysql.social_media.dto.feed.request.FeedRequest;
 import synapps.resona.api.mysql.social_media.dto.feed.request.FeedUpdateRequest;
-import synapps.resona.api.mysql.social_media.dto.feed.response.FeedPostResponse;
+import synapps.resona.api.mysql.social_media.dto.feed.response.FeedResponse;
 import synapps.resona.api.mysql.social_media.dto.feed.response.FeedReadResponse;
 import synapps.resona.api.mysql.social_media.dto.location.LocationRequest;
 import synapps.resona.api.mysql.social_media.entity.Feed;
@@ -45,11 +46,22 @@ public class FeedService {
     private final Logger logger = LogManager.getLogger(FeedService.class);
 
     @Transactional
-    public Feed updateFeed(FeedUpdateRequest feedRequest) throws FeedNotFoundException {
+    public FeedResponse updateFeed(Long feedId, FeedUpdateRequest feedRequest) throws FeedNotFoundException {
         // 예외처리 해줘야 함
-        Feed feed = feedRepository.findById(feedRequest.getFeedId()).orElseThrow(FeedNotFoundException::new);
+        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
         feed.updateContent(feedRequest.getContent());
-        return feed;
+
+        List<FeedImageDto> feedImageDtos =new ArrayList<>();
+        for (FeedMedia media : feed.getImages()) {
+            FeedImageDto imageDto = FeedImageDto.from(media);
+            feedImageDtos.add(imageDto);
+        }
+        return FeedResponse.builder()
+                .id(feed.getId().toString())
+                .content(feed.getContent())
+                .feedImageDtos(feedImageDtos)
+                .createdAt(DateTimeUtil.localDateTimeToString(feed.getCreatedAt()))
+                .build();
     }
 
     @Transactional
@@ -104,7 +116,7 @@ public class FeedService {
         }
 
         String nextCursor = hasNext ?
-                feeds.get(feeds.size()-1).getCreatedAt().toString() : null;
+                feeds.get(feeds.size() - 1).getCreatedAt().toString() : null;
 
 
         return new CursorResult<>(
@@ -118,24 +130,25 @@ public class FeedService {
 
     @Transactional
     public Feed deleteFeed(Long feedId) throws FeedNotFoundException {
-        Feed feed  = feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
+        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
         feed.softDelete();
         return feed;
     }
 
     /**
      * 불필요하게 피드를 한번 더 조회해서 반환하고 있음. 부분 수정해야 함
+     *
      * @param metadataList
      * @param feedRequest
      * @return
      */
     @Transactional
-    public FeedPostResponse registerFeed(List<FileMetadataDto> metadataList, FeedRequest feedRequest) {
+    public FeedResponse registerFeed(List<FileMetadataDto> metadataList, FeedRequest feedRequest) {
         MemberDto memberDto = memberService.getMember();
         Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
         // save feed entity
-        Feed feed = Feed.of(member, feedRequest.getContent(),feedRequest.getCategory(), LocalDateTime.now(), LocalDateTime.now());
+        Feed feed = Feed.of(member, feedRequest.getContent(), feedRequest.getCategory(), LocalDateTime.now(), LocalDateTime.now());
         feedRepository.save(feed);
 
         // finalizing feedImages: move buffer bucket images to disk bucket
@@ -148,7 +161,7 @@ public class FeedService {
                                 feed.getId(),
                                 "width=" + metadata.getWidth() + "&height=" + metadata.getHeight(),
                                 "index=" + metadata.getIndex());
-                        String diskUrl = objectStorageService.copyToDisk(metadata,finalFileName);
+                        String diskUrl = objectStorageService.copyToDisk(metadata, finalFileName);
 
                         return FeedImageDto.builder()
                                 .url(diskUrl)
@@ -169,12 +182,12 @@ public class FeedService {
         // save location entity if exist
         LocationRequest locationRequest = feedRequest.getLocation();
 
-        if(locationRequest.getAddress()!= null) {
+        if (locationRequest.getAddress() != null) {
             Location location = Location.of(feed, locationRequest.getCoordinate(), locationRequest.getAddress(), locationRequest.getName(), LocalDateTime.now(), LocalDateTime.now());
             locationRepository.save(location);
         }
 
-        return FeedPostResponse.builder()
+        return FeedResponse.builder()
                 .id(feed.getId().toString())
                 .feedImageDtos(finalizedFeed)
                 .createdAt(feed.getCreatedAt().toString())

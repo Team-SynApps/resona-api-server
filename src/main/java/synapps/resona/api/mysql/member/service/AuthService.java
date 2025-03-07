@@ -1,31 +1,6 @@
 package synapps.resona.api.mysql.member.service;
 
 
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
-import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.global.dto.response.ResponseHeader;
-import synapps.resona.api.global.properties.AppProperties;
-import synapps.resona.api.global.utils.CookieUtil;
-import synapps.resona.api.global.utils.HeaderUtil;
-import synapps.resona.api.mysql.member.dto.request.auth.AppleLoginRequest;
-import synapps.resona.api.mysql.member.dto.request.auth.LoginRequest;
-import synapps.resona.api.mysql.member.dto.request.auth.RefreshRequest;
-import synapps.resona.api.mysql.member.dto.response.ChatMemberDto;
-import synapps.resona.api.mysql.member.dto.response.OAuthPlatformMemberResponse;
-import synapps.resona.api.mysql.member.dto.response.TokenResponse;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
-import synapps.resona.api.mysql.member.entity.account.AccountInfo;
-import synapps.resona.api.mysql.member.entity.account.AccountStatus;
-import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
-import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
-import synapps.resona.api.oauth.apple.AppleOAuthUserProvider;
-import synapps.resona.api.oauth.entity.ProviderType;
-import synapps.resona.api.oauth.entity.RoleType;
-import synapps.resona.api.oauth.entity.UserPrincipal;
-import synapps.resona.api.mysql.token.AuthToken;
-import synapps.resona.api.mysql.token.AuthTokenProvider;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,7 +12,30 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.response.ResponseDto;
+import synapps.resona.api.global.properties.AppProperties;
+import synapps.resona.api.global.utils.HeaderUtil;
+import synapps.resona.api.mysql.member.dto.request.auth.AppleLoginRequest;
+import synapps.resona.api.mysql.member.dto.request.auth.LoginRequest;
+import synapps.resona.api.mysql.member.dto.request.auth.RefreshRequest;
+import synapps.resona.api.mysql.member.dto.response.ChatMemberDto;
+import synapps.resona.api.mysql.member.dto.response.OAuthPlatformMemberResponse;
+import synapps.resona.api.mysql.member.dto.response.TokenResponse;
+import synapps.resona.api.mysql.member.entity.account.AccountInfo;
+import synapps.resona.api.mysql.member.entity.account.AccountStatus;
+import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
+import synapps.resona.api.mysql.member.entity.member.RoleType;
 import synapps.resona.api.mysql.member.exception.AuthException;
+import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
+import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
+import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.token.AuthToken;
+import synapps.resona.api.mysql.token.AuthTokenProvider;
+import synapps.resona.api.oauth.apple.AppleOAuthUserProvider;
+import synapps.resona.api.oauth.entity.ProviderType;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -46,6 +44,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+    private final static long THREE_DAYS_MSEC = 259200;
     private final AuthenticationManager authenticationManager;
     private final AppProperties appProperties;
     private final AuthTokenProvider tokenProvider;
@@ -53,8 +52,6 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final AccountInfoRepository accountInfoRepository;
     private final AppleOAuthUserProvider appleOAuthUserProvider;
-
-    private final static long THREE_DAYS_MSEC = 259200;
 //    private final static String REFRESH_TOKEN = "refresh_token";
 
     @Transactional
@@ -75,7 +72,7 @@ public class AuthService {
 
         checkRefreshToken(memberEmail, refreshToken);
 
-        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
+        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
         ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken)));
         return ResponseEntity.ok(responseData);
     }
@@ -100,7 +97,7 @@ public class AuthService {
 
             checkRefreshToken(memberEmail, refreshToken);
 
-            MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
+            MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
             ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken)));
             return ResponseEntity.ok(responseData);
 
@@ -108,6 +105,7 @@ public class AuthService {
             Member member = Member.of(
                     applePlatformMember.getEmail(),
                     applePlatformMember.getPlatformId(),
+                    LocalDateTime.now(),
                     LocalDateTime.now(),
                     LocalDateTime.now()
             );
@@ -137,7 +135,7 @@ public class AuthService {
 
             checkRefreshToken(memberEmail, refreshToken);
 
-            MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
+            MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
             ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken)));
             return ResponseEntity.ok(responseData);
         }
@@ -183,7 +181,7 @@ public class AuthService {
 
         AuthToken newAccessToken = createNewAccessToken(memberEmail, roleType, now);
 
-        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
+        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
         ResponseDto responseDto = new ResponseDto(metaData, List.of(new TokenResponse(newAccessToken, newRefreshToken)));
         return ResponseEntity.ok(responseDto);
     }
@@ -193,7 +191,7 @@ public class AuthService {
         AuthToken authToken = tokenProvider.convertAuthToken(accessToken);
         Claims claims = authToken.getTokenClaims();
         String memberEmail = claims.getSubject();
-        if(memberRepository.existsByEmail(memberEmail)){
+        if (memberRepository.existsByEmail(memberEmail)) {
             return new ChatMemberDto(memberEmail, true);
         }
         return new ChatMemberDto("", false);

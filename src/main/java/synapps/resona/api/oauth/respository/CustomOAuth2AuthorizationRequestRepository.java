@@ -1,11 +1,11 @@
 package synapps.resona.api.oauth.respository;
 
 import com.nimbusds.oauth2.sdk.util.StringUtils;
-import synapps.resona.api.global.utils.CookieUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
+import synapps.resona.api.global.utils.CookieUtil;
 
 public class CustomOAuth2AuthorizationRequestRepository implements AuthorizationRequestRepository<OAuth2AuthorizationRequest> {
 

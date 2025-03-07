@@ -8,6 +8,7 @@ public class DateTimeUtil {
     public static String localDateTimeToStringSimpleFormat(LocalDateTime localDateTime) {
         return localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
+
     public static String localDateTimeToString(LocalDateTime localDateTime) {
         return localDateTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
@@ -15,6 +16,7 @@ public class DateTimeUtil {
 
     /**
      * LocalDateTime은 시간이 꼭 명시되어야 한다. 따라서 atStartOfDay() 사용
+     *
      * @param string
      * @return LocalDateTime
      */

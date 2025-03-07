@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.member.entity;
+package synapps.resona.api.mysql.member.entity.profile;
 
 public enum Language {
     AFRIKAANS("af", "Afrikaans"),
@@ -147,16 +147,9 @@ public enum Language {
         this.fullName = fullName;
     }
 
-    public String getCode() {
-        return code;
-    }
-
-    public String getFullName() {
-        return fullName;
-    }
-
     /**
      * Get Language enum by its code
+     *
      * @param code ISO language code
      * @return Language enum or null if not found
      */
@@ -167,5 +160,13 @@ public enum Language {
             }
         }
         return null;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getFullName() {
+        return fullName;
     }
 }

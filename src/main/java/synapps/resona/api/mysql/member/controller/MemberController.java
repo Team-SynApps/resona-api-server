@@ -1,7 +1,12 @@
 package synapps.resona.api.mysql.member.controller;
 
 
-import org.springframework.security.access.prepost.PreAuthorize;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
@@ -9,12 +14,6 @@ import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.SignupRequest;
 import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
 import synapps.resona.api.mysql.member.service.MemberService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -25,7 +24,7 @@ public class MemberController {
     private final MemberService memberService;
     private final ServerInfoConfig serverInfo;
 
-    private MetaDataDto createSuccessMetaData(String queryString){
+    private MetaDataDto createSuccessMetaData(String queryString) {
         return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
     }
 
@@ -40,11 +39,18 @@ public class MemberController {
     }
 
     @GetMapping("/info")
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> getUser(HttpServletRequest request,
                                      HttpServletResponse response) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.getMember()));
+        return ResponseEntity.ok(responseData);
+    }
+
+    @GetMapping("/detail")
+    public ResponseEntity<?> getMemberDetailInfo(HttpServletRequest request,
+                                                 HttpServletResponse response) {
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.getMemberDetailInfo()));
         return ResponseEntity.ok(responseData);
     }
 
@@ -58,7 +64,6 @@ public class MemberController {
     }
 
     @PostMapping("/password")
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> changePassword(HttpServletRequest request,
                                             HttpServletResponse response,
                                             @RequestBody MemberPasswordChangeDto requestBody) throws Exception {
@@ -68,7 +73,6 @@ public class MemberController {
     }
 
     @DeleteMapping()
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
     public ResponseEntity<?> deleteUser(HttpServletRequest request,
                                         HttpServletResponse response) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());

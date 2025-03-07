@@ -12,5 +12,7 @@ public class ResponseDto {
     private MetaDataDto meta;
 
     private List<?> data;
-    public ResponseDto() {}
+
+    public ResponseDto() {
+    }
 }

@@ -2,17 +2,6 @@ package synapps.resona.api.oauth.service;
 
 
 import lombok.RequiredArgsConstructor;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.account.AccountInfo;
-import synapps.resona.api.mysql.member.entity.account.AccountStatus;
-import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
-import synapps.resona.api.oauth.entity.ProviderType;
-import synapps.resona.api.oauth.entity.RoleType;
-import synapps.resona.api.oauth.entity.UserPrincipal;
-import synapps.resona.api.oauth.exception.OAuthProviderMissMatchException;
-import synapps.resona.api.oauth.info.OAuth2UserInfo;
-import synapps.resona.api.oauth.info.OAuth2UserInfoFactory;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -20,7 +9,18 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import synapps.resona.api.mysql.member.entity.account.AccountInfo;
+import synapps.resona.api.mysql.member.entity.account.AccountStatus;
+import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.entity.member.RoleType;
+import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
+import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
+import synapps.resona.api.oauth.entity.ProviderType;
+import synapps.resona.api.oauth.entity.UserPrincipal;
+import synapps.resona.api.oauth.exception.OAuthProviderMissMatchException;
+import synapps.resona.api.oauth.info.OAuth2UserInfo;
+import synapps.resona.api.oauth.info.OAuth2UserInfoFactory;
 
 import java.time.LocalDateTime;
 
@@ -81,6 +81,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Member member = Member.of(
                 userInfo.getEmail(),       // email
                 "",                         // password
+                now,                        // lastAccessedAt
                 now,                       // createdAt
                 now                       // modifiedAt
         );

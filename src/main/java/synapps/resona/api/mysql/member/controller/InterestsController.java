@@ -27,7 +27,7 @@ public class InterestsController {
     }
 
     @PostMapping
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> registerInterests(HttpServletRequest request,
                                                HttpServletResponse response,
                                                @Valid @RequestBody InterestsRequest interestsRequest) throws Exception {
@@ -37,17 +37,16 @@ public class InterestsController {
     }
 
     @GetMapping()
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
-    public ResponseEntity<?> getInterests(HttpServletRequest request,
-                                          HttpServletResponse response,
-                                          @PathVariable Long memberId) throws Exception {
+    public ResponseEntity<?> readInterests(HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           @PathVariable Long memberId) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(interestsService.getInterests()));
         return ResponseEntity.ok(responseData);
     }
 
     @PutMapping()
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> editInterests(HttpServletRequest request,
                                            HttpServletResponse response,
                                            @PathVariable Long memberId,
@@ -58,7 +57,7 @@ public class InterestsController {
     }
 
     @DeleteMapping()
-    @PreAuthorize("@memberSecurity.isCurrentUser(#request)")
+    @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteInterests(HttpServletRequest request,
                                              HttpServletResponse response,
                                              @PathVariable Long memberId) throws Exception {

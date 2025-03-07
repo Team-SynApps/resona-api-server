@@ -6,6 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.social_media.dto.feed.FeedImageDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -25,16 +26,16 @@ public class Feed {
     private Member member;
 
     @OneToMany(mappedBy = "feed")
-    private List<Comment> comments = new ArrayList<>();
+    private final List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "feed")
-    private List<Like> likes = new ArrayList<>();
+    private final List<Like> likes = new ArrayList<>();
 
     // TODO: 이렇게 해도 되는지 검증이 필요함.
     @OneToMany(mappedBy = "feed", fetch = FetchType.EAGER)
-    private List<FeedMedia> images = new ArrayList<>();
+    private final List<FeedMedia> images = new ArrayList<>();
 
-    @Column(name="content")
+    @Column(name = "content")
     private String content;
 
     @Enumerated(EnumType.STRING)
@@ -55,7 +56,7 @@ public class Feed {
     private boolean isDeleted = false;
 
     @Column(name = "is_kept")
-    private boolean isKept = false;
+    private final boolean isKept = false;
 
     private Feed(Member member, String content, String category, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.member = member;
