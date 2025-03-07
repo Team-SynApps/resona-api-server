@@ -144,18 +144,18 @@ jobs:
         run: |
           oci bastion session delete --session-id ${{ env.SESSION_OCID }} --force
 
-      - name: Rollback on Failure
-        if: failure()
-        env:
-          SSH_COMMAND: ${{ env.SSH_COMMAND }}
-        run: |
-          chmod 600 ~/.ssh/id_rsa_bastion
-
-          eval "$SSH_COMMAND" << EOF
-            FAILED_TAG=${{ needs.build.outputs.timestamp }}
-            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$FAILED_TAG || true
-            LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
-            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
-            docker rm -f api-server || true
-            docker run -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
-          EOF
+#      - name: Rollback on Failure
+#        if: failure()
+#        env:
+#          SSH_COMMAND: ${{ env.SSH_COMMAND }}
+#        run: |
+#          chmod 600 ~/.ssh/id_rsa_bastion
+#
+#          eval "$SSH_COMMAND" << EOF
+#            FAILED_TAG=${{ needs.build.outputs.timestamp }}
+#            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$FAILED_TAG || true
+#            LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
+#            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
+#            docker rm -f api-server || true
+#            docker run -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
+#          EOF
