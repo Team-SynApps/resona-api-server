@@ -75,7 +75,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
         } else {
-            logger.warn("No token found in request headers, uri: {}", request.getRequestURI());
+            if(!request.getRequestURI().equals("/api/v1/actuator/prometheus")){
+                logger.warn("No token found in request headers, uri: {}", request.getRequestURI());
+            }
             SecurityContextHolder.clearContext();
         }
 
