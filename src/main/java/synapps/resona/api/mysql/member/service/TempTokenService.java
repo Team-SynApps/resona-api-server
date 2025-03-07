@@ -1,8 +1,6 @@
 package synapps.resona.api.mysql.member.service;
 
 import io.jsonwebtoken.Claims;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,11 +9,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.global.properties.AppProperties;
-import synapps.resona.api.mysql.member.dto.response.TokenResponse;
+import synapps.resona.api.mysql.member.dto.response.TempTokenResponse;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member.RoleType;
+import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.token.AuthToken;
@@ -39,7 +38,8 @@ public class TempTokenService {
     private final AppProperties appProperties;
 
     @Transactional
-    public TokenResponse createTemporaryToken(String email) {
+    public TempTokenResponse createTemporaryToken(String email) {
+        boolean isRegisterd = true;
         if (!memberRepository.existsByEmail(email)) {
             // 새로운 멤버 생성
             Member newMember = Member.of(
@@ -67,6 +67,13 @@ public class TempTokenService {
             accountInfoRepository.save(accountInfo);
         }
 
+        Member member = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);
+        AccountInfo accountInfo = accountInfoRepository.findByMember(member);
+
+        if (accountInfo.isAccountTemporary()) {
+            isRegisterd = false;
+        }
+
         Date now = new Date();
 
         // 6시간 유효한 access token 생성
@@ -83,7 +90,7 @@ public class TempTokenService {
                 new Date(now.getTime() + refreshTokenExpiry)
         );
 
-        return new TokenResponse(accessToken, refreshToken);
+        return new TempTokenResponse(accessToken, refreshToken, isRegisterd);
     }
 
     // 임시 토큰 유효성 검증
