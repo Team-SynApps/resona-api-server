@@ -28,7 +28,7 @@ public enum ErrorCode {
     //email
     INVALID_EMAIL_CODE(HttpStatus.UNAUTHORIZED, "EMAIL001", "Invalid email code"),
     EMAIL_SEND_FAILED(HttpStatus.CONFLICT, "EMAIL002", "Email send failed"),
-    BLANK_CODE(HttpStatus.NOT_FOUND, "EMAIL003", "Blank code"),
+    CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "EMAIL003", "Email code not found"),
     TRIAL_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "EMAIL004", "Email trial exceeded"),
     NOT_ACCEPTABLE(HttpStatus.NOT_ACCEPTABLE, "EMAIL005", "Email code does not match"),
     CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL006", "Email code expired"),
