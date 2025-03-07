@@ -1,9 +1,5 @@
 package synapps.resona.api.mysql.member.entity.member;
 
-import synapps.resona.api.mysql.social_media.entity.Comment;
-import synapps.resona.api.mysql.social_media.entity.Feed;
-import synapps.resona.api.mysql.social_media.entity.Mention;
-import synapps.resona.api.mysql.social_media.entity.Scrap;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -13,6 +9,10 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import synapps.resona.api.mysql.social_media.entity.Comment;
+import synapps.resona.api.mysql.social_media.entity.Feed;
+import synapps.resona.api.mysql.social_media.entity.Mention;
+import synapps.resona.api.mysql.social_media.entity.Scrap;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -37,16 +37,16 @@ public class Member {
     private String password;
 
     @OneToMany(mappedBy = "member")
-    private List<Feed> feeds = new ArrayList<>();
+    private final List<Feed> feeds = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
-    private List<Comment> comments = new ArrayList<>();
+    private final List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
-    private List<Mention> mentions = new ArrayList<>();
+    private final List<Mention> mentions = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
-    private List<Scrap> scraps = new ArrayList<>();
+    private final List<Scrap> scraps = new ArrayList<>();
 
     @NotNull
     @Column(name = "last_accessed_at")

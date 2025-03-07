@@ -22,4 +22,6 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
     @Query("SELECT  f FROM Feed f WHERE f.createdAt < :cursor " +
             "ORDER BY f.createdAt DESC LIMIT :size")
     List<Feed> findFeedsByCursor(LocalDateTime cursor, int size);
+
+    boolean existsByIdAndMember(Long feedId, Member member);
 }

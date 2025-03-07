@@ -1,33 +1,33 @@
 package synapps.resona.api.mysql.member.service;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.stereotype.Service;
 import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.SignupRequest;
 import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
 import synapps.resona.api.mysql.member.dto.response.MemberDetailInfoDto;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
-import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
+import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.entity.member.RoleType;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.repository.MemberDetailsRepository;
+import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.repository.ProfileRepository;
-import synapps.resona.api.oauth.entity.ProviderType;
-import synapps.resona.api.mysql.member.entity.member.RoleType;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.stereotype.Service;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
+import synapps.resona.api.oauth.entity.ProviderType;
 
 import java.time.LocalDateTime;
 
@@ -43,12 +43,12 @@ public class MemberService {
 
     /**
      * SecurityContextHolder에서 관리하는 context에서 userPrincipal을 받아옴
+     *
      * @return 멤버를 이메일 기준으로 불러옴
      * Optional 적용 고려
      */
     @Transactional
     public MemberDto getMember() {
-        log.info("get member");
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info(userPrincipal.getUsername());
         Member member = memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
@@ -59,6 +59,11 @@ public class MemberService {
                 .id(member.getId())
                 .email(member.getEmail())
                 .build();
+    }
+
+    public Member getMemberUsingSecurityContext() {
+        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
     }
 
     @Transactional
@@ -130,8 +135,7 @@ public class MemberService {
             // 차단당한 계정인 경우
             else if (accountInfo.getStatus().equals(AccountStatus.BANNED)) {
                 throw MemberException.unAuthenticatedRequest();
-            }
-            else {
+            } else {
                 throw MemberException.duplicateEmail();
             }
         }
@@ -167,7 +171,7 @@ public class MemberService {
     @Transactional
     public MemberDto changePassword(HttpServletRequest request, MemberPasswordChangeDto memberPasswordChangeDto) {
         String email = memberPasswordChangeDto.getEmail();
-        if(!isCurrentUser(request, email)){
+        if (!isCurrentUser(request, email)) {
             throw MemberException.unAuthenticatedRequest();
         }
         Member member = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);

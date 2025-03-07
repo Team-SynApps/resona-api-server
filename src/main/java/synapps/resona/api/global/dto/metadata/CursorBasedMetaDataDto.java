@@ -17,8 +17,8 @@ public class CursorBasedMetaDataDto extends MetaDataDto {
     }
 
     public static CursorBasedMetaDataDto createSuccessMetaData(String path, String apiVersion,
-                                                                        String serverName, String cursor, int size,
-                                                                        boolean hasNext) {
+                                                               String serverName, String cursor, int size,
+                                                               boolean hasNext) {
         return new CursorBasedMetaDataDto(200, "Success", path, apiVersion, serverName,
                 cursor, size, hasNext);
     }

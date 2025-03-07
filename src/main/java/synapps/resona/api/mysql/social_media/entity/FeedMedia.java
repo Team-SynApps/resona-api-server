@@ -21,7 +21,7 @@ public class FeedMedia {
     @JoinColumn(name = "feed_id")
     private Feed feed;
 
-    @Column(name="media_type")
+    @Column(name = "media_type")
     @Enumerated(EnumType.STRING)
     private MediaType mediaType;
 
@@ -29,7 +29,7 @@ public class FeedMedia {
     private String url;
 
     @NotNull
-    @Column(name="media_index")
+    @Column(name = "media_index")
     private Integer index;
 
     @NotNull

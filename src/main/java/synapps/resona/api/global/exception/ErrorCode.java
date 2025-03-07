@@ -28,8 +28,10 @@ public enum ErrorCode {
     //email
     INVALID_EMAIL_CODE(HttpStatus.UNAUTHORIZED, "EMAIL001", "Invalid email code"),
     EMAIL_SEND_FAILED(HttpStatus.CONFLICT, "EMAIL002", "Email send failed"),
-    BLANK_CODE(HttpStatus.NOT_FOUND, "EMAIL003", "Blank code"),
-    TRIAL_EXCEEDED(HttpStatus.BAD_REQUEST, "EMAIL004", "Email trial exceeded"),
+    CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "EMAIL003", "Email code not found"),
+    TRIAL_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "EMAIL004", "Email trial exceeded"),
+    NOT_ACCEPTABLE(HttpStatus.NOT_ACCEPTABLE, "EMAIL005", "Email code does not match"),
+    CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL006", "Email code expired"),
 
     //profile
     PROFILE_INPUT_INVALID(HttpStatus.CONFLICT, "PROFILE001", "Invalid profile"),
@@ -40,9 +42,9 @@ public enum ErrorCode {
     FILE_EMPTY_EXCEPTION(HttpStatus.CONFLICT, "FILE001", "File is empty"),
     ;
 
-    private HttpStatus status;
     private final String code;
     private final String message;
+    private final HttpStatus status;
 
     ErrorCode(final HttpStatus status, final String code, final String message) {
         this.code = code;

@@ -18,7 +18,6 @@ import synapps.resona.api.mysql.social_media.entity.Feed;
 import synapps.resona.api.mysql.social_media.entity.Reply;
 import synapps.resona.api.mysql.social_media.exception.CommentNotFoundException;
 import synapps.resona.api.mysql.social_media.exception.FeedNotFoundException;
-import synapps.resona.api.mysql.social_media.exception.ReplyNotFoundException;
 import synapps.resona.api.mysql.social_media.repository.CommentRepository;
 import synapps.resona.api.mysql.social_media.repository.FeedRepository;
 import synapps.resona.api.mysql.social_media.repository.ReplyRepository;
@@ -95,10 +94,10 @@ public class CommentService {
         List<ReplyReadResponse> repliesResponse = new ArrayList<>();
         for (Reply reply : replies) {
             repliesResponse.add(ReplyReadResponse.builder()
-                            .replyId(reply.getId().toString())
-                            .commentId(comment.getId().toString())
-                            .content(reply.getContent())
-                            .createdAt(reply.getCreatedAt().toString()).build());
+                    .replyId(reply.getId().toString())
+                    .commentId(comment.getId().toString())
+                    .content(reply.getContent())
+                    .createdAt(reply.getCreatedAt().toString()).build());
         }
         return repliesResponse;
     }

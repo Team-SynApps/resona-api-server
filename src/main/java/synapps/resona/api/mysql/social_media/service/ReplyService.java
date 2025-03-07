@@ -19,7 +19,6 @@ import synapps.resona.api.mysql.social_media.repository.CommentRepository;
 import synapps.resona.api.mysql.social_media.repository.ReplyRepository;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

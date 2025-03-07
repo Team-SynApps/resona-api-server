@@ -19,7 +19,7 @@ public class MD5Generator implements HashGenerator {
                 hashString.append(hex);
             }
 
-            System.out.println("SHA-256 Hash: " + hashString.toString());
+            System.out.println("SHA-256 Hash: " + hashString);
             return hashString.toString();
         } catch (Exception e) {
             System.out.println("Algorithm not found: " + e.getMessage());

@@ -26,7 +26,7 @@ public class Reply {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(name="content")
+    @Column(name = "content")
     private String content;
 
     @NotNull

@@ -34,16 +34,13 @@
 
     <Loggers>
         <!-- LOG everything at INFO level -->
-        <Root level="info">
+        <Root level="INFO">
             <AppenderRef ref="Console" />
+            <AppenderRef ref="MongoDbAppender"/>
             <AppenderRef ref="RollingFile" />
         </Root>
 
-        <Logger>
-            <AppenderRef ref="MongoDbAppender"/>
-        </Logger>
-
-        <Logger name="synapps.resona.api" level="trace"></Logger>
+<!--        <Logger name="synapps.resona.api" level="debug"></Logger>-->
     </Loggers>
 
 </Configuration>
