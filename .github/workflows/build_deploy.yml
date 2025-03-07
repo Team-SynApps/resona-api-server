@@ -88,7 +88,7 @@ jobs:
       - name: Create SSH Key for Bastion
         run: |
           mkdir -p ~/.ssh
-          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_bastion -N ""
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_bastion -N ""  
           touch ~/.ssh/known_hosts
 
       - name: Create Bastion Session
@@ -126,15 +126,14 @@ jobs:
         env:
           SSH_COMMAND: ${{ env.SSH_COMMAND }}
         run: |
-
+          
           chmod 600 ~/.ssh/id_rsa_bastion
-
+          
           echo "SSH Command: $SSH_COMMAND"
           SSH_COMMAND="${SSH_COMMAND/ssh /ssh -vvv -o StrictHostKeyChecking=no }"
-
+          
           eval $SSH_COMMAND << EOF
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-#            echo "${{ secrets.ENV_PROD_FILE }}" | base64 --decode > .env
             docker pull speculatingwook/api-server:latest
             ./restart-prod.sh
           EOF
