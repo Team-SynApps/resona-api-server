@@ -80,4 +80,8 @@ public class AccountInfo {
         this.roleType = roleType;
     }
 
+    public boolean isAccountTemporary() {
+        return this.status.equals(AccountStatus.TEMPORARY);
+    }
+
 }
