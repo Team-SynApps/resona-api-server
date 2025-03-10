@@ -48,6 +48,9 @@ public class Member {
     @OneToMany(mappedBy = "member")
     private final List<Scrap> scraps = new ArrayList<>();
 
+    @Column(name = "is_deleted")
+    private boolean isDeleted = false;
+
     @NotNull
     @Column(name = "last_accessed_at")
     @Temporal(TemporalType.TIMESTAMP)
@@ -89,6 +92,11 @@ public class Member {
     }
 
     public void updateModifiedAt() {
+        this.modifiedAt = LocalDateTime.now();
+    }
+
+    public void softDelete() {
+        this.isDeleted = true;
         this.modifiedAt = LocalDateTime.now();
     }
 }

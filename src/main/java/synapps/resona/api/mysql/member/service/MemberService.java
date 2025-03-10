@@ -179,10 +179,12 @@ public class MemberService {
         return new MemberDto(member.getId(), member.getEmail());
     }
 
+    @Transactional
     public String deleteUser() {
         User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Member member = memberRepository.findByEmail(principal.getUsername()).orElseThrow(MemberException::memberNotFound);
-        memberRepository.delete(member);
+        member.softDelete();
+        memberRepository.save(member);
         return "delete successful";
     }
 
