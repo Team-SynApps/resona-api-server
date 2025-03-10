@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.member.Member;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Scrap {
+public class Scrap extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "scrap_id")
@@ -27,30 +28,13 @@ public class Scrap {
     @JoinColumn(name = "feed_id")
     private Feed feed;
 
-    @NotNull
-    @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime createdAt;
-
-    @NotNull
-    @Column(name = "is_scrap_canceled")
-    private boolean isScrapCanceled = false;
-
     private Scrap(Member member, Feed feed, LocalDateTime createdAt) {
         this.member = member;
         this.feed = feed;
-        this.createdAt = createdAt;
     }
 
     public static Scrap of(Member member, Feed feed, LocalDateTime createdAt) {
         return new Scrap(member, feed, createdAt);
     }
 
-    public void softDelete() {
-        this.isScrapCanceled = true;
-    }
-
-    public void cancelScrap() {
-        this.isScrapCanceled = true;
-    }
 }

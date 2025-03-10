@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.util.HashGenerator;
@@ -20,7 +21,7 @@ import java.util.Set;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Profile {
+public class Profile extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -82,20 +83,6 @@ public class Profile {
     @NotNull
     private Gender gender;
 
-    @NotNull
-    @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime createdAt;
-
-    @NotNull
-    @Column(name = "updated_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime modifiedAt;
-
-    @NotNull
-    @Column(name = "is_deleted")
-    private boolean isDeleted = false;
-
     private Profile(Member member,
                     String nickname,
                     CountryCode nationality,
@@ -120,8 +107,6 @@ public class Profile {
         this.age = birthToAge(parseToLocalDate(birth));
         this.gender = gender;
         this.comment = comment;
-        this.createdAt = LocalDateTime.now();
-        this.modifiedAt = LocalDateTime.now();
     }
 
     public static Profile of(Member member,
@@ -161,7 +146,6 @@ public class Profile {
         this.age = birthToAge(parseToLocalDate(birth));
         this.gender = gender;
         this.comment = comment;
-        this.modifiedAt = LocalDateTime.now();
     }
 
     public void changeBackgroundUrl(String url) {
@@ -170,10 +154,6 @@ public class Profile {
 
     public void changeProfileImageUrl(String url) {
         this.profileImageUrl = url;
-    }
-
-    public void softDelete() {
-        this.isDeleted = true;
     }
 
     private String generateTag(String input) {

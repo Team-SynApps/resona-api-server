@@ -148,7 +148,7 @@ public class FeedService {
         Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
         // save feed entity
-        Feed feed = Feed.of(member, feedRequest.getContent(), feedRequest.getCategory(), LocalDateTime.now(), LocalDateTime.now());
+        Feed feed = Feed.of(member, feedRequest.getContent(), feedRequest.getCategory());
         feedRepository.save(feed);
 
         // finalizing feedImages: move buffer bucket images to disk bucket
@@ -175,7 +175,7 @@ public class FeedService {
                 .toList();
 
         finalizedFeed.forEach(feedTempData -> {
-            FeedMedia feedMedia = FeedMedia.of(feed, "IMAGE", feedTempData.getUrl(), feedTempData.getIndex(), LocalDateTime.now(), LocalDateTime.now());
+            FeedMedia feedMedia = FeedMedia.of(feed, "IMAGE", feedTempData.getUrl(), feedTempData.getIndex());
             feedMediaRepository.save(feedMedia);
         });
 
@@ -183,7 +183,7 @@ public class FeedService {
         LocationRequest locationRequest = feedRequest.getLocation();
 
         if (locationRequest.getAddress() != null) {
-            Location location = Location.of(feed, locationRequest.getCoordinate(), locationRequest.getAddress(), locationRequest.getName(), LocalDateTime.now(), LocalDateTime.now());
+            Location location = Location.of(feed, locationRequest.getCoordinate(), locationRequest.getAddress(), locationRequest.getName());
             locationRepository.save(location);
         }
 

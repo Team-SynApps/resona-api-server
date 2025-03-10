@@ -31,15 +31,13 @@ public class LikeService {
         MemberDto memberDto = memberService.getMember();
         Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
-        Like like = Like.of(member, feed, LocalDateTime.now());
+        Like like = Like.of(member, feed);
         likeRepository.save(like);
         return like;
     }
 
     @Transactional
     public Like cancel(Long likeId) throws LikeNotFoundException {
-        Like like = likeRepository.findById(likeId).orElseThrow(LikeNotFoundException::new);
-        like.cancelLike();
-        return like;
+        return likeRepository.findById(likeId).orElseThrow(LikeNotFoundException::new);
     }
 }
