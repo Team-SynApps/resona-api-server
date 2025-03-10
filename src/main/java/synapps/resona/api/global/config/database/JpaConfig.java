@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @Configuration
-@EnableJpaAuditing
+//@EnableJpaAuditing
 @EnableJpaRepositories(basePackages = "synapps.resona.api.mysql")
 public class JpaConfig {
 }

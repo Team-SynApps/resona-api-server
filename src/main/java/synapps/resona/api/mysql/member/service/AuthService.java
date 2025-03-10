@@ -105,8 +105,6 @@ public class AuthService {
             Member member = Member.of(
                     applePlatformMember.getEmail(),
                     applePlatformMember.getPlatformId(),
-                    LocalDateTime.now(),
-                    LocalDateTime.now(),
                     LocalDateTime.now()
             );
 
@@ -114,10 +112,7 @@ public class AuthService {
                     member,
                     RoleType.USER,
                     ProviderType.APPLE,
-                    AccountStatus.ACTIVE,
-                    LocalDateTime.now(),
-                    LocalDateTime.now(),
-                    LocalDateTime.now()
+                    AccountStatus.ACTIVE
             );
 
             member.encodePassword(applePlatformMember.getPlatformId());

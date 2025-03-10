@@ -43,8 +43,6 @@ class MemberServiceTest extends IntegrationTestSupport {
         testMember = Member.of(
                 "test1@example.com",
                 "password1234",
-                LocalDateTime.now(),
-                LocalDateTime.now(),
                 LocalDateTime.now()
         );
         testMember.encodePassword("password1234");
@@ -53,10 +51,7 @@ class MemberServiceTest extends IntegrationTestSupport {
                 testMember,
                 RoleType.USER,
                 synapps.resona.api.oauth.entity.ProviderType.LOCAL,
-                AccountStatus.ACTIVE,
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                AccountStatus.ACTIVE
         );
 
         memberRepository.save(testMember);
