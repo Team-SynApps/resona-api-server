@@ -69,7 +69,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     }
 
     @Test
-    @DisplayName("회원 정보 조회 테스트")
+    @DisplayName("회원 정보를 조회한다.")
     void testGetMember() {
         // when
         MemberDto memberDto = memberService.getMember();
@@ -80,7 +80,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     }
 
     @Test
-    @DisplayName("회원 상세 정보 조회 테스트")
+    @DisplayName("회원 상세 정보를 조회한다.")
     void testGetMemberDetailInfo() {
         // when
         var memberDetailInfo = memberService.getMemberDetailInfo();
@@ -91,7 +91,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     }
 
     @Test
-    @DisplayName("회원 가입 테스트")
+    @DisplayName("회원 가입을 한다.")
     void testSignUp() throws Exception {
         // given
         SignupRequest request = new SignupRequest("newuser1@example.com", "newpassword");
@@ -106,7 +106,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     }
 
     @Test
-    @DisplayName("회원 삭제 테스트")
+    @DisplayName("회원을 삭제한다.")
     void testDeleteUser() {
         // when
         String result = memberService.deleteUser();
