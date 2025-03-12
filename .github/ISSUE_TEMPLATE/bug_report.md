@@ -1,7 +1,7 @@
 ---
 name: "🛠 백엔드 버그 수정 및 재현 케이스"
 about: 백엔드 서비스의 버그 재현, 원인 분석 및 수정 검증을 위한 이슈 템플릿
-title: "[🛠 Bug] 버그 내용 - [Resona]"
+title: "[🛠 Bug] 버그 내용 - [모듈/서비스명]"
 labels: 'bug'
 assignees: ''
 ---
