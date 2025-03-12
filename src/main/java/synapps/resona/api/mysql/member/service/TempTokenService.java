@@ -71,7 +71,7 @@ public class TempTokenService {
         AccountInfo accountInfo = accountInfoRepository.findByMember(member);
 
         if (accountInfo.isAccountTemporary()) {
-            isRegisterd = false;
+            isRegistered = false;
         }
 
         Date now = new Date();
