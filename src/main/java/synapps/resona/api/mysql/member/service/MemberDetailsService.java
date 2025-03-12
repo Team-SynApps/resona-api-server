@@ -77,7 +77,7 @@ public class MemberDetailsService {
      * @param memberId
      * @return
      */
-    public MemberDetailsDto getMemberDetailsByMemberId(Long memberId) {
+    public MemberDetailsDto getMemberDetails(Long memberId) {
         MemberDetails memberDetails = memberDetailsRepository.findByMemberId(memberId).orElseThrow(MemberException::memberNotFound);
 
         return MemberDetailsDto.builder()
