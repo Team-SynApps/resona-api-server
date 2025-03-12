@@ -10,4 +10,5 @@ import synapps.resona.api.mysql.token.AuthToken;
 public class TokenResponse {
     private AuthToken accessToken;
     private AuthToken refreshToken;
+    private boolean isRegistered;
 }
