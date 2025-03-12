@@ -39,7 +39,7 @@ public class TempTokenService {
 
     @Transactional
     public TempTokenResponse createTemporaryToken(String email) {
-        boolean isRegisterd = true;
+        boolean isRegistered = true;
         if (!memberRepository.existsByEmail(email)) {
             // 새로운 멤버 생성
             Member newMember = Member.of(
@@ -90,7 +90,7 @@ public class TempTokenService {
                 new Date(now.getTime() + refreshTokenExpiry)
         );
 
-        return new TempTokenResponse(accessToken, refreshToken, isRegisterd);
+        return new TempTokenResponse(accessToken, refreshToken, isRegistered);
     }
 
     // 임시 토큰 유효성 검증
