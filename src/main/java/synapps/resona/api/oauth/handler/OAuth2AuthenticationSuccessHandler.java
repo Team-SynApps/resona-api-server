@@ -94,7 +94,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         }
 
         Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("isRegistered", !isNewUser);
+        queryParams.put("registered", !isNewUser);
         queryParams.put("accessToken", accessToken.getToken());
         queryParams.put("refreshToken", refreshToken.getToken());
 
