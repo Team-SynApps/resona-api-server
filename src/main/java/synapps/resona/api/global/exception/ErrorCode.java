@@ -29,9 +29,10 @@ public enum ErrorCode {
     INVALID_EMAIL_CODE(HttpStatus.UNAUTHORIZED, "EMAIL001", "Invalid email code"),
     EMAIL_SEND_FAILED(HttpStatus.CONFLICT, "EMAIL002", "Email send failed"),
     CODE_NOT_FOUND(HttpStatus.NOT_FOUND, "EMAIL003", "Email code not found"),
-    TRIAL_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "EMAIL004", "Email trial exceeded"),
+    SEND_TRIAL_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "EMAIL004", "Email send trial exceeded"),
     NOT_ACCEPTABLE(HttpStatus.NOT_ACCEPTABLE, "EMAIL005", "Email code does not match"),
     CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL006", "Email code expired"),
+    VERIFY_TRIAL_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "EMAIL007", "Email verify trial exceeded"),
 
     //profile
     PROFILE_INPUT_INVALID(HttpStatus.CONFLICT, "PROFILE001", "Invalid profile"),
