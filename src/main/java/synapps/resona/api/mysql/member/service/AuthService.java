@@ -52,8 +52,15 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final AccountInfoRepository accountInfoRepository;
     private final AppleOAuthUserProvider appleOAuthUserProvider;
+    private final MemberService memberService;
 //    private final static String REFRESH_TOKEN = "refresh_token";
 
+    /**
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @param loginRequest email, password
+     * @return access token, refresh token, registered
+     */
     @Transactional
     public ResponseEntity<?> login(HttpServletRequest request,
                                    HttpServletResponse response,
@@ -73,7 +80,7 @@ public class AuthService {
         checkRefreshToken(memberEmail, refreshToken);
 
         MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
-        ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken, true)));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken, memberService.isRegisteredMember(memberEmail))));
         return ResponseEntity.ok(responseData);
     }
 
@@ -98,7 +105,7 @@ public class AuthService {
             checkRefreshToken(memberEmail, refreshToken);
 
             MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
-            ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken, true)));
+            ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken, memberService.isRegisteredMember(memberEmail))));
             return ResponseEntity.ok(responseData);
         }
         Member member = Member.of(

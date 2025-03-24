@@ -17,6 +17,7 @@ import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
 import synapps.resona.api.mysql.member.entity.member.RoleType;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
+import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.entity.ProviderType;
@@ -39,6 +40,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     private final AppProperties appProperties;
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
     private final CustomOAuth2AuthorizationRequestRepository authorizationRequestRepository;
+    private final MemberService memberService;
 
     @Value("${oauth.redirect-scheme}")
     private String redirectScheme;
@@ -82,7 +84,6 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 new Date(now.getTime() + refreshTokenExpiry)
         );
 
-        boolean isNewUser = false;
         MemberRefreshToken userRefreshToken = memberRefreshTokenRepository.findByMemberEmail(userInfo.getEmail());
         if (userRefreshToken != null) {
             userRefreshToken.setRefreshToken(refreshToken.getToken());
@@ -90,11 +91,10 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         } else {
             userRefreshToken = new MemberRefreshToken(userInfo.getEmail(), refreshToken.getToken());
             memberRefreshTokenRepository.saveAndFlush(userRefreshToken);
-            isNewUser = true;
         }
 
         Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("registered", !isNewUser);
+        queryParams.put("registered", memberService.isRegisteredMember(userInfo.getEmail()));
         queryParams.put("accessToken", accessToken.getToken());
         queryParams.put("refreshToken", refreshToken.getToken());
 

@@ -25,7 +25,7 @@ public class MailService {
             map.put("success", Boolean.FALSE);
             map.put("error", "일일 최대 발송 횟수를 초과했습니다.");
             map.put("remainingAttempts", 0);
-            throw EmailException.trialExceeded();
+            throw EmailException.sendTrialExceeded();
         }
 
         int number = mailSendService.sendMail(email); // 메일 전송
@@ -42,7 +42,7 @@ public class MailService {
 
     public List<?> verifyMailAndIssueToken(String email, String number) throws EmailException {
         if (!redisService.isEmailCheckAvailable(email)) {
-            throw EmailException.trialExceeded();
+            throw EmailException.verifyTrialExceeded();
         }
 
         if (number.equals(redisService.getCode(email))) {
