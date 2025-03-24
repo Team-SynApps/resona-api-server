@@ -111,7 +111,8 @@ public class AuthService {
       
         Member member = Member.of(
                 applePlatformMember.getEmail(),
-                applePlatformMember.getPlatformId()
+                applePlatformMember.getPlatformId(),
+                LocalDateTime.now()
         );
 
         AccountInfo accountInfo = AccountInfo.of(
