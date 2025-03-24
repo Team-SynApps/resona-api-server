@@ -217,6 +217,12 @@ public class MemberService {
         }
     }
 
+    public boolean isRegisteredMember(String email) {
+        Member member = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);
+        AccountInfo accountInfo = accountInfoRepository.findByMember(member);
+        return !accountInfo.isAccountTemporary();
+    }
+
     private String resolveToken(HttpServletRequest request) {
         String bearerToken = request.getHeader("Authorization");
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {

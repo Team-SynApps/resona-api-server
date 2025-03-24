@@ -29,6 +29,7 @@ import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
 import synapps.resona.api.mysql.member.entity.member.RoleType;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
+import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationFailureHandler;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationSuccessHandler;
@@ -71,6 +72,7 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
     private final CustomOAuth2UserService oAuth2UserService;
+    private final MemberService memberService;
     private final ClientRegistrationRepository clientRegistrationRepository;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
@@ -144,7 +146,8 @@ public class SecurityConfig {
                 tokenProvider,
                 appProperties,
                 memberRefreshTokenRepository,
-                oAuth2AuthorizationRequestRepository()
+                oAuth2AuthorizationRequestRepository(),
+                memberService
         );
     }
 

@@ -52,8 +52,15 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final AccountInfoRepository accountInfoRepository;
     private final AppleOAuthUserProvider appleOAuthUserProvider;
+    private final MemberService memberService;
 //    private final static String REFRESH_TOKEN = "refresh_token";
 
+    /**
+     * @param request HttpServletRequest
+     * @param response HttpServletResponse
+     * @param loginRequest email, password
+     * @return access token, refresh token, registered
+     */
     @Transactional
     public ResponseEntity<?> login(HttpServletRequest request,
                                    HttpServletResponse response,
@@ -73,7 +80,7 @@ public class AuthService {
         checkRefreshToken(memberEmail, refreshToken);
 
         MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
-        ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken)));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken, memberService.isRegisteredMember(memberEmail))));
         return ResponseEntity.ok(responseData);
     }
 
@@ -98,42 +105,38 @@ public class AuthService {
             checkRefreshToken(memberEmail, refreshToken);
 
             MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
-            ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken)));
-            return ResponseEntity.ok(responseData);
-
-        } else {
-            Member member = Member.of(
-                    applePlatformMember.getEmail(),
-                    applePlatformMember.getPlatformId(),
-                    LocalDateTime.now()
-            );
-
-            AccountInfo accountInfo = AccountInfo.of(
-                    member,
-                    RoleType.USER,
-                    ProviderType.APPLE,
-                    AccountStatus.ACTIVE
-            );
-
-            member.encodePassword(applePlatformMember.getPlatformId());
-            memberRepository.save(member);
-            accountInfoRepository.save(accountInfo);
-
-            Authentication authentication = getAuthentication(memberEmail, memberPassword);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
-
-            Date now = new Date();
-
-            AuthToken accessToken = createToken(memberEmail, authentication, now);
-            AuthToken refreshToken = createRefreshToken(now, refreshTokenExpiry);
-
-            checkRefreshToken(memberEmail, refreshToken);
-
-            MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
-            ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken)));
+            ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken, memberService.isRegisteredMember(memberEmail))));
             return ResponseEntity.ok(responseData);
         }
+      
+        Member member = Member.of(
+                applePlatformMember.getEmail(),
+                applePlatformMember.getPlatformId()
+        );
+
+        AccountInfo accountInfo = AccountInfo.of(
+                member,
+                RoleType.USER,
+                ProviderType.APPLE,
+                AccountStatus.ACTIVE
+        );
+      
+        member.encodePassword(applePlatformMember.getPlatformId());
+        memberRepository.save(member);
+        accountInfoRepository.save(accountInfo);
+
+        Authentication authentication = getAuthentication(memberEmail, memberPassword);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
+
+        Date now = new Date();
+        AuthToken accessToken = createToken(memberEmail, authentication, now);
+        AuthToken refreshToken = createRefreshToken(now, refreshTokenExpiry);
+        checkRefreshToken(memberEmail, refreshToken);
+
+        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
+        ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken, false)));
+        return ResponseEntity.ok(responseData);
     }
 
     @Transactional
@@ -177,7 +180,7 @@ public class AuthService {
         AuthToken newAccessToken = createNewAccessToken(memberEmail, roleType, now);
 
         MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
-        ResponseDto responseDto = new ResponseDto(metaData, List.of(new TokenResponse(newAccessToken, newRefreshToken)));
+        ResponseDto responseDto = new ResponseDto(metaData, List.of(new TokenResponse(newAccessToken, newRefreshToken, true)));
         return ResponseEntity.ok(responseDto);
     }
 
