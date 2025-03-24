@@ -49,7 +49,7 @@ public class MemberDetailsController {
                                                   HttpServletResponse response,
                                                   @PathVariable Long memberId) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.getMemberDetailsByMemberId(memberId)));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.getMemberDetails(memberId)));
         return ResponseEntity.ok(responseData);
     }
 

@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.member.Member;
 
 import java.time.LocalDateTime;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MemberDetails {
+public class MemberDetails extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "personal_info_id")
@@ -45,19 +46,6 @@ public class MemberDetails {
     @Column(name = "location")
     private String location;
 
-    @NotNull
-    @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime createdAt;
-
-    @NotNull
-    @Column(name = "modified_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime modifiedAt;
-
-    @Column(name = "is_deleted")
-    private boolean isDeleted = false;
-
     private MemberDetails(Member member,
                           Integer timezone,
                           String phoneNumber,
@@ -70,8 +58,6 @@ public class MemberDetails {
         this.mbti = mbti;
         this.aboutMe = aboutMe;
         this.location = location;
-        this.createdAt = LocalDateTime.now();
-        this.modifiedAt = LocalDateTime.now();
     }
 
     public static MemberDetails of(Member member,
@@ -93,10 +79,5 @@ public class MemberDetails {
         this.mbti = mbti;
         this.aboutMe = aboutMe;
         this.location = location;
-        this.modifiedAt = LocalDateTime.now();
-    }
-
-    public void softDelete() {
-        this.isDeleted = true;
     }
 }

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.member.Member;
 
 import java.time.LocalDateTime;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Like {
+public class Like extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "like_id")
@@ -27,34 +28,13 @@ public class Like {
     @JoinColumn(name = "feed_id")
     private Feed feed;
 
-
-    @NotNull
-    @Column(name = "liked_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime likedAt;
-
-    @NotNull
-    @Column(name = "canceled_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime canceledAt;
-
-    @NotNull
-    @Column(name = "is_like_canceled")
-    @Temporal(TemporalType.TIMESTAMP)
-    private boolean isLikeCanceled = false;
-
-    private Like(Member member, Feed feed, LocalDateTime likedAt) {
+    private Like(Member member, Feed feed) {
         this.member = member;
         this.feed = feed;
-        this.likedAt = likedAt;
     }
 
-    public static Like of(Member member, Feed feed, LocalDateTime likedAt) {
-        return new Like(member, feed, likedAt);
+    public static Like of(Member member, Feed feed) {
+        return new Like(member, feed);
     }
 
-    public void cancelLike() {
-        this.isLikeCanceled = true;
-        this.canceledAt = LocalDateTime.now();
-    }
 }

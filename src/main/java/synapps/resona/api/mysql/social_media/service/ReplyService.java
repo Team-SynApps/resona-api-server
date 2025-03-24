@@ -35,7 +35,7 @@ public class ReplyService {
 
         Comment comment = commentRepository.findById(request.getCommentId()).orElseThrow(CommentNotFoundException::new);
         comment.addReply();
-        Reply reply = Reply.of(comment, member, request.getContent(), LocalDateTime.now(), LocalDateTime.now());
+        Reply reply = Reply.of(comment, member, request.getContent());
         replyRepository.save(reply);
         return ReplyPostResponse.builder()
                 .commentId(comment.getId().toString())

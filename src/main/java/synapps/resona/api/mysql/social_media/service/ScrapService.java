@@ -43,8 +43,7 @@ public class ScrapService {
     @Transactional
     public Scrap cancelScrap(Long scrapId) throws ScrapNotFoundException {
         Scrap scrap = scrapRepository.findById(scrapId).orElseThrow(ScrapNotFoundException::new);
-        scrap.cancelScrap();
-
+        scrap.softDelete();
         return scrap;
     }
 

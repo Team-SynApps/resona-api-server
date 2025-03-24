@@ -45,8 +45,6 @@ public class TempTokenService {
             Member newMember = Member.of(
                     email,
                     generateRandomPassword(), // 임시 비밀번호 생성
-                    LocalDateTime.now(),
-                    LocalDateTime.now(),
                     LocalDateTime.now()
             );
 
@@ -55,10 +53,7 @@ public class TempTokenService {
                     newMember,
                     RoleType.GUEST,
                     ProviderType.LOCAL,
-                    AccountStatus.TEMPORARY,
-                    LocalDateTime.now(),
-                    LocalDateTime.now(),
-                    LocalDateTime.now()
+                    AccountStatus.TEMPORARY
             );
 
             // 비밀번호 인코딩 및 저장
