@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.social_media.entity.Comment;
 import synapps.resona.api.mysql.social_media.entity.Feed;
 import synapps.resona.api.mysql.social_media.entity.Mention;
@@ -21,7 +22,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Member extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,42 +54,22 @@ public class Member {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime lastAccessedAt;
 
-    @NotNull
-    @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime createdAt;
-
-    @NotNull
-    @Column(name = "modified_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime modifiedAt;
-
     private Member(String email,
                    String password,
-                   LocalDateTime lastAccessedAt,
-                   LocalDateTime createdAt,
-                   LocalDateTime modifiedAt) {
+                   LocalDateTime lastAccessedAt) {
         this.email = email;
         this.password = password;
         this.lastAccessedAt = lastAccessedAt;
-        this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
     }
 
     public static Member of(String email,
                             String password,
-                            LocalDateTime lastAccessedAt,
-                            LocalDateTime createdAt,
-                            LocalDateTime modifiedAt) {
-        return new Member(email, password, lastAccessedAt, createdAt, modifiedAt);
+                            LocalDateTime lastAccessedAt) {
+        return new Member(email, password, lastAccessedAt);
     }
 
     public void encodePassword(String rawPassword) {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         this.password = passwordEncoder.encode(rawPassword);
-    }
-
-    public void updateModifiedAt() {
-        this.modifiedAt = LocalDateTime.now();
     }
 }

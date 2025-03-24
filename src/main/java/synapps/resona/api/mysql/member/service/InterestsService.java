@@ -27,7 +27,7 @@ public class InterestsService {
         MemberDto memberDto = memberService.getMember();
         Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
-        Interests interests = Interests.of(member, request.getInterestedLanguages(), request.getHobbies(), LocalDateTime.now(), LocalDateTime.now());
+        Interests interests = Interests.of(member, request.getInterestedLanguages(), request.getHobbies());
         interestsRepository.save(interests);
 
         return interests;

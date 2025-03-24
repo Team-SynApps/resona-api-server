@@ -23,10 +23,9 @@
         </RollingFile>
 
         <NoSql name="MongoDbAppender">
-            <MongoDb4
-                    connection="mongodb://dbsquddnr:bw990825@ec2-13-58-121-9.us-east-2.compute.amazonaws.com:27017/log.system?authSource=admin"
-                    capped="true"
-                    collectionSize="1073741824"/>
+            <MongoDb4 connection="mongodb://${sys:MONGO_USERNAME}:${sys:MONGO_PASSWORD}@${sys:MONGO_HOST}:${sys:MONGO_PORT}/${sys:MONGO_DB_NAME}?authSource=${sys:MONGO_AUTH_DATABASE}"
+                      capped="true"
+                      collectionSize="1073741824"/>
             <!-- capped collection 사용 -->
             <!-- 컬렉션 최대 크기 (1GB) 설정 -->
         </NoSql>

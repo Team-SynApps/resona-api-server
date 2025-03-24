@@ -108,11 +108,10 @@ public class AuthService {
             ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken, memberService.isRegisteredMember(memberEmail))));
             return ResponseEntity.ok(responseData);
         }
+      
         Member member = Member.of(
                 applePlatformMember.getEmail(),
                 applePlatformMember.getPlatformId(),
-                LocalDateTime.now(),
-                LocalDateTime.now(),
                 LocalDateTime.now()
         );
 
@@ -120,11 +119,9 @@ public class AuthService {
                 member,
                 RoleType.USER,
                 ProviderType.APPLE,
-                AccountStatus.ACTIVE,
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                AccountStatus.ACTIVE
         );
+      
         member.encodePassword(applePlatformMember.getPlatformId());
         memberRepository.save(member);
         accountInfoRepository.save(accountInfo);

@@ -52,8 +52,6 @@ public class MemberService {
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         log.info(userPrincipal.getUsername());
         Member member = memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
-        AccountInfo accountInfo = accountInfoRepository.findByMember(member);
-        accountInfo.updateLastAccessedAt();
 
         return MemberDto.builder()
                 .id(member.getId())
@@ -73,7 +71,6 @@ public class MemberService {
                 .orElseThrow(MemberException::memberNotFound);
 
         AccountInfo accountInfo = accountInfoRepository.findByMember(member);
-        accountInfo.updateLastAccessedAt();
 
         MemberDetails memberDetails = memberDetailsRepository.findByMember(member).orElse(null);
         Profile profile = profileRepository.findByMember(member).orElse(null);
@@ -82,7 +79,6 @@ public class MemberService {
                 // Account Info
                 .roleType(nullToEmpty(accountInfo != null ? accountInfo.getRoleType().toString() : null))
                 .accountStatus(nullToEmpty(accountInfo != null ? accountInfo.getStatus().toString() : null))
-                .lastAccessedAt(accountInfo != null ? DateTimeUtil.localDateTimeToString(accountInfo.getLastAccessedAt()) : null)
                 .providerType(nullToEmpty(accountInfo != null ? accountInfo.getProviderType().toString() : null))
 
                 // Member Details
@@ -127,7 +123,6 @@ public class MemberService {
                 accountInfo.updateRoleType(RoleType.USER);
 
                 member.encodePassword(request.getPassword());
-                member.updateModifiedAt();
                 memberRepository.save(member);
                 accountInfoRepository.save(accountInfo);
                 return new MemberDto(member.getId(), member.getEmail());
@@ -143,19 +138,14 @@ public class MemberService {
         Member member = Member.of(
                 request.getEmail(),
                 request.getPassword(),
-                LocalDateTime.now(), // lastAccessedAt
-                LocalDateTime.now(), // createdAt
-                LocalDateTime.now() // modifiedAt
+                LocalDateTime.now() // lastAccessedAt
         );
 
         AccountInfo accountInfo = AccountInfo.of(
                 member,
                 RoleType.USER,
                 ProviderType.LOCAL,
-                AccountStatus.ACTIVE,
-                LocalDateTime.now(),
-                LocalDateTime.now(),
-                LocalDateTime.now()
+                AccountStatus.ACTIVE
         );
 
         member.encodePassword(request.getPassword());
@@ -179,10 +169,12 @@ public class MemberService {
         return new MemberDto(member.getId(), member.getEmail());
     }
 
+    @Transactional
     public String deleteUser() {
         User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Member member = memberRepository.findByEmail(principal.getUsername()).orElseThrow(MemberException::memberNotFound);
-        memberRepository.delete(member);
+        member.softDelete();
+        memberRepository.save(member);
         return "delete successful";
     }
 

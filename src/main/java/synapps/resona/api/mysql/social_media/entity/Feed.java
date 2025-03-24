@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.social_media.dto.feed.FeedImageDto;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Feed {
+public class Feed extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "feed_id")
@@ -42,41 +43,20 @@ public class Feed {
     @Column(name = "category")
     private FeedCategory category;
 
-    @NotNull
-    @Column(name = "created_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime createdAt;
-
-    @NotNull
-    @Column(name = "modified_at")
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime modifiedAt;
-
-    @Column(name = "is_deleted")
-    private boolean isDeleted = false;
-
     @Column(name = "is_kept")
     private final boolean isKept = false;
 
-    private Feed(Member member, String content, String category, LocalDateTime createdAt, LocalDateTime modifiedAt) {
+    private Feed(Member member, String content, String category) {
         this.member = member;
         this.content = content;
         this.category = FeedCategory.of(category);
-        this.createdAt = createdAt;
-        this.modifiedAt = modifiedAt;
     }
 
-    public static Feed of(Member member, String content, String category, LocalDateTime createdAt, LocalDateTime modifiedAt) {
-        return new Feed(member, content, category, createdAt, modifiedAt);
-    }
-
-    public void softDelete() {
-        this.isDeleted = true;
-        this.modifiedAt = LocalDateTime.now();
+    public static Feed of(Member member, String content, String category) {
+        return new Feed(member, content, category);
     }
 
     public void updateContent(String content) {
         this.content = content;
-        this.modifiedAt = LocalDateTime.now();
     }
 }

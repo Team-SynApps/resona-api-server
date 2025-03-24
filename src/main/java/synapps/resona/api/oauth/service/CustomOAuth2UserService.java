@@ -81,19 +81,14 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         Member member = Member.of(
                 userInfo.getEmail(),       // email
                 "",                         // password
-                now,                        // lastAccessedAt
-                now,                       // createdAt
-                now                       // modifiedAt
+                now                        // lastAccessedAt
         );
         member = memberRepository.saveAndFlush(member);
         AccountInfo accountInfo = AccountInfo.of(
                 member,
                 RoleType.USER,
                 providerType,
-                AccountStatus.ACTIVE,
-                now,
-                now,
-                now
+                AccountStatus.ACTIVE
         );
         accountInfoRepository.save(accountInfo);
 
