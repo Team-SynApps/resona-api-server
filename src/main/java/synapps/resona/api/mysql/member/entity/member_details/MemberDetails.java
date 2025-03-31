@@ -8,9 +8,13 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.global.entity.BaseEntity;
+import synapps.resona.api.mysql.member.entity.hobby.Hobby;
 import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.social_media.entity.Mention;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -18,16 +22,18 @@ import java.time.LocalDateTime;
 public class MemberDetails extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "personal_info_id")
+    @Column(name = "member_details_id")
     private Long id;
 
     @OneToOne
     @JoinColumn(name = "member_id") // 외래 키 컬럼 이름
     private Member member;
 
+    @OneToMany(mappedBy = "memberDetails")
+    private final List<Hobby> hobbies = new ArrayList<>();
+
     @Column(name = "timezone")
     private Integer timezone;
-
 
     @Size(max = 20)
     @Column(name = "phone_number")
