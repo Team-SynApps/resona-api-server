@@ -204,14 +204,6 @@ public class Profile extends BaseEntity {
         return md5generator.generateHash(input);
     }
 
-    private Set<Language> parseUsingLanguages(List<String> unParsedLanguages) {
-        Set<Language> languages = new HashSet<>();
-        for (String language : unParsedLanguages) {
-            languages.add(Language.fromCode(language));
-        }
-        return languages;
-    }
-
     private Integer birthToAge(LocalDateTime birth) {
         if (birth == null) {
             return 0;

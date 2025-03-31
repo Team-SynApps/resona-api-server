@@ -29,8 +29,7 @@ public class Feed extends BaseEntity {
     @OneToMany(mappedBy = "feed")
     private final List<Likes> likes = new ArrayList<>();
 
-    // TODO: 이렇게 해도 되는지 검증이 필요함.
-    @OneToMany(mappedBy = "feed", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "feed", fetch = FetchType.LAZY)
     private final List<FeedMedia> images = new ArrayList<>();
 
     @Column(name = "content")

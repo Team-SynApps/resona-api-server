@@ -23,7 +23,7 @@ public class Scrap extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    // 피드가 스크랩에 대해 알 필요가 없을 것 같아 단방향 연관관계로 설정함
+    // NOTE: 피드가 스크랩에 대해 알 필요가 없을 것 같아 단방향 연관관계로 설정함
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feed_id")
     private Feed feed;

@@ -16,7 +16,7 @@ public class Likes extends BaseEntity {
     @Column(name = "likes_id")
     private Long id;
 
-    // 멤버가 좋아요를 어디에 했는지 알 필요가 없어서 단방향 연관관계를 하려고 함
+    // NOTE: 멤버가 좋아요를 어디에 했는지 알 필요가 없어서 단방향 연관관계를 하려고 함
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
