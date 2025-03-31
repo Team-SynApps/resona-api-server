@@ -41,6 +41,9 @@ public enum ErrorCode {
 
     // file
     FILE_EMPTY_EXCEPTION(HttpStatus.CONFLICT, "FILE001", "File is empty"),
+
+    // language
+    LANGUAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "LANG001", "Invalid Language code"),
     ;
 
     private final String code;

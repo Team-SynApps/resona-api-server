@@ -51,11 +51,15 @@ public class Profile extends BaseEntity {
     private CountryCode countryOfResidence;
 
     @ElementCollection
-    @CollectionTable(name = "language", joinColumns = @JoinColumn(name = "profile_id"))
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "native_languages", joinColumns = @JoinColumn(name = "profile_id"))
+    @Column(name = "native_languages")
     private Set<Language> nativeLanguages = new HashSet<>();
 
     @ElementCollection
-    @CollectionTable(name = "language", joinColumns = @JoinColumn(name = "profile_id"))
+    @Enumerated(EnumType.STRING)
+    @CollectionTable(name = "interesting_languages", joinColumns = @JoinColumn(name = "profile_id"))
+    @Column(name = "interesting_languages")
     private Set<Language> interestingLanguages = new HashSet<>();
 
     @Size(max = 512)
@@ -109,6 +113,29 @@ public class Profile extends BaseEntity {
         this.comment = comment;
     }
 
+    private Profile(Member member,
+                    CountryCode nationality,
+                    CountryCode countryOfResidence,
+                    Set<Language> nativeLanguages,
+                    Set<Language> interestingLanguages,
+                    String nickname,
+                    String profileImageUrl,
+                    String birth) {
+        this.member = member;
+        this.tag = generateTag(String.valueOf(member.getId()));
+        this.nickname = nickname;
+        this.nationality = nationality;
+        this.countryOfResidence = countryOfResidence;
+        this.nativeLanguages = nativeLanguages;
+        this.interestingLanguages = interestingLanguages;
+        this.profileImageUrl = profileImageUrl;
+        this.birth = parseToLocalDate(birth);
+        this.age = birthToAge(parseToLocalDate(birth));
+        this.backgroundImageUrl = "";
+        this.gender = Gender.NOT_DECIDED;
+        this.comment = "";
+    }
+
     public static Profile of(Member member,
                              String nickname,
                              CountryCode nationality,
@@ -123,6 +150,18 @@ public class Profile extends BaseEntity {
         return new Profile(member, nickname, nationality, countryOfResidence,
                 nativeLanguages, interestingLanguages, profileImageUrl,
                 backgroundImageUrl, birth, gender, comment);
+    }
+
+    // 회원가입용 profile
+    public static Profile of(Member member,
+                             CountryCode nationality,
+                             CountryCode countryOfResidence,
+                             Set<Language> nativeLanguages,
+                             Set<Language> interestingLanguages,
+                             String nickname,
+                             String profileImageUrl,
+                             String birth) {
+        return new Profile(member, nationality, countryOfResidence, nativeLanguages, interestingLanguages, nickname, profileImageUrl, birth);
     }
 
     public void modifyProfile(String nickname,
@@ -154,6 +193,10 @@ public class Profile extends BaseEntity {
 
     public void changeProfileImageUrl(String url) {
         this.profileImageUrl = url;
+    }
+
+    public void changeGender(String gender) {
+        this.gender = Gender.of(gender);
     }
 
     private String generateTag(String input) {
