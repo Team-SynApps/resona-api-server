@@ -1,5 +1,11 @@
 package synapps.resona.api.mysql.member.entity.profile;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import synapps.resona.api.mysql.member.exception.LanguageException;
+
+import java.util.Arrays;
+
 public enum Language {
     AFRIKAANS("af", "Afrikaans"),
     ALBANIAN("sq", "Albanian"),
@@ -147,26 +153,26 @@ public enum Language {
         this.fullName = fullName;
     }
 
+
+
     /**
      * Get Language enum by its code
      *
      * @param code ISO language code
      * @return Language enum or null if not found
      */
+    @JsonCreator
     public static Language fromCode(String code) {
-        for (Language language : values()) {
-            if (language.code.equalsIgnoreCase(code)) {
-                return language;
-            }
-        }
-        return null;
+        return Arrays.stream(values())
+                .filter(language -> language.code.equalsIgnoreCase(code))
+                .findFirst()
+                .orElseThrow(LanguageException::languageNotFound);
     }
 
+
+    @JsonValue
     public String getCode() {
         return code;
     }
 
-    public String getFullName() {
-        return fullName;
-    }
 }
