@@ -44,6 +44,9 @@ public enum ErrorCode {
 
     // language
     LANGUAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "LANG001", "Invalid Language code"),
+
+    // hobby
+    HOBBY_NOT_FOUND(HttpStatus.NOT_FOUND, "HOB001", "Hobby Not Found"),
     ;
 
     private final String code;
