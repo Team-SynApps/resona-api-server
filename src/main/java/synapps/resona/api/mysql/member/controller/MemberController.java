@@ -1,6 +1,10 @@
 package synapps.resona.api.mysql.member.controller;
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -11,8 +15,9 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
-import synapps.resona.api.mysql.member.dto.request.auth.SignupRequest;
+import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
+import synapps.resona.api.mysql.member.dto.response.MemberRegisterResponseDto;
 import synapps.resona.api.mysql.member.service.MemberService;
 
 import java.util.List;
@@ -29,12 +34,23 @@ public class MemberController {
     }
 
 
+
+    // TODO: 커스텀 어노테이션으로 클래스 설정만 해줄 수 있게 하는 코드가 필요해보임
+    @Operation(summary = "회원 등록", description = "회원 등록 후 응답 DTO 반환")
+    @ApiResponse(
+            responseCode = "200",
+            description = "회원 등록 성공",
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = MemberRegisterResponseDto.class)
+            )
+    )
     @PostMapping("/join")
     public ResponseEntity<?> join(HttpServletRequest request,
                                   HttpServletResponse response,
-                                  @Valid @RequestBody SignupRequest signupRequest) throws Exception {
+                                  @Valid @RequestBody RegisterRequest registerRequest) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.signUp(signupRequest)));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.signUp(registerRequest)));
         return ResponseEntity.ok(responseData);
     }
 

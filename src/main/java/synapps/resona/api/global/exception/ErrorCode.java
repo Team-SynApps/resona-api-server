@@ -13,6 +13,7 @@ public enum ErrorCode {
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "MEM003", "Invalid password"),
     INVALID_TIMESTAMP(HttpStatus.UNAUTHORIZED, "MEM004", "Invalid timestamp"),
     UNAUTHENTICATED_REQUEST(HttpStatus.FORBIDDEN, "MEM005", "Forbidden approach"),
+    ALREADY_REGISTERED(HttpStatus.CONFLICT, "MEM006", "Already registered"),
 
     // auth
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH001", "Invalid token"),
@@ -41,6 +42,9 @@ public enum ErrorCode {
 
     // file
     FILE_EMPTY_EXCEPTION(HttpStatus.CONFLICT, "FILE001", "File is empty"),
+
+    // language
+    LANGUAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "LANG001", "Invalid Language code"),
     ;
 
     private final String code;

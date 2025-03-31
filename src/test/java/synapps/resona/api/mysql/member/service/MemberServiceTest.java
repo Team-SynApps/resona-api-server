@@ -10,16 +10,20 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import synapps.resona.api.IntegrationTestSupport;
-import synapps.resona.api.mysql.member.dto.request.auth.SignupRequest;
+import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
+import synapps.resona.api.mysql.member.dto.response.MemberRegisterResponseDto;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member.RoleType;
+import synapps.resona.api.mysql.member.entity.profile.CountryCode;
+import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -94,10 +98,22 @@ class MemberServiceTest extends IntegrationTestSupport {
     @DisplayName("회원 가입을 한다.")
     void testSignUp() throws Exception {
         // given
-        SignupRequest request = new SignupRequest("newuser1@example.com", "newpassword");
+        RegisterRequest request = new RegisterRequest(
+                "newuser1@example.com",           // email
+                "Newpass1@",                      // password (8~30 자리, 알파벳, 숫자, 특수문자 포함)
+                CountryCode.KR,                   // nationality (예시: 한국)
+                CountryCode.US,                   // countryOfResidence (예시: 미국)
+                Set.of(Language.KOREAN),          // nativeLanguages (예시: 한국어)
+                Set.of(Language.ENGLISH),         // interestingLanguages (예시: 영어)
+                9,                                // timezone (예시: UTC+9)
+                "1990-01-01",                     // birth (yyyy-MM-dd 형식)
+                "newuser",                        // nickname (최대 15자)
+                "http://example.com/profile.jpg"  // profileImageUrl
+        );
+
 
         // when
-        MemberDto newMember = memberService.signUp(request);
+        MemberRegisterResponseDto newMember = memberService.signUp(request);
 
         // then
         assertThat(newMember).isNotNull();

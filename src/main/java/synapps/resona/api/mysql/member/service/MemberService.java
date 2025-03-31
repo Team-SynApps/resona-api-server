@@ -10,10 +10,11 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
-import synapps.resona.api.mysql.member.dto.request.auth.SignupRequest;
+import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
 import synapps.resona.api.mysql.member.dto.response.MemberDetailInfoDto;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
+import synapps.resona.api.mysql.member.dto.response.MemberRegisterResponseDto;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
@@ -113,32 +114,29 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberDto signUp(SignupRequest request) throws Exception {
-        if (memberRepository.existsByEmail(request.getEmail())) {
-            Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(MemberException::memberNotFound);
-            AccountInfo accountInfo = accountInfoRepository.findByMember(member);
-            // 임시 계정인 경우
-            if (accountInfo.getStatus().equals(AccountStatus.TEMPORARY)) {
-                accountInfo.updateStatus(AccountStatus.ACTIVE);
-                accountInfo.updateRoleType(RoleType.USER);
-
-                member.encodePassword(request.getPassword());
-                memberRepository.save(member);
-                accountInfoRepository.save(accountInfo);
-                return new MemberDto(member.getId(), member.getEmail());
-            }
-            // 차단당한 계정인 경우
-            else if (accountInfo.getStatus().equals(AccountStatus.BANNED)) {
-                throw MemberException.unAuthenticatedRequest();
-            } else {
-                throw MemberException.duplicateEmail();
-            }
-        }
+    public MemberRegisterResponseDto signUp(RegisterRequest request) {
+        checkMemberStatus(request);
 
         Member member = Member.of(
                 request.getEmail(),
                 request.getPassword(),
                 LocalDateTime.now() // lastAccessedAt
+        );
+
+        Profile newProfile = Profile.of(
+                member,
+                request.getNationality(),
+                request.getCountryOfResidence(),
+                request.getNativeLanguages(),
+                request.getInterestingLanguages(),
+                request.getNickname(),
+                request.getProfileImageUrl(),
+                request.getBirth()
+        );
+
+        MemberDetails newMemberDetails = MemberDetails.of(
+                member,
+                request.getTimezone()
         );
 
         AccountInfo accountInfo = AccountInfo.of(
@@ -151,7 +149,36 @@ public class MemberService {
         member.encodePassword(request.getPassword());
         memberRepository.save(member);
         accountInfoRepository.save(accountInfo);
-        return new MemberDto(member.getId(), member.getEmail());
+        profileRepository.save(newProfile);
+        memberDetailsRepository.save(newMemberDetails);
+
+        return MemberRegisterResponseDto.builder()
+                .memberId(member.getId())
+                .email(member.getEmail())
+                .nationality(newProfile.getNationality())
+                .countryOfResidence(newProfile.getCountryOfResidence())
+                .nativeLanguages(newProfile.getNativeLanguages())
+                .interestingLanguages(newProfile.getInterestingLanguages())
+                .birth(newProfile.getBirth().toString())
+                .nickname(newProfile.getNickname())
+                .profileImageUrl(newProfile.getProfileImageUrl())
+                .timezone(newMemberDetails.getTimezone())
+                .build();
+    }
+
+    private void checkMemberStatus(RegisterRequest request) {
+        if (memberRepository.existsByEmail(request.getEmail())) {
+            Member member = memberRepository.findByEmail(request.getEmail()).orElseThrow(MemberException::memberNotFound);
+            AccountInfo accountInfo = accountInfoRepository.findByMember(member);
+            // 차단당한 계정인 경우
+            if (accountInfo.getStatus().equals(AccountStatus.BANNED)) {
+                throw MemberException.unAuthenticatedRequest();
+            }
+            // 이미 활성화된 계정인 경우
+            if (accountInfo.getStatus().equals(AccountStatus.ACTIVE)) {
+                throw MemberException.duplicateEmail();
+            }
+        }
     }
 
     public boolean checkDuplicateId(DuplicateIdRequest request) throws Exception {

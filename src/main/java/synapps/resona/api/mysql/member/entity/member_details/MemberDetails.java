@@ -60,6 +60,16 @@ public class MemberDetails extends BaseEntity {
         this.location = location;
     }
 
+    private MemberDetails(Member member,
+                          Integer timezone) {
+        this.member = member;
+        this.timezone = timezone;
+        this.phoneNumber = "";
+        this.mbti = MBTI.NONE;
+        this.aboutMe = "";
+        this.location = "";
+    }
+
     public static MemberDetails of(Member member,
                                    Integer timezone,
                                    String phoneNumber,
@@ -67,6 +77,12 @@ public class MemberDetails extends BaseEntity {
                                    String aboutMe,
                                    String location) {
         return new MemberDetails(member, timezone, phoneNumber, mbti, aboutMe, location);
+    }
+
+    // when registered
+    public static MemberDetails of(Member member,
+                                   Integer timezone) {
+        return new MemberDetails(member, timezone);
     }
 
     public void updatePersonalInfo(Integer timezone,
