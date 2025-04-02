@@ -91,7 +91,9 @@ public class MemberDetails extends BaseEntity {
         return new MemberDetails(member, timezone);
     }
 
-    public void updatePersonalInfo(Integer timezone,
+
+
+    public void modifyMemberDetails(Integer timezone,
                                    String phoneNumber,
                                    MBTI mbti,
                                    String aboutMe,

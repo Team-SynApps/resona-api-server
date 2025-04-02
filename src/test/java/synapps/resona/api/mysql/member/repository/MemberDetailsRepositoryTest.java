@@ -10,9 +10,13 @@ import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member_details.MBTI;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
+import synapps.resona.api.mysql.member.entity.profile.CountryCode;
+import synapps.resona.api.mysql.member.entity.profile.Language;
+import synapps.resona.api.mysql.member.entity.profile.Profile;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -61,5 +65,29 @@ class MemberDetailsRepositoryTest extends IntegrationTestSupport {
         // then
         assertThat(detailsFound).isPresent();
         assertThat(detailsFound.get().getMember()).isEqualTo(testMember);
+    }
+
+    @Test
+    @DisplayName("멤버의 이메일로 프로필을 가져올 수 있다.")
+    void findByMemberEmail() {
+        Member member = Member.of("fetch@example.com", "password", LocalDateTime.now());
+        memberRepository.save(member);
+
+        MemberDetails memberDetails = MemberDetails.of(
+                member,
+                9,
+                "010-1111-2222",
+                MBTI.ENFJ,
+                "초기 소개",
+                "대전 중구"
+        );
+
+        memberDetailsRepository.save(memberDetails);
+
+        Optional<MemberDetails> result = memberDetailsRepository.findByMemberEmail("fetch@example.com");
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getMember().getEmail()).isEqualTo("fetch@example.com");
+
     }
 }
