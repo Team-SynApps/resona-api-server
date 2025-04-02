@@ -3,7 +3,8 @@ package synapps.resona.api.mysql.member.service;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -33,12 +34,12 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
     private final AuthTokenProvider authTokenProvider;
+    private final Logger logger = LogManager.getLogger(MemberService.class);
 
     /**
      * SecurityContextHolder에서 관리하는 context에서 userPrincipal을 받아옴
@@ -49,7 +50,7 @@ public class MemberService {
     @Transactional
     public MemberDto getMember() {
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        log.info(userPrincipal.getUsername());
+        logger.info(userPrincipal.getUsername());
         Member member = memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
 
         return MemberDto.builder()
@@ -180,27 +181,27 @@ public class MemberService {
     public boolean isCurrentUser(HttpServletRequest request, String requestEmail) {
         try {
             String token = resolveToken(request);
-            log.debug("Resolved token: {}", token);
+//            logger.debug("Resolved token: {}", token);
 
             if (token == null) {
-                log.debug("Token is null");
+                logger.debug("Token is null");
                 return false;
             }
 
             AuthToken authToken = authTokenProvider.convertAuthToken(token);
             if (!authToken.validate()) {
-                log.debug("Token validation failed");
+                logger.debug("Token validation failed");
                 return false;
             }
 
             Authentication authentication = authTokenProvider.getAuthentication(authToken);
             Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
 
-            log.debug("Token Authentication: {}", authentication);
-            log.debug("Current Authentication: {}", currentAuth);
+//            logger.debug("Token Authentication: {}", authentication);
+//            logger.debug("Current Authentication: {}", currentAuth);
 
             if (authentication == null || currentAuth == null) {
-                log.debug("Either authentication or currentAuth is null");
+                logger.debug("Either authentication or currentAuth is null");
                 return false;
             }
 
@@ -208,10 +209,10 @@ public class MemberService {
                     authentication.getName().equals(requestEmail) &&
                     authentication.getName().equals(currentAuth.getName());
 
-            log.debug("isCurrentUser result: {}", result);
+//            log.debug("isCurrentUser result: {}", result);
             return result;
         } catch (Exception e) {
-            log.error("Error in isCurrentUser", e);
+            logger.error("Error in isCurrentUser", e);
             return false;
         }
     }
