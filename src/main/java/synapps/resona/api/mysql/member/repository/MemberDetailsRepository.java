@@ -11,9 +11,4 @@ import java.util.Optional;
 
 @Repository
 public interface MemberDetailsRepository extends JpaRepository<MemberDetails, Long> {
-    Optional<MemberDetails> findByMember(Member member);
-    Optional<MemberDetails> findByMemberId(Long memberId);
-
-    @Query("SELECT md FROM MemberDetails md JOIN FETCH md.member m WHERE m.email = :email")
-    Optional<MemberDetails> findByMemberEmail(@Param("email") String email);
 }

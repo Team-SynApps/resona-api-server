@@ -13,8 +13,8 @@ import java.util.List;
 
 @Repository
 public interface AccountInfoRepository extends JpaRepository<AccountInfo, Long> {
-    AccountInfo findByMember(Member member);
+//    AccountInfo findByMember(Member member);
 
-    @Query("SELECT a FROM AccountInfo a WHERE a.status = :status AND a.modifiedAt < :dateTime")
-    List<AccountInfo> findExpiredTemporaryAccounts(@Param("status") AccountStatus status, @Param("dateTime") LocalDateTime dateTime);
+//    @Query("SELECT a FROM AccountInfo a WHERE a.status = :status AND a.modifiedAt < :dateTime")
+//    List<AccountInfo> findExpiredTemporaryAccounts(@Param("status") AccountStatus status, @Param("dateTime") LocalDateTime dateTime);
 }

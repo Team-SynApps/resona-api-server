@@ -13,6 +13,8 @@ import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member.RoleType;
+import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
+import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
@@ -50,8 +52,11 @@ class TempTokenServiceTest extends IntegrationTestSupport {
     @BeforeEach
     void setUp() {
         testEmail = "test@example.com";
-        testMember = Member.of(testEmail, "password123", LocalDateTime.now());
-        testAccountInfo = AccountInfo.of(testMember, RoleType.GUEST, ProviderType.LOCAL, AccountStatus.TEMPORARY);
+        testAccountInfo = AccountInfo.of(RoleType.GUEST, ProviderType.LOCAL, AccountStatus.TEMPORARY);
+        MemberDetails emptyMemberDetails = MemberDetails.empty();
+        Profile emptyProfile = Profile.empty();
+        testMember = Member.of(testAccountInfo, emptyMemberDetails, emptyProfile, testEmail, "password123", LocalDateTime.now());
+
         memberRepository.save(testMember);
         accountInfoRepository.save(testAccountInfo);
     }
@@ -70,9 +75,9 @@ class TempTokenServiceTest extends IntegrationTestSupport {
         assertThat(response.isRegistered()).isFalse(); // 새로운 유저이므로 false여야 함
 
         // DB 확인
-        Optional<Member> savedMember = memberRepository.findByEmail(testEmail);
+        Optional<Member> savedMember = memberRepository.findWithAllRelationsByEmail(testEmail);
         assertThat(savedMember).isPresent();
-        Optional<AccountInfo> savedAccount = Optional.ofNullable(accountInfoRepository.findByMember(savedMember.get()));
+        Optional<AccountInfo> savedAccount = Optional.ofNullable(savedMember.get().getAccountInfo());
         assertThat(savedAccount).isPresent();
         assertThat(savedAccount.get().getRoleType()).isEqualTo(RoleType.GUEST);
         assertThat(savedAccount.get().getStatus()).isEqualTo(AccountStatus.TEMPORARY);

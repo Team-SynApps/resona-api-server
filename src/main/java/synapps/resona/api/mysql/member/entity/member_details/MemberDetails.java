@@ -25,10 +25,6 @@ public class MemberDetails extends BaseEntity {
     @Column(name = "member_details_id")
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "member_id") // 외래 키 컬럼 이름
-    private Member member;
-
     @OneToMany(mappedBy = "memberDetails")
     private final List<Hobby> hobbies = new ArrayList<>();
 
@@ -52,13 +48,11 @@ public class MemberDetails extends BaseEntity {
     @Column(name = "location")
     private String location;
 
-    private MemberDetails(Member member,
-                          Integer timezone,
+    private MemberDetails(Integer timezone,
                           String phoneNumber,
                           MBTI mbti,
                           String aboutMe,
                           String location) {
-        this.member = member;
         this.timezone = timezone;
         this.phoneNumber = phoneNumber;
         this.mbti = mbti;
@@ -66,9 +60,7 @@ public class MemberDetails extends BaseEntity {
         this.location = location;
     }
 
-    private MemberDetails(Member member,
-                          Integer timezone) {
-        this.member = member;
+    private MemberDetails(Integer timezone) {
         this.timezone = timezone;
         this.phoneNumber = "";
         this.mbti = MBTI.NONE;
@@ -76,19 +68,28 @@ public class MemberDetails extends BaseEntity {
         this.location = "";
     }
 
-    public static MemberDetails of(Member member,
-                                   Integer timezone,
+
+    public static MemberDetails of(Integer timezone,
                                    String phoneNumber,
                                    MBTI mbti,
                                    String aboutMe,
                                    String location) {
-        return new MemberDetails(member, timezone, phoneNumber, mbti, aboutMe, location);
+        return new MemberDetails(timezone, phoneNumber, mbti, aboutMe, location);
+    }
+
+    public static MemberDetails empty() {
+        return new MemberDetails(
+                0,
+                "",
+                MBTI.NONE,
+                "",
+                ""
+        );
     }
 
     // when registered
-    public static MemberDetails of(Member member,
-                                   Integer timezone) {
-        return new MemberDetails(member, timezone);
+    public static MemberDetails of(Integer timezone) {
+        return new MemberDetails(timezone);
     }
 
 

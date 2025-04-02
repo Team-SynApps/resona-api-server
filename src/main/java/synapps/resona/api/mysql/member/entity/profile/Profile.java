@@ -28,15 +28,11 @@ public class Profile extends BaseEntity {
     @Column(name = "profile_id")
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "member_id") // 외래 키 컬럼 이름
-    private Member member;
-
     @NotNull
     @Size(min = 1, max = 50)
     private String tag;
 
-    @NotBlank
+    @NotNull
     @Size(max = 15)
     private String nickname;
 
@@ -87,8 +83,8 @@ public class Profile extends BaseEntity {
     @NotNull
     private Gender gender;
 
-    private Profile(Member member,
-                    String nickname,
+
+    private Profile(String nickname,
                     CountryCode nationality,
                     CountryCode countryOfResidence,
                     Set<Language> nativeLanguages,
@@ -98,8 +94,7 @@ public class Profile extends BaseEntity {
                     String birth,
                     Gender gender,
                     String comment) {
-        this.member = member;
-        this.tag = generateTag(String.valueOf(member.getId()));
+        this.tag = generateTag(String.valueOf(id));
         this.nickname = nickname;
         this.nationality = nationality;
         this.countryOfResidence = countryOfResidence;
@@ -113,16 +108,14 @@ public class Profile extends BaseEntity {
         this.comment = comment;
     }
 
-    private Profile(Member member,
-                    CountryCode nationality,
+    private Profile(CountryCode nationality,
                     CountryCode countryOfResidence,
                     Set<Language> nativeLanguages,
                     Set<Language> interestingLanguages,
                     String nickname,
                     String profileImageUrl,
                     String birth) {
-        this.member = member;
-        this.tag = generateTag(String.valueOf(member.getId()));
+        this.tag = generateTag(String.valueOf(id));
         this.nickname = nickname;
         this.nationality = nationality;
         this.countryOfResidence = countryOfResidence;
@@ -136,7 +129,7 @@ public class Profile extends BaseEntity {
         this.comment = "";
     }
 
-    public static Profile of(Member member,
+    public static Profile of(
                              String nickname,
                              CountryCode nationality,
                              CountryCode countryOfResidence,
@@ -147,21 +140,25 @@ public class Profile extends BaseEntity {
                              String birth,
                              Gender gender,
                              String comment) {
-        return new Profile(member, nickname, nationality, countryOfResidence,
+        return new Profile(nickname, nationality, countryOfResidence,
                 nativeLanguages, interestingLanguages, profileImageUrl,
                 backgroundImageUrl, birth, gender, comment);
     }
 
     // 회원가입용 profile
-    public static Profile of(Member member,
-                             CountryCode nationality,
+    public static Profile of(CountryCode nationality,
                              CountryCode countryOfResidence,
                              Set<Language> nativeLanguages,
                              Set<Language> interestingLanguages,
                              String nickname,
                              String profileImageUrl,
                              String birth) {
-        return new Profile(member, nationality, countryOfResidence, nativeLanguages, interestingLanguages, nickname, profileImageUrl, birth);
+        return new Profile(nationality, countryOfResidence, nativeLanguages, interestingLanguages, nickname, profileImageUrl, birth);
+    }
+
+    public static Profile empty() {
+        return new Profile("", CountryCode.NOT_DEFINED, CountryCode.NOT_DEFINED,
+                new HashSet<>(), new HashSet<>(), "", "", "2000-01-01", Gender.NOT_DECIDED, "");
     }
 
     public void modifyProfile(String nickname,

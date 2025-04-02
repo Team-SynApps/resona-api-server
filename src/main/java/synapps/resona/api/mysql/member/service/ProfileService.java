@@ -11,6 +11,7 @@ import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.exception.InvalidTimeStampException;
 import synapps.resona.api.mysql.member.exception.ProfileException;
+import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.repository.ProfileRepository;
 
 import java.util.HashSet;
@@ -21,6 +22,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class ProfileService {
     private final ProfileRepository profileRepository;
+    private final MemberRepository memberRepository;
     private final MemberService memberService;
 
     /**
@@ -33,7 +35,7 @@ public class ProfileService {
     public ProfileDto register(ProfileRequest request) {
         validateData(request);
         String memberEmail = memberService.getMemberEmail();
-        Profile profile = profileRepository.findByMemberEmail(memberEmail).orElseThrow(ProfileException::profileNotFound);
+        Profile profile = memberRepository.findProfileByEmail(memberEmail).orElseThrow(ProfileException::profileNotFound);
         changeProfile(request, profile);
 
         Profile savedProfile = profileRepository.save(profile);
@@ -44,7 +46,7 @@ public class ProfileService {
     @Transactional
     public ProfileDto readProfile() {
         String memberEmail = memberService.getMemberEmail();
-        Profile profile = profileRepository.findByMemberEmail(memberEmail).orElseThrow(ProfileException::profileNotFound);
+        Profile profile = memberRepository.findProfileByEmail(memberEmail).orElseThrow(ProfileException::profileNotFound);
 
         return convertToProfileDto(profile);
     }
@@ -58,7 +60,7 @@ public class ProfileService {
     public ProfileDto editProfile(ProfileRequest request) {
         validateData(request);
         String memberEmail = memberService.getMemberEmail();
-        Profile profile = profileRepository.findByMemberEmail(memberEmail).orElseThrow(ProfileException::profileNotFound);
+        Profile profile = memberRepository.findProfileByEmail(memberEmail).orElseThrow(ProfileException::profileNotFound);
         changeProfile(request, profile);
 
         return convertToProfileDto(profile);
@@ -70,7 +72,7 @@ public class ProfileService {
     @Transactional
     public Profile deleteProfile() {
         String memberEmail = memberService.getMemberEmail();
-        Profile profile = profileRepository.findByMemberEmail(memberEmail).orElseThrow(ProfileException::profileNotFound);
+        Profile profile = memberRepository.findProfileByEmail(memberEmail).orElseThrow(ProfileException::profileNotFound);
 
         profile.softDelete();
         return profile;
@@ -94,7 +96,6 @@ public class ProfileService {
     private ProfileDto convertToProfileDto(Profile profile) {
         return ProfileDto.builder()
                 .id(profile.getId())
-                .memberId(profile.getMember().getId())
                 .tag(profile.getTag())
                 .nickname(profile.getNickname())
                 .nationality(profile.getNationality().toString())

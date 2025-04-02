@@ -10,6 +10,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import synapps.resona.api.global.entity.BaseEntity;
+import synapps.resona.api.mysql.member.entity.account.AccountInfo;
+import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
+import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.social_media.entity.Comment;
 import synapps.resona.api.mysql.social_media.entity.Feed;
 import synapps.resona.api.mysql.social_media.entity.Mention;
@@ -37,6 +40,18 @@ public class Member extends BaseEntity {
     @Size(max = 120)
     private String password;
 
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "account_info_id")
+    private AccountInfo accountInfo;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "member_details_id")
+    private MemberDetails memberDetails;
+
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "profile_id")
+    private Profile profile;
+
     @OneToMany(mappedBy = "member")
     private final List<Feed> feeds = new ArrayList<>();
 
@@ -54,18 +69,44 @@ public class Member extends BaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime lastAccessedAt;
 
-    private Member(String email,
+    private Member(AccountInfo accountInfo,
+                   String email,
                    String password,
                    LocalDateTime lastAccessedAt) {
+        this.accountInfo = accountInfo;
         this.email = email;
         this.password = password;
         this.lastAccessedAt = lastAccessedAt;
     }
 
-    public static Member of(String email,
+    private Member(AccountInfo accountInfo,
+                   MemberDetails memberDetails,
+                   Profile profile,
+                   String email,
+                   String password,
+                   LocalDateTime lastAccessedAt) {
+        this.accountInfo = accountInfo;
+        this.memberDetails = memberDetails;
+        this.profile = profile;
+        this.email = email;
+        this.password = password;
+        this.lastAccessedAt = lastAccessedAt;
+    }
+
+    public static Member of(AccountInfo accountInfo,
+                            String email,
                             String password,
                             LocalDateTime lastAccessedAt) {
-        return new Member(email, password, lastAccessedAt);
+        return new Member(accountInfo, email, password, lastAccessedAt);
+    }
+
+    public static Member of(AccountInfo accountInfo,
+                            MemberDetails memberDetails,
+                            Profile profile,
+                            String email,
+                            String password,
+                            LocalDateTime lastAccessedAt) {
+        return new Member(accountInfo, memberDetails, profile, email, password, lastAccessedAt);
     }
 
     public void encodePassword(String rawPassword) {
