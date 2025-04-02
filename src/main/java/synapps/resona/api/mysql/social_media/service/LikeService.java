@@ -10,7 +10,7 @@ import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.social_media.dto.LikeRequest;
 import synapps.resona.api.mysql.social_media.entity.Feed;
 import synapps.resona.api.mysql.social_media.entity.Likes;
-import synapps.resona.api.mysql.social_media.exception.FeedNotFoundException;
+import synapps.resona.api.mysql.social_media.exception.FeedException;
 import synapps.resona.api.mysql.social_media.exception.LikeNotFoundException;
 import synapps.resona.api.mysql.social_media.repository.FeedRepository;
 import synapps.resona.api.mysql.social_media.repository.LikeRepository;
@@ -24,8 +24,8 @@ public class LikeService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Likes register(LikeRequest request) throws FeedNotFoundException {
-        Feed feed = feedRepository.findById(request.getFeedId()).orElseThrow(FeedNotFoundException::new);
+    public Likes register(LikeRequest request){
+        Feed feed = feedRepository.findById(request.getFeedId()).orElseThrow(FeedException::feedNotFoundException);
         MemberDto memberDto = memberService.getMember();
         Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 

@@ -3,10 +3,6 @@ package synapps.resona.api.mysql.social_media.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import synapps.resona.api.mysql.member.dto.response.MemberDto;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
-import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.social_media.dto.comment.request.CommentRequest;
 import synapps.resona.api.mysql.social_media.dto.comment.request.CommentUpdateRequest;
 import synapps.resona.api.mysql.social_media.dto.comment.response.CommentPostResponse;
@@ -16,13 +12,12 @@ import synapps.resona.api.mysql.social_media.dto.reply.response.ReplyReadRespons
 import synapps.resona.api.mysql.social_media.entity.Comment;
 import synapps.resona.api.mysql.social_media.entity.Feed;
 import synapps.resona.api.mysql.social_media.entity.Reply;
-import synapps.resona.api.mysql.social_media.exception.CommentNotFoundException;
-import synapps.resona.api.mysql.social_media.exception.FeedNotFoundException;
+import synapps.resona.api.mysql.social_media.exception.CommentException;
+import synapps.resona.api.mysql.social_media.exception.FeedException;
 import synapps.resona.api.mysql.social_media.repository.CommentRepository;
 import synapps.resona.api.mysql.social_media.repository.FeedRepository;
 import synapps.resona.api.mysql.social_media.repository.ReplyRepository;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,80 +26,47 @@ import java.util.List;
 public class CommentService {
     private final CommentRepository commentRepository;
     private final FeedRepository feedRepository;
-    private final MemberRepository memberRepository;
-    private final MemberService memberService;
-    private final ReplyRepository replyRepository;
 
 
     @Transactional
-    public CommentPostResponse register(CommentRequest request) throws FeedNotFoundException {
-        MemberDto memberDto = memberService.getMember();
-        Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
-
-        Feed feed = feedRepository.findById(request.getFeedId()).orElseThrow(FeedNotFoundException::new);
-        Comment comment = Comment.of(feed, member, request.getContent(), LocalDateTime.now(), LocalDateTime.now());
+    public CommentPostResponse register(CommentRequest request) {
+        Feed feed = feedRepository.findWithMemberById(request.getFeedId()).orElseThrow(FeedException::feedNotFoundException);
+        Comment comment = Comment.of(feed, feed.getMember(), request.getContent());
         commentRepository.save(comment);
-        return CommentPostResponse.builder()
-                .commentId(comment.getId().toString())
-                .content(comment.getContent())
-                .build();
+        return new CommentPostResponse(comment);
     }
 
     @Transactional
-    public CommentUpdateResponse edit(CommentUpdateRequest request) throws CommentNotFoundException {
-        Comment comment = commentRepository.findById(request.getCommentId()).orElseThrow(CommentNotFoundException::new);
+    public CommentUpdateResponse edit(CommentUpdateRequest request){
+        Comment comment = commentRepository.findById(request.getCommentId()).orElseThrow(CommentException::commentNotFound);
         comment.updateContent(request.getContent());
-        return CommentUpdateResponse.builder()
-                .commentId(comment.getId().toString())
-                .content(comment.getContent())
-                .createdAt(comment.getCreatedAt().toString())
-                .modifiedAt(comment.getModifiedAt().toString())
-                .build();
+        return new CommentUpdateResponse(comment);
     }
 
-    public CommentReadResponse getComment(long commentId) throws CommentNotFoundException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
-        return CommentReadResponse.builder()
-                .commentId(comment.getId().toString())
-                .content(comment.getContent())
-                .createdAt(comment.getCreatedAt().toString())
-                .build();
+    public CommentReadResponse getComment(long commentId){
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentException::commentNotFound);
+        return new CommentReadResponse(comment);
     }
 
     @Transactional
-    public List<CommentPostResponse> getCommentsByFeedId(long feedId) throws FeedNotFoundException {
-        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
-        List<Comment> comments = commentRepository.findAllByFeed(feed);
-        List<CommentPostResponse> commentResponse = new ArrayList<>();
-        for (Comment comment : comments) {
-            commentResponse.add(CommentPostResponse.builder()
-                    .content(comment.getContent())
-                    .commentId(comment.getId().toString())
-                    .createdAt(comment.getCreatedAt().toString())
-                    .build());
-        }
-        return commentResponse;
+    public List<CommentPostResponse> getCommentsByFeedId(long feedId){
+        List<Comment> comments = commentRepository.findAllCommentsByFeedId(feedId);
+
+        return comments.stream().map(CommentPostResponse::new).toList();
     }
 
     @Transactional
-    public List<ReplyReadResponse> getReplies(long commentId) throws CommentNotFoundException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
-        List<Reply> replies = replyRepository.findAllByComment(comment);
+    public List<ReplyReadResponse> getReplies(long commentId){
+        Comment comment = commentRepository.findWithReplies(commentId).orElseThrow(CommentException::commentNotFound);
         // TODO: 예외처리 해야 함.
-        List<ReplyReadResponse> repliesResponse = new ArrayList<>();
-        for (Reply reply : replies) {
-            repliesResponse.add(ReplyReadResponse.builder()
-                    .replyId(reply.getId().toString())
-                    .commentId(comment.getId().toString())
-                    .content(reply.getContent())
-                    .createdAt(reply.getCreatedAt().toString()).build());
-        }
-        return repliesResponse;
+        return comment.getReplies().stream()
+                .map((reply)-> new ReplyReadResponse(reply, commentId))
+                .toList();
     }
 
     @Transactional
-    public Comment deleteComment(long commentId) throws CommentNotFoundException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
+    public Comment deleteComment(long commentId){
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentException::commentNotFound);
         comment.softDelete();
         return comment;
     }

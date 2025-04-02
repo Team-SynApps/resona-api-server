@@ -55,6 +55,12 @@ public enum ErrorCode {
 
     // hobby
     HOBBY_NOT_FOUND(HttpStatus.NOT_FOUND, "HOB001", "Hobby Not Found"),
+
+    // feed
+    FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "FEED001", "Feed not found"),
+
+    // comment
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMM001", "Comment not found"),
     ;
 
     private final String code;
