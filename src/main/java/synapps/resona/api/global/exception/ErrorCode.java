@@ -36,6 +36,7 @@ public enum ErrorCode {
 
     //profile
     PROFILE_INPUT_INVALID(HttpStatus.CONFLICT, "PROFILE001", "Invalid profile"),
+    PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "PROFILE002", "Profile not fouond"),
 
     TIMESTAMP_INVALID(HttpStatus.CONFLICT, "TIMESTAMP001", "Invalid timestamp"),
 

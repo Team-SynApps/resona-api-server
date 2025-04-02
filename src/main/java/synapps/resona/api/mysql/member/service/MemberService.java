@@ -60,6 +60,11 @@ public class MemberService {
                 .build();
     }
 
+    public String getMemberEmail() {
+        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return userPrincipal.getUsername();
+    }
+
     public Member getMemberUsingSecurityContext() {
         User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);

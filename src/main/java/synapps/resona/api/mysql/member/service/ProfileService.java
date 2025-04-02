@@ -7,19 +7,15 @@ import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
 import synapps.resona.api.mysql.member.dto.response.ProfileDto;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.profile.CountryCode;
-import synapps.resona.api.mysql.member.entity.profile.Gender;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.exception.InvalidTimeStampException;
-import synapps.resona.api.mysql.member.exception.MemberException;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.exception.ProfileException;
 import synapps.resona.api.mysql.member.repository.ProfileRepository;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+
 
 @Service
 @RequiredArgsConstructor
@@ -29,71 +25,52 @@ public class ProfileService {
 
     /**
      * TODO: 프로필의 언어들 처리를 안하고 데이터베이스에 저장함. 수정해야 함.
+     * 회원가입시 생성했던 프로필을 가져와 정보 추가 및 수정하여 반환한다.
      * @param request
      * @return
      */
     @Transactional
     public ProfileDto register(ProfileRequest request) {
         validateData(request);
-        Member member = memberService.getMemberUsingSecurityContext();
+        String memberEmail = memberService.getMemberEmail();
+        Profile profile = profileRepository.findByMemberEmail(memberEmail).orElseThrow(ProfileException::profileNotFound);
+        changeProfile(request, profile);
 
-        Profile newProfile = createProfileFromRequest(member, request);
-        Profile savedProfile = profileRepository.save(newProfile);
+        Profile savedProfile = profileRepository.save(profile);
 
         return convertToProfileDto(savedProfile);
     }
 
     @Transactional
-    public ProfileDto getProfile() {
-        Long memberId = memberService.getMember().getId();
-        Profile profile = profileRepository.findByMemberId(memberId)
-                .orElseThrow(MemberException::memberNotFound);
+    public ProfileDto readProfile() {
+        String memberEmail = memberService.getMemberEmail();
+        Profile profile = profileRepository.findByMemberEmail(memberEmail).orElseThrow(ProfileException::profileNotFound);
 
         return convertToProfileDto(profile);
     }
 
     /**
-     * TODO: 프로필의 언어들 처리가 안되서 들어옴 수정해야 함.
-     * @param memberId
-     * @return
-     */
-    @Transactional
-    public ProfileDto getProfileByMemberId(Long memberId) {
-        Profile profile = profileRepository.findByMemberId(memberId)
-                .orElseThrow(MemberException::memberNotFound);
-
-        return convertToProfileDto(profile);
-    }
-
-    /**
-     * TODO: 프로필의 언어들 처리가 안됨. 수정해야 함.
-     * TODO: 커스텀 쿼리 작성 필요. 유저 이메일로 프로필을 가져오는 쿼리 작성하는게 제일 좋음.
+     * TODO: 프로필의 언어들 처리가 안됨. 수정해야 함
      * @param request
      * @return
      */
     @Transactional
     public ProfileDto editProfile(ProfileRequest request) {
         validateData(request);
-
-        Long memberId = memberService.getMemberUsingSecurityContext().getId();
-
-        Profile profile = profileRepository.findByMemberId(memberId)
-                .orElseThrow(MemberException::memberNotFound);
-
-        updateProfileFromRequest(profile, request);
+        String memberEmail = memberService.getMemberEmail();
+        Profile profile = profileRepository.findByMemberEmail(memberEmail).orElseThrow(ProfileException::profileNotFound);
+        changeProfile(request, profile);
 
         return convertToProfileDto(profile);
     }
 
     /**
-     * TODO: 프로필 언어들 처리가 안됨. 수정해야 함.
      * @return
      */
     @Transactional
     public Profile deleteProfile() {
-        Long memberId = memberService.getMember().getId();
-        Profile profile = profileRepository.findByMemberId(memberId)
-                .orElseThrow(MemberException::memberNotFound);
+        String memberEmail = memberService.getMemberEmail();
+        Profile profile = profileRepository.findByMemberEmail(memberEmail).orElseThrow(ProfileException::profileNotFound);
 
         profile.softDelete();
         return profile;
@@ -114,46 +91,6 @@ public class ProfileService {
         }
     }
 
-    private Set<Language> convertLanguages(List<String> primitiveLanguages) {
-        Set<Language> languages = new HashSet<>();
-        for (String primitive : primitiveLanguages) {
-            Language language = Language.fromCode(primitive);
-            languages.add(language);
-        }
-        return languages;
-    }
-
-    private Profile createProfileFromRequest(Member member, ProfileRequest request) {
-        return Profile.of(
-                member,
-                request.getNickname(),
-                CountryCode.fromCode(request.getNationality()),
-                CountryCode.fromCode(request.getCountryOfResidence()),
-                convertLanguages(request.getNativeLanguages()),
-                convertLanguages(request.getInterestingLanguages()),
-                request.getProfileImageUrl(),
-                request.getBackgroundImageUrl(),
-                request.getBirth(),
-                Gender.of(request.getGender()),
-                request.getComment()
-        );
-    }
-
-    private void updateProfileFromRequest(Profile profile, ProfileRequest request) {
-        profile.modifyProfile(
-                request.getNickname(),
-                CountryCode.fromCode(request.getNationality()),
-                CountryCode.fromCode(request.getCountryOfResidence()),
-                convertLanguages(request.getNativeLanguages()),
-                convertLanguages(request.getInterestingLanguages()),
-                request.getProfileImageUrl(),
-                request.getBackgroundImageUrl(),
-                request.getBirth(),
-                Gender.of(request.getGender()),
-                request.getComment()
-        );
-    }
-
     private ProfileDto convertToProfileDto(Profile profile) {
         return ProfileDto.builder()
                 .id(profile.getId())
@@ -162,8 +99,8 @@ public class ProfileService {
                 .nickname(profile.getNickname())
                 .nationality(profile.getNationality().toString())
                 .countryOfResidence(profile.getCountryOfResidence().toString())
-//                .nativeLanguages(profile.getNativeLanguages().stream().map((Enum::toString)).toList())
-//                .interestingLanguages(profile.getInterestingLanguages().stream().map((Enum::toString)).toList())
+                .nativeLanguages(profile.getNativeLanguages().stream().map((Enum::toString)).toList())
+                .interestingLanguages(profile.getInterestingLanguages().stream().map((Enum::toString)).toList())
                 .profileImageUrl(profile.getProfileImageUrl())
                 .backgroundImageUrl(profile.getBackgroundImageUrl())
                 .comment(profile.getComment())
@@ -171,5 +108,29 @@ public class ProfileService {
                 .birth(DateTimeUtil.localDateTimeToString(profile.getBirth()))
                 .gender(profile.getGender().toString())
                 .build();
+    }
+
+    /**
+     * Set을 사용하여 받게 되면 불변 컬렉션으로 인지할 수 있게 되어, Hibernate 쪽에 문제가 생길 여지가 있음.
+     * 따라서 copyToMutableSet() 을 활용하여 주입
+     * @param request
+     * @param profile
+     */
+    private static void changeProfile(ProfileRequest request, Profile profile) {
+        profile.modifyProfile(
+                request.getNickname(),
+                request.getNationality(),
+                request.getCountryOfResidence(),
+                copyToMutableSet(request.getNativeLanguages()),
+                copyToMutableSet(request.getInterestingLanguages()),
+                request.getProfileImageUrl(),
+                request.getBackgroundImageUrl(),
+                request.getBirth(),
+                request.getGender(),
+                request.getComment());
+    }
+
+    private static Set<Language> copyToMutableSet(Set<Language> source) {
+        return new HashSet<>(source);
     }
 }
