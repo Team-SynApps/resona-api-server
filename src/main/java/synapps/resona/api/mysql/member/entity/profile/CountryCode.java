@@ -252,7 +252,8 @@ public enum CountryCode {
     EH("Western Sahara"),
     YE("Yemen"),
     ZM("Zambia"),
-    ZW("Zimbabwe");
+    ZW("Zimbabwe"),
+    NOT_DEFINED("Null");
 
     private static final Map<String, CountryCode> codeToEnumMap = new HashMap<>();
     private static final Map<String, CountryCode> nameToEnumMap = new HashMap<>();

@@ -16,4 +16,8 @@ public class ProfileException extends BaseException {
     public static ProfileException invalidProfile() {
         return of(ErrorCode.PROFILE_INPUT_INVALID);
     }
+
+    public static ProfileException profileNotFound() {
+        return of(ErrorCode.PROFILE_NOT_FOUND);
+    }
 }

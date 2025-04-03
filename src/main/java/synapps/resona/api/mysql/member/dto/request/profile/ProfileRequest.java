@@ -6,8 +6,12 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import synapps.resona.api.mysql.member.entity.profile.CountryCode;
+import synapps.resona.api.mysql.member.entity.profile.Gender;
+import synapps.resona.api.mysql.member.entity.profile.Language;
 
 import java.util.List;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
@@ -18,16 +22,16 @@ public class ProfileRequest {
     private String nickname;
 
     @NotNull
-    private String nationality;
+    private CountryCode nationality;
 
     @NotNull
-    private String countryOfResidence;
+    private CountryCode countryOfResidence;
 
     @NotNull
-    private List<String> nativeLanguages;
+    private Set<Language> nativeLanguages;
 
     @NotNull
-    private List<String> interestingLanguages;
+    private Set<Language> interestingLanguages;
 
     @Size(max = 512)
     private String profileImageUrl;
@@ -39,7 +43,7 @@ public class ProfileRequest {
     private String birth;
 
     @NotNull
-    private String gender;
+    private Gender gender;
 
     @Size(max = 512)
     private String comment;

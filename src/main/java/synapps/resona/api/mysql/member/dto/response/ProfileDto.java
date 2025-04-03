@@ -16,7 +16,6 @@ import java.util.Set;
 @Builder
 public class ProfileDto {
     private Long id;
-    private Long memberId;
     private String tag;
     private String nickname;
     private String nationality;

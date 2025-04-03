@@ -10,7 +10,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @Builder
-public class MemberDetailInfoDto {
+public class MemberInfoDto {
     // Account Info
     private String roleType;
     private String accountStatus;

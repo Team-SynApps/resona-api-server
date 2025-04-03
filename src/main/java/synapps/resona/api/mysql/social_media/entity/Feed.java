@@ -23,13 +23,13 @@ public class Feed extends BaseEntity {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "feed")
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
     private final List<Comment> comments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "feed")
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
     private final List<Likes> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "feed", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
     private final List<FeedMedia> images = new ArrayList<>();
 
     @Column(name = "content")

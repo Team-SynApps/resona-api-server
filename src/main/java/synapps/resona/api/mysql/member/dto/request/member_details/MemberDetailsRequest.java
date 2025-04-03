@@ -13,9 +13,6 @@ import synapps.resona.api.mysql.member.entity.member_details.MBTI;
 @NoArgsConstructor
 public class MemberDetailsRequest {
 
-    @NotNull
-    private Long memberId;
-
     private Integer timezone;
 
     @NotBlank

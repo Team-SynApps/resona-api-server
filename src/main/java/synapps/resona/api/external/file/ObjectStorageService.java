@@ -128,12 +128,11 @@ public class ObjectStorageService {
     }
 
     public List<FileMetadataDto> uploadMultipleFile(List<MultipartFile> files) {
-        MemberDto memberDto = memberService.getMember();
-        String userEmail = memberDto.getEmail();
+        String email = memberService.getMemberEmail();
         return files.parallelStream()
                 .map(file -> {
                     try {
-                        return uploadToBuffer(file, userEmail);
+                        return uploadToBuffer(file, email);
                     } catch (IOException e) {
                         logger.error("Failed to upload file: {}", file.getOriginalFilename(), e);
                         throw new RuntimeException(e);

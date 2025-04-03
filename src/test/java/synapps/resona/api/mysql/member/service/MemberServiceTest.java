@@ -17,8 +17,10 @@ import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member.RoleType;
+import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Language;
+import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 
@@ -36,30 +38,31 @@ class MemberServiceTest extends IntegrationTestSupport {
     @Autowired
     private MemberRepository memberRepository;
 
-    @Autowired
-    private AccountInfoRepository accountInfoRepository;
-
     private Member testMember;
 
     @BeforeEach
     void setUp() {
+        AccountInfo accountInfo = AccountInfo.of(
+                RoleType.USER,
+                synapps.resona.api.oauth.entity.ProviderType.LOCAL,
+                AccountStatus.ACTIVE
+        );
+        MemberDetails emptyMemberDetails = MemberDetails.empty();
+        Profile emptyProfile = Profile.empty();
         // 테스트용 회원 데이터 삽입
+
         testMember = Member.of(
+                accountInfo,
+                emptyMemberDetails,
+                emptyProfile,
                 "test1@example.com",
                 "password1234",
                 LocalDateTime.now()
         );
         testMember.encodePassword("password1234");
 
-        AccountInfo accountInfo = AccountInfo.of(
-                testMember,
-                RoleType.USER,
-                synapps.resona.api.oauth.entity.ProviderType.LOCAL,
-                AccountStatus.ACTIVE
-        );
 
         memberRepository.save(testMember);
-        accountInfoRepository.save(accountInfo);
 
         // SecurityContext에 사용자 정보 설정
         setAuthentication(testMember.getEmail());
