@@ -13,6 +13,8 @@ import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member.RoleType;
+import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
+import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
@@ -30,7 +32,6 @@ import java.time.LocalDateTime;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
-    private final AccountInfoRepository accountInfoRepository;
     private final AuthTokenProvider tokenProvider;
 
     @Override
@@ -57,12 +58,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                 user.getAttributes()
         );
 
-        Member savedMember = memberRepository.findByEmail(userInfo.getEmail()).orElse(null);
+        Member savedMember = memberRepository.findWithAccountInfoByEmail(userInfo.getEmail()).orElse(null);
         if (savedMember == null) {
             savedMember = createMember(userInfo, providerType);
         }
 
-        AccountInfo accountInfo = accountInfoRepository.findByMember(savedMember);
+        AccountInfo accountInfo = savedMember.getAccountInfo();
 
 
         if (providerType != accountInfo.getProviderType()) {
@@ -78,19 +79,19 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     private Member createMember(OAuth2UserInfo userInfo, ProviderType providerType) {
         LocalDateTime now = LocalDateTime.now();
 
+        AccountInfo newAccountInfo = AccountInfo.of(
+                RoleType.USER,
+                providerType,
+                AccountStatus.TEMPORARY
+        );
+
         Member member = Member.of(
+                newAccountInfo,
                 userInfo.getEmail(),       // email
                 "",                         // password
                 now                        // lastAccessedAt
         );
         member = memberRepository.saveAndFlush(member);
-        AccountInfo accountInfo = AccountInfo.of(
-                member,
-                RoleType.USER,
-                providerType,
-                AccountStatus.ACTIVE
-        );
-        accountInfoRepository.save(accountInfo);
 
         return member;
     }

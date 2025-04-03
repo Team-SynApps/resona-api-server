@@ -47,18 +47,18 @@ public class ProfileController {
     public ResponseEntity<?> readProfile(HttpServletRequest request,
                                          HttpServletResponse response) throws Exception {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(profileService.getProfile()));
+        ResponseDto responseData = new ResponseDto(metaData, List.of(profileService.readProfile()));
         return ResponseEntity.ok(responseData);
     }
 
-    @GetMapping("/{memberId}")
-    public ResponseEntity<?> getProfileByMemberId(HttpServletRequest request,
-                                                  HttpServletResponse response,
-                                                  @PathVariable Long memberId) throws Exception {
-        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(profileService.getProfileByMemberId(memberId)));
-        return ResponseEntity.ok(responseData);
-    }
+//    @GetMapping("/{memberId}")
+//    public ResponseEntity<?> getProfileByMemberId(HttpServletRequest request,
+//                                                  HttpServletResponse response,
+//                                                  @PathVariable Long memberId) throws Exception {
+//        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+//        ResponseDto responseData = new ResponseDto(metaData, List.of(profileService.getProfileByMemberId(memberId)));
+//        return ResponseEntity.ok(responseData);
+//    }
 
     @PutMapping
     public ResponseEntity<?> editProfile(HttpServletRequest request,

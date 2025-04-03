@@ -21,10 +21,6 @@ public class AccountInfo extends BaseEntity {
     @Column(name = "account_info_id")
     private Long id;
 
-    @OneToOne
-    @JoinColumn(name = "member_id") // 외래 키 컬럼 이름
-    private Member member;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "role_type")
     @NotNull
@@ -40,15 +36,18 @@ public class AccountInfo extends BaseEntity {
     @Column(name = "account_status")
     private AccountStatus status;
 
-    private AccountInfo(Member member, RoleType roleType, ProviderType providerType, AccountStatus status) {
-        this.member = member;
+    private AccountInfo(RoleType roleType, ProviderType providerType, AccountStatus status) {
         this.roleType = roleType;
         this.providerType = providerType;
         this.status = status;
     }
 
-    public static AccountInfo of(Member member, RoleType roleType, ProviderType providerType, AccountStatus status) {
-        return new AccountInfo(member, roleType, providerType, status);
+    public static AccountInfo of(RoleType roleType, ProviderType providerType, AccountStatus status) {
+        return new AccountInfo(roleType, providerType, status);
+    }
+
+    public static AccountInfo empty() {
+        return new AccountInfo(RoleType.GUEST, ProviderType.LOCAL, AccountStatus.TEMPORARY);
     }
 
     public void updateStatus(AccountStatus accountStatus) {

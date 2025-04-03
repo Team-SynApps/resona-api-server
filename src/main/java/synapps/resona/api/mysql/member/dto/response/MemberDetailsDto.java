@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Builder
 public class MemberDetailsDto {
     private Long id;
-    private Long memberId;
     private Integer timezone;
     private String phoneNumber;
     private MBTI mbti;

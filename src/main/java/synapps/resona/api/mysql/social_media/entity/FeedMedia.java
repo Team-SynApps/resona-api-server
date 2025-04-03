@@ -18,7 +18,7 @@ public class FeedMedia extends BaseEntity {
     @Column(name = "feed_media_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feed_id")
     private Feed feed;
 

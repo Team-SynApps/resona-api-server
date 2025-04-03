@@ -9,7 +9,7 @@ import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.social_media.entity.Comment;
 import synapps.resona.api.mysql.social_media.entity.Mention;
-import synapps.resona.api.mysql.social_media.exception.CommentNotFoundException;
+import synapps.resona.api.mysql.social_media.exception.CommentException;
 import synapps.resona.api.mysql.social_media.exception.MentionNotFoundException;
 import synapps.resona.api.mysql.social_media.repository.CommentRepository;
 import synapps.resona.api.mysql.social_media.repository.MentionRepository;
@@ -25,8 +25,8 @@ public class MentionService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Mention register(Long commentId) throws CommentNotFoundException {
-        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentNotFoundException::new);
+    public Mention register(Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(CommentException::commentNotFound);
         MemberDto memberDto = memberService.getMember();
         Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 

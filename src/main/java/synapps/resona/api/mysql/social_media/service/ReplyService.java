@@ -13,12 +13,10 @@ import synapps.resona.api.mysql.social_media.dto.reply.response.ReplyPostRespons
 import synapps.resona.api.mysql.social_media.dto.reply.response.ReplyReadResponse;
 import synapps.resona.api.mysql.social_media.entity.Comment;
 import synapps.resona.api.mysql.social_media.entity.Reply;
-import synapps.resona.api.mysql.social_media.exception.CommentNotFoundException;
+import synapps.resona.api.mysql.social_media.exception.CommentException;
 import synapps.resona.api.mysql.social_media.exception.ReplyNotFoundException;
 import synapps.resona.api.mysql.social_media.repository.CommentRepository;
 import synapps.resona.api.mysql.social_media.repository.ReplyRepository;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -29,11 +27,11 @@ public class ReplyService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public ReplyPostResponse register(ReplyRequest request) throws CommentNotFoundException {
+    public ReplyPostResponse register(ReplyRequest request){
         MemberDto memberDto = memberService.getMember();
         Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
-        Comment comment = commentRepository.findById(request.getCommentId()).orElseThrow(CommentNotFoundException::new);
+        Comment comment = commentRepository.findById(request.getCommentId()).orElseThrow(CommentException::commentNotFound);
         comment.addReply();
         Reply reply = Reply.of(comment, member, request.getContent());
         replyRepository.save(reply);
@@ -47,23 +45,15 @@ public class ReplyService {
 
     @Transactional
     public ReplyReadResponse update(ReplyUpdateRequest request) throws ReplyNotFoundException {
-        Reply reply = replyRepository.findById(request.getReplyId()).orElseThrow(ReplyNotFoundException::new);
+        Reply reply = replyRepository.findWithCommentById(request.getReplyId()).orElseThrow(ReplyNotFoundException::new);
         reply.update(request.getContent());
-        return ReplyReadResponse.builder()
-                .replyId(reply.getId().toString())
-                .content(reply.getContent())
-                .createdAt(reply.getCreatedAt().toString())
-                .build();
+        return new ReplyReadResponse(reply, reply.getComment().getId());
     }
 
 
     public ReplyReadResponse read(Long replyId) throws ReplyNotFoundException {
-        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
-        return ReplyReadResponse.builder()
-                .replyId(reply.getId().toString())
-                .content(reply.getContent())
-                .createdAt(reply.getCreatedAt().toString())
-                .build();
+        Reply reply = replyRepository.findWithCommentById(replyId).orElseThrow(ReplyNotFoundException::new);
+        return new ReplyReadResponse(reply, reply.getComment().getId());
     }
 
     @Transactional

@@ -34,8 +34,16 @@ public enum ErrorCode {
     CODE_EXPIRED(HttpStatus.BAD_REQUEST, "EMAIL006", "Email code expired"),
     VERIFY_TRIAL_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "EMAIL007", "Email verify trial exceeded"),
 
-    //profile
+    // account info
+    ACCOUNT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "ACC001", "Account Info not found"),
+    ACCOUNT_BANNED(HttpStatus.UNAUTHORIZED, "ACC002", "User Banned"),
+
+    // profile
     PROFILE_INPUT_INVALID(HttpStatus.CONFLICT, "PROFILE001", "Invalid profile"),
+    PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "PROFILE002", "Profile not fouond"),
+
+    // member details
+    MEMBER_DETAILS_NOT_FOUND(HttpStatus.NOT_FOUND, "MDETAILS001", "Member Details not found"),
 
     TIMESTAMP_INVALID(HttpStatus.CONFLICT, "TIMESTAMP001", "Invalid timestamp"),
 
@@ -44,6 +52,15 @@ public enum ErrorCode {
 
     // language
     LANGUAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "LANG001", "Invalid Language code"),
+
+    // hobby
+    HOBBY_NOT_FOUND(HttpStatus.NOT_FOUND, "HOB001", "Hobby Not Found"),
+
+    // feed
+    FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "FEED001", "Feed not found"),
+
+    // comment
+    COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMM001", "Comment not found"),
     ;
 
     private final String code;

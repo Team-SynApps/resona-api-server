@@ -23,7 +23,7 @@ import synapps.resona.api.mysql.social_media.dto.location.LocationRequest;
 import synapps.resona.api.mysql.social_media.entity.Feed;
 import synapps.resona.api.mysql.social_media.entity.FeedMedia;
 import synapps.resona.api.mysql.social_media.entity.Location;
-import synapps.resona.api.mysql.social_media.exception.FeedNotFoundException;
+import synapps.resona.api.mysql.social_media.exception.FeedException;
 import synapps.resona.api.mysql.social_media.repository.FeedMediaRepository;
 import synapps.resona.api.mysql.social_media.repository.FeedRepository;
 import synapps.resona.api.mysql.social_media.repository.LocationRepository;
@@ -46,9 +46,9 @@ public class FeedService {
     private final Logger logger = LogManager.getLogger(FeedService.class);
 
     @Transactional
-    public FeedResponse updateFeed(Long feedId, FeedUpdateRequest feedRequest) throws FeedNotFoundException {
+    public FeedResponse updateFeed(Long feedId, FeedUpdateRequest feedRequest){
         // 예외처리 해줘야 함
-        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
+        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedException::feedNotFoundException);
         feed.updateContent(feedRequest.getContent());
 
         List<FeedImageDto> feedImageDtos =new ArrayList<>();
@@ -65,8 +65,8 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedReadResponse readFeed(Long feedId) throws FeedNotFoundException {
-        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
+    public FeedReadResponse readFeed(Long feedId){
+        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedException::feedNotFoundException);
         List<FeedMedia> feedMedias = feed.getImages();
         List<FeedImageDto> feedImageDtos = new ArrayList<>();
 
@@ -83,7 +83,7 @@ public class FeedService {
     }
 
     @Transactional
-    public List<FeedReadResponse> readAllFeeds() throws FeedNotFoundException {
+    public List<FeedReadResponse> readAllFeeds(){
         MemberDto memberDto = memberService.getMember();
         Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
@@ -129,8 +129,8 @@ public class FeedService {
     }
 
     @Transactional
-    public Feed deleteFeed(Long feedId) throws FeedNotFoundException {
-        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
+    public Feed deleteFeed(Long feedId){
+        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedException::feedNotFoundException);
         feed.softDelete();
         return feed;
     }

@@ -5,9 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.mysql.member.dto.request.member_details.MemberDetailsRequest;
 import synapps.resona.api.mysql.member.dto.response.MemberDetailsDto;
-import synapps.resona.api.mysql.member.dto.response.MemberDto;
-import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
+import synapps.resona.api.mysql.member.exception.MemberDetailsException;
 import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.MemberDetailsRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
@@ -15,118 +14,78 @@ import synapps.resona.api.mysql.member.repository.MemberRepository;
 @Service
 @RequiredArgsConstructor
 public class MemberDetailsService {
-
     private final MemberDetailsRepository memberDetailsRepository;
-    private final MemberService memberService;
     private final MemberRepository memberRepository;
+    private final MemberService memberService;
 
 
-    /**
-     * PersonalInfo 등록
-     * TODO: 이미 존재하는 멤버 정보인 경우, 오류 처리 필요
-     */
     @Transactional
     public MemberDetailsDto register(MemberDetailsRequest request) {
-        MemberDto memberDto = memberService.getMember();
-        Member member = memberRepository.findById(memberDto.getId())
-                .orElseThrow(MemberException::memberNotFound);
+        String memberEmail = memberService.getMemberEmail();
 
-        MemberDetails memberDetails = MemberDetails.of(
-                member,
-                request.getTimezone(),
-                request.getPhoneNumber(),
-                request.getMbti(),
-                request.getAboutMe(),
-                request.getLocation()
-        );
-        MemberDetails memberDetailsResult = memberDetailsRepository.save(memberDetails);
+        MemberDetails memberDetails = memberRepository.findMemberDetailsByEmail(memberEmail).orElseThrow(MemberDetailsException::memberDetailsNotFound);
+        changeMemberDetails(request, memberDetails);
 
-        return MemberDetailsDto.builder()
-                .id(memberDetailsResult.getId())
-                .aboutMe(memberDetailsResult.getAboutMe())
-                .location(memberDetailsResult.getLocation())
-                .mbti(memberDetailsResult.getMbti())
-                .memberId(memberDetailsResult.getMember().getId())
-                .timezone(memberDetailsResult.getTimezone())
-                .phoneNumber(memberDetailsResult.getPhoneNumber()).build();
+        MemberDetails registeredMemberDetails = memberDetailsRepository.save(memberDetails);
+
+        return buildMemberDetailsDto(registeredMemberDetails);
     }
 
-    /**
-     * PersonalInfo 조회
-     */
     public MemberDetailsDto getMemberDetails() {
-        MemberDto memberDto = memberService.getMember();
-        Member member = memberRepository.findById(memberDto.getId())
-                .orElseThrow(MemberException::memberNotFound);
+        String memberEmail = memberService.getMemberEmail();
+        MemberDetails memberDetails = memberRepository.findMemberDetailsByEmail(memberEmail).orElseThrow(MemberDetailsException::memberDetailsNotFound);
 
-        MemberDetails memberDetails = memberDetailsRepository.findByMember(member).orElseThrow(MemberException::memberNotFound);
-
-
-        return MemberDetailsDto.builder()
-                .id(memberDetails.getId())
-                .aboutMe(memberDetails.getAboutMe())
-                .location(memberDetails.getLocation())
-                .mbti(memberDetails.getMbti())
-                .memberId(memberDetails.getMember().getId())
-                .timezone(memberDetails.getTimezone())
-                .phoneNumber(memberDetails.getPhoneNumber()).build();
+        return buildMemberDetailsDto(memberDetails);
     }
 
-    /**
-     * 전화번호는 제외하고 반환
-     * @param memberId
-     * @return
-     */
-    public MemberDetailsDto getMemberDetails(Long memberId) {
-        MemberDetails memberDetails = memberDetailsRepository.findByMemberId(memberId).orElseThrow(MemberException::memberNotFound);
+//    /**
+//     * 전화번호는 제외하고 반환
+//     * @param memberId
+//     * @return
+//     */
+//    public MemberDetailsDto getMemberDetails(Long memberId) {
+//        MemberDetails memberDetails = memberDetailsRepository.findByMemberId(memberId).orElseThrow(MemberException::memberNotFound);
+//
+//        return buildMemberDetailsDto(memberDetails);
+//    }
 
-        return MemberDetailsDto.builder()
-                .id(memberDetails.getId())
-                .aboutMe(memberDetails.getAboutMe())
-                .location(memberDetails.getLocation())
-                .mbti(memberDetails.getMbti())
-                .memberId(memberDetails.getMember().getId())
-                .timezone(memberDetails.getTimezone())
-                .build();
-    }
-
-    /**
-     * PersonalInfo 수정
-     */
     @Transactional
     public MemberDetails editMemberDetails(MemberDetailsRequest request) {
-        MemberDto memberDto = memberService.getMember();
-        Member member = memberRepository.findById(memberDto.getId())
-                .orElseThrow(MemberException::memberNotFound);
+        String memberEmail = memberService.getMemberEmail();
+        MemberDetails memberDetails = memberRepository.findMemberDetailsByEmail(memberEmail).orElseThrow(MemberDetailsException::memberDetailsNotFound);
 
-        MemberDetails memberDetails = memberDetailsRepository.findByMember(member)
-                .orElseThrow(MemberException::memberNotFound);
+        changeMemberDetails(request, memberDetails);
 
-        memberDetails.updatePersonalInfo(
+        return memberDetails;
+    }
+
+    @Transactional
+    public MemberDetails deleteMemberDetails() {
+        String memberEmail = memberService.getMemberEmail();
+
+        MemberDetails memberDetails = memberRepository.findMemberDetailsByEmail(memberEmail).orElseThrow(MemberDetailsException::memberDetailsNotFound);
+        memberDetails.softDelete();
+        return memberDetails;
+    }
+
+    private static void changeMemberDetails(MemberDetailsRequest request, MemberDetails memberDetails) {
+        memberDetails.modifyMemberDetails(
                 request.getTimezone(),
                 request.getPhoneNumber(),
                 request.getMbti(),
                 request.getAboutMe(),
                 request.getLocation()
         );
-
-        return memberDetails;
     }
 
-    /**
-     * PersonalInfo 삭제
-     */
-    @Transactional
-    public MemberDetails deleteMemberDetails() {
-        MemberDto memberDto = memberService.getMember();
-        Member member = memberRepository.findById(memberDto.getId())
-                .orElseThrow(MemberException::memberNotFound);
-
-        MemberDetails memberDetails = memberDetailsRepository.findByMember(member)
-                .orElseThrow(MemberException::memberNotFound);
-
-        memberDetails.softDelete();
-        return memberDetails;
+    private static MemberDetailsDto buildMemberDetailsDto(MemberDetails memberDetails) {
+        return MemberDetailsDto.builder()
+                .id(memberDetails.getId())
+                .aboutMe(memberDetails.getAboutMe())
+                .location(memberDetails.getLocation())
+                .mbti(memberDetails.getMbti())
+                .timezone(memberDetails.getTimezone())
+                .build();
     }
 }
 

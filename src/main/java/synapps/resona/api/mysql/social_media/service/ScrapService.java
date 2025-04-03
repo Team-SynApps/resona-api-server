@@ -9,7 +9,7 @@ import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.social_media.entity.Feed;
 import synapps.resona.api.mysql.social_media.entity.Scrap;
-import synapps.resona.api.mysql.social_media.exception.FeedNotFoundException;
+import synapps.resona.api.mysql.social_media.exception.FeedException;
 import synapps.resona.api.mysql.social_media.exception.ScrapNotFoundException;
 import synapps.resona.api.mysql.social_media.repository.FeedRepository;
 import synapps.resona.api.mysql.social_media.repository.ScrapRepository;
@@ -25,11 +25,11 @@ public class ScrapService {
     private final MemberRepository memberRepository;
 
     @Transactional
-    public Scrap register(Long feedId) throws FeedNotFoundException {
+    public Scrap register(Long feedId){
         MemberDto memberDto = memberService.getMember();
         Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
-        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedNotFoundException::new);
+        Feed feed = feedRepository.findById(feedId).orElseThrow(FeedException::feedNotFoundException);
         Scrap scrap = Scrap.of(member, feed, LocalDateTime.now());
         scrapRepository.save(scrap);
 

@@ -14,6 +14,9 @@ import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member.RoleType;
+import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
+import synapps.resona.api.mysql.member.entity.profile.Profile;
+import synapps.resona.api.mysql.member.exception.AccountInfoException;
 import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
@@ -41,20 +44,25 @@ public class TempTokenService {
     public TempTokenResponse createTemporaryToken(String email) {
         boolean isRegistered = true;
         if (!memberRepository.existsByEmail(email)) {
+            AccountInfo accountInfo = AccountInfo.of(
+                    RoleType.GUEST,
+                    ProviderType.LOCAL,
+                    AccountStatus.TEMPORARY
+            );
+
+            MemberDetails memberDetails = MemberDetails.empty();
+            Profile profile = Profile.empty();
             // 새로운 멤버 생성
             Member newMember = Member.of(
+                    accountInfo,
+                    memberDetails,
+                    profile,
                     email,
                     generateRandomPassword(), // 임시 비밀번호 생성
                     LocalDateTime.now()
             );
 
             // AccountInfo 생성
-            AccountInfo accountInfo = AccountInfo.of(
-                    newMember,
-                    RoleType.GUEST,
-                    ProviderType.LOCAL,
-                    AccountStatus.TEMPORARY
-            );
 
             // 비밀번호 인코딩 및 저장
             newMember.encodePassword(newMember.getPassword());
@@ -62,8 +70,8 @@ public class TempTokenService {
             accountInfoRepository.save(accountInfo);
         }
 
-        Member member = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);
-        AccountInfo accountInfo = accountInfoRepository.findByMember(member);
+
+        AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(email).orElseThrow(AccountInfoException::accountInfoNotFound);
 
         if (accountInfo.isAccountTemporary()) {
             isRegistered = false;
@@ -101,19 +109,19 @@ public class TempTokenService {
     }
 
     // 만료된 임시 계정 정리를 위한 스케줄러 메소드
-    @Scheduled(cron = "0 0 * * * *") // 매시간 실행
-    @Transactional
-    public void cleanupExpiredTemporaryAccounts() {
-        LocalDateTime now = LocalDateTime.now();
-        List<AccountInfo> expiredAccounts = accountInfoRepository
-                .findExpiredTemporaryAccounts(AccountStatus.TEMPORARY, now);
-
-        for (AccountInfo account : expiredAccounts) {
-            Member member = account.getMember();
-            accountInfoRepository.delete(account);
-            memberRepository.delete(member);
-        }
-    }
+//    @Scheduled(cron = "0 0 * * * *") // 매시간 실행
+//    @Transactional
+//    public void cleanupExpiredTemporaryAccounts() {
+//        LocalDateTime now = LocalDateTime.now();
+//        List<AccountInfo> expiredAccounts = accountInfoRepository
+//                .findExpiredTemporaryAccounts(AccountStatus.TEMPORARY, now);
+//
+//        for (AccountInfo account : expiredAccounts) {
+//            Member member = account.getMember();
+//            accountInfoRepository.delete(account);
+//            memberRepository.delete(member);
+//        }
+//    }
 
     private String generateRandomPassword() {
         // 임시 비밀번호 생성 로직

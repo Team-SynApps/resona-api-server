@@ -17,12 +17,11 @@ import synapps.resona.api.oauth.entity.UserPrincipal;
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final MemberRepository memberRepository;
-    private final AccountInfoRepository accountInfoRepository;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Member member = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);
-        AccountInfo accountInfo = accountInfoRepository.findByMember(member);
+        Member member = memberRepository.findWithAccountInfoByEmail(email).orElseThrow(MemberException::memberNotFound);
+        AccountInfo accountInfo = member.getAccountInfo();
         return UserPrincipal.create(member, accountInfo);
     }
 }

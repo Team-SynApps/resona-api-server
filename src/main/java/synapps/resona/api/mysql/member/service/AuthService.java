@@ -27,16 +27,19 @@ import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
 import synapps.resona.api.mysql.member.entity.member.RoleType;
+import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
+import synapps.resona.api.mysql.member.entity.profile.Profile;
+import synapps.resona.api.mysql.member.exception.AccountInfoException;
 import synapps.resona.api.mysql.member.exception.AuthException;
-import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
-import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.exception.MemberException;
+import synapps.resona.api.mysql.member.repository.*;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.apple.AppleOAuthUserProvider;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 
+import javax.security.auth.login.AccountException;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -49,10 +52,9 @@ public class AuthService {
     private final AppProperties appProperties;
     private final AuthTokenProvider tokenProvider;
     private final MemberRefreshTokenRepository memberRefreshTokenRepository;
-    private final MemberRepository memberRepository;
-    private final AccountInfoRepository accountInfoRepository;
     private final AppleOAuthUserProvider appleOAuthUserProvider;
     private final MemberService memberService;
+    private final MemberRepository memberRepository;
 //    private final static String REFRESH_TOKEN = "refresh_token";
 
     /**
@@ -92,39 +94,46 @@ public class AuthService {
         String memberEmail = applePlatformMember.getEmail();
         String memberPassword = applePlatformMember.getPlatformId();
 
+        // db에 유저 데이터가 존재하고, 계정 상태가 ACTIVE면 로그인
         if (memberRepository.existsByEmail(applePlatformMember.getEmail())) {
-            Authentication authentication = getAuthentication(memberEmail, memberPassword);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(memberEmail).orElseThrow(AccountInfoException::accountInfoNotFound);
+            if (accountInfo.getStatus().equals(AccountStatus.BANNED)) {
+                throw AccountInfoException.accountInfoNotFound();
+            }
 
-            Date now = new Date();
-            long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
+            if (accountInfo.getStatus().equals(AccountStatus.ACTIVE)) {
+                Authentication authentication = getAuthentication(memberEmail, memberPassword);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            AuthToken accessToken = createToken(memberEmail, authentication, now);
-            AuthToken refreshToken = createRefreshToken(now, refreshTokenExpiry);
+                Date now = new Date();
+                long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
 
-            checkRefreshToken(memberEmail, refreshToken);
+                AuthToken accessToken = createToken(memberEmail, authentication, now);
+                AuthToken refreshToken = createRefreshToken(now, refreshTokenExpiry);
 
-            MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
-            ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken, memberService.isRegisteredMember(memberEmail))));
-            return ResponseEntity.ok(responseData);
+                checkRefreshToken(memberEmail, refreshToken);
+
+                MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1", "api server");
+                ResponseDto responseData = new ResponseDto(metaData, List.of(new TokenResponse(accessToken, refreshToken, memberService.isRegisteredMember(memberEmail))));
+                return ResponseEntity.ok(responseData);
+            }
         }
-      
+
+        AccountInfo accountInfo = AccountInfo.of(
+                RoleType.USER,
+                ProviderType.APPLE,
+                AccountStatus.TEMPORARY
+        );
+
         Member member = Member.of(
+                accountInfo,
                 applePlatformMember.getEmail(),
                 applePlatformMember.getPlatformId(),
                 LocalDateTime.now()
         );
 
-        AccountInfo accountInfo = AccountInfo.of(
-                member,
-                RoleType.USER,
-                ProviderType.APPLE,
-                AccountStatus.ACTIVE
-        );
-      
         member.encodePassword(applePlatformMember.getPlatformId());
         memberRepository.save(member);
-        accountInfoRepository.save(accountInfo);
 
         Authentication authentication = getAuthentication(memberEmail, memberPassword);
         SecurityContextHolder.getContext().setAuthentication(authentication);

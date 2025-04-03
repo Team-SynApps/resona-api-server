@@ -44,14 +44,14 @@ public class MemberDetailsController {
         return ResponseEntity.ok(responseData);
     }
 
-    @GetMapping("/{memberId}")
-    public ResponseEntity<?> getMemberDetailsByMemberId(HttpServletRequest request,
-                                                  HttpServletResponse response,
-                                                  @PathVariable Long memberId) throws Exception {
-        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.getMemberDetails(memberId)));
-        return ResponseEntity.ok(responseData);
-    }
+//    @GetMapping("/{memberId}")
+//    public ResponseEntity<?> getMemberDetailsByMemberId(HttpServletRequest request,
+//                                                  HttpServletResponse response,
+//                                                  @PathVariable Long memberId) throws Exception {
+//        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+//        ResponseDto responseData = new ResponseDto(metaData, List.of(memberDetailsService.getMemberDetails(memberId)));
+//        return ResponseEntity.ok(responseData);
+//    }
 
     @PutMapping
     @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")

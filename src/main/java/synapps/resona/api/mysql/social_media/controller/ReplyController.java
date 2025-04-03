@@ -12,7 +12,6 @@ import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.social_media.dto.reply.request.ReplyRequest;
 import synapps.resona.api.mysql.social_media.dto.reply.request.ReplyUpdateRequest;
-import synapps.resona.api.mysql.social_media.exception.CommentNotFoundException;
 import synapps.resona.api.mysql.social_media.exception.ReplyNotFoundException;
 import synapps.resona.api.mysql.social_media.service.ReplyService;
 
@@ -32,7 +31,7 @@ public class ReplyController {
     @PostMapping
     public ResponseEntity<?> registerReply(HttpServletRequest request,
                                            HttpServletResponse response,
-                                           @Valid @RequestBody ReplyRequest replyRequest) throws CommentNotFoundException {
+                                           @Valid @RequestBody ReplyRequest replyRequest){
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(replyService.register(replyRequest)));
         return ResponseEntity.ok(responseData);

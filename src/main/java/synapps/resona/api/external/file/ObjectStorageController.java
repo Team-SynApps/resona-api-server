@@ -32,8 +32,8 @@ public class ObjectStorageController {
     public ResponseEntity<?> uploadFile(HttpServletRequest request,
                                         @RequestParam("file") MultipartFile file) throws IOException {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        MemberDto memberDto = memberService.getMember();
-        FileMetadataDto fileMetadata = storageService.uploadToBuffer(file, memberDto.getEmail());
+        String email = memberService.getMemberEmail();
+        FileMetadataDto fileMetadata = storageService.uploadToBuffer(file, email);
 
         ResponseDto responseData = new ResponseDto(metaData, List.of(fileMetadata));
         return ResponseEntity.ok(responseData);

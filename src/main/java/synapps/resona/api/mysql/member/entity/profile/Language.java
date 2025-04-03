@@ -143,7 +143,8 @@ public enum Language {
     XHOSA("xh", "Xhosa"),
     YIDDISH("yi", "Yiddish"),
     YORUBA("yo", "Yoruba"),
-    ZULU("zu", "Zulu");
+    ZULU("zu", "Zulu"),
+    NOT_DEFINED("None","Not defined");
 
     private final String code;
     private final String fullName;
