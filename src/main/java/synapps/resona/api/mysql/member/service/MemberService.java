@@ -108,6 +108,7 @@ public class MemberService {
                 request.getTimezone()
         );
 
+
         AccountInfo newAccountInfo = AccountInfo.of(
                 RoleType.USER,
                 ProviderType.LOCAL,

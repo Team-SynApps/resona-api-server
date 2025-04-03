@@ -146,6 +146,7 @@ public class Profile extends BaseEntity {
     }
 
     // 회원가입용 profile
+
     public static Profile of(CountryCode nationality,
                              CountryCode countryOfResidence,
                              Set<Language> nativeLanguages,
