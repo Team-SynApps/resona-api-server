@@ -26,8 +26,8 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(new Info()
-                        .title("전세계 채팅 프로젝트 유저 API")
-                        .description("유저, sns 기본 기능들이 있습니다.")
+                        .title("Resona SNS Server API")
+                        .description("Provides SNS, Member APIs")
                         .version("1.0.0"))
                 .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
                 .security(List.of(securityRequirement))
