@@ -32,4 +32,8 @@ public class MemberException extends BaseException {
     public static MemberException unAuthenticatedRequest() {
         return of(ErrorCode.UNAUTHENTICATED_REQUEST);
     }
+
+    public static MemberException followingNotFound() {
+        return of(ErrorCode.FOLLOWING_NOT_FOUND);
+    }
 }
