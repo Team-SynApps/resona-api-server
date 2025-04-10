@@ -23,8 +23,10 @@ import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.oauth.entity.ProviderType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -39,30 +41,43 @@ class MemberServiceTest extends IntegrationTestSupport {
     private MemberRepository memberRepository;
 
     private Member testMember;
+    private Member guestMember;
 
     @BeforeEach
     void setUp() {
         AccountInfo accountInfo = AccountInfo.of(
                 RoleType.USER,
-                synapps.resona.api.oauth.entity.ProviderType.LOCAL,
+                ProviderType.LOCAL,
                 AccountStatus.ACTIVE
         );
-        MemberDetails emptyMemberDetails = MemberDetails.empty();
-        Profile emptyProfile = Profile.empty();
-        // 테스트용 회원 데이터 삽입
+        AccountInfo tempAccountInfo = AccountInfo.of(
+                RoleType.GUEST,
+                ProviderType.LOCAL,
+                AccountStatus.TEMPORARY
+        );
 
         testMember = Member.of(
                 accountInfo,
-                emptyMemberDetails,
-                emptyProfile,
+                MemberDetails.empty(),
+                Profile.empty(),
                 "test1@example.com",
                 "password1234",
                 LocalDateTime.now()
         );
+
+        guestMember = Member.of(
+                tempAccountInfo,
+                MemberDetails.empty(),
+                Profile.empty(),
+                "newuser1@example.com",
+                "Newpass1@",
+                LocalDateTime.now()
+        );
+
         testMember.encodePassword("password1234");
 
 
-        memberRepository.save(testMember);
+        memberRepository.saveAll(List.of(testMember, guestMember));
 
         // SecurityContext에 사용자 정보 설정
         setAuthentication(testMember.getEmail());
