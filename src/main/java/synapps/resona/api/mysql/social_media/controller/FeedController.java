@@ -37,8 +37,7 @@ public class FeedController {
 
     @PostMapping("/feed")
     public ResponseEntity<?> registerFeed(HttpServletRequest request,
-                                          HttpServletResponse response,
-                                          @Valid @RequestBody FeedRegistrationRequest feedRegistrationRequest) throws Exception {
+                                          @Valid @RequestBody FeedRegistrationRequest feedRegistrationRequest) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         FeedResponse feedResponse = feedService.registerFeed(
                 feedRegistrationRequest.getMetadataList(),
@@ -49,18 +48,16 @@ public class FeedController {
         return ResponseEntity.ok(responseData);
     }
 
-    @GetMapping("/feed")
+    @GetMapping("/feed/{feedId}")
     public ResponseEntity<?> readFeed(HttpServletRequest request,
-                                      HttpServletResponse response,
-                                      @RequestParam Long feedId) throws Exception {
+                                      @PathVariable Long feedId) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.readFeed(feedId)));
         return ResponseEntity.ok(responseData);
     }
 
     @GetMapping("/feed/test/all")
-    public ResponseEntity<?> readAllFeed(HttpServletRequest request,
-                                         HttpServletResponse response) throws Exception {
+    public ResponseEntity<?> readAllFeed(HttpServletRequest request) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.readAllFeeds()));
         return ResponseEntity.ok(responseData);
@@ -68,9 +65,8 @@ public class FeedController {
 
     @GetMapping("/feeds")
     public ResponseEntity<?> readFeedByCursor(HttpServletRequest request,
-                                              HttpServletResponse response,
                                               @RequestParam(required = false) String cursor,
-                                              @RequestParam(defaultValue = "10") int size) throws Exception {
+                                              @RequestParam(defaultValue = "10") int size) {
         CursorResult<FeedReadResponse> feeds = feedService.getFeedsByCursor(cursor, size);
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString(), feeds.getCursor(), size, feeds.isHasNext());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feeds.getValues()));
@@ -80,9 +76,8 @@ public class FeedController {
     @PutMapping("/feed/{feedId}")
     @PreAuthorize("@socialSecurity.isFeedMemberProperty(#feedId) or hasRole('ADMIN')")
     public ResponseEntity<?> editFeed(HttpServletRequest request,
-                                      HttpServletResponse response,
                                       @PathVariable Long feedId,
-                                      @Valid @RequestBody FeedUpdateRequest feedRequest) throws Exception {
+                                      @Valid @RequestBody FeedUpdateRequest feedRequest) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.updateFeed(feedId, feedRequest)));
         return ResponseEntity.ok(responseData);
@@ -91,8 +86,7 @@ public class FeedController {
     @DeleteMapping("/feed/{feedId}")
     @PreAuthorize("@socialSecurity.isFeedMemberProperty(#feedId) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteFeed(HttpServletRequest request,
-                                                HttpServletResponse response,
-                                                @PathVariable Long feedId) throws Exception {
+                                                @PathVariable Long feedId) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.deleteFeed(feedId)));
         return ResponseEntity.ok(responseData);

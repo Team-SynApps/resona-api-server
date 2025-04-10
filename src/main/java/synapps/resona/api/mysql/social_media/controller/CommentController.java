@@ -29,8 +29,7 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<?> registerComment(HttpServletRequest request,
-                                             HttpServletResponse response,
-                                             @Valid @RequestBody CommentRequest commentRequest){
+                                             @Valid @RequestBody CommentRequest commentRequest) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(commentService.register(commentRequest)));
         return ResponseEntity.ok(responseData);
@@ -38,8 +37,7 @@ public class CommentController {
 
     @GetMapping("/{commentId}")
     public ResponseEntity<?> getComment(HttpServletRequest request,
-                                        HttpServletResponse response,
-                                        @PathVariable Long commentId){
+                                        @PathVariable Long commentId) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(commentService.getComment(commentId)));
         return ResponseEntity.ok(responseData);
@@ -47,8 +45,7 @@ public class CommentController {
 
     @GetMapping("/all/{feedId}")
     public ResponseEntity<?> getComments(HttpServletRequest request,
-                                         HttpServletResponse response,
-                                         @PathVariable Long feedId){
+                                         @PathVariable Long feedId) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(commentService.getCommentsByFeedId(feedId)));
         return ResponseEntity.ok(responseData);
@@ -56,8 +53,7 @@ public class CommentController {
 
     @GetMapping("/{commentId}/replies")
     public ResponseEntity<?> getReplies(HttpServletRequest request,
-                                        HttpServletResponse response,
-                                        @PathVariable Long commentId){
+                                        @PathVariable Long commentId) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(commentService.getReplies(commentId)));
         return ResponseEntity.ok(responseData);
@@ -66,9 +62,8 @@ public class CommentController {
     @PutMapping("/{commentId}")
     @PreAuthorize("@socialSecurity.isCommentMemberProperty(#commentId) or hasRole('ADMIN')")
     public ResponseEntity<?> editComment(HttpServletRequest request,
-                                         HttpServletResponse response,
                                          @PathVariable Long commentId,
-                                         @Valid @RequestBody CommentUpdateRequest commentUpdateRequest){
+                                         @Valid @RequestBody CommentUpdateRequest commentUpdateRequest) {
         commentUpdateRequest.setCommentId(commentId);
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(commentService.edit(commentUpdateRequest)));
@@ -78,8 +73,7 @@ public class CommentController {
     @DeleteMapping("/{commentId}")
     @PreAuthorize("@socialSecurity.isCommentMemberProperty(#commentId) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteComment(HttpServletRequest request,
-                                           HttpServletResponse response,
-                                           @PathVariable Long commentId){
+                                           @PathVariable Long commentId) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(commentService.deleteComment(commentId)));
         return ResponseEntity.ok(responseData);

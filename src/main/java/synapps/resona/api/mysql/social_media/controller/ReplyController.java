@@ -30,7 +30,6 @@ public class ReplyController {
 
     @PostMapping
     public ResponseEntity<?> registerReply(HttpServletRequest request,
-                                           HttpServletResponse response,
                                            @Valid @RequestBody ReplyRequest replyRequest){
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(replyService.register(replyRequest)));
@@ -39,7 +38,6 @@ public class ReplyController {
 
     @GetMapping("/{replyId}")
     public ResponseEntity<?> getReply(HttpServletRequest request,
-                                      HttpServletResponse response,
                                       @PathVariable Long replyId) throws ReplyNotFoundException {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(replyService.read(replyId)));
@@ -49,7 +47,6 @@ public class ReplyController {
     @PutMapping("/{replyId}")
     @PreAuthorize("@socialSecurity.isReplyMemberProperty(#replyId) or hasRole('ADMIN')")
     public ResponseEntity<?> updateReply(HttpServletRequest request,
-                                         HttpServletResponse response,
                                          @PathVariable Long replyId,
                                          @Valid @RequestBody ReplyUpdateRequest replyUpdateRequest) throws ReplyNotFoundException {
         replyUpdateRequest.setReplyId(replyId);
@@ -61,7 +58,6 @@ public class ReplyController {
     @DeleteMapping("/{replyId}")
     @PreAuthorize("@socialSecurity.isReplyMemberProperty(#replyId) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteReply(HttpServletRequest request,
-                                         HttpServletResponse response,
                                          @PathVariable Long replyId) throws ReplyNotFoundException {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(replyService.delete(replyId)));
