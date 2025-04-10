@@ -6,6 +6,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.member.Member;
@@ -97,28 +100,32 @@ class FeedRepositoryTest extends IntegrationTestSupport {
     void findFeedsByCursor() {
         // given
         LocalDateTime cursor = LocalDateTime.now().plusSeconds(1);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // when
-        List<Feed> result = feedRepository.findFeedsByCursor(cursor, 10);
+        List<Feed> result = feedRepository.findFeedsByCursor(cursor, pageable);
 
         // then
         assertThat(result).isNotEmpty();
         assertThat(result.get(0).getContent()).isEqualTo("첫 피드");
     }
 
+
     @Test
     @DisplayName("멤버 ID와 커서 기반으로 피드를 조회한다.")
     void findFeedsByCursorAndMemberId() {
         // given
         LocalDateTime cursor = LocalDateTime.now().plusSeconds(1);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // when
-        List<Feed> result = feedRepository.findFeedsByCursorAndMemberId(member.getId(), cursor, 10);
+        List<Feed> result = feedRepository.findFeedsByCursorAndMemberId(member.getId(), cursor, pageable);
 
         // then
         assertThat(result).isNotEmpty();
         assertThat(result.get(0).getMember().getId()).isEqualTo(member.getId());
     }
+
 
     @Test
     @DisplayName("ID와 멤버로 존재 여부를 확인한다.")
@@ -141,9 +148,10 @@ class FeedRepositoryTest extends IntegrationTestSupport {
         }
 
         LocalDateTime cursor = LocalDateTime.now().plusSeconds(1);
+        Pageable pageable = PageRequest.of(0, 3, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // when
-        List<Feed> result = feedRepository.findFeedsByCursor(cursor, 3);
+        List<Feed> result = feedRepository.findFeedsByCursor(cursor, pageable);
 
         // then
         assertThat(result).hasSize(3);
@@ -154,10 +162,11 @@ class FeedRepositoryTest extends IntegrationTestSupport {
     @DisplayName("커서보다 과거인 피드가 없으면 빈 리스트를 반환한다.")
     void findFeedsByCursor_noFeedsBeforeCursor() {
         // given
-        LocalDateTime cursor = feed.getCreatedAt().minusSeconds(1);
+        LocalDateTime cursor = LocalDateTime.now().minusMonths(3);
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // when
-        List<Feed> result = feedRepository.findFeedsByCursor(cursor, 5);
+        List<Feed> result = feedRepository.findFeedsByCursor(cursor, pageable);
 
         // then
         assertThat(result).isEmpty();
@@ -174,9 +183,10 @@ class FeedRepositoryTest extends IntegrationTestSupport {
         }
 
         LocalDateTime cursor = LocalDateTime.now().plusSeconds(1);
+        Pageable pageable = PageRequest.of(0, 2, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         // when
-        List<Feed> result = feedRepository.findFeedsByCursorAndMemberId(member.getId(), cursor, 2);
+        List<Feed> result = feedRepository.findFeedsByCursorAndMemberId(member.getId(), cursor, pageable);
 
         // then
         assertThat(result).isNotEmpty();

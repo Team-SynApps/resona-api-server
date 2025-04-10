@@ -4,6 +4,9 @@ import com.oracle.bmc.model.BmcException;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.external.file.ObjectStorageService;
@@ -109,10 +112,12 @@ public class FeedService {
     }
 
     public CursorResult<FeedReadResponse> getFeedsByCursorAndMemberId(String cursor, int size, Long memberId) {
-        LocalDateTime cursorTime = cursor != null ?
+        LocalDateTime cursorTime = (cursor != null) ?
                 LocalDateTime.parse(cursor) : LocalDateTime.now();
 
-        List<Feed> feeds = feedRepository.findFeedsByCursorAndMemberId(memberId, cursorTime, size);
+        Pageable pageable = PageRequest.of(0, size + 1, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        List<Feed> feeds = feedRepository.findFeedsByCursorAndMemberId(memberId, cursorTime, pageable);
 
         boolean hasNext = feeds.size() > size;
         if (hasNext) {
@@ -130,6 +135,7 @@ public class FeedService {
                 nextCursor
         );
     }
+
 
     public List<FeedWithMediaDto> getFeedsWithMediaAndLikeCount(Long memberId) {
         List<Feed> feeds = feedRepository.findFeedsWithImagesByMemberId(memberId);
@@ -153,10 +159,12 @@ public class FeedService {
 
 
     public CursorResult<FeedReadResponse> getFeedsByCursor(String cursor, int size) {
-        LocalDateTime cursorTime = cursor != null ?
+        LocalDateTime cursorTime = (cursor != null) ?
                 LocalDateTime.parse(cursor) : LocalDateTime.now();
 
-        List<Feed> feeds = feedRepository.findFeedsByCursor(cursorTime, size + 1);
+        Pageable pageable = PageRequest.of(0, size + 1, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        List<Feed> feeds = feedRepository.findFeedsByCursor(cursorTime, pageable);
         boolean hasNext = feeds.size() > size;
         if (hasNext) {
             feeds.remove(feeds.size() - 1);
@@ -164,7 +172,6 @@ public class FeedService {
 
         String nextCursor = hasNext ?
                 feeds.get(feeds.size() - 1).getCreatedAt().toString() : null;
-
 
         return new CursorResult<>(
                 feeds.stream()
@@ -174,6 +181,7 @@ public class FeedService {
                 nextCursor
         );
     }
+
 
     @Transactional
     public Feed deleteFeed(Long feedId){
