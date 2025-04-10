@@ -34,9 +34,16 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
     Optional<Feed> findWithCommentById(@Param("feedId") Long feedId);
 
     @QueryHints(value = @QueryHint(name = "org.hibernate.hint.USE_INDEX", value = "idx_created_at"))
-    @Query("SELECT  f FROM Feed f WHERE f.createdAt < :cursor " +
+    @Query("SELECT  f FROM Feed f " +
+            "WHERE f.createdAt < :cursor " +
             "ORDER BY f.createdAt DESC LIMIT :size")
     List<Feed> findFeedsByCursor(LocalDateTime cursor, int size);
+
+    @Query("SELECT f FROM Feed f " +
+            "JOIN FETCH f.member " +
+            "WHERE f.member.id = :memberId AND f.createdAt < :cursor " +
+            "ORDER BY f.createdAt DESC LIMIT :size")
+    List<Feed> findFeedsByCursorAndMemberId(@Param("memberId") Long memberId, LocalDateTime cursor, int size);
 
 
     boolean existsByIdAndMember(Long feedId, Member member);
