@@ -92,8 +92,6 @@ public class MemberDetails extends BaseEntity {
         return new MemberDetails(timezone);
     }
 
-
-
     public void modifyMemberDetails(Integer timezone,
                                    String phoneNumber,
                                    MBTI mbti,
@@ -104,5 +102,9 @@ public class MemberDetails extends BaseEntity {
         this.mbti = mbti;
         this.aboutMe = aboutMe;
         this.location = location;
+    }
+
+    public void join(Integer timezone) {
+        this.timezone = timezone;
     }
 }
