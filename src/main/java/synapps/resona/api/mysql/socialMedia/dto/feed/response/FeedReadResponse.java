@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.socialMedia.dto.feed.FeedImageDto;
+import synapps.resona.api.mysql.socialMedia.dto.feedImage.FeedImageDto;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 
 import java.util.List;
@@ -24,8 +24,7 @@ public class FeedReadResponse {
                 .id(feed.getId().toString())
                 .content(feed.getContent())
                 .createdAt(feed.getCreatedAt().toString())
-                .feedImageDtos(feed.getImages().stream().map(media -> FeedImageDto.from(media)
-                ).toList())
+                .feedImageDtos(feed.getImages().stream().map(FeedImageDto::from).toList())
                 .build();
     }
 }

@@ -3,7 +3,7 @@ package synapps.resona.api.mysql.socialMedia.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedImageRequest;
+import synapps.resona.api.mysql.socialMedia.dto.feedImage.request.FeedImageRequest;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.entity.feedMedia.FeedMedia;
 import synapps.resona.api.mysql.socialMedia.exception.FeedException;

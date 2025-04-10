@@ -18,6 +18,17 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
     // for test
     List<Feed> findAllByMember(Member member);
 
+    @Query("SELECT DISTINCT f FROM Feed f " +
+            "LEFT JOIN FETCH f.images " +
+            "WHERE f.member.id = :memberId")
+    List<Feed> findFeedsWithImagesByMemberId(@Param("memberId") Long memberId);
+
+    @Query("SELECT f.id, COUNT(l) FROM Feed f " +
+            "LEFT JOIN f.likes l " +
+            "WHERE f.member.id = :memberId " +
+            "GROUP BY f.id")
+    List<Object[]> countLikesByMemberId(@Param("memberId") Long memberId);
+
     // cursor
 //    @Query("SELECT f FROM Feed f WHERE f.createdAt < :cursor " +
 //            "ORDER BY f.createdAt DESC LIMIT :size")

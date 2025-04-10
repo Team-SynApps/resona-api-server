@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.socialMedia.dto.feed.FeedImageDto;
+import synapps.resona.api.mysql.socialMedia.dto.feedImage.FeedImageDto;
 
 import java.util.List;
 

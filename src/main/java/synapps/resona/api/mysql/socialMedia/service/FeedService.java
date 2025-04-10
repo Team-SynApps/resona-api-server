@@ -10,11 +10,13 @@ import synapps.resona.api.external.file.ObjectStorageService;
 import synapps.resona.api.external.file.dto.FileMetadataDto;
 import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.global.utils.DateTimeUtil;
-import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
-import synapps.resona.api.mysql.socialMedia.dto.feed.FeedImageDto;
+import synapps.resona.api.mysql.socialMedia.dto.feed.FeedMediaDto;
+import synapps.resona.api.mysql.socialMedia.dto.feed.FeedWithMediaDto;
+import synapps.resona.api.mysql.socialMedia.dto.feedImage.FeedImageDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRequest;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedUpdateRequest;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedResponse;
@@ -31,6 +33,7 @@ import synapps.resona.api.mysql.socialMedia.repository.LocationRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -84,8 +87,8 @@ public class FeedService {
 
     @Transactional
     public List<FeedReadResponse> readAllFeeds(){
-        MemberDto memberDto = memberService.getMember();
-        Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+        String email = memberService.getMemberEmail();
+        Member member = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);
 
         List<Feed> feeds = feedRepository.findAllByMember(member);
         List<FeedReadResponse> feedReadResponses = new ArrayList<>();
@@ -104,6 +107,50 @@ public class FeedService {
         }
         return feedReadResponses;
     }
+
+    public CursorResult<FeedReadResponse> getFeedsByCursorAndMemberId(String cursor, int size, Long memberId) {
+        LocalDateTime cursorTime = cursor != null ?
+                LocalDateTime.parse(cursor) : LocalDateTime.now();
+
+        List<Feed> feeds = feedRepository.findFeedsByCursorAndMemberId(memberId, cursorTime, size);
+
+        boolean hasNext = feeds.size() > size;
+        if (hasNext) {
+            feeds = feeds.subList(0, size);
+        }
+
+        String nextCursor = hasNext ?
+                feeds.get(feeds.size() - 1).getCreatedAt().toString() : null;
+
+        return new CursorResult<>(
+                feeds.stream()
+                        .map(FeedReadResponse::from)
+                        .collect(Collectors.toList()),
+                hasNext,
+                nextCursor
+        );
+    }
+
+    public List<FeedWithMediaDto> getFeedsWithMediaAndLikeCount(Long memberId) {
+        List<Feed> feeds = feedRepository.findFeedsWithImagesByMemberId(memberId);
+        Map<Long, Integer> likeCountMap = feedRepository.countLikesByMemberId(memberId).stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> ((Long) row[1]).intValue()
+                ));
+
+        return feeds.stream()
+                .map(feed -> new FeedWithMediaDto(
+                        feed.getId(),
+                        feed.getContent(),
+                        likeCountMap.getOrDefault(feed.getId(), 0),
+                        feed.getImages().stream()
+                                .map(FeedMediaDto::from)
+                                .toList()
+                ))
+                .toList();
+    }
+
 
     public CursorResult<FeedReadResponse> getFeedsByCursor(String cursor, int size) {
         LocalDateTime cursorTime = cursor != null ?
@@ -136,16 +183,14 @@ public class FeedService {
     }
 
     /**
-     * 불필요하게 피드를 한번 더 조회해서 반환하고 있음. 부분 수정해야 함
-     *
      * @param metadataList
      * @param feedRequest
      * @return
      */
     @Transactional
     public FeedResponse registerFeed(List<FileMetadataDto> metadataList, FeedRequest feedRequest) {
-        MemberDto memberDto = memberService.getMember();
-        Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+        String email = memberService.getMemberEmail();
+        Member member = memberRepository.findByEmail(email).orElseThrow();
 
         // save feed entity
         Feed feed = Feed.of(member, feedRequest.getContent(), feedRequest.getCategory());

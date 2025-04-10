@@ -72,6 +72,26 @@ public class FeedController {
         return ResponseEntity.ok(responseData);
     }
 
+    @GetMapping("/feeds/member/{memberId}")
+    public ResponseEntity<?> readFeedsByMember(@PathVariable Long memberId,
+                                               HttpServletRequest request) {
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.getFeedsWithMediaAndLikeCount(memberId)));
+        return ResponseEntity.ok(responseData);
+    }
+
+    @GetMapping("/feeds/member/{memberId}/cursor")
+    public ResponseEntity<?> readFeedsByMemberWithCursor(HttpServletRequest request,
+                                                         @PathVariable Long memberId,
+                                                         @RequestParam(required = false) String cursor,
+                                                         @RequestParam(defaultValue = "10") int size) {
+        CursorResult<FeedReadResponse> result = feedService.getFeedsByCursorAndMemberId(cursor, size, memberId);
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString(), result.getCursor(), size, result.isHasNext());
+        ResponseDto responseData = new ResponseDto(metaData, List.of(result.getValues()));
+        return ResponseEntity.ok(responseData);
+    }
+
+
     @PutMapping("/feed/{feedId}")
     @PreAuthorize("@socialSecurity.isFeedMemberProperty(#feedId) or hasRole('ADMIN')")
     public ResponseEntity<?> editFeed(HttpServletRequest request,

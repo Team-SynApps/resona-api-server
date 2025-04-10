@@ -126,9 +126,6 @@ class FollowRepositoryTest extends IntegrationTestSupport {
         assertThat(f2.get(0).getFollower().getProfile().getNickname()).isEqualTo("팔로잉닉네임");
     }
 
-
-
-
     private Member createMember(String email, String nickname) {
         AccountInfo accountInfo = AccountInfo.empty();
         MemberDetails memberDetails = MemberDetails.of(0, "01011111111", MBTI.ENFJ, "about me", "location");
