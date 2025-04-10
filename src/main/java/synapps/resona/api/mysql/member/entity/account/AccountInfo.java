@@ -54,6 +54,11 @@ public class AccountInfo extends BaseEntity {
         this.status = accountStatus;
     }
 
+    public void join() {
+        this.status = AccountStatus.ACTIVE;
+        this.roleType = RoleType.USER;
+    }
+
     public void updateRoleType(RoleType roleType) {
         this.roleType = roleType;
     }

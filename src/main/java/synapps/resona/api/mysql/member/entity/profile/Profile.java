@@ -185,6 +185,23 @@ public class Profile extends BaseEntity {
         this.comment = comment;
     }
 
+    public void join(String nickname,
+                     CountryCode nationality,
+                     CountryCode countryOfResidence,
+                     Set<Language> nativeLanguages,
+                     Set<Language> interestingLanguages,
+                     String profileImageUrl,
+                     String birth) {
+        this.nickname = nickname;
+        this.nationality = nationality;
+        this.countryOfResidence = countryOfResidence;
+        this.nativeLanguages = nativeLanguages;
+        this.interestingLanguages = interestingLanguages;
+        this.profileImageUrl = profileImageUrl;
+        this.birth = parseToLocalDate(birth);
+        this.age = birthToAge(parseToLocalDate(birth));
+    }
+
     public void changeBackgroundUrl(String url) {
         this.backgroundImageUrl = url;
     }
