@@ -78,7 +78,6 @@ class MemberServiceTest extends IntegrationTestSupport {
 
 
         memberRepository.saveAll(List.of(testMember, guestMember));
-
         // SecurityContext에 사용자 정보 설정
         setAuthentication(testMember.getEmail());
     }

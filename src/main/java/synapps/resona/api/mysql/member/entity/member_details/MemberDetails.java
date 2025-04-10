@@ -91,7 +91,7 @@ public class MemberDetails extends BaseEntity {
     public static MemberDetails of(Integer timezone) {
         return new MemberDetails(timezone);
     }
-
+  
     public void modifyMemberDetails(Integer timezone,
                                    String phoneNumber,
                                    MBTI mbti,

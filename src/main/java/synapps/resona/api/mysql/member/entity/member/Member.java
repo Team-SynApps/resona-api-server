@@ -57,7 +57,7 @@ public class Member extends BaseEntity {
 
     @OneToMany(mappedBy = "following")
     private List<Follow> followers = new ArrayList<>();
-
+  
     @OneToMany(mappedBy = "member")
     private final List<Feed> feeds = new ArrayList<>();
 

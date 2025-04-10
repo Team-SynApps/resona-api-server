@@ -25,10 +25,7 @@ import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.exception.AccountInfoException;
 import synapps.resona.api.mysql.member.exception.MemberException;
-import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
-import synapps.resona.api.mysql.member.repository.MemberDetailsRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
-import synapps.resona.api.mysql.member.repository.ProfileRepository;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.entity.ProviderType;
@@ -115,7 +112,6 @@ public class MemberService {
                 request.getBirth());
         memberDetails.join(request.getTimezone());
         accountInfo.join();
-
 
         member.encodePassword(request.getPassword());
         memberRepository.save(member);
