@@ -19,7 +19,6 @@ import synapps.resona.api.mysql.member.dto.response.MemberRegisterResponseDto;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.member.RoleType;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
@@ -31,9 +30,7 @@ import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.repository.ProfileRepository;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
-import synapps.resona.api.oauth.entity.ProviderType;
 
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 

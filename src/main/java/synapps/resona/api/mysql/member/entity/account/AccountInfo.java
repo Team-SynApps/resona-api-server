@@ -6,11 +6,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.global.entity.BaseEntity;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.member.RoleType;
 import synapps.resona.api.oauth.entity.ProviderType;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Getter

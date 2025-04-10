@@ -9,10 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.hobby.Hobby;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.social_media.entity.Mention;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

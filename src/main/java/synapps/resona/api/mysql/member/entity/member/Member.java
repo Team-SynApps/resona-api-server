@@ -13,10 +13,9 @@ import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.social_media.entity.Comment;
-import synapps.resona.api.mysql.social_media.entity.Feed;
-import synapps.resona.api.mysql.social_media.entity.Mention;
-import synapps.resona.api.mysql.social_media.entity.Scrap;
+import synapps.resona.api.mysql.socialMedia.entity.*;
+import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
+import synapps.resona.api.mysql.socialMedia.entity.feedComplaint.FeedComplaint;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -60,6 +59,12 @@ public class Member extends BaseEntity {
 
     @OneToMany(mappedBy = "member")
     private final List<Feed> feeds = new ArrayList<>();
+
+    @OneToMany(mappedBy = "complainer")
+    private List<FeedComplaint> complainers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "complainTo")
+    private List<FeedComplaint> complainedMembers = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
     private final List<Comment> comments = new ArrayList<>();
