@@ -38,6 +38,9 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final ProfileRepository profileRepository;
+    private final MemberDetailsRepository memberDetailsRepository;
+    private final AccountInfoRepository accountInfoRepository;
     private final AuthTokenProvider authTokenProvider;
     private final Logger logger = LogManager.getLogger(MemberService.class);
 
@@ -93,65 +96,56 @@ public class MemberService {
     @Transactional
     public MemberRegisterResponseDto signUp(RegisterRequest request) {
         checkMemberStatus(request);
+        Member member = memberRepository.findWithAllRelationsByEmail(request.getEmail()).orElseThrow(MemberException::memberNotFound);
 
-        Profile newProfile = Profile.of(
+        Profile profile = member.getProfile();
+        MemberDetails memberDetails = member.getMemberDetails();
+        AccountInfo accountInfo = member.getAccountInfo();
+
+        profile.join(
+                request.getNickname(),
                 request.getNationality(),
                 request.getCountryOfResidence(),
                 copyToMutableSet(request.getNativeLanguages()),
                 copyToMutableSet(request.getInterestingLanguages()),
-                request.getNickname(),
                 request.getProfileImageUrl(),
-                request.getBirth()
-        );
-
-        MemberDetails newMemberDetails = MemberDetails.of(
-                request.getTimezone()
-        );
-
-
-        AccountInfo newAccountInfo = AccountInfo.of(
-                RoleType.USER,
-                ProviderType.LOCAL,
-                AccountStatus.ACTIVE
-        );
-
-        Member member = Member.of(
-                newAccountInfo,
-                newMemberDetails,
-                newProfile,
-                request.getEmail(),
-                request.getPassword(),
-                LocalDateTime.now() // lastAccessedAt
-        );
+                request.getBirth());
+        memberDetails.join(request.getTimezone());
+        accountInfo.join();
 
         member.encodePassword(request.getPassword());
         memberRepository.save(member);
+        profileRepository.save(profile);
+        memberDetailsRepository.save(memberDetails);
+        accountInfoRepository.save(accountInfo);
 
         return MemberRegisterResponseDto.builder()
                 .memberId(member.getId())
                 .email(member.getEmail())
-                .nationality(newProfile.getNationality())
-                .countryOfResidence(newProfile.getCountryOfResidence())
-                .nativeLanguages(newProfile.getNativeLanguages())
-                .interestingLanguages(newProfile.getInterestingLanguages())
-                .birth(newProfile.getBirth().toString())
-                .nickname(newProfile.getNickname())
-                .profileImageUrl(newProfile.getProfileImageUrl())
-                .timezone(newMemberDetails.getTimezone())
+                .nationality(profile.getNationality())
+                .countryOfResidence(profile.getCountryOfResidence())
+                .nativeLanguages(profile.getNativeLanguages())
+                .interestingLanguages(profile.getInterestingLanguages())
+                .birth(profile.getBirth().toString())
+                .nickname(profile.getNickname())
+                .profileImageUrl(profile.getProfileImageUrl())
+                .timezone(memberDetails.getTimezone())
                 .build();
     }
 
     private void checkMemberStatus(RegisterRequest request) {
-        if (memberRepository.existsByEmail(request.getEmail())) {
-            AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(request.getEmail()).orElseThrow(AccountInfoException::accountInfoNotFound);
-            // 차단당한 계정인 경우
-            if (accountInfo.getStatus().equals(AccountStatus.BANNED)) {
-                throw MemberException.unAuthenticatedRequest();
-            }
-            // 이미 활성화된 계정인 경우
-            if (accountInfo.getStatus().equals(AccountStatus.ACTIVE)) {
-                throw MemberException.duplicateEmail();
-            }
+        boolean isMemberExists = memberRepository.existsByEmail(request.getEmail());
+        if (!isMemberExists) {
+            throw MemberException.memberNotFound();
+        }
+        AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(request.getEmail()).orElseThrow(AccountInfoException::accountInfoNotFound);
+        // 차단당한 계정인 경우
+        if (accountInfo.getStatus().equals(AccountStatus.BANNED)) {
+            throw MemberException.unAuthenticatedRequest();
+        }
+        // 이미 활성화된 계정인 경우
+        if (accountInfo.getStatus().equals(AccountStatus.ACTIVE)) {
+            throw MemberException.duplicateEmail();
         }
     }
 

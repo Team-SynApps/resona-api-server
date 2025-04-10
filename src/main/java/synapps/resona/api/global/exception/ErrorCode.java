@@ -13,6 +13,7 @@ public enum ErrorCode {
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "MEM003", "Invalid password"),
     INVALID_TIMESTAMP(HttpStatus.UNAUTHORIZED, "MEM004", "Invalid timestamp"),
     UNAUTHENTICATED_REQUEST(HttpStatus.FORBIDDEN, "MEM005", "Forbidden approach"),
+    FOLLOWING_NOT_FOUND(HttpStatus.NOT_FOUND, "MEM006", "Member trying to Follow is Not found"),
 
     // auth
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "AUTH001", "Invalid token"),
@@ -44,8 +45,12 @@ public enum ErrorCode {
 
     // member details
     MEMBER_DETAILS_NOT_FOUND(HttpStatus.NOT_FOUND, "MDETAILS001", "Member Details not found"),
-
     TIMESTAMP_INVALID(HttpStatus.CONFLICT, "TIMESTAMP001", "Invalid timestamp"),
+
+    // follow
+    ALREADY_FOLLOWING(HttpStatus.CONFLICT, "FOLLOW001", "Already Following"),
+    FOLLOWING_MYSELF(HttpStatus.CONFLICT, "FOLLOW002", "Can't Follow myself"),
+    FOLLOW_RELATIONSHIP_NOT_FOUND(HttpStatus.NOT_FOUND, "FOLLOW003", "Can't find relationship"),
 
     // file
     FILE_EMPTY_EXCEPTION(HttpStatus.CONFLICT, "FILE001", "File is empty"),

@@ -52,6 +52,12 @@ public class Member extends BaseEntity {
     @JoinColumn(name = "profile_id")
     private Profile profile;
 
+    @OneToMany(mappedBy = "follower")
+    private List<Follow> followings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "following")
+    private List<Follow> followers = new ArrayList<>();
+  
     @OneToMany(mappedBy = "member")
     private final List<Feed> feeds = new ArrayList<>();
 
