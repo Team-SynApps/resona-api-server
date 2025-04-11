@@ -11,7 +11,7 @@ import synapps.resona.api.mysql.socialMedia.dto.LikeRequest;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.entity.Likes;
 import synapps.resona.api.mysql.socialMedia.exception.FeedException;
-import synapps.resona.api.mysql.socialMedia.exception.LikeNotFoundException;
+import synapps.resona.api.mysql.socialMedia.exception.LikeException;
 import synapps.resona.api.mysql.socialMedia.repository.FeedRepository;
 import synapps.resona.api.mysql.socialMedia.repository.LikeRepository;
 
@@ -35,7 +35,7 @@ public class LikeService {
     }
 
     @Transactional
-    public Likes cancel(Long likeId) throws LikeNotFoundException {
-        return likeRepository.findById(likeId).orElseThrow(LikeNotFoundException::new);
+    public Likes cancel(Long likeId) {
+        return likeRepository.findById(likeId).orElseThrow(LikeException::likeNotFound);
     }
 }

@@ -10,7 +10,7 @@ import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.entity.Scrap;
 import synapps.resona.api.mysql.socialMedia.exception.FeedException;
-import synapps.resona.api.mysql.socialMedia.exception.ScrapNotFoundException;
+import synapps.resona.api.mysql.socialMedia.exception.ScrapException;
 import synapps.resona.api.mysql.socialMedia.repository.FeedRepository;
 import synapps.resona.api.mysql.socialMedia.repository.ScrapRepository;
 
@@ -36,13 +36,13 @@ public class ScrapService {
         return scrap;
     }
 
-    public Scrap read(Long scrapId) throws ScrapNotFoundException {
-        return scrapRepository.findById(scrapId).orElseThrow(ScrapNotFoundException::new);
+    public Scrap read(Long scrapId) {
+        return scrapRepository.findById(scrapId).orElseThrow(ScrapException::scrapNotFound);
     }
 
     @Transactional
-    public Scrap cancelScrap(Long scrapId) throws ScrapNotFoundException {
-        Scrap scrap = scrapRepository.findById(scrapId).orElseThrow(ScrapNotFoundException::new);
+    public Scrap cancelScrap(Long scrapId) {
+        Scrap scrap = scrapRepository.findById(scrapId).orElseThrow(ScrapException::scrapNotFound);
         scrap.softDelete();
         return scrap;
     }
