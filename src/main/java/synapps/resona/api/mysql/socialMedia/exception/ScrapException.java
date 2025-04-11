@@ -16,4 +16,8 @@ public class ScrapException extends BaseException {
     public static ScrapException scrapNotFound() {
         return of(ErrorCode.SCRAP_NOT_FOUND);
     }
+
+    public static ScrapException scrapAlreadyExist() {
+        return of(ErrorCode.SCRAP_ALREADY_EXIST);
+    }
 }

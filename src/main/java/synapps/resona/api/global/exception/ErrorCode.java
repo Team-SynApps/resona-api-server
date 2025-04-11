@@ -75,6 +75,7 @@ public enum ErrorCode {
 
     // scrap
     SCRAP_NOT_FOUND(HttpStatus.NOT_FOUND, "SCRAP001", "Scrap not found"),
+    SCRAP_ALREADY_EXIST(HttpStatus.NOT_ACCEPTABLE, "SCRAP002", "Scrap already exists"),
 
     // feed media
     IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "FMEDI001", "Image not found"),
