@@ -3,6 +3,7 @@ package synapps.resona.api.mysql.socialMedia.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.CursorResult;
@@ -58,6 +59,7 @@ public class ScrapController {
     }
 
     @DeleteMapping("/scrap/{scrapId}")
+    @PreAuthorize("@socialSecurity.isScrapMemberProperty(#scrapId) or hasRole('ADMIN')")
     public ResponseEntity<?> cancelScrap(HttpServletRequest request,
                                          @PathVariable Long scrapId) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());

@@ -3,6 +3,7 @@ package synapps.resona.api.mysql.socialMedia.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
@@ -42,6 +43,7 @@ public class MentionController {
     }
 
     @DeleteMapping("/mention/{mentionId}")
+    @PreAuthorize("@socialSecurity.isMentionMemberProperty(#mentionId) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteMention(HttpServletRequest request,
                                            @PathVariable Long mentionId) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());

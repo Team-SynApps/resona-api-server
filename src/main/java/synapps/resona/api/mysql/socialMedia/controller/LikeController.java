@@ -3,6 +3,7 @@ package synapps.resona.api.mysql.socialMedia.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
@@ -34,6 +35,7 @@ public class LikeController {
     }
 
     @DeleteMapping("/like/{likeId}")
+    @PreAuthorize("@socialSecurity.isLikeMemberProperty(#likeId) or hasRole('ADMIN')")
     public ResponseEntity<?> cancelLike(HttpServletRequest request,
                                         @PathVariable Long likeId) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
