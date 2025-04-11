@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.socialMedia.entity;
+package synapps.resona.api.mysql.socialMedia.entity.comment;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

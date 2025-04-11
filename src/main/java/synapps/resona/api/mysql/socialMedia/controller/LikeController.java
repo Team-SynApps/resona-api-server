@@ -8,7 +8,7 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.socialMedia.dto.LikeRequest;
-import synapps.resona.api.mysql.socialMedia.entity.Likes;
+import synapps.resona.api.mysql.socialMedia.entity.feed.Likes;
 import synapps.resona.api.mysql.socialMedia.service.LikeService;
 
 import java.util.List;

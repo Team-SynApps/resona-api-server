@@ -7,7 +7,7 @@ import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
-import synapps.resona.api.mysql.socialMedia.entity.Comment;
+import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.Mention;
 import synapps.resona.api.mysql.socialMedia.exception.CommentException;
 import synapps.resona.api.mysql.socialMedia.exception.MentionException;

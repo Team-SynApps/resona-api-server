@@ -22,7 +22,7 @@ import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateReq
 import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentPostResponse;
 import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentReadResponse;
 import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentUpdateResponse;
-import synapps.resona.api.mysql.socialMedia.entity.Comment;
+import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.repository.CommentRepository;
 import synapps.resona.api.mysql.socialMedia.repository.FeedRepository;

@@ -27,7 +27,7 @@ import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedReadResponse;
 import synapps.resona.api.mysql.socialMedia.dto.location.LocationRequest;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.entity.feedMedia.FeedMedia;
-import synapps.resona.api.mysql.socialMedia.entity.Location;
+import synapps.resona.api.mysql.socialMedia.entity.feed.Location;
 import synapps.resona.api.mysql.socialMedia.exception.FeedException;
 import synapps.resona.api.mysql.socialMedia.repository.FeedMediaRepository;
 import synapps.resona.api.mysql.socialMedia.repository.FeedRepository;

@@ -6,10 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.socialMedia.entity.Comment;
+import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feedComplaint.FeedComplaint;
 import synapps.resona.api.mysql.socialMedia.entity.feedMedia.FeedMedia;
-import synapps.resona.api.mysql.socialMedia.entity.Likes;
 
 import java.util.ArrayList;
 import java.util.List;

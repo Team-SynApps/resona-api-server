@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.socialMedia.entity.Scrap;
+import synapps.resona.api.mysql.socialMedia.entity.feed.Scrap;
 
 import java.time.LocalDateTime;
 import java.util.List;

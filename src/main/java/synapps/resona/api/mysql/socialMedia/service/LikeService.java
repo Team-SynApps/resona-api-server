@@ -9,16 +9,16 @@ import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.socialMedia.dto.LikeRequest;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
-import synapps.resona.api.mysql.socialMedia.entity.Likes;
+import synapps.resona.api.mysql.socialMedia.entity.feed.Likes;
 import synapps.resona.api.mysql.socialMedia.exception.FeedException;
 import synapps.resona.api.mysql.socialMedia.exception.LikeException;
 import synapps.resona.api.mysql.socialMedia.repository.FeedRepository;
-import synapps.resona.api.mysql.socialMedia.repository.LikeRepository;
+import synapps.resona.api.mysql.socialMedia.repository.LikesRepository;
 
 @Service
 @RequiredArgsConstructor
 public class LikeService {
-    private final LikeRepository likeRepository;
+    private final LikesRepository likesRepository;
     private final FeedRepository feedRepository;
     private final MemberService memberService;
     private final MemberRepository memberRepository;
@@ -30,12 +30,12 @@ public class LikeService {
         Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
         Likes likes = Likes.of(member, feed);
-        likeRepository.save(likes);
+        likesRepository.save(likes);
         return likes;
     }
 
     @Transactional
     public Likes cancel(Long likeId) {
-        return likeRepository.findById(likeId).orElseThrow(LikeException::likeNotFound);
+        return likesRepository.findById(likeId).orElseThrow(LikeException::likeNotFound);
     }
 }

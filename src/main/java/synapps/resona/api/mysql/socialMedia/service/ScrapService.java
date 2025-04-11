@@ -12,7 +12,7 @@ import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.socialMedia.dto.scrap.ScrapReadResponse;
-import synapps.resona.api.mysql.socialMedia.entity.Scrap;
+import synapps.resona.api.mysql.socialMedia.entity.feed.Scrap;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.exception.FeedException;
 import synapps.resona.api.mysql.socialMedia.exception.ScrapException;

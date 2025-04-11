@@ -18,7 +18,7 @@ public class SocialSecurity {
     private final MentionRepository mentionRepository;
     private final ScrapRepository scrapRepository;
     private final ReplyRepository replyRepository;
-    private final LikeRepository likeRepository;
+    private final LikesRepository likesRepository;
 
     public boolean isFeedMemberProperty(Long feedId) {
         Member member = memberService.getMemberUsingSecurityContext();
@@ -47,6 +47,6 @@ public class SocialSecurity {
 
     public boolean isLikeMemberProperty(Long likeId) {
         Member member = memberService.getMemberUsingSecurityContext();
-        return likeRepository.existsByIdAndMember(likeId, member);
+        return likesRepository.existsByIdAndMember(likeId, member);
     }
 }

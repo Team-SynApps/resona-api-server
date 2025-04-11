@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.socialMedia.entity.Scrap;
+import synapps.resona.api.mysql.socialMedia.entity.feed.Scrap;
 
 @Data
 @NoArgsConstructor
