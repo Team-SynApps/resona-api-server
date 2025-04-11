@@ -64,6 +64,22 @@ public enum ErrorCode {
     // feed
     FEED_NOT_FOUND(HttpStatus.NOT_FOUND, "FEED001", "Feed not found"),
 
+    // mention
+    MENTION_NOT_FOUND(HttpStatus.NOT_FOUND, "MENT001", "Mention not found"),
+
+    // like
+    LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "LIKE001", "Like not found"),
+
+    // reply
+    REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "REPLY001", "Reply not found"),
+
+    // scrap
+    SCRAP_NOT_FOUND(HttpStatus.NOT_FOUND, "SCRAP001", "Scrap not found"),
+    SCRAP_ALREADY_EXIST(HttpStatus.NOT_ACCEPTABLE, "SCRAP002", "Scrap already exists"),
+
+    // feed media
+    IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "FMEDI001", "Image not found"),
+
     // comment
     COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMM001", "Comment not found"),
     ;

@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.socialMedia.entity.Reply;
+import synapps.resona.api.mysql.socialMedia.entity.comment.Reply;
 
 import java.time.LocalDateTime;
 

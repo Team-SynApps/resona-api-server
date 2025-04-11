@@ -11,7 +11,6 @@ import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.exception.ReplyNotFoundException;
 import synapps.resona.api.mysql.socialMedia.service.ReplyService;
 
 import java.util.List;
@@ -37,7 +36,7 @@ public class ReplyController {
 
     @GetMapping("/{replyId}")
     public ResponseEntity<?> getReply(HttpServletRequest request,
-                                      @PathVariable Long replyId) throws ReplyNotFoundException {
+                                      @PathVariable Long replyId) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(replyService.read(replyId)));
         return ResponseEntity.ok(responseData);
@@ -47,7 +46,7 @@ public class ReplyController {
     @PreAuthorize("@socialSecurity.isReplyMemberProperty(#replyId) or hasRole('ADMIN')")
     public ResponseEntity<?> updateReply(HttpServletRequest request,
                                          @PathVariable Long replyId,
-                                         @Valid @RequestBody ReplyUpdateRequest replyUpdateRequest) throws ReplyNotFoundException {
+                                         @Valid @RequestBody ReplyUpdateRequest replyUpdateRequest) {
         replyUpdateRequest.setReplyId(replyId);
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(replyService.update(replyUpdateRequest)));
@@ -57,7 +56,7 @@ public class ReplyController {
     @DeleteMapping("/{replyId}")
     @PreAuthorize("@socialSecurity.isReplyMemberProperty(#replyId) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteReply(HttpServletRequest request,
-                                         @PathVariable Long replyId) throws ReplyNotFoundException {
+                                         @PathVariable Long replyId) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(replyService.delete(replyId)));
         return ResponseEntity.ok(responseData);

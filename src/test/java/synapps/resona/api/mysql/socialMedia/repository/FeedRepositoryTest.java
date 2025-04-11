@@ -18,7 +18,7 @@ import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
-import synapps.resona.api.mysql.socialMedia.entity.Comment;
+import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 
 import java.time.LocalDateTime;
