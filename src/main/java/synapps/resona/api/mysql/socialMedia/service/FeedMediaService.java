@@ -7,7 +7,7 @@ import synapps.resona.api.mysql.socialMedia.dto.feedImage.request.FeedImageReque
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.entity.feedMedia.FeedMedia;
 import synapps.resona.api.mysql.socialMedia.exception.FeedException;
-import synapps.resona.api.mysql.socialMedia.exception.FeedImageNotFoundException;
+import synapps.resona.api.mysql.socialMedia.exception.FeedMediaException;
 import synapps.resona.api.mysql.socialMedia.repository.FeedMediaRepository;
 import synapps.resona.api.mysql.socialMedia.repository.FeedRepository;
 
@@ -26,19 +26,19 @@ public class FeedMediaService {
     }
 
     @Transactional
-    public FeedMedia update(FeedImageRequest feedImageRequest) throws FeedImageNotFoundException {
-        FeedMedia feedMedia = feedMediaRepository.findById(feedImageRequest.getFeedId()).orElseThrow(FeedImageNotFoundException::new);
+    public FeedMedia update(FeedImageRequest feedImageRequest) {
+        FeedMedia feedMedia = feedMediaRepository.findById(feedImageRequest.getFeedId()).orElseThrow(FeedMediaException::imageNotFound);
         feedMedia.updateUrl(feedImageRequest.getUrl());
         return feedMedia;
     }
 
-    public FeedMedia readFeedImage(Long feedImageId) throws FeedImageNotFoundException {
-        return feedMediaRepository.findById(feedImageId).orElseThrow(FeedImageNotFoundException::new);
+    public FeedMedia readFeedImage(Long feedImageId) {
+        return feedMediaRepository.findById(feedImageId).orElseThrow(FeedMediaException::imageNotFound);
     }
 
     @Transactional
-    public FeedMedia deleteFeedImage(Long feedImageId) throws FeedImageNotFoundException {
-        FeedMedia feedMedia = feedMediaRepository.findById(feedImageId).orElseThrow(FeedImageNotFoundException::new);
+    public FeedMedia deleteFeedImage(Long feedImageId) {
+        FeedMedia feedMedia = feedMediaRepository.findById(feedImageId).orElseThrow(FeedMediaException::imageNotFound);
         feedMedia.softDelete();
         return feedMedia;
     }

@@ -11,10 +11,10 @@ import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyUpdateRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyPostResponse;
 import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
-import synapps.resona.api.mysql.socialMedia.entity.Comment;
-import synapps.resona.api.mysql.socialMedia.entity.Reply;
+import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
+import synapps.resona.api.mysql.socialMedia.entity.comment.Reply;
 import synapps.resona.api.mysql.socialMedia.exception.CommentException;
-import synapps.resona.api.mysql.socialMedia.exception.ReplyNotFoundException;
+import synapps.resona.api.mysql.socialMedia.exception.ReplyException;
 import synapps.resona.api.mysql.socialMedia.repository.CommentRepository;
 import synapps.resona.api.mysql.socialMedia.repository.ReplyRepository;
 
@@ -44,21 +44,21 @@ public class ReplyService {
     }
 
     @Transactional
-    public ReplyReadResponse update(ReplyUpdateRequest request) throws ReplyNotFoundException {
-        Reply reply = replyRepository.findWithCommentById(request.getReplyId()).orElseThrow(ReplyNotFoundException::new);
+    public ReplyReadResponse update(ReplyUpdateRequest request) {
+        Reply reply = replyRepository.findWithCommentById(request.getReplyId()).orElseThrow(ReplyException::replyNotFound);
         reply.update(request.getContent());
         return new ReplyReadResponse(reply, reply.getComment().getId());
     }
 
 
-    public ReplyReadResponse read(Long replyId) throws ReplyNotFoundException {
-        Reply reply = replyRepository.findWithCommentById(replyId).orElseThrow(ReplyNotFoundException::new);
+    public ReplyReadResponse read(Long replyId) {
+        Reply reply = replyRepository.findWithCommentById(replyId).orElseThrow(ReplyException::replyNotFound);
         return new ReplyReadResponse(reply, reply.getComment().getId());
     }
 
     @Transactional
-    public Reply delete(Long replyId) throws ReplyNotFoundException {
-        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyNotFoundException::new);
+    public Reply delete(Long replyId) {
+        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyException::replyNotFound);
         Comment comment = reply.getComment();
         comment.removeReply();
         reply.softDelete();

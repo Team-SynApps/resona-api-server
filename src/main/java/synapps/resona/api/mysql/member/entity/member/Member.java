@@ -14,7 +14,9 @@ import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.socialMedia.entity.*;
+import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
+import synapps.resona.api.mysql.socialMedia.entity.feed.Scrap;
 import synapps.resona.api.mysql.socialMedia.entity.feedComplaint.FeedComplaint;
 
 import java.time.LocalDateTime;
