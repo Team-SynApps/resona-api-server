@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
 import synapps.resona.api.mysql.member.dto.response.MemberRegisterResponseDto;
@@ -67,15 +66,6 @@ public class MemberController {
                                                  HttpServletResponse response) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.getMemberDetailInfo()));
-        return ResponseEntity.ok(responseData);
-    }
-
-    @PostMapping("/duplicate-id")
-    public ResponseEntity<?> checkDuplicateId(HttpServletRequest request,
-                                              HttpServletResponse response,
-                                              @RequestBody DuplicateIdRequest duplicateIdRequest) throws Exception {
-        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.checkDuplicateId(duplicateIdRequest)));
         return ResponseEntity.ok(responseData);
     }
 

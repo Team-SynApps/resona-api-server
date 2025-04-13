@@ -78,6 +78,10 @@ public class ProfileService {
         return profile;
     }
 
+    public boolean checkDuplicateTag(String tag) {
+        return profileRepository.existsByTag(tag);
+    }
+
     private void validateData(ProfileRequest request) {
         validateTimeStamp(request.getBirth());
     }

@@ -10,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.global.utils.DateTimeUtil;
-import synapps.resona.api.mysql.member.dto.request.auth.DuplicateIdRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
 import synapps.resona.api.mysql.member.dto.response.MemberInfoDto;
@@ -147,10 +146,6 @@ public class MemberService {
         if (accountInfo.getStatus().equals(AccountStatus.ACTIVE)) {
             throw MemberException.duplicateEmail();
         }
-    }
-
-    public boolean checkDuplicateId(DuplicateIdRequest request) throws Exception {
-        return memberRepository.existsById(Long.parseLong(request.getId()));
     }
 
     @Transactional
