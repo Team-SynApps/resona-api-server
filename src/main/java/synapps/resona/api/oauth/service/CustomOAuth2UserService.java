@@ -17,6 +17,7 @@ import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.UserPrincipal;
+import synapps.resona.api.oauth.exception.OAuthException;
 import synapps.resona.api.oauth.exception.OAuthProviderMissMatchException;
 import synapps.resona.api.oauth.info.OAuth2UserInfo;
 import synapps.resona.api.oauth.info.OAuth2UserInfoFactory;
@@ -62,12 +63,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         AccountInfo accountInfo = savedMember.getAccountInfo();
 
+        // TODO: Hard coded with providertype google cause we use only google login in oauth. Need to refactor.
+        if (accountInfo.getProviderType() != ProviderType.GOOGLE) {
+            throw OAuthException.OAuthProviderMissMatch(accountInfo.getProviderType());
+        }
 
         if (providerType != accountInfo.getProviderType()) {
-            throw new OAuthProviderMissMatchException(
-                    "Looks like you're signed up with " + providerType +
-                            " account. Please use your " + accountInfo.getProviderType() + " account to login."
-            );
+            throw OAuthException.OAuthProviderMissMatch(accountInfo.getProviderType());
         }
 
         return UserPrincipal.create(savedMember, accountInfo, user.getAttributes());

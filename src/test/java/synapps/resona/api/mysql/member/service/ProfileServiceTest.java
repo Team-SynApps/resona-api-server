@@ -12,10 +12,20 @@ import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
 import synapps.resona.api.mysql.member.dto.response.ProfileDto;
+import synapps.resona.api.mysql.member.entity.account.AccountInfo;
+import synapps.resona.api.mysql.member.entity.account.AccountStatus;
+import synapps.resona.api.mysql.member.entity.account.RoleType;
+import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Gender;
 import synapps.resona.api.mysql.member.entity.profile.Language;
+import synapps.resona.api.mysql.member.entity.profile.Profile;
+import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
+import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.oauth.entity.ProviderType;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,12 +39,43 @@ class ProfileServiceTest extends IntegrationTestSupport {
     private MemberService memberService;
 
     @Autowired
+    private MemberRepository memberRepository;
+
+    @Autowired
+    private AccountInfoRepository accountInfoRepository;
+
+    @Autowired
     private ProfileService profileService;
 
     private final String email = "test@resona.com";
 
     @BeforeEach
     void setUp() {
+        AccountInfo accountInfo = AccountInfo.of(
+                RoleType.GUEST,
+                ProviderType.LOCAL,
+                AccountStatus.TEMPORARY
+        );
+
+        MemberDetails memberDetails = MemberDetails.empty();
+        Profile profile = Profile.empty();
+        // 새로운 멤버 생성
+        Member newMember = Member.of(
+                accountInfo,
+                memberDetails,
+                profile,
+                email,
+                "secure123!",
+                LocalDateTime.now()
+        );
+
+        // AccountInfo 생성
+
+        // 비밀번호 인코딩 및 저장
+        newMember.encodePassword(newMember.getPassword());
+        memberRepository.save(newMember);
+        accountInfoRepository.save(accountInfo);
+
         RegisterRequest request = new RegisterRequest(
                 email,
                 "secure123!",
@@ -171,4 +212,43 @@ class ProfileServiceTest extends IntegrationTestSupport {
         ProfileDto result = profileService.readProfile();
         assertThat(result.getNickname()).isEqualTo("삭제닉네임");
     }
+
+    @Test
+    @DisplayName("이미 등록된 tag 값이 있는 경우 true를 반환한다.")
+    void checkDuplicateTag_shouldReturnTrueWhenTagExists() {
+        // given: 프로필 등록
+        ProfileRequest request = new ProfileRequest(
+                "중복확인용닉네임",
+                CountryCode.KR,
+                CountryCode.KR,
+                Set.of(Language.KOREAN),
+                Set.of(Language.ENGLISH),
+                "http://profile.img",
+                "http://background.img",
+                "1998-07-21",
+                Gender.WOMAN,
+                "중복 태그 확인용 프로필"
+        );
+        ProfileDto profileDto = profileService.register(request);
+
+        // when
+        boolean result = profileService.checkDuplicateTag(profileDto.getTag());
+
+        // then
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @DisplayName("등록되지 않은 tag 값일 경우 false를 반환한다.")
+    void checkDuplicateTag_shouldReturnFalseWhenTagDoesNotExist() {
+        // given: 존재하지 않는 tag
+        String nonExistentTag = "non-existent-tag";
+
+        // when
+        boolean result = profileService.checkDuplicateTag(nonExistentTag);
+
+        // then
+        assertThat(result).isFalse();
+    }
+
 }
