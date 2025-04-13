@@ -29,12 +29,14 @@ import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
 import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.exception.AccountInfoException;
 import synapps.resona.api.mysql.member.exception.AuthException;
+import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.*;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.apple.AppleOAuthUserProvider;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.UserPrincipal;
+import synapps.resona.api.oauth.exception.OAuthException;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -66,6 +68,11 @@ public class AuthService {
         String memberEmail = loginRequest.getMemberEmail();
         String memberPassword = loginRequest.getPassword();
 
+        AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(memberEmail).orElseThrow(MemberException::memberNotFound);
+        if (accountInfo.getProviderType() != ProviderType.LOCAL) {
+            throw OAuthException.OAuthProviderMissMatch(accountInfo.getProviderType());
+        }
+
         Authentication authentication = getAuthentication(memberEmail, memberPassword);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
@@ -95,6 +102,10 @@ public class AuthService {
             AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(memberEmail).orElseThrow(AccountInfoException::accountInfoNotFound);
             if (accountInfo.getStatus().equals(AccountStatus.BANNED)) {
                 throw AccountInfoException.accountInfoNotFound();
+            }
+
+            if (!accountInfo.getProviderType().equals(ProviderType.APPLE)) {
+                throw OAuthException.OAuthProviderMissMatch(accountInfo.getProviderType());
             }
 
             if (accountInfo.getStatus().equals(AccountStatus.ACTIVE)) {

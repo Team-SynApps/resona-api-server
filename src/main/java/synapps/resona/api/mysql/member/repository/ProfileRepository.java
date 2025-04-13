@@ -7,4 +7,5 @@ import synapps.resona.api.mysql.member.entity.profile.Profile;
 
 @Repository
 public interface ProfileRepository extends JpaRepository<Profile, Long> {
+    boolean existsByTag(String tag);
 }

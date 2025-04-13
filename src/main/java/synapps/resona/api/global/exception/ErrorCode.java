@@ -26,6 +26,9 @@ public enum ErrorCode {
     NOT_EXPIRED(HttpStatus.NOT_ACCEPTABLE, "AUTH007", "Access token not Expired"),
     FORBIDDEN(HttpStatus.FORBIDDEN, "AUTH008", "You do not have permission to access this resource."),
 
+    // oauth
+    PROVIDER_TYPE_MISSMATCH(HttpStatus.CONFLICT, "OAUTH001", "Account info missmatch"),
+
     //email
     INVALID_EMAIL_CODE(HttpStatus.UNAUTHORIZED, "EMAIL001", "Invalid email code"),
     EMAIL_SEND_FAILED(HttpStatus.CONFLICT, "EMAIL002", "Email send failed"),
