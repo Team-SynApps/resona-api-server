@@ -20,4 +20,8 @@ public class ProfileException extends BaseException {
     public static ProfileException profileNotFound() {
         return of(ErrorCode.PROFILE_NOT_FOUND);
     }
+
+    public static ProfileException duplicateTag() {
+        return of(ErrorCode.DUPLICATE_TAG);
+    }
 }

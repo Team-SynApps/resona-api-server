@@ -45,6 +45,7 @@ public enum ErrorCode {
     // profile
     PROFILE_INPUT_INVALID(HttpStatus.CONFLICT, "PROFILE001", "Invalid profile"),
     PROFILE_NOT_FOUND(HttpStatus.NOT_FOUND, "PROFILE002", "Profile not fouond"),
+    DUPLICATE_TAG(HttpStatus.CONFLICT, "PROFILE003", "Tag duplicate"),
 
     // member details
     MEMBER_DETAILS_NOT_FOUND(HttpStatus.NOT_FOUND, "MDETAILS001", "Member Details not found"),
