@@ -28,7 +28,7 @@ public class ReplyController {
 
     @PostMapping
     public ResponseEntity<?> registerReply(HttpServletRequest request,
-                                           @Valid @RequestBody ReplyRequest replyRequest){
+                                           @Valid @RequestBody ReplyRequest replyRequest) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(replyService.register(replyRequest)));
         return ResponseEntity.ok(responseData);

@@ -34,35 +34,35 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentUpdateResponse edit(CommentUpdateRequest request){
+    public CommentUpdateResponse edit(CommentUpdateRequest request) {
         Comment comment = commentRepository.findById(request.getCommentId()).orElseThrow(CommentException::commentNotFound);
         comment.updateContent(request.getContent());
         return new CommentUpdateResponse(comment);
     }
 
-    public CommentReadResponse getComment(long commentId){
+    public CommentReadResponse getComment(long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentException::commentNotFound);
         return new CommentReadResponse(comment);
     }
 
     @Transactional
-    public List<CommentPostResponse> getCommentsByFeedId(long feedId){
+    public List<CommentPostResponse> getCommentsByFeedId(long feedId) {
         List<Comment> comments = commentRepository.findAllCommentsByFeedId(feedId);
 
         return comments.stream().map(CommentPostResponse::new).toList();
     }
 
     @Transactional
-    public List<ReplyReadResponse> getReplies(long commentId){
+    public List<ReplyReadResponse> getReplies(long commentId) {
         Comment comment = commentRepository.findWithReplies(commentId).orElseThrow(CommentException::commentNotFound);
         // TODO: 예외처리 해야 함.
         return comment.getReplies().stream()
-                .map((reply)-> new ReplyReadResponse(reply, commentId))
+                .map((reply) -> new ReplyReadResponse(reply, commentId))
                 .toList();
     }
 
     @Transactional
-    public Comment deleteComment(long commentId){
+    public Comment deleteComment(long commentId) {
         Comment comment = commentRepository.findById(commentId).orElseThrow(CommentException::commentNotFound);
         comment.softDelete();
         return comment;

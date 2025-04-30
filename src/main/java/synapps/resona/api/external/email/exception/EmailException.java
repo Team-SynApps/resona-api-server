@@ -5,8 +5,6 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import synapps.resona.api.global.exception.ErrorCode;
 
-import java.util.HashMap;
-
 @Getter
 public class EmailException extends MessagingException {
     private final HttpStatus status;
@@ -23,10 +21,6 @@ public class EmailException extends MessagingException {
     private EmailException(HttpStatus status, String errorCode) {
         this.status = status;
         this.errorCode = errorCode;
-    }
-
-    private void addMailCheckCountLeft(Integer mailCheckCountLeft) {
-        this.mailCheckCountLeft = mailCheckCountLeft;
     }
 
     private static EmailException of(ErrorCode errorCode) {
@@ -61,5 +55,9 @@ public class EmailException extends MessagingException {
 
     public static EmailException emailCodeNotFound() {
         return of(ErrorCode.CODE_NOT_FOUND);
+    }
+
+    private void addMailCheckCountLeft(Integer mailCheckCountLeft) {
+        this.mailCheckCountLeft = mailCheckCountLeft;
     }
 }

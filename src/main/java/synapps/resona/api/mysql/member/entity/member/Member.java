@@ -13,7 +13,7 @@ import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.socialMedia.entity.*;
+import synapps.resona.api.mysql.socialMedia.entity.Mention;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Scrap;
@@ -28,55 +28,41 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member extends BaseEntity {
 
+    @OneToMany(mappedBy = "member")
+    private final List<Feed> feeds = new ArrayList<>();
+    @OneToMany(mappedBy = "member")
+    private final List<Comment> comments = new ArrayList<>();
+    @OneToMany(mappedBy = "member")
+    private final List<Mention> mentions = new ArrayList<>();
+    @OneToMany(mappedBy = "member")
+    private final List<Scrap> scraps = new ArrayList<>();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_id")
     private Long id;
-
     @NotBlank
     @Size(max = 50)
     @Email
     private String email;
-
     @Size(max = 120)
     private String password;
-
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "account_info_id")
     private AccountInfo accountInfo;
-
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "member_details_id")
     private MemberDetails memberDetails;
-
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "profile_id")
     private Profile profile;
-
     @OneToMany(mappedBy = "follower")
-    private List<Follow> followings = new ArrayList<>();
-
+    private final List<Follow> followings = new ArrayList<>();
     @OneToMany(mappedBy = "following")
-    private List<Follow> followers = new ArrayList<>();
-  
-    @OneToMany(mappedBy = "member")
-    private final List<Feed> feeds = new ArrayList<>();
-
+    private final List<Follow> followers = new ArrayList<>();
     @OneToMany(mappedBy = "complainer")
-    private List<FeedComplaint> complainers = new ArrayList<>();
-
+    private final List<FeedComplaint> complainers = new ArrayList<>();
     @OneToMany(mappedBy = "complainTo")
-    private List<FeedComplaint> complainedMembers = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member")
-    private final List<Comment> comments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member")
-    private final List<Mention> mentions = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member")
-    private final List<Scrap> scraps = new ArrayList<>();
-
+    private final List<FeedComplaint> complainedMembers = new ArrayList<>();
     @NotNull
     @Column(name = "last_accessed_at")
     @Temporal(TemporalType.TIMESTAMP)

@@ -3,7 +3,6 @@ package synapps.resona.api.oauth.exception;
 import org.springframework.http.HttpStatus;
 import synapps.resona.api.global.exception.BaseException;
 import synapps.resona.api.global.exception.ErrorCode;
-import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.oauth.entity.ProviderType;
 
 public class OAuthException extends BaseException {

@@ -1,7 +1,6 @@
 package synapps.resona.api.external.email;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.mysql.member.service.TempTokenService;

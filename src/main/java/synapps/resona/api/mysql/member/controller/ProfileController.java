@@ -1,7 +1,6 @@
 package synapps.resona.api.mysql.member.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +27,7 @@ public class ProfileController {
 
     /**
      * security context에 존재하는 유저의 정보를 가져오기 때문에 권한 체크를 하지 않아도 됨.
+     *
      * @param request
      * @param profileRequest
      * @return

@@ -10,7 +10,6 @@ import synapps.resona.api.external.file.dto.FileMetadataDto;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.service.MemberService;
 
 import java.io.IOException;
@@ -45,7 +44,7 @@ public class ObjectStorageController {
             produces = MediaType.APPLICATION_JSON_VALUE
     )
     public ResponseEntity<?> uploadMultipleFiles(HttpServletRequest request,
-                                                 @RequestParam("files") List<MultipartFile> files) throws IOException {
+                                                 @RequestParam("files") List<MultipartFile> files) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         List<FileMetadataDto> fileMetadatas = storageService.uploadMultipleFile(files);
 
@@ -53,7 +52,15 @@ public class ObjectStorageController {
         return ResponseEntity.ok(responseData);
     }
 
-    // 게시글 작성 완료 시 호출될 메소드
+    /**
+     * 프로필 등록시, 업로드 후 디스크 버킷으로 옮길때 사용
+     *
+     * @param request
+     * @param metadata
+     * @param finalFileName
+     * @return
+     * @throws IOException
+     */
     @PostMapping("/finalize")
     public ResponseEntity<?> finalizeFile(HttpServletRequest request,
                                           @RequestBody FileMetadataDto metadata,

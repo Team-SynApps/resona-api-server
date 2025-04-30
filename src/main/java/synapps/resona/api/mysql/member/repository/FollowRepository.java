@@ -13,6 +13,7 @@ import java.util.Optional;
 @Repository
 public interface FollowRepository extends JpaRepository<Follow, Long> {
     boolean existsByFollowerAndFollowing(Member follower, Member following);
+
     Optional<Follow> findByFollowerAndFollowing(Member follower, Member following);
 
     @Query("SELECT DISTINCT f FROM Follow f " +
@@ -28,5 +29,6 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
     List<Follow> findFollowersByFollowingId(@Param("memberId") Long memberId);
 
     long countByFollower(Member follower);
+
     long countByFollowing(Member following);
 }

@@ -17,7 +17,6 @@ import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.global.exception.BaseException;
 import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.mysql.member.exception.AuthException;
-import synapps.resona.api.mysql.member.exception.LanguageException;
 
 import java.util.HashMap;
 import java.util.List;

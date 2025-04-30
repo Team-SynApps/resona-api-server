@@ -16,7 +16,6 @@ import synapps.resona.api.external.file.dto.FileMetadataDto;
 import synapps.resona.api.external.file.exception.FileEmptyException;
 import synapps.resona.api.global.config.database.StorageProperties;
 import synapps.resona.api.global.exception.ErrorCode;
-import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.service.MemberService;
 
 import javax.imageio.ImageIO;

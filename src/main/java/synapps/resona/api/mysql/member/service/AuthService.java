@@ -6,14 +6,11 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
-import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.utils.HeaderUtil;
 import synapps.resona.api.mysql.member.dto.request.auth.AppleLoginRequest;
@@ -24,13 +21,14 @@ import synapps.resona.api.mysql.member.dto.response.OAuthPlatformMemberResponse;
 import synapps.resona.api.mysql.member.dto.response.TokenResponse;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
+import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
-import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.exception.AccountInfoException;
 import synapps.resona.api.mysql.member.exception.AuthException;
 import synapps.resona.api.mysql.member.exception.MemberException;
-import synapps.resona.api.mysql.member.repository.*;
+import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
+import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.apple.AppleOAuthUserProvider;
@@ -40,7 +38,6 @@ import synapps.resona.api.oauth.exception.OAuthException;
 
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

@@ -44,6 +44,10 @@ public class MemberService {
     private final AuthTokenProvider authTokenProvider;
     private final Logger logger = LogManager.getLogger(MemberService.class);
 
+    private static Set<Language> copyToMutableSet(Set<Language> source) {
+        return new HashSet<>(source);
+    }
+
     /**
      * SecurityContextHolder에서 관리하는 context에서 userPrincipal을 받아옴
      *
@@ -225,10 +229,6 @@ public class MemberService {
             return bearerToken.substring(7);
         }
         return null;
-    }
-
-    private static Set<Language> copyToMutableSet(Set<Language> source) {
-        return new HashSet<>(source);
     }
 
     private MemberInfoDto buildMemberInfoDto(AccountInfo accountInfo, MemberDetails memberDetails, Profile profile) {

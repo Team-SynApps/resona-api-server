@@ -17,14 +17,12 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberDetails extends BaseEntity {
+    @OneToMany(mappedBy = "memberDetails")
+    private final List<Hobby> hobbies = new ArrayList<>();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "member_details_id")
     private Long id;
-
-    @OneToMany(mappedBy = "memberDetails")
-    private final List<Hobby> hobbies = new ArrayList<>();
-
     @Column(name = "timezone")
     private Integer timezone;
 
@@ -88,12 +86,12 @@ public class MemberDetails extends BaseEntity {
     public static MemberDetails of(Integer timezone) {
         return new MemberDetails(timezone);
     }
-  
+
     public void modifyMemberDetails(Integer timezone,
-                                   String phoneNumber,
-                                   MBTI mbti,
-                                   String aboutMe,
-                                   String location) {
+                                    String phoneNumber,
+                                    MBTI mbti,
+                                    String aboutMe,
+                                    String location) {
         this.timezone = timezone;
         this.phoneNumber = phoneNumber;
         this.mbti = mbti;

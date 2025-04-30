@@ -3,13 +3,8 @@ package synapps.resona.api.mysql.member.dto.response;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import synapps.resona.api.mysql.member.entity.profile.CountryCode;
-import synapps.resona.api.mysql.member.entity.profile.Gender;
-import synapps.resona.api.mysql.member.entity.profile.Language;
 
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @AllArgsConstructor

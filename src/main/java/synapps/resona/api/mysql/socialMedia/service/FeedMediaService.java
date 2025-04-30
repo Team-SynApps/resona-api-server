@@ -18,7 +18,7 @@ public class FeedMediaService {
     private final FeedMediaRepository feedMediaRepository;
 
     @Transactional
-    public FeedMedia register(FeedImageRequest feedImageRequest){
+    public FeedMedia register(FeedImageRequest feedImageRequest) {
         Feed feed = feedRepository.findById(feedImageRequest.getFeedId()).orElseThrow(FeedException::feedNotFoundException);
         FeedMedia feedMedia = FeedMedia.of(feed, feedImageRequest.getUrl(), feedImageRequest.getType(), feedImageRequest.getIndex());
         feedMediaRepository.save(feedMedia);

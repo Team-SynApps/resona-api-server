@@ -19,15 +19,15 @@ import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.socialMedia.dto.feed.FeedMediaDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.FeedWithMediaDto;
-import synapps.resona.api.mysql.socialMedia.dto.feedImage.FeedImageDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRequest;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedResponse;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedReadResponse;
+import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedResponse;
+import synapps.resona.api.mysql.socialMedia.dto.feedImage.FeedImageDto;
 import synapps.resona.api.mysql.socialMedia.dto.location.LocationRequest;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
-import synapps.resona.api.mysql.socialMedia.entity.feedMedia.FeedMedia;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Location;
+import synapps.resona.api.mysql.socialMedia.entity.feedMedia.FeedMedia;
 import synapps.resona.api.mysql.socialMedia.exception.FeedException;
 import synapps.resona.api.mysql.socialMedia.repository.FeedMediaRepository;
 import synapps.resona.api.mysql.socialMedia.repository.FeedRepository;
@@ -52,12 +52,12 @@ public class FeedService {
     private final Logger logger = LogManager.getLogger(FeedService.class);
 
     @Transactional
-    public FeedResponse updateFeed(Long feedId, FeedUpdateRequest feedRequest){
+    public FeedResponse updateFeed(Long feedId, FeedUpdateRequest feedRequest) {
         // 예외처리 해줘야 함
         Feed feed = feedRepository.findById(feedId).orElseThrow(FeedException::feedNotFoundException);
         feed.updateContent(feedRequest.getContent());
 
-        List<FeedImageDto> feedImageDtos =new ArrayList<>();
+        List<FeedImageDto> feedImageDtos = new ArrayList<>();
         for (FeedMedia media : feed.getImages()) {
             FeedImageDto imageDto = FeedImageDto.from(media);
             feedImageDtos.add(imageDto);
@@ -71,7 +71,7 @@ public class FeedService {
     }
 
     @Transactional
-    public FeedReadResponse readFeed(Long feedId){
+    public FeedReadResponse readFeed(Long feedId) {
         Feed feed = feedRepository.findById(feedId).orElseThrow(FeedException::feedNotFoundException);
         List<FeedMedia> feedMedias = feed.getImages();
         List<FeedImageDto> feedImageDtos = new ArrayList<>();
@@ -89,7 +89,7 @@ public class FeedService {
     }
 
     @Transactional
-    public List<FeedReadResponse> readAllFeeds(){
+    public List<FeedReadResponse> readAllFeeds() {
         String email = memberService.getMemberEmail();
         Member member = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);
 
@@ -184,7 +184,7 @@ public class FeedService {
 
 
     @Transactional
-    public Feed deleteFeed(Long feedId){
+    public Feed deleteFeed(Long feedId) {
         Feed feed = feedRepository.findById(feedId).orElseThrow(FeedException::feedNotFoundException);
         feed.softDelete();
         return feed;

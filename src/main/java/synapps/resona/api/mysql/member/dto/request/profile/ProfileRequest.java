@@ -10,7 +10,6 @@ import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Gender;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 
-import java.util.List;
 import java.util.Set;
 
 @Data

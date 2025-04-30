@@ -1,6 +1,5 @@
 package synapps.resona.api.external.email;
 
-import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
@@ -15,7 +14,7 @@ public class RedisService {
     private static final int MAX_DAILY_SENDS = 3;
     private static final int MAX_DAILY_AUTHENTICATE = 5;
     private static final int MAX_TIME_LIMIT_OVER = 200;
-    private static final int MAX_TIME_LIMIT  = 100;
+    private static final int MAX_TIME_LIMIT = 100;
     private static final String SEND_COUNT_KEY = ":daily_send_count";
     private static final String NUMBER_CHECK_COUNT_KEY = ":daily_check_count";
     private final RedisTemplate<String, Object> redisEmailSendTemplate;
@@ -24,6 +23,7 @@ public class RedisService {
     /**
      * 이메일 전송 가능한지 확인하는 메서드
      * 전송 횟수가 일일 전송 최대 횟수를 초과하면 false 리턴
+     *
      * @param email 이메일
      * @return 이메일 전송 가능 여부
      */
@@ -46,6 +46,7 @@ public class RedisService {
     /**
      * 이메일 검증가능한지 확인하는 메서드
      * 검증 횟수가 일일 최대 횟수를 초과하면 false 리턴
+     *
      * @param email 이메일
      * @return 이메일 검증 가능 여부
      */
@@ -66,6 +67,7 @@ public class RedisService {
 
     /**
      * 남은 이메일 전송 횟수를 리턴
+     *
      * @param email 이메일
      * @return 남은 이메일 전송 횟수
      */
@@ -84,6 +86,7 @@ public class RedisService {
 
     /**
      * 남은 이메일 검증 횟수를 리턴
+     *
      * @param email 이메일
      * @return 남은 이메일 검증 횟수
      */
@@ -103,8 +106,9 @@ public class RedisService {
 
     /**
      * 이메일 코드를 저장하는 메서드
+     *
      * @param email 이메일
-     * @param code 저장할 코드번호
+     * @param code  저장할 코드번호
      */
     public void setCode(String email, String code) {
         ValueOperations<String, Object> valOperations = redisEmailSendTemplate.opsForValue();
@@ -113,6 +117,7 @@ public class RedisService {
 
     /**
      * 이메일 인증 코드를 조회하는 메서드
+     *
      * @param email 이메일
      * @return 이메일에 매칭되는 코드 번호
      * @throws EmailException 인증시간이 넘어가면 예외 발생

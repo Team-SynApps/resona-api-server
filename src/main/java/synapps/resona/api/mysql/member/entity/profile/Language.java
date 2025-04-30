@@ -144,7 +144,7 @@ public enum Language {
     YIDDISH("yi", "Yiddish"),
     YORUBA("yo", "Yoruba"),
     ZULU("zu", "Zulu"),
-    NOT_DEFINED("None","Not defined");
+    NOT_DEFINED("None", "Not defined");
 
     private final String code;
     private final String fullName;
@@ -153,7 +153,6 @@ public enum Language {
         this.code = code;
         this.fullName = fullName;
     }
-
 
 
     /**

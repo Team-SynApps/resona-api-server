@@ -16,25 +16,20 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseEntity {
+    @OneToMany(mappedBy = "comment")
+    private final List<Reply> replies = new ArrayList<>();
+    @OneToMany(mappedBy = "comment")
+    private final List<Mention> mentions = new ArrayList<>();
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comment_id")
     private Long id;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "feed_id")
     private Feed feed;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
-
-    @OneToMany(mappedBy = "comment")
-    private final List<Reply> replies = new ArrayList<>();
-
-    @OneToMany(mappedBy = "comment")
-    private final List<Mention> mentions = new ArrayList<>();
-
     @Column(name = "content")
     private String content;
 

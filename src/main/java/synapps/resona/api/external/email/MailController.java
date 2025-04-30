@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,8 +13,6 @@ import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.global.exception.ErrorCode;
-import synapps.resona.api.mysql.member.service.TempTokenService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -37,9 +34,10 @@ public class MailController {
 
     /**
      * 이메일 인증번호 전송을 위한 API
+     *
      * @param request HttpServletRequest
-     * @param mail 이메일
-     * @return  남은 발송 횟수 리턴
+     * @param mail    이메일
+     * @return 남은 발송 횟수 리턴
      * @throws EmailException 예외 발생시 이메일 예외 던짐
      */
     @PostMapping()
@@ -52,9 +50,8 @@ public class MailController {
     }
 
     /**
-     *
-     * @param request HttpServletRequest
-     * @param response HttpServletResponse
+     * @param request       HttpServletRequest
+     * @param response      HttpServletResponse
      * @param emailCheckDto email, number
      * @return accessToken
      * @throws EmailException 예외 발생시 이메일 예외

@@ -26,8 +26,34 @@ public class ProfileService {
     private final MemberService memberService;
 
     /**
+     * Set을 사용하여 받게 되면 불변 컬렉션으로 인지할 수 있게 되어, Hibernate 쪽에 문제가 생길 여지가 있음.
+     * 따라서 copyToMutableSet() 을 활용하여 주입
+     *
+     * @param request
+     * @param profile
+     */
+    private static void changeProfile(ProfileRequest request, Profile profile) {
+        profile.modifyProfile(
+                request.getNickname(),
+                request.getNationality(),
+                request.getCountryOfResidence(),
+                copyToMutableSet(request.getNativeLanguages()),
+                copyToMutableSet(request.getInterestingLanguages()),
+                request.getProfileImageUrl(),
+                request.getBackgroundImageUrl(),
+                request.getBirth(),
+                request.getGender(),
+                request.getComment());
+    }
+
+    private static Set<Language> copyToMutableSet(Set<Language> source) {
+        return new HashSet<>(source);
+    }
+
+    /**
      * TODO: 프로필의 언어들 처리를 안하고 데이터베이스에 저장함. 수정해야 함.
      * 회원가입시 생성했던 프로필을 가져와 정보 추가 및 수정하여 반환한다.
+     *
      * @param request
      * @return
      */
@@ -53,6 +79,7 @@ public class ProfileService {
 
     /**
      * TODO: 프로필의 언어들 처리가 안됨. 수정해야 함
+     *
      * @param request
      * @return
      */
@@ -113,29 +140,5 @@ public class ProfileService {
                 .birth(DateTimeUtil.localDateTimeToString(profile.getBirth()))
                 .gender(profile.getGender().toString())
                 .build();
-    }
-
-    /**
-     * Set을 사용하여 받게 되면 불변 컬렉션으로 인지할 수 있게 되어, Hibernate 쪽에 문제가 생길 여지가 있음.
-     * 따라서 copyToMutableSet() 을 활용하여 주입
-     * @param request
-     * @param profile
-     */
-    private static void changeProfile(ProfileRequest request, Profile profile) {
-        profile.modifyProfile(
-                request.getNickname(),
-                request.getNationality(),
-                request.getCountryOfResidence(),
-                copyToMutableSet(request.getNativeLanguages()),
-                copyToMutableSet(request.getInterestingLanguages()),
-                request.getProfileImageUrl(),
-                request.getBackgroundImageUrl(),
-                request.getBirth(),
-                request.getGender(),
-                request.getComment());
-    }
-
-    private static Set<Language> copyToMutableSet(Set<Language> source) {
-        return new HashSet<>(source);
     }
 }

@@ -5,8 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import synapps.resona.api.mysql.member.entity.member_details.MBTI;
 
-import java.time.LocalDateTime;
-
 @Data
 @AllArgsConstructor
 @Builder

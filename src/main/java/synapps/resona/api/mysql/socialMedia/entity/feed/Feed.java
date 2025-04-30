@@ -17,36 +17,28 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Feed extends BaseEntity {
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
+    private final List<Comment> comments = new ArrayList<>();
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
+    private final List<Likes> likes = new ArrayList<>();
+    @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
+    private final List<FeedMedia> images = new ArrayList<>();
+    @OneToMany(mappedBy = "feed")
+    private final List<FeedComplaint> complaints = new ArrayList<>();
+    @Column(name = "is_kept")
+    private final boolean isKept = false;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "feed_id")
     private Long id;
-
     @ManyToOne
     @JoinColumn(name = "member_id")
     private Member member;
-
-    @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
-    private final List<Comment> comments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
-    private final List<Likes> likes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
-    private final List<FeedMedia> images = new ArrayList<>();
-
-    @OneToMany(mappedBy = "feed")
-    private final List<FeedComplaint> complaints = new ArrayList<>();
-
     @Column(name = "content")
     private String content;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "category")
     private FeedCategory category;
-
-    @Column(name = "is_kept")
-    private final boolean isKept = false;
 
     private Feed(Member member, String content, String category) {
         this.member = member;

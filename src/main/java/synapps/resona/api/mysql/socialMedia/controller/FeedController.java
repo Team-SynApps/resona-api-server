@@ -13,8 +13,8 @@ import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRegistrationRequest;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedResponse;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedReadResponse;
+import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedResponse;
 import synapps.resona.api.mysql.socialMedia.service.FeedService;
 
 import java.util.List;
@@ -105,7 +105,7 @@ public class FeedController {
     @DeleteMapping("/feed/{feedId}")
     @PreAuthorize("@socialSecurity.isFeedMemberProperty(#feedId) or hasRole('ADMIN')")
     public ResponseEntity<?> deleteFeed(HttpServletRequest request,
-                                                @PathVariable Long feedId) {
+                                        @PathVariable Long feedId) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.deleteFeed(feedId)));
         return ResponseEntity.ok(responseData);
