@@ -15,6 +15,7 @@ import synapps.resona.api.global.exception.ErrorCode;
 import synapps.resona.api.mysql.member.dto.request.auth.AppleLoginRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.LoginRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.RefreshRequest;
+import synapps.resona.api.mysql.member.dto.response.TokenResponse;
 import synapps.resona.api.mysql.member.service.AuthService;
 
 import java.util.List;
@@ -36,21 +37,29 @@ public class AuthController {
             HttpServletRequest request,
             HttpServletResponse response,
             @RequestBody LoginRequest loginRequest) {
-        return authService.login(request, response, loginRequest);
+        TokenResponse tokenResponse = authService.login(loginRequest);
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        return ResponseEntity.ok(new ResponseDto(metaData, List.of(tokenResponse)));
     }
 
     @PostMapping("/apple")
     public ResponseEntity<?> appleLogin(
             HttpServletRequest request,
             HttpServletResponse response,
-            @RequestBody AppleLoginRequest appleRequest
-    ) throws Exception {
-        return authService.appleLogin(request, response, appleRequest);
+            @RequestBody AppleLoginRequest appleRequest) throws Exception {
+        TokenResponse tokenResponse = authService.appleLogin(request, response, appleRequest);
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        return ResponseEntity.ok(new ResponseDto(metaData, List.of(tokenResponse)));
     }
 
     @GetMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(HttpServletRequest request, HttpServletResponse response, @RequestBody RefreshRequest refreshRequest) {
-        return authService.refresh(request, response, refreshRequest);
+    public ResponseEntity<?> refreshToken(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            @RequestBody RefreshRequest refreshRequest) {
+        TokenResponse tokenResponse = authService.refresh(request, refreshRequest);
+        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+        return ResponseEntity.ok(new ResponseDto(metaData, List.of(tokenResponse)));
     }
 
     @GetMapping("/member")

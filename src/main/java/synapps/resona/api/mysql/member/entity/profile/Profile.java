@@ -1,7 +1,6 @@
 package synapps.resona.api.mysql.member.entity.profile;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
@@ -9,13 +8,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.global.utils.DateTimeUtil;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.util.HashGenerator;
-import synapps.resona.api.mysql.member.util.MD5Generator;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -84,7 +79,9 @@ public class Profile extends BaseEntity {
     private Gender gender;
 
 
+    // 생성자 - 일반 프로필 생성
     private Profile(String nickname,
+                    String tag,
                     CountryCode nationality,
                     CountryCode countryOfResidence,
                     Set<Language> nativeLanguages,
@@ -94,8 +91,9 @@ public class Profile extends BaseEntity {
                     String birth,
                     Gender gender,
                     String comment) {
-        this.tag = generateTag(String.valueOf(id));
+
         this.nickname = nickname;
+        this.tag = tag;
         this.nationality = nationality;
         this.countryOfResidence = countryOfResidence;
         this.nativeLanguages = nativeLanguages;
@@ -103,34 +101,38 @@ public class Profile extends BaseEntity {
         this.profileImageUrl = profileImageUrl;
         this.backgroundImageUrl = backgroundImageUrl;
         this.birth = parseToLocalDate(birth);
-        this.age = birthToAge(parseToLocalDate(birth));
+        this.age = birthToAge(this.birth);
         this.gender = gender;
         this.comment = comment;
     }
 
+    // 회원가입용 프로필 생성
     private Profile(CountryCode nationality,
                     CountryCode countryOfResidence,
                     Set<Language> nativeLanguages,
                     Set<Language> interestingLanguages,
                     String nickname,
+                    String tag,
                     String profileImageUrl,
                     String birth) {
-        this.tag = generateTag(String.valueOf(id));
-        this.nickname = nickname;
+
         this.nationality = nationality;
         this.countryOfResidence = countryOfResidence;
         this.nativeLanguages = nativeLanguages;
         this.interestingLanguages = interestingLanguages;
+        this.nickname = nickname;
+        this.tag = tag;
         this.profileImageUrl = profileImageUrl;
         this.birth = parseToLocalDate(birth);
-        this.age = birthToAge(parseToLocalDate(birth));
+        this.age = birthToAge(this.birth);
         this.backgroundImageUrl = "";
         this.gender = Gender.NOT_DECIDED;
         this.comment = "";
     }
 
-    public static Profile of(
-                             String nickname,
+    // 일반 프로필 생성
+    public static Profile of(String nickname,
+                             String tag,
                              CountryCode nationality,
                              CountryCode countryOfResidence,
                              Set<Language> nativeLanguages,
@@ -140,27 +142,36 @@ public class Profile extends BaseEntity {
                              String birth,
                              Gender gender,
                              String comment) {
-        return new Profile(nickname, nationality, countryOfResidence,
+
+        return new Profile(nickname, tag, nationality, countryOfResidence,
                 nativeLanguages, interestingLanguages, profileImageUrl,
                 backgroundImageUrl, birth, gender, comment);
     }
 
-    // 회원가입용 profile
-
+    // 회원가입용
     public static Profile of(CountryCode nationality,
                              CountryCode countryOfResidence,
                              Set<Language> nativeLanguages,
                              Set<Language> interestingLanguages,
                              String nickname,
+                             String tag,
                              String profileImageUrl,
                              String birth) {
-        return new Profile(nationality, countryOfResidence, nativeLanguages, interestingLanguages, nickname, profileImageUrl, birth);
+
+        return new Profile(nationality, countryOfResidence,
+                nativeLanguages, interestingLanguages,
+                nickname, tag, profileImageUrl, birth);
     }
 
+    // 빈 프로필
     public static Profile empty() {
-        return new Profile("", CountryCode.NOT_DEFINED, CountryCode.NOT_DEFINED,
-                new HashSet<>(), new HashSet<>(), "", "", "2000-01-01", Gender.NOT_DECIDED, "");
+        return new Profile("", "none",
+                CountryCode.NOT_DEFINED, CountryCode.NOT_DEFINED,
+                new HashSet<>(), new HashSet<>(),
+                "", "", "2000-01-01",
+                Gender.NOT_DECIDED, "");
     }
+
 
     public void modifyProfile(String nickname,
                               CountryCode nationality,
@@ -214,9 +225,8 @@ public class Profile extends BaseEntity {
         this.gender = Gender.of(gender);
     }
 
-    private String generateTag(String input) {
-        HashGenerator md5generator = new MD5Generator();
-        return md5generator.generateHash(input);
+    public void registerTag(String tag) {
+        this.tag = tag;
     }
 
     private Integer birthToAge(LocalDateTime birth) {

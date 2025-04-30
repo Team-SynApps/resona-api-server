@@ -25,6 +25,9 @@ public class MemberRegisterResponseDto {
     @Schema(description = "회원 닉네임", example = "newuser")
     private String nickname;
 
+    @Schema(description = "회원 태그", example = "spculatingwook")
+    private String tag;
+
     @Schema(description = "회원 국적 코드", example = "KR")
     private CountryCode nationality;
 

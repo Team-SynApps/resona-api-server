@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +13,12 @@ import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.MetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
+import synapps.resona.api.mysql.member.dto.request.auth.LoginRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
 import synapps.resona.api.mysql.member.dto.response.MemberRegisterResponseDto;
+import synapps.resona.api.mysql.member.dto.response.TokenResponse;
+import synapps.resona.api.mysql.member.service.AuthService;
 import synapps.resona.api.mysql.member.service.MemberService;
 
 import java.util.List;
@@ -26,13 +28,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
+    private final AuthService authService;
     private final ServerInfoConfig serverInfo;
 
     private MetaDataDto createSuccessMetaData(String queryString) {
         return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(), serverInfo.getServerName());
     }
-
-
 
     // TODO: 커스텀 어노테이션으로 클래스 설정만 해줄 수 있게 하는 코드가 필요해보임
     @Operation(summary = "회원 등록", description = "회원 등록 후 응답 DTO 반환")
@@ -46,24 +47,24 @@ public class MemberController {
     )
     @PostMapping("/join")
     public ResponseEntity<?> join(HttpServletRequest request,
-                                  HttpServletResponse response,
                                   @Valid @RequestBody RegisterRequest registerRequest) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-        ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.signUp(registerRequest)));
+        MemberRegisterResponseDto memberRegisterResponseDto = memberService.signUp(registerRequest);
+        LoginRequest loginRequest = new LoginRequest(registerRequest.getEmail(), registerRequest.getPassword());
+        TokenResponse tokenResponse = authService.login(loginRequest);
+        ResponseDto responseData = new ResponseDto(metaData, List.of(memberRegisterResponseDto, tokenResponse));
         return ResponseEntity.ok(responseData);
     }
 
     @GetMapping("/info")
-    public ResponseEntity<?> getUser(HttpServletRequest request,
-                                     HttpServletResponse response) {
+    public ResponseEntity<?> getUser(HttpServletRequest request) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.getMember()));
         return ResponseEntity.ok(responseData);
     }
 
     @GetMapping("/detail")
-    public ResponseEntity<?> getMemberDetailInfo(HttpServletRequest request,
-                                                 HttpServletResponse response) {
+    public ResponseEntity<?> getMemberDetailInfo(HttpServletRequest request) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.getMemberDetailInfo()));
         return ResponseEntity.ok(responseData);
@@ -71,16 +72,14 @@ public class MemberController {
 
     @PostMapping("/password")
     public ResponseEntity<?> changePassword(HttpServletRequest request,
-                                            HttpServletResponse response,
-                                            @RequestBody MemberPasswordChangeDto requestBody) throws Exception {
+                                            @RequestBody MemberPasswordChangeDto requestBody) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseDto = new ResponseDto(metaData, List.of(memberService.changePassword(request, requestBody)));
         return ResponseEntity.ok(responseDto);
     }
 
     @DeleteMapping()
-    public ResponseEntity<?> deleteUser(HttpServletRequest request,
-                                        HttpServletResponse response) {
+    public ResponseEntity<?> deleteUser(HttpServletRequest request) {
         MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
         ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.deleteUser()));
         return ResponseEntity.ok(responseData);

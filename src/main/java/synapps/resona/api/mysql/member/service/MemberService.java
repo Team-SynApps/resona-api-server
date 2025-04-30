@@ -12,8 +12,8 @@ import org.springframework.stereotype.Service;
 import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
-import synapps.resona.api.mysql.member.dto.response.MemberInfoDto;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
+import synapps.resona.api.mysql.member.dto.response.MemberInfoDto;
 import synapps.resona.api.mysql.member.dto.response.MemberRegisterResponseDto;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
@@ -23,6 +23,7 @@ import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.exception.AccountInfoException;
 import synapps.resona.api.mysql.member.exception.MemberException;
+import synapps.resona.api.mysql.member.exception.ProfileException;
 import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberDetailsRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
@@ -98,6 +99,11 @@ public class MemberService {
         Member member = memberRepository.findWithAllRelationsByEmail(request.getEmail()).orElseThrow(MemberException::memberNotFound);
 
         Profile profile = member.getProfile();
+        if (profileRepository.existsByTag(request.getTag())) {
+            throw ProfileException.duplicateTag();
+        }
+        profile.registerTag(request.getTag());
+
         MemberDetails memberDetails = member.getMemberDetails();
         AccountInfo accountInfo = member.getAccountInfo();
 
@@ -121,6 +127,7 @@ public class MemberService {
         return MemberRegisterResponseDto.builder()
                 .memberId(member.getId())
                 .email(member.getEmail())
+                .tag(profile.getTag())
                 .nationality(profile.getNationality())
                 .countryOfResidence(profile.getCountryOfResidence())
                 .nativeLanguages(profile.getNativeLanguages())
