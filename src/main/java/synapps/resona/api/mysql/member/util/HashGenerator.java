@@ -1,5 +1,6 @@
 package synapps.resona.api.mysql.member.util;
 
 public interface HashGenerator {
-    String generateHash(String input);
+
+  String generateHash(String input);
 }

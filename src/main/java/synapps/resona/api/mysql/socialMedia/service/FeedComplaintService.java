@@ -18,18 +18,22 @@ import synapps.resona.api.mysql.socialMedia.repository.FeedRepository;
 @RequiredArgsConstructor
 @Transactional
 public class FeedComplaintService {
-    private final FeedComplaintRepository feedComplaintRepository;
-    private final MemberRepository memberRepository;
-    private final FeedRepository feedRepository;
-    private final MemberService memberService;
 
-    @Transactional
-    public FeedComplaint reportFeed(Long feedId, FeedComplaintRequest request) {
-        String email = memberService.getMemberEmail();
-        Member complainer = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);
-        Feed feed = feedRepository.findWithMemberById(feedId).orElseThrow(FeedException::feedNotFoundException);
+  private final FeedComplaintRepository feedComplaintRepository;
+  private final MemberRepository memberRepository;
+  private final FeedRepository feedRepository;
+  private final MemberService memberService;
 
-        FeedComplaint complaint = FeedComplaint.of(complainer, feed.getMember(), feed, request.getComplains(), request.isBlocked());
-        return feedComplaintRepository.save(complaint);
-    }
+  @Transactional
+  public FeedComplaint reportFeed(Long feedId, FeedComplaintRequest request) {
+    String email = memberService.getMemberEmail();
+    Member complainer = memberRepository.findByEmail(email)
+        .orElseThrow(MemberException::memberNotFound);
+    Feed feed = feedRepository.findWithMemberById(feedId)
+        .orElseThrow(FeedException::feedNotFoundException);
+
+    FeedComplaint complaint = FeedComplaint.of(complainer, feed.getMember(), feed,
+        request.getComplains(), request.isBlocked());
+    return feedComplaintRepository.save(complaint);
+  }
 }

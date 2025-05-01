@@ -7,5 +7,6 @@ import synapps.resona.api.mysql.socialMedia.entity.Mention;
 
 @Repository
 public interface MentionRepository extends JpaRepository<Mention, Long> {
-    boolean existsByIdAndMember(Long mentionId, Member member);
+
+  boolean existsByIdAndMember(Long mentionId, Member member);
 }

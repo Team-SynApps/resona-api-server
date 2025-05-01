@@ -7,7 +7,8 @@ import synapps.resona.api.mysql.token.AuthToken;
 @Data
 @AllArgsConstructor
 public class TokenResponse {
-    private AuthToken accessToken;
-    private AuthToken refreshToken;
-    private boolean isRegistered;
+
+  private AuthToken accessToken;
+  private AuthToken refreshToken;
+  private boolean isRegistered;
 }

@@ -8,5 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FeedUpdateRequest {
-    private String content;
+
+  private String content;
 }

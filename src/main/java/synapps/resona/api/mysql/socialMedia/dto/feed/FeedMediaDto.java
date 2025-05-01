@@ -9,10 +9,11 @@ import synapps.resona.api.mysql.socialMedia.entity.feedMedia.FeedMedia;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FeedMediaDto {
-    private Long id;
-    private String url;
 
-    public static FeedMediaDto from(FeedMedia media) {
-        return new FeedMediaDto(media.getId(), media.getUrl());
-    }
+  private Long id;
+  private String url;
+
+  public static FeedMediaDto from(FeedMedia media) {
+    return new FeedMediaDto(media.getId(), media.getUrl());
+  }
 }

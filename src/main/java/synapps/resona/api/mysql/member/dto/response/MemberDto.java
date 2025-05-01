@@ -8,6 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class MemberDto {
-    private Long id;
-    private String email;
+
+  private Long id;
+  private String email;
 }

@@ -2,6 +2,8 @@ package synapps.resona.api.mysql.member.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -31,233 +33,250 @@ import synapps.resona.api.mysql.member.repository.ProfileRepository;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 
-import java.util.HashSet;
-import java.util.Set;
-
 @Service
 @RequiredArgsConstructor
 public class MemberService {
-    private final MemberRepository memberRepository;
-    private final ProfileRepository profileRepository;
-    private final MemberDetailsRepository memberDetailsRepository;
-    private final AccountInfoRepository accountInfoRepository;
-    private final AuthTokenProvider authTokenProvider;
-    private final Logger logger = LogManager.getLogger(MemberService.class);
 
-    private static Set<Language> copyToMutableSet(Set<Language> source) {
-        return new HashSet<>(source);
+  private final MemberRepository memberRepository;
+  private final ProfileRepository profileRepository;
+  private final MemberDetailsRepository memberDetailsRepository;
+  private final AccountInfoRepository accountInfoRepository;
+  private final AuthTokenProvider authTokenProvider;
+  private final Logger logger = LogManager.getLogger(MemberService.class);
+
+  private static Set<Language> copyToMutableSet(Set<Language> source) {
+    return new HashSet<>(source);
+  }
+
+  /**
+   * SecurityContextHolder에서 관리하는 context에서 userPrincipal을 받아옴
+   *
+   * @return 멤버를 이메일 기준으로 불러옴 Optional 적용 고려
+   */
+  @Transactional
+  public MemberDto getMember() {
+    User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    logger.info(userPrincipal.getUsername());
+    Member member = memberRepository.findByEmail(userPrincipal.getUsername())
+        .orElseThrow(MemberException::memberNotFound);
+
+    return MemberDto.builder()
+        .id(member.getId())
+        .email(member.getEmail())
+        .build();
+  }
+
+  public String getMemberEmail() {
+    User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    return userPrincipal.getUsername();
+  }
+
+  public Member getMemberUsingSecurityContext() {
+    User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    return memberRepository.findByEmail(userPrincipal.getUsername())
+        .orElseThrow(MemberException::memberNotFound);
+  }
+
+  @Transactional
+  public MemberInfoDto getMemberDetailInfo() {
+    User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication()
+        .getPrincipal();
+    Member member = memberRepository.findWithAllRelationsByEmail(userPrincipal.getUsername())
+        .orElseThrow(MemberException::memberNotFound);
+
+    AccountInfo accountInfo = member.getAccountInfo();
+    MemberDetails memberDetails = member.getMemberDetails();
+    Profile profile = member.getProfile();
+
+    return buildMemberInfoDto(accountInfo, memberDetails, profile);
+  }
+
+  private String nullToEmpty(String value) {
+    return value != null ? value : "";
+  }
+
+  private Integer nullToZero(Integer value) {
+    return value != null ? value : 0;
+  }
+
+  @Transactional
+  public MemberRegisterResponseDto signUp(RegisterRequest request) {
+    checkMemberStatus(request);
+    Member member = memberRepository.findWithAllRelationsByEmail(request.getEmail())
+        .orElseThrow(MemberException::memberNotFound);
+
+    Profile profile = member.getProfile();
+    if (profileRepository.existsByTag(request.getTag())) {
+      throw ProfileException.duplicateTag();
     }
+    profile.registerTag(request.getTag());
 
-    /**
-     * SecurityContextHolder에서 관리하는 context에서 userPrincipal을 받아옴
-     *
-     * @return 멤버를 이메일 기준으로 불러옴
-     * Optional 적용 고려
-     */
-    @Transactional
-    public MemberDto getMember() {
-        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        logger.info(userPrincipal.getUsername());
-        Member member = memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
+    MemberDetails memberDetails = member.getMemberDetails();
+    AccountInfo accountInfo = member.getAccountInfo();
 
-        return MemberDto.builder()
-                .id(member.getId())
-                .email(member.getEmail())
-                .build();
+    profile.join(
+        request.getNickname(),
+        request.getNationality(),
+        request.getCountryOfResidence(),
+        copyToMutableSet(request.getNativeLanguages()),
+        copyToMutableSet(request.getInterestingLanguages()),
+        request.getProfileImageUrl(),
+        request.getBirth());
+    memberDetails.join(request.getTimezone());
+    accountInfo.join();
+
+    member.encodePassword(request.getPassword());
+    memberRepository.save(member);
+    profileRepository.save(profile);
+    memberDetailsRepository.save(memberDetails);
+    accountInfoRepository.save(accountInfo);
+
+    return MemberRegisterResponseDto.builder()
+        .memberId(member.getId())
+        .email(member.getEmail())
+        .tag(profile.getTag())
+        .nationality(profile.getNationality())
+        .countryOfResidence(profile.getCountryOfResidence())
+        .nativeLanguages(profile.getNativeLanguages())
+        .interestingLanguages(profile.getInterestingLanguages())
+        .birth(profile.getBirth().toString())
+        .nickname(profile.getNickname())
+        .profileImageUrl(profile.getProfileImageUrl())
+        .timezone(memberDetails.getTimezone())
+        .build();
+  }
+
+  private void checkMemberStatus(RegisterRequest request) {
+    boolean isMemberExists = memberRepository.existsByEmail(request.getEmail());
+    if (!isMemberExists) {
+      throw MemberException.memberNotFound();
     }
-
-    public String getMemberEmail() {
-        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return userPrincipal.getUsername();
+    AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(request.getEmail())
+        .orElseThrow(AccountInfoException::accountInfoNotFound);
+    // 차단당한 계정인 경우
+    if (accountInfo.getStatus().equals(AccountStatus.BANNED)) {
+      throw MemberException.unAuthenticatedRequest();
     }
-
-    public Member getMemberUsingSecurityContext() {
-        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return memberRepository.findByEmail(userPrincipal.getUsername()).orElseThrow(MemberException::memberNotFound);
+    // 이미 활성화된 계정인 경우
+    if (accountInfo.getStatus().equals(AccountStatus.ACTIVE)) {
+      throw MemberException.duplicateEmail();
     }
+  }
 
-    @Transactional
-    public MemberInfoDto getMemberDetailInfo() {
-        User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Member member = memberRepository.findWithAllRelationsByEmail(userPrincipal.getUsername())
-                .orElseThrow(MemberException::memberNotFound);
-
-        AccountInfo accountInfo = member.getAccountInfo();
-        MemberDetails memberDetails = member.getMemberDetails();
-        Profile profile = member.getProfile();
-
-        return buildMemberInfoDto(accountInfo, memberDetails, profile);
+  @Transactional
+  public MemberDto changePassword(HttpServletRequest request,
+      MemberPasswordChangeDto memberPasswordChangeDto) {
+    String email = memberPasswordChangeDto.getEmail();
+    if (!isCurrentUser(request, email)) {
+      throw MemberException.unAuthenticatedRequest();
     }
+    Member member = memberRepository.findByEmail(email)
+        .orElseThrow(MemberException::memberNotFound);
+    member.encodePassword(memberPasswordChangeDto.getChangedPassword());
+    return new MemberDto(member.getId(), member.getEmail());
+  }
 
-    private String nullToEmpty(String value) {
-        return value != null ? value : "";
-    }
+  @Transactional
+  public String deleteUser() {
+    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    Member member = memberRepository.findByEmail(principal.getUsername())
+        .orElseThrow(MemberException::memberNotFound);
+    member.softDelete();
+    memberRepository.save(member);
+    return "delete successful";
+  }
 
-    private Integer nullToZero(Integer value) {
-        return value != null ? value : 0;
-    }
-
-    @Transactional
-    public MemberRegisterResponseDto signUp(RegisterRequest request) {
-        checkMemberStatus(request);
-        Member member = memberRepository.findWithAllRelationsByEmail(request.getEmail()).orElseThrow(MemberException::memberNotFound);
-
-        Profile profile = member.getProfile();
-        if (profileRepository.existsByTag(request.getTag())) {
-            throw ProfileException.duplicateTag();
-        }
-        profile.registerTag(request.getTag());
-
-        MemberDetails memberDetails = member.getMemberDetails();
-        AccountInfo accountInfo = member.getAccountInfo();
-
-        profile.join(
-                request.getNickname(),
-                request.getNationality(),
-                request.getCountryOfResidence(),
-                copyToMutableSet(request.getNativeLanguages()),
-                copyToMutableSet(request.getInterestingLanguages()),
-                request.getProfileImageUrl(),
-                request.getBirth());
-        memberDetails.join(request.getTimezone());
-        accountInfo.join();
-
-        member.encodePassword(request.getPassword());
-        memberRepository.save(member);
-        profileRepository.save(profile);
-        memberDetailsRepository.save(memberDetails);
-        accountInfoRepository.save(accountInfo);
-
-        return MemberRegisterResponseDto.builder()
-                .memberId(member.getId())
-                .email(member.getEmail())
-                .tag(profile.getTag())
-                .nationality(profile.getNationality())
-                .countryOfResidence(profile.getCountryOfResidence())
-                .nativeLanguages(profile.getNativeLanguages())
-                .interestingLanguages(profile.getInterestingLanguages())
-                .birth(profile.getBirth().toString())
-                .nickname(profile.getNickname())
-                .profileImageUrl(profile.getProfileImageUrl())
-                .timezone(memberDetails.getTimezone())
-                .build();
-    }
-
-    private void checkMemberStatus(RegisterRequest request) {
-        boolean isMemberExists = memberRepository.existsByEmail(request.getEmail());
-        if (!isMemberExists) {
-            throw MemberException.memberNotFound();
-        }
-        AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(request.getEmail()).orElseThrow(AccountInfoException::accountInfoNotFound);
-        // 차단당한 계정인 경우
-        if (accountInfo.getStatus().equals(AccountStatus.BANNED)) {
-            throw MemberException.unAuthenticatedRequest();
-        }
-        // 이미 활성화된 계정인 경우
-        if (accountInfo.getStatus().equals(AccountStatus.ACTIVE)) {
-            throw MemberException.duplicateEmail();
-        }
-    }
-
-    @Transactional
-    public MemberDto changePassword(HttpServletRequest request, MemberPasswordChangeDto memberPasswordChangeDto) {
-        String email = memberPasswordChangeDto.getEmail();
-        if (!isCurrentUser(request, email)) {
-            throw MemberException.unAuthenticatedRequest();
-        }
-        Member member = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);
-        member.encodePassword(memberPasswordChangeDto.getChangedPassword());
-        return new MemberDto(member.getId(), member.getEmail());
-    }
-
-    @Transactional
-    public String deleteUser() {
-        User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Member member = memberRepository.findByEmail(principal.getUsername()).orElseThrow(MemberException::memberNotFound);
-        member.softDelete();
-        memberRepository.save(member);
-        return "delete successful";
-    }
-
-    public boolean isCurrentUser(HttpServletRequest request, String requestEmail) {
-        try {
-            String token = resolveToken(request);
+  public boolean isCurrentUser(HttpServletRequest request, String requestEmail) {
+    try {
+      String token = resolveToken(request);
 //            logger.debug("Resolved token: {}", token);
 
-            if (token == null) {
-                logger.debug("Token is null");
-                return false;
-            }
+      if (token == null) {
+        logger.debug("Token is null");
+        return false;
+      }
 
-            AuthToken authToken = authTokenProvider.convertAuthToken(token);
-            if (!authToken.validate()) {
-                logger.debug("Token validation failed");
-                return false;
-            }
+      AuthToken authToken = authTokenProvider.convertAuthToken(token);
+      if (!authToken.validate()) {
+        logger.debug("Token validation failed");
+        return false;
+      }
 
-            Authentication authentication = authTokenProvider.getAuthentication(authToken);
-            Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+      Authentication authentication = authTokenProvider.getAuthentication(authToken);
+      Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
 
 //            logger.debug("Token Authentication: {}", authentication);
 //            logger.debug("Current Authentication: {}", currentAuth);
 
-            if (authentication == null || currentAuth == null) {
-                logger.debug("Either authentication or currentAuth is null");
-                return false;
-            }
+      if (authentication == null || currentAuth == null) {
+        logger.debug("Either authentication or currentAuth is null");
+        return false;
+      }
 
-            boolean result = authentication.isAuthenticated() &&
-                    authentication.getName().equals(requestEmail) &&
-                    authentication.getName().equals(currentAuth.getName());
+      boolean result = authentication.isAuthenticated() &&
+          authentication.getName().equals(requestEmail) &&
+          authentication.getName().equals(currentAuth.getName());
 
 //            log.debug("isCurrentUser result: {}", result);
-            return result;
-        } catch (Exception e) {
-            logger.error("Error in isCurrentUser", e);
-            return false;
-        }
+      return result;
+    } catch (Exception e) {
+      logger.error("Error in isCurrentUser", e);
+      return false;
     }
+  }
 
-    public boolean isRegisteredMember(String email) {
-        AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(email).orElseThrow(AccountInfoException::accountInfoNotFound);
-        return !accountInfo.isAccountTemporary();
+  public boolean isRegisteredMember(String email) {
+    AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(email)
+        .orElseThrow(AccountInfoException::accountInfoNotFound);
+    return !accountInfo.isAccountTemporary();
+  }
+
+  private String resolveToken(HttpServletRequest request) {
+    String bearerToken = request.getHeader("Authorization");
+    if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+      return bearerToken.substring(7);
     }
+    return null;
+  }
 
-    private String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
-    }
+  private MemberInfoDto buildMemberInfoDto(AccountInfo accountInfo, MemberDetails memberDetails,
+      Profile profile) {
+    return MemberInfoDto.builder()
+        // Account Info
+        .roleType(nullToEmpty(accountInfo != null ? accountInfo.getRoleType().toString() : null))
+        .accountStatus(nullToEmpty(accountInfo != null ? accountInfo.getStatus().toString() : null))
+        .providerType(
+            nullToEmpty(accountInfo != null ? accountInfo.getProviderType().toString() : null))
 
-    private MemberInfoDto buildMemberInfoDto(AccountInfo accountInfo, MemberDetails memberDetails, Profile profile) {
-        return MemberInfoDto.builder()
-                // Account Info
-                .roleType(nullToEmpty(accountInfo != null ? accountInfo.getRoleType().toString() : null))
-                .accountStatus(nullToEmpty(accountInfo != null ? accountInfo.getStatus().toString() : null))
-                .providerType(nullToEmpty(accountInfo != null ? accountInfo.getProviderType().toString() : null))
+        // Member Details
+        .timezone(nullToZero(memberDetails != null ? memberDetails.getTimezone() : null))
+        .phoneNumber(nullToEmpty(memberDetails != null ? memberDetails.getPhoneNumber() : null))
+        .location(nullToEmpty(memberDetails != null ? memberDetails.getLocation() : null))
+        .mbti(nullToEmpty(
+            memberDetails != null ? memberDetails.getMbti() != null ? memberDetails.getMbti()
+                .toString() : null : null))
+        .aboutMe(nullToEmpty(memberDetails != null ? memberDetails.getAboutMe() : null))
 
-                // Member Details
-                .timezone(nullToZero(memberDetails != null ? memberDetails.getTimezone() : null))
-                .phoneNumber(nullToEmpty(memberDetails != null ? memberDetails.getPhoneNumber() : null))
-                .location(nullToEmpty(memberDetails != null ? memberDetails.getLocation() : null))
-                .mbti(nullToEmpty(memberDetails != null ? memberDetails.getMbti() != null ? memberDetails.getMbti().toString() : null : null))
-                .aboutMe(nullToEmpty(memberDetails != null ? memberDetails.getAboutMe() : null))
-
-                // Profile
-                .nickname(nullToEmpty(profile != null ? profile.getNickname() : null))
-                .tag(nullToEmpty(profile != null ? profile.getTag() : null))
-                .nationality(nullToEmpty(profile != null ? profile.getNationality().toString() : null))
-                .countryOfResidence(nullToEmpty(profile != null ? profile.getCountryOfResidence().toString() : null))
-                .nativeLanguages(profile != null ? profile.getNativeLanguages() : null)
-                .interestingLanguages(profile != null ? profile.getInterestingLanguages() : null)
-                .profileImageUrl(nullToEmpty(profile != null ? profile.getProfileImageUrl() : null))
-                .backgroundImageUrl(nullToEmpty(profile != null ? profile.getBackgroundImageUrl() : null))
-                .birth(profile != null ? DateTimeUtil.localDateTimeToStringSimpleFormat(profile.getBirth()) : null)
-                .age(nullToZero(profile != null ? profile.getAge() : null))
-                .gender(nullToEmpty(profile != null ? profile.getGender() != null ? profile.getGender().toString() : null : null))
-                .comment(nullToEmpty(profile != null ? profile.getComment() : null))
-                .build();
-    }
+        // Profile
+        .nickname(nullToEmpty(profile != null ? profile.getNickname() : null))
+        .tag(nullToEmpty(profile != null ? profile.getTag() : null))
+        .nationality(nullToEmpty(profile != null ? profile.getNationality().toString() : null))
+        .countryOfResidence(
+            nullToEmpty(profile != null ? profile.getCountryOfResidence().toString() : null))
+        .nativeLanguages(profile != null ? profile.getNativeLanguages() : null)
+        .interestingLanguages(profile != null ? profile.getInterestingLanguages() : null)
+        .profileImageUrl(nullToEmpty(profile != null ? profile.getProfileImageUrl() : null))
+        .backgroundImageUrl(nullToEmpty(profile != null ? profile.getBackgroundImageUrl() : null))
+        .birth(profile != null ? DateTimeUtil.localDateTimeToStringSimpleFormat(profile.getBirth())
+            : null)
+        .age(nullToZero(profile != null ? profile.getAge() : null))
+        .gender(nullToEmpty(
+            profile != null ? profile.getGender() != null ? profile.getGender().toString() : null
+                : null))
+        .comment(nullToEmpty(profile != null ? profile.getComment() : null))
+        .build();
+  }
 }

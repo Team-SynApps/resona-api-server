@@ -6,4 +6,5 @@ import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 
 @Repository
 public interface MemberDetailsRepository extends JpaRepository<MemberDetails, Long> {
+
 }

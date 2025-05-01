@@ -11,13 +11,14 @@ import synapps.resona.api.mysql.socialMedia.entity.feedMedia.FeedMedia;
 @AllArgsConstructor
 @Builder
 public class FeedImageDto {
-    private String url;
-    private int index;
 
-    public static FeedImageDto from(FeedMedia media) {
-        return FeedImageDto.builder()
-                .index(media.getIndex())
-                .url(media.getUrl())
-                .build();
-    }
+  private String url;
+  private int index;
+
+  public static FeedImageDto from(FeedMedia media) {
+    return FeedImageDto.builder()
+        .index(media.getIndex())
+        .url(media.getUrl())
+        .build();
+  }
 }

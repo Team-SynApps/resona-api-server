@@ -5,23 +5,24 @@ import synapps.resona.api.global.exception.BaseException;
 import synapps.resona.api.global.exception.ErrorCode;
 
 public class ProfileException extends BaseException {
-    public ProfileException(String message, HttpStatus status, String errorCode) {
-        super(message, status, errorCode);
-    }
 
-    private static ProfileException of(ErrorCode errorCode) {
-        return new ProfileException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCode());
-    }
+  public ProfileException(String message, HttpStatus status, String errorCode) {
+    super(message, status, errorCode);
+  }
 
-    public static ProfileException invalidProfile() {
-        return of(ErrorCode.PROFILE_INPUT_INVALID);
-    }
+  private static ProfileException of(ErrorCode errorCode) {
+    return new ProfileException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCode());
+  }
 
-    public static ProfileException profileNotFound() {
-        return of(ErrorCode.PROFILE_NOT_FOUND);
-    }
+  public static ProfileException invalidProfile() {
+    return of(ErrorCode.PROFILE_INPUT_INVALID);
+  }
 
-    public static ProfileException duplicateTag() {
-        return of(ErrorCode.DUPLICATE_TAG);
-    }
+  public static ProfileException profileNotFound() {
+    return of(ErrorCode.PROFILE_NOT_FOUND);
+  }
+
+  public static ProfileException duplicateTag() {
+    return of(ErrorCode.DUPLICATE_TAG);
+  }
 }

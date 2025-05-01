@@ -7,5 +7,6 @@ import synapps.resona.api.mysql.socialMedia.entity.feed.Likes;
 
 @Repository
 public interface LikesRepository extends JpaRepository<Likes, Long> {
-    boolean existsByIdAndMember(Long likeId, Member member);
+
+  boolean existsByIdAndMember(Long likeId, Member member);
 }

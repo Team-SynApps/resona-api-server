@@ -17,27 +17,28 @@ import synapps.resona.api.mysql.socialMedia.repository.CommentRepository;
 @Service
 @RequiredArgsConstructor
 public class CommentLikesService {
-    private final CommentLikesRepository commentLikesRepository;
-    private final CommentRepository commentRepository;
-    private final MemberService memberService;
-    private final MemberRepository memberRepository;
 
-    @Transactional
-    public CommentLikes register(CommentLikesRequest request) {
-        Comment comment = commentRepository.findById(request.getCommentId())
-                .orElseThrow(CommentException::commentNotFound);
+  private final CommentLikesRepository commentLikesRepository;
+  private final CommentRepository commentRepository;
+  private final MemberService memberService;
+  private final MemberRepository memberRepository;
 
-        String email = memberService.getMemberEmail();
-        Member member = memberRepository.findByEmail(email).orElseThrow();
+  @Transactional
+  public CommentLikes register(CommentLikesRequest request) {
+    Comment comment = commentRepository.findById(request.getCommentId())
+        .orElseThrow(CommentException::commentNotFound);
 
-        CommentLikes commentLikes = CommentLikes.of(member, comment);
-        commentLikesRepository.save(commentLikes);
-        return commentLikes;
-    }
+    String email = memberService.getMemberEmail();
+    Member member = memberRepository.findByEmail(email).orElseThrow();
 
-    @Transactional
-    public CommentLikes cancel(Long commentLikeId) {
-        return commentLikesRepository.findById(commentLikeId)
-                .orElseThrow(LikeException::likeNotFound);
-    }
+    CommentLikes commentLikes = CommentLikes.of(member, comment);
+    commentLikesRepository.save(commentLikes);
+    return commentLikes;
+  }
+
+  @Transactional
+  public CommentLikes cancel(Long commentLikeId) {
+    return commentLikesRepository.findById(commentLikeId)
+        .orElseThrow(LikeException::likeNotFound);
+  }
 }

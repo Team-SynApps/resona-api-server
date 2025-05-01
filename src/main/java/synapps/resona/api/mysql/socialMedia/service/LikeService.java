@@ -18,24 +18,26 @@ import synapps.resona.api.mysql.socialMedia.repository.LikesRepository;
 @Service
 @RequiredArgsConstructor
 public class LikeService {
-    private final LikesRepository likesRepository;
-    private final FeedRepository feedRepository;
-    private final MemberService memberService;
-    private final MemberRepository memberRepository;
 
-    @Transactional
-    public Likes register(LikeRequest request) {
-        Feed feed = feedRepository.findById(request.getFeedId()).orElseThrow(FeedException::feedNotFoundException);
-        MemberDto memberDto = memberService.getMember();
-        Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+  private final LikesRepository likesRepository;
+  private final FeedRepository feedRepository;
+  private final MemberService memberService;
+  private final MemberRepository memberRepository;
 
-        Likes likes = Likes.of(member, feed);
-        likesRepository.save(likes);
-        return likes;
-    }
+  @Transactional
+  public Likes register(LikeRequest request) {
+    Feed feed = feedRepository.findById(request.getFeedId())
+        .orElseThrow(FeedException::feedNotFoundException);
+    MemberDto memberDto = memberService.getMember();
+    Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
-    @Transactional
-    public Likes cancel(Long likeId) {
-        return likesRepository.findById(likeId).orElseThrow(LikeException::likeNotFound);
-    }
+    Likes likes = Likes.of(member, feed);
+    likesRepository.save(likes);
+    return likes;
+  }
+
+  @Transactional
+  public Likes cancel(Long likeId) {
+    return likesRepository.findById(likeId).orElseThrow(LikeException::likeNotFound);
+  }
 }
