@@ -39,14 +39,15 @@ public class OAuth2AuthenticationFailureHandler implements AuthenticationFailure
 
     authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
 
-    Throwable cause = exception.getCause();
     String message = exception.getMessage();
     String errorCode = "AUTH000";
     int status = HttpServletResponse.SC_UNAUTHORIZED;
 
-    if (cause instanceof OAuthException oAuthException) {
+    // OAuthException이면 커스텀 정보 사용
+    if (exception instanceof OAuthException oAuthException) {
       message = oAuthException.getMessage();
-      errorCode = ErrorCode.PROVIDER_TYPE_MISSMATCH.getCode();
+      errorCode = oAuthException.getErrorCode();
+      status = oAuthException.getStatus().value();
     }
 
     ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
