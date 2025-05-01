@@ -17,10 +17,12 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   Optional<Member> findByEmail(String email);
 
-  @Query("SELECT m FROM Member m " +
+  @Query("SELECT DISTINCT m FROM Member m " +
       "JOIN FETCH m.accountInfo " +
       "JOIN FETCH m.memberDetails " +
-      "JOIN FETCH m.profile " +
+      "JOIN FETCH m.profile p " +
+      "LEFT JOIN FETCH p.nativeLanguages " +
+      "LEFT JOIN FETCH p.interestingLanguages " +
       "WHERE m.email = :email")
   Optional<Member> findWithAllRelationsByEmail(@Param("email") String email);
 
