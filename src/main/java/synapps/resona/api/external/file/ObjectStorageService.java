@@ -6,6 +6,14 @@ import com.oracle.bmc.objectstorage.requests.CopyObjectRequest;
 import com.oracle.bmc.objectstorage.requests.GetObjectRequest;
 import com.oracle.bmc.objectstorage.requests.PutObjectRequest;
 import com.oracle.bmc.objectstorage.responses.GetObjectResponse;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.imageio.ImageIO;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -16,129 +24,123 @@ import synapps.resona.api.external.file.dto.FileMetadataDto;
 import synapps.resona.api.external.file.exception.FileEmptyException;
 import synapps.resona.api.global.config.database.StorageProperties;
 import synapps.resona.api.global.exception.ErrorCode;
-import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.service.MemberService;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ObjectStorageService {
-    private final ObjectStorage objectStorageClient;
-    private final StorageProperties storageProperties;
-    private final MemberService memberService;
-    private final Logger logger = LogManager.getLogger(ObjectStorageService.class);
 
-    // 버퍼 버킷에 임시 저장
-    public FileMetadataDto uploadToBuffer(MultipartFile file, String userEmail) throws IOException {
-        if (file == null || file.isEmpty()) {
-            throw FileEmptyException.of(ErrorCode.FILE_EMPTY_EXCEPTION.toString(), ErrorCode.FILE_EMPTY_EXCEPTION.getStatus(), ErrorCode.FILE_EMPTY_EXCEPTION.getCode());
-        }
+  private final ObjectStorage objectStorageClient;
+  private final StorageProperties storageProperties;
+  private final MemberService memberService;
+  private final Logger logger = LogManager.getLogger(ObjectStorageService.class);
 
-        String temporaryFileName = generateTemporaryFileName(userEmail);
-
-        try {
-            uploadFileToBufferStorage(file, temporaryFileName);
-            return createFileMetadata(file, temporaryFileName);
-        } catch (Exception e) {
-            logger.error("Failed to upload file: " + file.getOriginalFilename(), e);
-            throw new FileUploadException("Failed to upload file", e);
-        }
+  // 버퍼 버킷에 임시 저장
+  public FileMetadataDto uploadToBuffer(MultipartFile file, String userEmail) throws IOException {
+    if (file == null || file.isEmpty()) {
+      throw FileEmptyException.of(ErrorCode.FILE_EMPTY_EXCEPTION.toString(),
+          ErrorCode.FILE_EMPTY_EXCEPTION.getStatus(), ErrorCode.FILE_EMPTY_EXCEPTION.getCode());
     }
 
-    private void uploadFileToBufferStorage(MultipartFile file, String temporaryFileName) throws IOException {
-        PutObjectRequest request = PutObjectRequest.builder()
-                .bucketName(storageProperties.getBufferBucketName())
-                .namespaceName(storageProperties.getNamespace())
-                .objectName(temporaryFileName)
-                .contentType(file.getContentType())
-                .putObjectBody(file.getInputStream())
-                .build();
+    String temporaryFileName = generateTemporaryFileName(userEmail);
 
-        objectStorageClient.putObject(request);
-        logger.info("File uploaded to buffer: {}", temporaryFileName);
+    try {
+      uploadFileToBufferStorage(file, temporaryFileName);
+      return createFileMetadata(file, temporaryFileName);
+    } catch (Exception e) {
+      logger.error("Failed to upload file: " + file.getOriginalFilename(), e);
+      throw new FileUploadException("Failed to upload file", e);
     }
+  }
 
-    private FileMetadataDto createFileMetadata(MultipartFile file, String temporaryFileName) throws IOException {
-        BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
-        return FileMetadataDto.builder()
-                .originalFileName(file.getOriginalFilename())
-                .temporaryFileName(temporaryFileName)
-                .uploadTime(LocalDateTime.now().toString())
-                .contentType(file.getContentType())
-                .width(bufferedImage.getWidth())
-                .height(bufferedImage.getHeight())
-                .fileSize(file.getSize())
-                .build();
-    }
+  private void uploadFileToBufferStorage(MultipartFile file, String temporaryFileName)
+      throws IOException {
+    PutObjectRequest request = PutObjectRequest.builder()
+        .bucketName(storageProperties.getBufferBucketName())
+        .namespaceName(storageProperties.getNamespace())
+        .objectName(temporaryFileName)
+        .contentType(file.getContentType())
+        .putObjectBody(file.getInputStream())
+        .build();
 
-    // 디스크 버킷으로 복사
-    public String copyToDisk(FileMetadataDto metadata, String finalFileName) {
-        CopyObjectDetails copyObjectDetails = CopyObjectDetails.builder()
-                .sourceObjectName(metadata.getTemporaryFileName())
-                .destinationBucket(storageProperties.getDiskBucketName())
-                .destinationNamespace(storageProperties.getNamespace())
-                .destinationObjectName(finalFileName)
-                .destinationRegion(storageProperties.getRegion())
-                .build();
+    objectStorageClient.putObject(request);
+    logger.info("File uploaded to buffer: {}", temporaryFileName);
+  }
 
-        CopyObjectRequest copyRequest = CopyObjectRequest.builder()
-                .namespaceName(storageProperties.getNamespace())
-                .bucketName(storageProperties.getBufferBucketName())
-                .copyObjectDetails(copyObjectDetails)
-                .build();
+  private FileMetadataDto createFileMetadata(MultipartFile file, String temporaryFileName)
+      throws IOException {
+    BufferedImage bufferedImage = ImageIO.read(file.getInputStream());
+    return FileMetadataDto.builder()
+        .originalFileName(file.getOriginalFilename())
+        .temporaryFileName(temporaryFileName)
+        .uploadTime(LocalDateTime.now().toString())
+        .contentType(file.getContentType())
+        .width(bufferedImage.getWidth())
+        .height(bufferedImage.getHeight())
+        .fileSize(file.getSize())
+        .build();
+  }
 
-        objectStorageClient.copyObject(copyRequest);
-        return generateFileUrl(storageProperties.getDiskBucketName(), finalFileName);
-    }
+  // 디스크 버킷으로 복사
+  public String copyToDisk(FileMetadataDto metadata, String finalFileName) {
+    CopyObjectDetails copyObjectDetails = CopyObjectDetails.builder()
+        .sourceObjectName(metadata.getTemporaryFileName())
+        .destinationBucket(storageProperties.getDiskBucketName())
+        .destinationNamespace(storageProperties.getNamespace())
+        .destinationObjectName(finalFileName)
+        .destinationRegion(storageProperties.getRegion())
+        .build();
 
-    private String generateTemporaryFileName(String userEmail) {
-        return String.format("%s_%s_%s",
-                UUID.randomUUID(),
-                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")),
-                userEmail
-        );
-    }
+    CopyObjectRequest copyRequest = CopyObjectRequest.builder()
+        .namespaceName(storageProperties.getNamespace())
+        .bucketName(storageProperties.getBufferBucketName())
+        .copyObjectDetails(copyObjectDetails)
+        .build();
 
-    private String generateFileUrl(String bucketName, String objectName) {
-        return String.format("https://objectstorage.%s.oraclecloud.com/n/%s/b/%s/o/%s",
-                storageProperties.getRegion(),
-                storageProperties.getNamespace(),
-                bucketName,
-                objectName);
-    }
+    objectStorageClient.copyObject(copyRequest);
+    return generateFileUrl(storageProperties.getDiskBucketName(), finalFileName);
+  }
 
-    // 기존 다운로드 메소드는 버킷 이름을 파라미터로 받도록 수정
-    public byte[] downloadFile(String bucketName, String objectName) throws IOException {
-        GetObjectRequest request = GetObjectRequest.builder()
-                .bucketName(bucketName)
-                .namespaceName(storageProperties.getNamespace())
-                .objectName(objectName)
-                .build();
+  private String generateTemporaryFileName(String userEmail) {
+    return String.format("%s_%s_%s",
+        UUID.randomUUID(),
+        LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")),
+        userEmail
+    );
+  }
 
-        GetObjectResponse response = objectStorageClient.getObject(request);
-        return response.getInputStream().readAllBytes();
-    }
+  private String generateFileUrl(String bucketName, String objectName) {
+    return String.format("https://objectstorage.%s.oraclecloud.com/n/%s/b/%s/o/%s",
+        storageProperties.getRegion(),
+        storageProperties.getNamespace(),
+        bucketName,
+        objectName);
+  }
 
-    public List<FileMetadataDto> uploadMultipleFile(List<MultipartFile> files) {
-        String email = memberService.getMemberEmail();
-        return files.parallelStream()
-                .map(file -> {
-                    try {
-                        return uploadToBuffer(file, email);
-                    } catch (IOException e) {
-                        logger.error("Failed to upload file: {}", file.getOriginalFilename(), e);
-                        throw new RuntimeException(e);
-                    }
-                })
-                .collect(Collectors.toList());
-    }
+  // 기존 다운로드 메소드는 버킷 이름을 파라미터로 받도록 수정
+  public byte[] downloadFile(String bucketName, String objectName) throws IOException {
+    GetObjectRequest request = GetObjectRequest.builder()
+        .bucketName(bucketName)
+        .namespaceName(storageProperties.getNamespace())
+        .objectName(objectName)
+        .build();
+
+    GetObjectResponse response = objectStorageClient.getObject(request);
+    return response.getInputStream().readAllBytes();
+  }
+
+  public List<FileMetadataDto> uploadMultipleFile(List<MultipartFile> files) {
+    String email = memberService.getMemberEmail();
+    return files.parallelStream()
+        .map(file -> {
+          try {
+            return uploadToBuffer(file, email);
+          } catch (IOException e) {
+            logger.error("Failed to upload file: {}", file.getOriginalFilename(), e);
+            throw new RuntimeException(e);
+          }
+        })
+        .collect(Collectors.toList());
+  }
 
 }

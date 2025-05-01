@@ -6,13 +6,14 @@ import synapps.resona.api.global.exception.ErrorCode;
 
 public class OAuthProviderMissMatchException extends BaseException {
 
-    protected OAuthProviderMissMatchException(String message, HttpStatus status, String errorCode) {
-        super(message, status, errorCode);
-    }
+  protected OAuthProviderMissMatchException(String message, HttpStatus status, String errorCode) {
+    super(message, status, errorCode);
+  }
 
-    private static OAuthProviderMissMatchException of(ErrorCode errorCode) {
-        return new OAuthProviderMissMatchException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCode());
-    }
+  private static OAuthProviderMissMatchException of(ErrorCode errorCode) {
+    return new OAuthProviderMissMatchException(errorCode.getMessage(), errorCode.getStatus(),
+        errorCode.getCode());
+  }
 
 
 }

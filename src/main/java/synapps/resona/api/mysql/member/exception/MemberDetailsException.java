@@ -6,15 +6,16 @@ import synapps.resona.api.global.exception.ErrorCode;
 
 public class MemberDetailsException extends BaseException {
 
-    protected MemberDetailsException(String message, HttpStatus status, String errorCode) {
-        super(message, status, errorCode);
-    }
+  protected MemberDetailsException(String message, HttpStatus status, String errorCode) {
+    super(message, status, errorCode);
+  }
 
-    private static MemberDetailsException of(ErrorCode errorCode) {
-        return new MemberDetailsException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCode());
-    }
+  private static MemberDetailsException of(ErrorCode errorCode) {
+    return new MemberDetailsException(errorCode.getMessage(), errorCode.getStatus(),
+        errorCode.getCode());
+  }
 
-    public static MemberDetailsException memberDetailsNotFound() {
-        return of(ErrorCode.MEMBER_DETAILS_NOT_FOUND);
-    }
+  public static MemberDetailsException memberDetailsNotFound() {
+    return of(ErrorCode.MEMBER_DETAILS_NOT_FOUND);
+  }
 }

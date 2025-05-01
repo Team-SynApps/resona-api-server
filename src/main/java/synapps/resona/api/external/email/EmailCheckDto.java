@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmailCheckDto {
-    private String email;
-    private String number;
+
+  private String email;
+  private String number;
 }

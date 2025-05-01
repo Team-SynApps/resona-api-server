@@ -1,7 +1,6 @@
 package synapps.resona.api.mysql.member.dto.request.member_details;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,15 +12,15 @@ import synapps.resona.api.mysql.member.entity.member_details.MBTI;
 @NoArgsConstructor
 public class MemberDetailsRequest {
 
-    private Integer timezone;
+  private Integer timezone;
 
-    @NotBlank
-    @Size(max = 20)
-    private String phoneNumber;
+  @NotBlank
+  @Size(max = 20)
+  private String phoneNumber;
 
-    private MBTI mbti;
+  private MBTI mbti;
 
-    private String aboutMe;
+  private String aboutMe;
 
-    private String location;
+  private String location;
 }

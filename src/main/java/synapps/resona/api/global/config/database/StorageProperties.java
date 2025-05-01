@@ -11,10 +11,11 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 public class StorageProperties {
-    private String bucketName;
-    private String compartmentId;
-    private String namespace;
-    private String region;
-    private String bufferBucketName;
-    private String diskBucketName;
+
+  private String bucketName;
+  private String compartmentId;
+  private String namespace;
+  private String region;
+  private String bufferBucketName;
+  private String diskBucketName;
 }

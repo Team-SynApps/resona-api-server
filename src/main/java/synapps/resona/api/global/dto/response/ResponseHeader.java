@@ -8,6 +8,7 @@ import lombok.Setter;
 @Getter
 @AllArgsConstructor
 public class ResponseHeader {
-    private int status;
-    private String message;
+
+  private int status;
+  private String message;
 }

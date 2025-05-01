@@ -1,31 +1,32 @@
 package synapps.resona.api.mysql.member.entity;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import org.junit.jupiter.api.Test;
 import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 public class MemberRefreshTokenTest {
 
-    @Test
-    void testMemberRefreshTokenCreation() {
-        MemberRefreshToken token = new MemberRefreshToken("test@example.com", "refreshToken123");
+  @Test
+  void testMemberRefreshTokenCreation() {
+    MemberRefreshToken token = new MemberRefreshToken("test@example.com", "refreshToken123");
 
-        assertNotNull(token);
-        assertEquals("test@example.com", token.getMemberEmail());
-        assertEquals("refreshToken123", token.getRefreshToken());
-    }
+    assertNotNull(token);
+    assertEquals("test@example.com", token.getMemberEmail());
+    assertEquals("refreshToken123", token.getRefreshToken());
+  }
 
-    @Test
-    void testSettersAndGetters() {
-        MemberRefreshToken token = new MemberRefreshToken();
+  @Test
+  void testSettersAndGetters() {
+    MemberRefreshToken token = new MemberRefreshToken();
 
-        token.setMemberEmail("newuser@example.com");
-        token.setRefreshToken("newRefreshToken456");
+    token.setMemberEmail("newuser@example.com");
+    token.setRefreshToken("newRefreshToken456");
 
-        assertEquals("newuser@example.com", token.getMemberEmail());
-        assertEquals("newRefreshToken456", token.getRefreshToken());
-    }
+    assertEquals("newuser@example.com", token.getMemberEmail());
+    assertEquals("newRefreshToken456", token.getRefreshToken());
+  }
 
 //    @Test
 //    void testEqualsAndHashCode() {

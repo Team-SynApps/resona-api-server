@@ -7,5 +7,6 @@ import synapps.resona.api.mysql.socialMedia.entity.comment.CommentLikes;
 
 @Repository
 public interface CommentLikesRepository extends JpaRepository<CommentLikes, Long> {
-    boolean existsByIdAndMember(Long commentLikesId, Member member);
+
+  boolean existsByIdAndMember(Long commentLikesId, Member member);
 }

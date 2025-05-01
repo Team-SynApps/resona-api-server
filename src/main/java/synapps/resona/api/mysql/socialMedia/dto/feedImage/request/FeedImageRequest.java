@@ -8,8 +8,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FeedImageRequest {
-    private Long feedId;
-    private String url;
-    private String type;
-    private int index;
+
+  private Long feedId;
+  private String url;
+  private String type;
+  private int index;
 }

@@ -10,9 +10,10 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class ProfileImageRequest {
-    @NotNull
-    private Long memberId; // Member와 매핑할 ID
 
-    @Size(max = 512)
-    private String imageUrl;
+  @NotNull
+  private Long memberId; // Member와 매핑할 ID
+
+  @Size(max = 512)
+  private String imageUrl;
 }

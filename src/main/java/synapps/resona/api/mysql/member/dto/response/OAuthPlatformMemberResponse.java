@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OAuthPlatformMemberResponse {
 
-    private String platformId;
-    private String email;
+  private String platformId;
+  private String email;
 }

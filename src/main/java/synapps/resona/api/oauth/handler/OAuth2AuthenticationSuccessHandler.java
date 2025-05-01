@@ -4,6 +4,12 @@ package synapps.resona.api.oauth.handler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URI;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -14,8 +20,8 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.global.properties.AppProperties;
-import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
 import synapps.resona.api.mysql.member.entity.account.RoleType;
+import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
 import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.token.AuthToken;
@@ -25,135 +31,137 @@ import synapps.resona.api.oauth.info.OAuth2UserInfo;
 import synapps.resona.api.oauth.info.OAuth2UserInfoFactory;
 import synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
 
-import java.io.IOException;
-import java.net.URI;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 @Component
 @RequiredArgsConstructor
 public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final AuthTokenProvider tokenProvider;
-    private final AppProperties appProperties;
-    private final MemberRefreshTokenRepository memberRefreshTokenRepository;
-    private final CustomOAuth2AuthorizationRequestRepository authorizationRequestRepository;
-    private final MemberService memberService;
+  private final AuthTokenProvider tokenProvider;
+  private final AppProperties appProperties;
+  private final MemberRefreshTokenRepository memberRefreshTokenRepository;
+  private final CustomOAuth2AuthorizationRequestRepository authorizationRequestRepository;
+  private final MemberService memberService;
 
-    @Value("${oauth.redirect-scheme}")
-    private String redirectScheme;
+  @Value("${oauth.redirect-scheme}")
+  private String redirectScheme;
 
 
-    @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        String targetUrl = determineTargetUrl(request, response, authentication);
+  @Override
+  public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+      Authentication authentication) throws IOException, ServletException {
+    String targetUrl = determineTargetUrl(request, response, authentication);
 
-        if (response.isCommitted()) {
-            logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
-            return;
-        }
-
-        clearAuthenticationAttributes(request, response);
-        redirectToScheme(response, targetUrl);
+    if (response.isCommitted()) {
+      logger.debug("Response has already been committed. Unable to redirect to " + targetUrl);
+      return;
     }
 
-    protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        String baseRedirectUri = (String) request.getSession().getAttribute(redirectScheme);
+    clearAuthenticationAttributes(request, response);
+    redirectToScheme(response, targetUrl);
+  }
 
-        OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
-        ProviderType providerType = ProviderType.valueOf(authToken.getAuthorizedClientRegistrationId().toUpperCase());
+  protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
+      Authentication authentication) {
+    String baseRedirectUri = (String) request.getSession().getAttribute(redirectScheme);
 
-        OidcUser user = ((OidcUser) authentication.getPrincipal());
-        OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, user.getAttributes());
-        Collection<? extends GrantedAuthority> authorities = ((OidcUser) authentication.getPrincipal()).getAuthorities();
+    OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
+    ProviderType providerType = ProviderType.valueOf(
+        authToken.getAuthorizedClientRegistrationId().toUpperCase());
 
-        RoleType roleType = hasAuthority(authorities, RoleType.ADMIN.getCode()) ? RoleType.ADMIN : RoleType.USER;
+    OidcUser user = ((OidcUser) authentication.getPrincipal());
+    OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType,
+        user.getAttributes());
+    Collection<? extends GrantedAuthority> authorities = ((OidcUser) authentication.getPrincipal()).getAuthorities();
 
-        Date now = new Date();
-        AuthToken accessToken = tokenProvider.createAuthToken(
-                userInfo.getEmail(),
-                roleType.getCode(),
-                new Date(now.getTime() + appProperties.getAuth().getTokenExpiry())
-        );
+    RoleType roleType =
+        hasAuthority(authorities, RoleType.ADMIN.getCode()) ? RoleType.ADMIN : RoleType.USER;
 
-        long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
-        AuthToken refreshToken = tokenProvider.createAuthToken(
-                appProperties.getAuth().getTokenSecret(),
-                new Date(now.getTime() + refreshTokenExpiry)
-        );
+    Date now = new Date();
+    AuthToken accessToken = tokenProvider.createAuthToken(
+        userInfo.getEmail(),
+        roleType.getCode(),
+        new Date(now.getTime() + appProperties.getAuth().getTokenExpiry())
+    );
 
-        MemberRefreshToken userRefreshToken = memberRefreshTokenRepository.findByMemberEmail(userInfo.getEmail());
-        if (userRefreshToken != null) {
-            userRefreshToken.setRefreshToken(refreshToken.getToken());
-            memberRefreshTokenRepository.saveAndFlush(userRefreshToken);
-        } else {
-            userRefreshToken = new MemberRefreshToken(userInfo.getEmail(), refreshToken.getToken());
-            memberRefreshTokenRepository.saveAndFlush(userRefreshToken);
-        }
+    long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
+    AuthToken refreshToken = tokenProvider.createAuthToken(
+        appProperties.getAuth().getTokenSecret(),
+        new Date(now.getTime() + refreshTokenExpiry)
+    );
 
-        Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("registered", memberService.isRegisteredMember(userInfo.getEmail()));
-        queryParams.put("accessToken", accessToken.getToken());
-        queryParams.put("refreshToken", refreshToken.getToken());
-
-        return createRedirectScheme(baseRedirectUri, queryParams);
+    MemberRefreshToken userRefreshToken = memberRefreshTokenRepository.findByMemberEmail(
+        userInfo.getEmail());
+    if (userRefreshToken != null) {
+      userRefreshToken.setRefreshToken(refreshToken.getToken());
+      memberRefreshTokenRepository.saveAndFlush(userRefreshToken);
+    } else {
+      userRefreshToken = new MemberRefreshToken(userInfo.getEmail(), refreshToken.getToken());
+      memberRefreshTokenRepository.saveAndFlush(userRefreshToken);
     }
 
-    private String createRedirectScheme(String baseRedirectUri, Map<String, Object> queryParams) {
-        StringBuilder stringBuffer = new StringBuilder()
-                .append(baseRedirectUri)
-                .append("://");
-        for (String key : queryParams.keySet()) {
-            stringBuffer.append(key);
-            stringBuffer.append("=");
-            stringBuffer.append(queryParams.get(key));
-            stringBuffer.append("&");
-        }
-        stringBuffer.deleteCharAt(stringBuffer.length() - 1);
-        return stringBuffer.toString();
+    Map<String, Object> queryParams = new HashMap<>();
+    queryParams.put("registered", memberService.isRegisteredMember(userInfo.getEmail()));
+    queryParams.put("accessToken", accessToken.getToken());
+    queryParams.put("refreshToken", refreshToken.getToken());
+
+    return createRedirectScheme(baseRedirectUri, queryParams);
+  }
+
+  private String createRedirectScheme(String baseRedirectUri, Map<String, Object> queryParams) {
+    StringBuilder stringBuffer = new StringBuilder()
+        .append(baseRedirectUri)
+        .append("://");
+    for (String key : queryParams.keySet()) {
+      stringBuffer.append(key);
+      stringBuffer.append("=");
+      stringBuffer.append(queryParams.get(key));
+      stringBuffer.append("&");
+    }
+    stringBuffer.deleteCharAt(stringBuffer.length() - 1);
+    return stringBuffer.toString();
+  }
+
+  private void redirectToScheme(HttpServletResponse response, String redirectUri)
+      throws IOException {
+    response.setContentType("application/json");
+    response.setCharacterEncoding("UTF-8");
+    response.setStatus(HttpStatus.FOUND.value());
+    response.sendRedirect(redirectUri);
+  }
+
+
+  protected void clearAuthenticationAttributes(HttpServletRequest request,
+      HttpServletResponse response) {
+    super.clearAuthenticationAttributes(request);
+    authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
+  }
+
+  private boolean hasAuthority(Collection<? extends GrantedAuthority> authorities,
+      String authority) {
+    if (authorities == null) {
+      return false;
     }
 
-    private void redirectToScheme(HttpServletResponse response, String redirectUri) throws IOException {
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.setStatus(HttpStatus.FOUND.value());
-        response.sendRedirect(redirectUri);
+    for (GrantedAuthority grantedAuthority : authorities) {
+      if (authority.equals(grantedAuthority.getAuthority())) {
+        return true;
+      }
     }
+    return false;
+  }
 
+  private boolean isAuthorizedRedirectUri(String uri) {
+    URI clientRedirectUri = URI.create(uri);
 
-    protected void clearAuthenticationAttributes(HttpServletRequest request, HttpServletResponse response) {
-        super.clearAuthenticationAttributes(request);
-        authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
-    }
-
-    private boolean hasAuthority(Collection<? extends GrantedAuthority> authorities, String authority) {
-        if (authorities == null) {
-            return false;
-        }
-
-        for (GrantedAuthority grantedAuthority : authorities) {
-            if (authority.equals(grantedAuthority.getAuthority())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isAuthorizedRedirectUri(String uri) {
-        URI clientRedirectUri = URI.create(uri);
-
-        return appProperties.getOauth2().getAuthorizedRedirectUris()
-                .stream()
-                .anyMatch(authorizedRedirectUri -> {
-                    // Only validate host and port. Let the clients use different paths if they want to
-                    URI authorizedURI = URI.create(authorizedRedirectUri);
-                    System.out.println("authorizedURI: " + authorizedURI);
-                    return authorizedURI.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
-                            && authorizedURI.getPort() == clientRedirectUri.getPort();
-                });
-    }
+    return appProperties.getOauth2().getAuthorizedRedirectUris()
+        .stream()
+        .anyMatch(authorizedRedirectUri -> {
+          // Only validate host and port. Let the clients use different paths if they want to
+          URI authorizedURI = URI.create(authorizedRedirectUri);
+          System.out.println("authorizedURI: " + authorizedURI);
+          return authorizedURI.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
+              && authorizedURI.getPort() == clientRedirectUri.getPort();
+        });
+  }
 
 //    protected ResponseEntity<?> getResponse(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 //        Optional<String> redirectUri = CookieUtil.getCookie(request, OAuth2AuthorizationRequestBasedOnCookieRepository.REDIRECT_URI_PARAM_COOKIE_NAME)

@@ -1,7 +1,11 @@
 package synapps.resona.api.mysql.member.dto.request.auth;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -9,6 +13,6 @@ import lombok.*;
 @ToString
 public class AppleLoginRequest {
 
-    @NotBlank(message = "1012:공백일 수 없습니다.")
-    private String token;
+  @NotBlank(message = "1012:공백일 수 없습니다.")
+  private String token;
 }

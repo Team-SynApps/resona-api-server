@@ -1,6 +1,13 @@
 package synapps.resona.api.mysql.socialMedia.entity.comment;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,33 +18,34 @@ import synapps.resona.api.mysql.member.entity.member.Member;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Reply extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "reply_id")
-    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_id")
-    private Comment comment;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "reply_id")
+  private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "comment_id")
+  private Comment comment;
 
-    @Column(name = "content")
-    private String content;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "member_id")
+  private Member member;
 
-    private Reply(Comment comment, Member member, String content) {
-        this.comment = comment;
-        this.member = member;
-        this.content = content;
-    }
+  @Column(name = "content")
+  private String content;
 
-    public static Reply of(Comment comment, Member member, String content) {
-        return new Reply(comment, member, content);
-    }
+  private Reply(Comment comment, Member member, String content) {
+    this.comment = comment;
+    this.member = member;
+    this.content = content;
+  }
 
-    public void update(String content) {
-        this.content = content;
-    }
+  public static Reply of(Comment comment, Member member, String content) {
+    return new Reply(comment, member, content);
+  }
+
+  public void update(String content) {
+    this.content = content;
+  }
 }

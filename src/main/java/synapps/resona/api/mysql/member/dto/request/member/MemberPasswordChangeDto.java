@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class MemberPasswordChangeDto {
-    private String email;
-    private String changedPassword;
+
+  private String email;
+  private String changedPassword;
 }
