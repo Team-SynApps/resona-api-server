@@ -1,6 +1,8 @@
 package synapps.resona.api.global.handler;
 
 
+import static synapps.resona.api.global.exception.ErrorCode.PROVIDER_TYPE_MISSMATCH;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -18,6 +20,7 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.oauth.exception.OAuthException;
 
 /**
  * Spring Security의 인증 실패 처리를 담당하는 커스텀 엔트리포인트 클래스 인증되지 않은 사용자의 보호된 리소스 접근 시도를 처리
@@ -41,28 +44,41 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
       HttpServletResponse response,
       AuthenticationException authException) throws IOException {
 
-    ErrorCode errorCode = ErrorCode.TOKEN_NOT_FOUND;  // 기본적으로 토큰이 없는 경우로 처리
-    logger.error("Authentication error: {}", errorCode.getMessage(), authException);
+    Throwable cause = authException.getCause();
+
+    // 기본 값은 authException에서 가져오기
+    String message = authException.getMessage();
+    String errorCode = "AUTH000"; // default error code
+    int status = HttpServletResponse.SC_UNAUTHORIZED; // 401
+
+    // cause가 OAuthException이라면 더 구체적인 메시지와 코드 사용
+    if (cause instanceof OAuthException oAuthException) {
+      message = oAuthException.getMessage();
+      errorCode = ErrorCode.PROVIDER_TYPE_MISSMATCH.getCode();
+    }
+
+    logger.error("Authentication error: {}", message, authException);
 
     ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
-        errorCode.getStatus().value(),
-        errorCode.getMessage(),
+        status,
+        message,
         request.getRequestURI(),
         serverInfo.getVersionNumber(),
         serverInfo.getServerName(),
-        errorCode.getCode()
+        errorCode
     );
 
     ResponseDto responseData = new ResponseDto(
         metaData,
-        List.of(Map.of("error", errorCode.getMessage()))
+        List.of(Map.of("error", message))
     );
 
-    response.setStatus(errorCode.getStatus().value());
+    response.setStatus(status);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
 
     String jsonResponse = objectMapper.writeValueAsString(responseData);
     response.getWriter().write(jsonResponse);
   }
+
 }

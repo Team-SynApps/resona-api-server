@@ -5,6 +5,7 @@ import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -15,6 +16,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
@@ -75,6 +79,7 @@ public class SecurityConfig {
   private final MemberService memberService;
   private final ClientRegistrationRepository clientRegistrationRepository;
   private final CustomAccessDeniedHandler customAccessDeniedHandler;
+  private final Environment environment;
 
   /*
    * security 설정 시, 사용할 인코더 설정
@@ -96,9 +101,15 @@ public class SecurityConfig {
     http.formLogin(AbstractHttpConfigurer::disable);
     http.httpBasic(AbstractHttpConfigurer::disable);
 
-    http.requiresChannel(channel ->
-        channel.requestMatchers("/oauth2/**").requiresSecure()
-    );
+    if (!Arrays.asList(environment.getActiveProfiles()).contains("dev")) {
+      http.requiresChannel(channel ->
+          channel.requestMatchers("/oauth2/**").requiresSecure()
+      );
+    }
+//
+//    http.requiresChannel(channel ->
+//        channel.requestMatchers("/oauth2/**").requiresSecure()
+//    );
 
     http.authorizeHttpRequests((authorizeHttp) -> authorizeHttp
         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
@@ -128,7 +139,7 @@ public class SecurityConfig {
               .userInfoEndpoint((endpoint) ->
                   endpoint.userService(oAuth2UserService))
               .successHandler(oAuth2AuthenticationSuccessHandler())
-              .failureHandler(oAuth2AuthenticationFailureHandler());
+              .failureHandler(new OAuth2AuthenticationFailureHandler(objectMapper, oAuth2AuthorizationRequestRepository()));
         }
     );
 
@@ -154,9 +165,13 @@ public class SecurityConfig {
    * Oauth 인증 실패 핸들러
    * */
   @Bean
-  public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler() {
-    return new OAuth2AuthenticationFailureHandler(oAuth2AuthorizationRequestRepository());
+  public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler(ObjectMapper objectMapper) {
+    return new OAuth2AuthenticationFailureHandler(
+        objectMapper,
+        oAuth2AuthorizationRequestRepository()
+    );
   }
+
 
 
   /*
