@@ -1,6 +1,15 @@
 package synapps.resona.api.mysql.socialMedia.entity.feedComplaint;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,40 +22,43 @@ import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class FeedComplaint extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "feed_complaint_id")
-    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "complainer_id")
-    private Member complainer;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "feed_complaint_id")
+  private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "complained_id")
-    private Member complainTo;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "complainer_id")
+  private Member complainer;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feed_id")
-    private Feed feed;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "complained_id")
+  private Member complainTo;
 
-    @Enumerated(EnumType.STRING)
-    @NotNull
-    @Column(name = "complains")
-    private Complains complains;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "feed_id")
+  private Feed feed;
 
-    @Column(name = "is_blocked", nullable = false)
-    private boolean isBlocked = false;
+  @Enumerated(EnumType.STRING)
+  @NotNull
+  @Column(name = "complains")
+  private Complains complains;
 
-    private FeedComplaint(Member complainer, Member complainTo, Feed feed, Complains complains, boolean isBlocked) {
-        this.complainer = complainer;
-        this.complainTo = complainTo;
-        this.feed = feed;
-        this.complains = complains;
-        this.isBlocked = isBlocked;
-    }
+  @Column(name = "is_blocked", nullable = false)
+  private boolean isBlocked = false;
 
-    public static FeedComplaint of(Member complainer, Member complainTo, Feed feed, Complains complains, boolean isBlocked) {
-        return new FeedComplaint(complainer, complainTo, feed, complains, isBlocked);
-    }
+  private FeedComplaint(Member complainer, Member complainTo, Feed feed, Complains complains,
+      boolean isBlocked) {
+    this.complainer = complainer;
+    this.complainTo = complainTo;
+    this.feed = feed;
+    this.complains = complains;
+    this.isBlocked = isBlocked;
+  }
+
+  public static FeedComplaint of(Member complainer, Member complainTo, Feed feed,
+      Complains complains, boolean isBlocked) {
+    return new FeedComplaint(complainer, complainTo, feed, complains, isBlocked);
+  }
 }

@@ -6,4 +6,5 @@ import synapps.resona.api.mysql.socialMedia.entity.feedComplaint.FeedComplaint;
 
 @Repository
 public interface FeedComplaintRepository extends JpaRepository<FeedComplaint, Long> {
+
 }

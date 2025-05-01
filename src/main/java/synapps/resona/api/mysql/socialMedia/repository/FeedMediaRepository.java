@@ -6,4 +6,5 @@ import synapps.resona.api.mysql.socialMedia.entity.feedMedia.FeedMedia;
 
 @Repository
 public interface FeedMediaRepository extends JpaRepository<FeedMedia, Long> {
+
 }

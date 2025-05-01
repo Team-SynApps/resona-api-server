@@ -16,50 +16,51 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "comment_id")
-    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "feed_id")
-    private Feed feed;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "comment_id")
+  private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+  @OneToMany(mappedBy = "comment")
+  private final List<Reply> replies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "comment")
-    private final List<Reply> replies = new ArrayList<>();
+  @OneToMany(mappedBy = "comment")
+  private final List<Mention> mentions = new ArrayList<>();
 
-    @OneToMany(mappedBy = "comment")
-    private final List<Mention> mentions = new ArrayList<>();
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "feed_id")
+  private Feed feed;
 
-    @Column(name = "content")
-    private String content;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "member_id")
+  private Member member;
 
-    @Column(name = "is_reply_exist")
-    private boolean isReplyExist = false;
+  @Column(name = "content")
+  private String content;
 
-    private Comment(Feed feed, Member member, String content) {
-        this.feed = feed;
-        this.member = member;
-        this.content = content;
-    }
+  @Column(name = "is_reply_exist")
+  private boolean isReplyExist = false;
 
-    public static Comment of(Feed feed, Member member, String content) {
-        return new Comment(feed, member, content);
-    }
+  private Comment(Feed feed, Member member, String content) {
+    this.feed = feed;
+    this.member = member;
+    this.content = content;
+  }
 
-    public void addReply() {
-        this.isReplyExist = true;
-    }
+  public static Comment of(Feed feed, Member member, String content) {
+    return new Comment(feed, member, content);
+  }
 
-    public void removeReply() {
-        this.isReplyExist = false;
-    }
+  public void addReply() {
+    this.isReplyExist = true;
+  }
 
-    public void updateContent(String content) {
-        this.content = content;
-    }
+  public void removeReply() {
+    this.isReplyExist = false;
+  }
+
+  public void updateContent(String content) {
+    this.content = content;
+  }
 }

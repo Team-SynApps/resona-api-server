@@ -1,5 +1,7 @@
 package synapps.resona.api.mysql.member.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,60 +13,63 @@ import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.FollowRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class FollowService {
-    private final FollowRepository followRepository;
-    private final MemberRepository memberRepository;
-    private final MemberService memberService;
 
-    public void follow(Long toMemberId) {
-        String email = memberService.getMemberEmail();
-        Member fromMember = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);
+  private final FollowRepository followRepository;
+  private final MemberRepository memberRepository;
+  private final MemberService memberService;
 
-        if (fromMember.getId().equals(toMemberId)) {
-            throw FollowException.cantFollowMyself();
-        }
+  public void follow(Long toMemberId) {
+    String email = memberService.getMemberEmail();
+    Member fromMember = memberRepository.findByEmail(email)
+        .orElseThrow(MemberException::memberNotFound);
 
-        Member toMember = memberRepository.findById(toMemberId).orElseThrow(MemberException::followingNotFound);
-
-
-        boolean alreadyFollow = followRepository.existsByFollowerAndFollowing(fromMember, toMember);
-
-        if (alreadyFollow) {
-            throw FollowException.alreadyFollowing();
-        }
-
-
-        Follow follow = Follow.of(fromMember, toMember);
-        followRepository.save(follow);
+    if (fromMember.getId().equals(toMemberId)) {
+      throw FollowException.cantFollowMyself();
     }
 
-    public void unfollow(Long toMemberId) {
-        String email = memberService.getMemberEmail();
-        Member fromMember = memberRepository.findByEmail(email).orElseThrow(MemberException::memberNotFound);
-        Member toMember = memberRepository.findById(toMemberId).orElseThrow(MemberException::followingNotFound);
+    Member toMember = memberRepository.findById(toMemberId)
+        .orElseThrow(MemberException::followingNotFound);
 
-        Follow follow = followRepository.findByFollowerAndFollowing(fromMember, toMember).orElseThrow(FollowException::relationshipNotFound);
+    boolean alreadyFollow = followRepository.existsByFollowerAndFollowing(fromMember, toMember);
 
-        followRepository.delete(follow);
+    if (alreadyFollow) {
+      throw FollowException.alreadyFollowing();
     }
 
-    public List<MemberProfileDto> getFollowers(Long memberId) {
-        return followRepository.findFollowersByFollowingId(memberId)
-                .stream()
-                .map(follow -> MemberProfileDto.from(follow.getFollower(), follow.getFollower().getProfile()))
-                .collect(Collectors.toList());
-    }
+    Follow follow = Follow.of(fromMember, toMember);
+    followRepository.save(follow);
+  }
 
-    public List<MemberProfileDto> getFollowings(Long memberId) {
-        return followRepository.findFollowingsByFollowerId(memberId)
-                .stream()
-                .map(follow -> MemberProfileDto.from(follow.getFollowing(), follow.getFollowing().getProfile()))
-                .collect(Collectors.toList());
-    }
+  public void unfollow(Long toMemberId) {
+    String email = memberService.getMemberEmail();
+    Member fromMember = memberRepository.findByEmail(email)
+        .orElseThrow(MemberException::memberNotFound);
+    Member toMember = memberRepository.findById(toMemberId)
+        .orElseThrow(MemberException::followingNotFound);
+
+    Follow follow = followRepository.findByFollowerAndFollowing(fromMember, toMember)
+        .orElseThrow(FollowException::relationshipNotFound);
+
+    followRepository.delete(follow);
+  }
+
+  public List<MemberProfileDto> getFollowers(Long memberId) {
+    return followRepository.findFollowersByFollowingId(memberId)
+        .stream()
+        .map(follow -> MemberProfileDto.from(follow.getFollower(),
+            follow.getFollower().getProfile()))
+        .collect(Collectors.toList());
+  }
+
+  public List<MemberProfileDto> getFollowings(Long memberId) {
+    return followRepository.findFollowingsByFollowerId(memberId)
+        .stream()
+        .map(follow -> MemberProfileDto.from(follow.getFollowing(),
+            follow.getFollowing().getProfile()))
+        .collect(Collectors.toList());
+  }
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ReplyUpdateRequest {
-    private Long replyId;
-    private String content;
+
+  private Long replyId;
+  private String content;
 }

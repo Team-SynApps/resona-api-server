@@ -11,8 +11,9 @@ import synapps.resona.api.mysql.socialMedia.dto.location.LocationRequest;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FeedRequest {
-    @JsonDeserialize(using = ContentDeserializer.class)
-    private String content;
-    private String category;
-    private LocationRequest location;
+
+  @JsonDeserialize(using = ContentDeserializer.class)
+  private String content;
+  private String category;
+  private LocationRequest location;
 }

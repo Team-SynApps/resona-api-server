@@ -6,4 +6,5 @@ import synapps.resona.api.mysql.socialMedia.entity.feed.Location;
 
 @Repository
 public interface LocationRepository extends JpaRepository<Location, Long> {
+
 }

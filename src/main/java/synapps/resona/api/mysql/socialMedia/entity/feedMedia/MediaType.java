@@ -3,11 +3,11 @@ package synapps.resona.api.mysql.socialMedia.entity.feedMedia;
 import java.util.Arrays;
 
 public enum MediaType {
-    IMAGE, VIDEO, OTHER;
+  IMAGE, VIDEO, OTHER;
 
-    public static MediaType of(String s) {
-        return Arrays.stream(MediaType.values())
-                .filter(m -> m.toString().equals(s))
-                .findAny().orElse(OTHER);
-    }
+  public static MediaType of(String s) {
+    return Arrays.stream(MediaType.values())
+        .filter(m -> m.toString().equals(s))
+        .findAny().orElse(OTHER);
+  }
 }

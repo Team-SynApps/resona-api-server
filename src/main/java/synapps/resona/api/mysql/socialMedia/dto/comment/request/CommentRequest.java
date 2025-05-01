@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CommentRequest {
-    private Long feedId;
-    private String content;
+
+  private Long feedId;
+  private String content;
 }

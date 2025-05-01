@@ -8,24 +8,26 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Configuration
 public class ServerInfoConfig {
-    @Value("${api.version}")
-    private String apiVersion;
 
-    @Value("${server.name}")
-    private String serverName;
+  @Value("${api.version}")
+  private String apiVersion;
 
-    @PostConstruct
-    public void init() {
-        validateApiVersion();
+  @Value("${server.name}")
+  private String serverName;
+
+  @PostConstruct
+  public void init() {
+    validateApiVersion();
+  }
+
+  private void validateApiVersion() {
+    if (apiVersion == null || !apiVersion.matches("v\\d+")) {
+      throw new IllegalStateException(
+          "Invalid API version format. It should be in the format 'vX' where X is a number.");
     }
+  }
 
-    private void validateApiVersion() {
-        if (apiVersion == null || !apiVersion.matches("v\\d+")) {
-            throw new IllegalStateException("Invalid API version format. It should be in the format 'vX' where X is a number.");
-        }
-    }
-
-    public String getVersionNumber() {
-        return apiVersion.substring(1);
-    }
+  public String getVersionNumber() {
+    return apiVersion.substring(1);
+  }
 }

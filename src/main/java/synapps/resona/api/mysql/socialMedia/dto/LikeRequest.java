@@ -8,5 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LikeRequest {
-    private Long feedId;
+
+  private Long feedId;
 }

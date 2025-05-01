@@ -9,6 +9,7 @@ import synapps.resona.api.mysql.socialMedia.entity.feedComplaint.Complains;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FeedComplaintRequest {
-    private Complains complains;
-    private boolean isBlocked;
+
+  private Complains complains;
+  private boolean isBlocked;
 }

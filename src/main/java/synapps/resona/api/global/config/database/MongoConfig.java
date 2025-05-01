@@ -18,14 +18,14 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories(basePackages = "synapps.resona.api.mongo")
 public class MongoConfig {
 
-    private final MongoMappingContext mongoMappingContext;
+  private final MongoMappingContext mongoMappingContext;
 
-    @Bean
-    public MappingMongoConverter mappingMongoConverter(MongoDatabaseFactory mongoDatabaseFactory,
-                                                       MongoMappingContext mongoMappingContext) {
-        DbRefResolver dbRefResolver = new DefaultDbRefResolver(mongoDatabaseFactory);
-        MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, mongoMappingContext);
-        converter.setTypeMapper(new DefaultMongoTypeMapper(null));
-        return converter;
-    }
+  @Bean
+  public MappingMongoConverter mappingMongoConverter(MongoDatabaseFactory mongoDatabaseFactory,
+      MongoMappingContext mongoMappingContext) {
+    DbRefResolver dbRefResolver = new DefaultDbRefResolver(mongoDatabaseFactory);
+    MappingMongoConverter converter = new MappingMongoConverter(dbRefResolver, mongoMappingContext);
+    converter.setTypeMapper(new DefaultMongoTypeMapper(null));
+    return converter;
+  }
 }

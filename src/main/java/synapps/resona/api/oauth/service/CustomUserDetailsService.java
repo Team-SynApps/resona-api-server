@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.exception.MemberException;
-import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.MemberRepository;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 
@@ -16,12 +15,13 @@ import synapps.resona.api.oauth.entity.UserPrincipal;
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
-    private final MemberRepository memberRepository;
+  private final MemberRepository memberRepository;
 
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Member member = memberRepository.findWithAccountInfoByEmail(email).orElseThrow(MemberException::memberNotFound);
-        AccountInfo accountInfo = member.getAccountInfo();
-        return UserPrincipal.create(member, accountInfo);
-    }
+  @Override
+  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    Member member = memberRepository.findWithAccountInfoByEmail(email)
+        .orElseThrow(MemberException::memberNotFound);
+    AccountInfo accountInfo = member.getAccountInfo();
+    return UserPrincipal.create(member, accountInfo);
+  }
 }

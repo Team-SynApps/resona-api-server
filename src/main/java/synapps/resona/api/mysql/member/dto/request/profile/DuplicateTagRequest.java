@@ -8,5 +8,6 @@ import lombok.RequiredArgsConstructor;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class DuplicateTagRequest {
-    private String tag;
+
+  private String tag;
 }

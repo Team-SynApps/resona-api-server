@@ -8,5 +8,6 @@ import synapps.resona.api.ResonaAPIServer;
 @Configuration
 @EnableFeignClients(basePackageClasses = ResonaAPIServer.class)
 public class FeignClientConfig {
+
 }
 

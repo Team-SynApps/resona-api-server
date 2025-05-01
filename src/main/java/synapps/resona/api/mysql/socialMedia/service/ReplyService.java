@@ -21,48 +21,52 @@ import synapps.resona.api.mysql.socialMedia.repository.ReplyRepository;
 @Service
 @RequiredArgsConstructor
 public class ReplyService {
-    private final MemberService memberService;
-    private final ReplyRepository replyRepository;
-    private final CommentRepository commentRepository;
-    private final MemberRepository memberRepository;
 
-    @Transactional
-    public ReplyPostResponse register(ReplyRequest request){
-        MemberDto memberDto = memberService.getMember();
-        Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+  private final MemberService memberService;
+  private final ReplyRepository replyRepository;
+  private final CommentRepository commentRepository;
+  private final MemberRepository memberRepository;
 
-        Comment comment = commentRepository.findById(request.getCommentId()).orElseThrow(CommentException::commentNotFound);
-        comment.addReply();
-        Reply reply = Reply.of(comment, member, request.getContent());
-        replyRepository.save(reply);
-        return ReplyPostResponse.builder()
-                .commentId(comment.getId().toString())
-                .replyId(reply.getId().toString())
-                .content(reply.getContent())
-                .createdAt(reply.getCreatedAt().toString())
-                .build();
-    }
+  @Transactional
+  public ReplyPostResponse register(ReplyRequest request) {
+    MemberDto memberDto = memberService.getMember();
+    Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
-    @Transactional
-    public ReplyReadResponse update(ReplyUpdateRequest request) {
-        Reply reply = replyRepository.findWithCommentById(request.getReplyId()).orElseThrow(ReplyException::replyNotFound);
-        reply.update(request.getContent());
-        return new ReplyReadResponse(reply, reply.getComment().getId());
-    }
+    Comment comment = commentRepository.findById(request.getCommentId())
+        .orElseThrow(CommentException::commentNotFound);
+    comment.addReply();
+    Reply reply = Reply.of(comment, member, request.getContent());
+    replyRepository.save(reply);
+    return ReplyPostResponse.builder()
+        .commentId(comment.getId().toString())
+        .replyId(reply.getId().toString())
+        .content(reply.getContent())
+        .createdAt(reply.getCreatedAt().toString())
+        .build();
+  }
+
+  @Transactional
+  public ReplyReadResponse update(ReplyUpdateRequest request) {
+    Reply reply = replyRepository.findWithCommentById(request.getReplyId())
+        .orElseThrow(ReplyException::replyNotFound);
+    reply.update(request.getContent());
+    return new ReplyReadResponse(reply, reply.getComment().getId());
+  }
 
 
-    public ReplyReadResponse read(Long replyId) {
-        Reply reply = replyRepository.findWithCommentById(replyId).orElseThrow(ReplyException::replyNotFound);
-        return new ReplyReadResponse(reply, reply.getComment().getId());
-    }
+  public ReplyReadResponse read(Long replyId) {
+    Reply reply = replyRepository.findWithCommentById(replyId)
+        .orElseThrow(ReplyException::replyNotFound);
+    return new ReplyReadResponse(reply, reply.getComment().getId());
+  }
 
-    @Transactional
-    public Reply delete(Long replyId) {
-        Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyException::replyNotFound);
-        Comment comment = reply.getComment();
-        comment.removeReply();
-        reply.softDelete();
+  @Transactional
+  public Reply delete(Long replyId) {
+    Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyException::replyNotFound);
+    Comment comment = reply.getComment();
+    comment.removeReply();
+    reply.softDelete();
 
-        return reply;
-    }
+    return reply;
+  }
 }
