@@ -126,19 +126,7 @@ public class MemberService {
     memberDetailsRepository.save(memberDetails);
     accountInfoRepository.save(accountInfo);
 
-    return MemberRegisterResponseDto.builder()
-        .memberId(member.getId())
-        .email(member.getEmail())
-        .tag(profile.getTag())
-        .nationality(profile.getNationality())
-        .countryOfResidence(profile.getCountryOfResidence())
-        .nativeLanguages(profile.getNativeLanguages())
-        .interestingLanguages(profile.getInterestingLanguages())
-        .birth(profile.getBirth().toString())
-        .nickname(profile.getNickname())
-        .profileImageUrl(profile.getProfileImageUrl())
-        .timezone(memberDetails.getTimezone())
-        .build();
+    return MemberRegisterResponseDto.from(member, profile, memberDetails);
   }
 
   private void checkMemberStatus(RegisterRequest request) {
