@@ -91,15 +91,7 @@ public class MemberService {
     MemberDetails memberDetails = member.getMemberDetails();
     Profile profile = member.getProfile();
 
-    return buildMemberInfoDto(accountInfo, memberDetails, profile);
-  }
-
-  private String nullToEmpty(String value) {
-    return value != null ? value : "";
-  }
-
-  private Integer nullToZero(Integer value) {
-    return value != null ? value : 0;
+    return MemberInfoDto.from(accountInfo, memberDetails, profile);
   }
 
   @Transactional
@@ -242,41 +234,4 @@ public class MemberService {
     return null;
   }
 
-  private MemberInfoDto buildMemberInfoDto(AccountInfo accountInfo, MemberDetails memberDetails,
-      Profile profile) {
-    return MemberInfoDto.builder()
-        // Account Info
-        .roleType(nullToEmpty(accountInfo != null ? accountInfo.getRoleType().toString() : null))
-        .accountStatus(nullToEmpty(accountInfo != null ? accountInfo.getStatus().toString() : null))
-        .providerType(
-            nullToEmpty(accountInfo != null ? accountInfo.getProviderType().toString() : null))
-
-        // Member Details
-        .timezone(nullToZero(memberDetails != null ? memberDetails.getTimezone() : null))
-        .phoneNumber(nullToEmpty(memberDetails != null ? memberDetails.getPhoneNumber() : null))
-        .location(nullToEmpty(memberDetails != null ? memberDetails.getLocation() : null))
-        .mbti(nullToEmpty(
-            memberDetails != null ? memberDetails.getMbti() != null ? memberDetails.getMbti()
-                .toString() : null : null))
-        .aboutMe(nullToEmpty(memberDetails != null ? memberDetails.getAboutMe() : null))
-
-        // Profile
-        .nickname(nullToEmpty(profile != null ? profile.getNickname() : null))
-        .tag(nullToEmpty(profile != null ? profile.getTag() : null))
-        .nationality(nullToEmpty(profile != null ? profile.getNationality().toString() : null))
-        .countryOfResidence(
-            nullToEmpty(profile != null ? profile.getCountryOfResidence().toString() : null))
-        .nativeLanguages(profile != null ? profile.getNativeLanguages() : null)
-        .interestingLanguages(profile != null ? profile.getInterestingLanguages() : null)
-        .profileImageUrl(nullToEmpty(profile != null ? profile.getProfileImageUrl() : null))
-        .backgroundImageUrl(nullToEmpty(profile != null ? profile.getBackgroundImageUrl() : null))
-        .birth(profile != null ? DateTimeUtil.localDateTimeToStringSimpleFormat(profile.getBirth())
-            : null)
-        .age(nullToZero(profile != null ? profile.getAge() : null))
-        .gender(nullToEmpty(
-            profile != null ? profile.getGender() != null ? profile.getGender().toString() : null
-                : null))
-        .comment(nullToEmpty(profile != null ? profile.getComment() : null))
-        .build();
-  }
 }
