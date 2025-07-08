@@ -10,7 +10,7 @@
       <MongoDb4
         capped="true"
         collectionSize="1073741824"
-        connection="mongodb://${sys:MONGO_USERNAME}:${sys:MONGO_PASSWORD}@${sys:MONGO_HOST}:${sys:MONGO_PORT}/${sys:MONGO_DB_NAME}?authSource=${sys:MONGO_AUTH_DATABASE}"/>
+        connection="mongodb://${sys:MONGO_USERNAME}:${sys:MONGO_PASSWORD}@${sys:MONGO_HOST}:${sys:MONGO_PORT}/${sys:MONGO_DB_NAME}?authMechanism=PLAIN&amp;authSource=$external&amp;ssl=true&amp;retryWrites=false&amp;loadBalanced=true"/>
       <!-- capped collection 사용 -->
       <!-- 컬렉션 최대 크기 (1GB) 설정 -->
     </NoSql>
