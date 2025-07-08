@@ -24,6 +24,11 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
       "WHERE f.member.id = :memberId")
   List<Feed> findFeedsWithImagesByMemberId(@Param("memberId") Long memberId);
 
+  @Query("SELECT DISTINCT f FROM Feed f " +
+      "LEFT JOIN FETCH f.images " +
+      "WHERE f.id = :feedId")
+  Optional<Feed> findFeedWithImagesByFeedId(@Param("feedId") Long feedId);
+
   @Query("SELECT f.id, COUNT(l) FROM Feed f " +
       "LEFT JOIN f.likes l " +
       "WHERE f.member.id = :memberId " +
