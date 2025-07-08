@@ -29,28 +29,6 @@ public class MemberDetailsService {
     );
   }
 
-  private static MemberDetailsDto buildMemberDetailsDto(MemberDetails memberDetails) {
-    return MemberDetailsDto.builder()
-        .id(memberDetails.getId())
-        .aboutMe(memberDetails.getAboutMe())
-        .location(memberDetails.getLocation())
-        .phoneNumber(memberDetails.getPhoneNumber())
-        .mbti(memberDetails.getMbti())
-        .timezone(memberDetails.getTimezone())
-        .build();
-  }
-
-//    /**
-//     * 전화번호는 제외하고 반환
-//     * @param memberId
-//     * @return
-//     */
-//    public MemberDetailsDto getMemberDetails(Long memberId) {
-//        MemberDetails memberDetails = memberDetailsRepository.findByMemberId(memberId).orElseThrow(MemberException::memberNotFound);
-//
-//        return buildMemberDetailsDto(memberDetails);
-//    }
-
   @Transactional
   public MemberDetailsDto register(MemberDetailsRequest request) {
     String memberEmail = memberService.getMemberEmail();
@@ -61,7 +39,7 @@ public class MemberDetailsService {
 
     MemberDetails registeredMemberDetails = memberDetailsRepository.save(memberDetails);
 
-    return buildMemberDetailsDto(registeredMemberDetails);
+    return MemberDetailsDto.from(registeredMemberDetails);
   }
 
   public MemberDetailsDto getMemberDetails() {
@@ -69,7 +47,7 @@ public class MemberDetailsService {
     MemberDetails memberDetails = memberRepository.findMemberDetailsByEmail(memberEmail)
         .orElseThrow(MemberDetailsException::memberDetailsNotFound);
 
-    return buildMemberDetailsDto(memberDetails);
+    return MemberDetailsDto.from(memberDetails);
   }
 
   @Transactional

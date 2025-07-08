@@ -67,7 +67,7 @@ public class ProfileService {
 
     Profile savedProfile = profileRepository.save(profile);
 
-    return convertToProfileDto(savedProfile);
+    return ProfileDto.from(savedProfile);
   }
 
   @Transactional
@@ -76,7 +76,7 @@ public class ProfileService {
     Profile profile = memberRepository.findProfileByEmail(memberEmail)
         .orElseThrow(ProfileException::profileNotFound);
 
-    return convertToProfileDto(profile);
+    return ProfileDto.from(profile);
   }
 
   /**
@@ -93,7 +93,7 @@ public class ProfileService {
         .orElseThrow(ProfileException::profileNotFound);
     changeProfile(request, profile);
 
-    return convertToProfileDto(profile);
+    return ProfileDto.from(profile);
   }
 
   /**
@@ -126,24 +126,5 @@ public class ProfileService {
           ErrorCode.TIMESTAMP_INVALID.getCode()
       );
     }
-  }
-
-  private ProfileDto convertToProfileDto(Profile profile) {
-    return ProfileDto.builder()
-        .id(profile.getId())
-        .tag(profile.getTag())
-        .nickname(profile.getNickname())
-        .nationality(profile.getNationality().toString())
-        .countryOfResidence(profile.getCountryOfResidence().toString())
-        .nativeLanguages(profile.getNativeLanguages().stream().map((Enum::toString)).toList())
-        .interestingLanguages(
-            profile.getInterestingLanguages().stream().map((Enum::toString)).toList())
-        .profileImageUrl(profile.getProfileImageUrl())
-        .backgroundImageUrl(profile.getBackgroundImageUrl())
-        .comment(profile.getComment())
-        .age(profile.getAge())
-        .birth(DateTimeUtil.localDateTimeToString(profile.getBirth()))
-        .gender(profile.getGender().toString())
-        .build();
   }
 }

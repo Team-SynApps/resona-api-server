@@ -6,12 +6,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Language;
+import synapps.resona.api.mysql.member.entity.profile.Profile;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public class MemberRegisterResponseDto {
 
@@ -47,4 +48,21 @@ public class MemberRegisterResponseDto {
 
   @Schema(description = "프로필 이미지 URL", example = "http://example.com/profile.jpg")
   private String profileImageUrl;
+
+  public static MemberRegisterResponseDto from(Member member, Profile profile,
+      MemberDetails memberDetails) {
+    return MemberRegisterResponseDto.builder()
+        .memberId(member.getId())
+        .email(member.getEmail())
+        .tag(profile.getTag())
+        .nationality(profile.getNationality())
+        .countryOfResidence(profile.getCountryOfResidence())
+        .nativeLanguages(profile.getNativeLanguages())
+        .interestingLanguages(profile.getInterestingLanguages())
+        .birth(profile.getBirth().toString())
+        .nickname(profile.getNickname())
+        .profileImageUrl(profile.getProfileImageUrl())
+        .timezone(memberDetails.getTimezone())
+        .build();
+  }
 }

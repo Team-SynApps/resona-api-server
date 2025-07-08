@@ -37,12 +37,8 @@ public class ReplyService {
     comment.addReply();
     Reply reply = Reply.of(comment, member, request.getContent());
     replyRepository.save(reply);
-    return ReplyPostResponse.builder()
-        .commentId(comment.getId().toString())
-        .replyId(reply.getId().toString())
-        .content(reply.getContent())
-        .createdAt(reply.getCreatedAt().toString())
-        .build();
+
+    return ReplyPostResponse.from(reply, comment.getId());
   }
 
   @Transactional
@@ -50,14 +46,14 @@ public class ReplyService {
     Reply reply = replyRepository.findWithCommentById(request.getReplyId())
         .orElseThrow(ReplyException::replyNotFound);
     reply.update(request.getContent());
-    return new ReplyReadResponse(reply, reply.getComment().getId());
+    return ReplyReadResponse.from(reply);
   }
 
 
   public ReplyReadResponse read(Long replyId) {
     Reply reply = replyRepository.findWithCommentById(replyId)
         .orElseThrow(ReplyException::replyNotFound);
-    return new ReplyReadResponse(reply, reply.getComment().getId());
+    return ReplyReadResponse.from(reply);
   }
 
   @Transactional

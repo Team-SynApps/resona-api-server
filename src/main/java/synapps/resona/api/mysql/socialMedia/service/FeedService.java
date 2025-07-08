@@ -54,64 +54,17 @@ public class FeedService {
   @Transactional
   public FeedResponse updateFeed(Long feedId, FeedUpdateRequest feedRequest) {
     // 예외처리 해줘야 함
-    Feed feed = feedRepository.findById(feedId).orElseThrow(FeedException::feedNotFoundException);
+    Feed feed = feedRepository.findFeedWithImagesByFeedId(feedId).orElseThrow(FeedException::feedNotFoundException);
     feed.updateContent(feedRequest.getContent());
 
-    List<FeedImageDto> feedImageDtos = new ArrayList<>();
-    for (FeedMedia media : feed.getImages()) {
-      FeedImageDto imageDto = FeedImageDto.from(media);
-      feedImageDtos.add(imageDto);
-    }
-    return FeedResponse.builder()
-        .id(feed.getId().toString())
-        .content(feed.getContent())
-        .feedImageDtos(feedImageDtos)
-        .createdAt(DateTimeUtil.localDateTimeToString(feed.getCreatedAt()))
-        .build();
+    return FeedResponse.from(feed);
   }
 
   @Transactional
   public FeedReadResponse readFeed(Long feedId) {
-    Feed feed = feedRepository.findById(feedId).orElseThrow(FeedException::feedNotFoundException);
-    List<FeedMedia> feedMedias = feed.getImages();
-    List<FeedImageDto> feedImageDtos = new ArrayList<>();
+    Feed feed = feedRepository.findFeedWithImagesByFeedId(feedId).orElseThrow(FeedException::feedNotFoundException);
 
-    for (FeedMedia feedMedia : feedMedias) {
-      feedImageDtos.add(
-          FeedImageDto.builder().url(feedMedia.getUrl()).index(feedMedia.getIndex()).build());
-    }
-
-    return FeedReadResponse.builder()
-        .feedImageDtos(feedImageDtos)
-        .id(feed.getId().toString())
-        .createdAt(feed.getCreatedAt().toString())
-        .content(feed.getContent())
-        .build();
-  }
-
-  @Transactional
-  public List<FeedReadResponse> readAllFeeds() {
-    String email = memberService.getMemberEmail();
-    Member member = memberRepository.findByEmail(email)
-        .orElseThrow(MemberException::memberNotFound);
-
-    List<Feed> feeds = feedRepository.findAllByMember(member);
-    List<FeedReadResponse> feedReadResponses = new ArrayList<>();
-    for (Feed feed : feeds) {
-      List<FeedMedia> feedMedias = feed.getImages();
-      List<FeedImageDto> feedImageDtos = new ArrayList<>();
-
-      for (FeedMedia feedMedia : feedMedias) {
-        feedImageDtos.add(
-            FeedImageDto.builder().url(feedMedia.getUrl()).index(feedMedia.getIndex()).build());
-      }
-      feedReadResponses.add(FeedReadResponse.builder()
-          .feedImageDtos(feedImageDtos)
-          .id(feed.getId().toString())
-          .content(feed.getContent())
-          .build());
-    }
-    return feedReadResponses;
+    return FeedReadResponse.from(feed);
   }
 
   public CursorResult<FeedReadResponse> getFeedsByCursorAndMemberId(String cursor, int size,
@@ -246,10 +199,6 @@ public class FeedService {
       locationRepository.save(location);
     }
 
-    return FeedResponse.builder()
-        .id(feed.getId().toString())
-        .feedImageDtos(finalizedFeed)
-        .createdAt(feed.getCreatedAt().toString())
-        .content(feed.getContent()).build();
+    return FeedResponse.from(feed, finalizedFeed);
   }
 }
