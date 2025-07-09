@@ -61,7 +61,7 @@ public class CommentService {
         .orElseThrow(CommentException::commentNotFound);
     // TODO: 예외처리 해야 함.
     return comment.getReplies().stream()
-        .map((reply) -> new ReplyReadResponse(reply, commentId))
+        .map(ReplyReadResponse::from)
         .toList();
   }
 
