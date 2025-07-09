@@ -66,13 +66,6 @@ public class FeedController {
     return ResponseEntity.ok(responseData);
   }
 
-  @GetMapping("/feed/test/all")
-  public ResponseEntity<?> readAllFeed(HttpServletRequest request) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-    ResponseDto responseData = new ResponseDto(metaData, List.of(feedService.readAllFeeds()));
-    return ResponseEntity.ok(responseData);
-  }
-
   @GetMapping("/feeds")
   public ResponseEntity<?> readFeedByCursor(HttpServletRequest request,
       @RequestParam(required = false) String cursor,

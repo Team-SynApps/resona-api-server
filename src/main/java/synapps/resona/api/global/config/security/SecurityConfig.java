@@ -16,9 +16,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
-import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.DefaultOAuth2AuthorizationRequestResolver;
 import org.springframework.security.web.SecurityFilterChain;
@@ -48,6 +45,18 @@ import synapps.resona.api.oauth.service.CustomUserDetailsService;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
+  private final CorsProperties corsProperties;
+  private final AppProperties appProperties;
+  private final AuthTokenProvider tokenProvider;
+  private final ObjectMapper objectMapper;
+  private final ServerInfoConfig serverInfo;
+  private final CustomUserDetailsService userDetailsService;
+  private final MemberRefreshTokenRepository memberRefreshTokenRepository;
+  private final CustomOAuth2UserService oAuth2UserService;
+  private final MemberService memberService;
+  private final ClientRegistrationRepository clientRegistrationRepository;
+  private final CustomAccessDeniedHandler customAccessDeniedHandler;
+  private final Environment environment;
 
   private static final String[] PERMIT_URL_ARRAY = {
       /* swagger v3 */
@@ -64,22 +73,11 @@ public class SecurityConfig {
       "/email/temp-token",
       "/auth/apple"
   };
+
   private static final String[] GUEST_PERMIT_URL_ARRAY = {
       "/member/password",
       "/member/join"
   };
-  private final CorsProperties corsProperties;
-  private final AppProperties appProperties;
-  private final AuthTokenProvider tokenProvider;
-  private final ObjectMapper objectMapper;
-  private final ServerInfoConfig serverInfo;
-  private final CustomUserDetailsService userDetailsService;
-  private final MemberRefreshTokenRepository memberRefreshTokenRepository;
-  private final CustomOAuth2UserService oAuth2UserService;
-  private final MemberService memberService;
-  private final ClientRegistrationRepository clientRegistrationRepository;
-  private final CustomAccessDeniedHandler customAccessDeniedHandler;
-  private final Environment environment;
 
   /*
    * security 설정 시, 사용할 인코더 설정
