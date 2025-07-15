@@ -16,13 +16,13 @@ FROM openjdk:17-slim-buster
 WORKDIR /app
 
 # Oracle ADB SSL 인증서 복사
-COPY ./adb-ca-cert.pem /app/adb-ca-cert.pem
+COPY ./adb-ca-cert.crt.pem /app/adb-ca-cert.crt.pem
 
 # 인증서를 truststore에 등록
 RUN keytool -import -noprompt \
     -alias oracleadb \
     -keystore /usr/local/openjdk-17/lib/security/cacerts \
-    -file /app/adb-ca-cert.pem \
+    -file /app/adb-ca-cert.crt.pem \
     -storepass changeit
 
 # Spring Boot JAR 복사
