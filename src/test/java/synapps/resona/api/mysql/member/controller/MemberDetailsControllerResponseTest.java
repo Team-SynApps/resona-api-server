@@ -36,7 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     }
 )
 @MockBean(JpaMetamodelMappingContext.class)
-class MemberDetailsControllerTest {
+class MemberDetailsControllerResponseTest {
 
   @Autowired
   private MockMvc mockMvc;
