@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -141,10 +142,10 @@ class MemberServiceTest extends IntegrationTestSupport {
   @DisplayName("회원을 삭제한다.")
   void testDeleteUser() {
     // when
-    String result = memberService.deleteUser();
+    Map<String, String> result = memberService.deleteUser();
 
     // then
-    assertThat(result).isEqualTo("delete successful");
+    assertThat(result).isEqualTo(Map.of("message", "User deleted successfully."));
     assertThat(testMember.isDeleted()).isTrue();
   }
 }
