@@ -38,6 +38,7 @@ class MemberRepositoryTest extends IntegrationTestSupport {
         Set.of(Language.KOREAN),
         Set.of(Language.ENGLISH),
         "닉네임3",
+        "태그3",
         "http://profile.img/3",
         "2000-01-01"
     );

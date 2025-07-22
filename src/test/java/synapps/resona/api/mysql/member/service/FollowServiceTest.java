@@ -41,6 +41,7 @@ class FollowServiceTest extends IntegrationTestSupport {
     // 로그인한 사용자 등록
     RegisterRequest me = new RegisterRequest(
         loginEmail,
+        "mine tag",
         "secure123!",
         CountryCode.KR,
         CountryCode.KR,
@@ -57,6 +58,7 @@ class FollowServiceTest extends IntegrationTestSupport {
     // 상대 유저 등록
     RegisterRequest other = new RegisterRequest(
         "target@resona.com",
+        "other tag",
         "secure123!",
         CountryCode.KR,
         CountryCode.KR,
@@ -117,6 +119,7 @@ class FollowServiceTest extends IntegrationTestSupport {
     // (이 경우 상대방을 로그인 상태로 설정 후 follow 호출)
     RegisterRequest other = new RegisterRequest(
         "another@resona.com",
+        "another tag",
         "pw",
         CountryCode.KR,
         CountryCode.KR,

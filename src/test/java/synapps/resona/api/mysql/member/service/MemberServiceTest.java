@@ -116,6 +116,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     // given
     RegisterRequest request = new RegisterRequest(
         "newuser1@example.com",           // email
+        "newuser tag",                          // tag
         "Newpass1@",                      // password (8~30 자리, 알파벳, 숫자, 특수문자 포함)
         CountryCode.KR,                   // nationality (예시: 한국)
         CountryCode.US,                   // countryOfResidence (예시: 미국)

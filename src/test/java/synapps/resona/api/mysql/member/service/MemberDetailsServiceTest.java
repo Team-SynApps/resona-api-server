@@ -34,6 +34,7 @@ class MemberDetailsServiceTest extends IntegrationTestSupport {
   void setUp() {
     RegisterRequest request = new RegisterRequest(
         email,
+        "test tag",
         "secure123!",
         CountryCode.KR,
         CountryCode.KR,
