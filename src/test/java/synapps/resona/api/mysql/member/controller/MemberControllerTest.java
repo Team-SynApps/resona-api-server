@@ -77,10 +77,14 @@ class MemberControllerTest {
   void join_success_with_detailed_dto() throws Exception {
     // given
     RegisterRequest registerRequest = new RegisterRequest(
-        "test@example.com", "testTag123", "validPassword123!",
+        "test@example.com",
+        "testTag123",
+        "validPassword123!",
         CountryCode.KR, CountryCode.US, Set.of(Language.KOREAN), Set.of(Language.ENGLISH),
-        9, LocalDate.of(1995, 5, 10).format(DateTimeFormatter.ISO_LOCAL_DATE),
-        "tester", "http://example.com/profile.jpg"
+        9,
+        LocalDate.of(1995, 5, 10).format(DateTimeFormatter.ISO_LOCAL_DATE),
+        "tester",
+        "http://example.com/profile.jpg"
     );
 
     MemberRegisterResponseDto registerResponse = MemberRegisterResponseDto.builder()
