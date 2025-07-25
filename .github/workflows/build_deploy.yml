@@ -1,4 +1,6 @@
-name: Spring Boot & Gradle & Docker & OCI CD
+# .github/workflows/ci-cd.yml
+
+name: Spring Boot & Gradle & Docker & OCI CI/CD
 
 on:
   push:
@@ -9,8 +11,40 @@ permissions:
   contents: read
 
 jobs:
+  # ===================================================================
+  #  CI Job: Run Tests
+  # ===================================================================
+  ci-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4.2.0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4.4.0
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Run Gradle tests
+        run: ./gradlew test
+
+      - name: Upload Test Report
+        if: always() # 테스트 실패 시에도 리포트 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-report
+          path: build/reports/tests/test
+
+  # ===================================================================
+  #  Build Job: Build & Push Docker Image
+  # ===================================================================
   build:
     runs-on: ubuntu-latest
+    needs: ci-test # Run after ci-test job succeeds
     outputs:
       timestamp: ${{ steps.timestamp.outputs.timestamp }}
     env:
@@ -57,12 +91,16 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/api-server:${{ env.IMAGE_TAG }}
             ${{ secrets.DOCKER_USERNAME }}/api-server:latest
 
+  # ===================================================================
+  #  Deploy Job: Deploy to OCI Instance
+  # ===================================================================
   deploy:
     runs-on: ubuntu-latest
     needs: build
     steps:
       - name: Checkout
         uses: actions/checkout@v4.2.0
+
       - name: Setup OCI config
         run: |
           mkdir -p ~/.oci
@@ -82,43 +120,33 @@ jobs:
           pip3 install oci-cli
 
       - name: Fix OCI CLI file permissions
-        run: |
-          oci setup repair-file-permissions --file ~/.oci/config
+        run: oci setup repair-file-permissions --file ~/.oci/config
 
       - name: Create SSH Key for Bastion
         run: |
           mkdir -p ~/.ssh
-          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_bastion -N ""  
+          ssh-keygen -t rsa -b 4096 -f ~/.ssh/id_rsa_bastion -N ""
           touch ~/.ssh/known_hosts
 
       - name: Create Bastion Session
+        id: create-session # Add an id to reference this step
         run: |
-          oci bastion session create-managed-ssh \
-          --bastion-id ${{ secrets.BASTION_OCID }} \
-          --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
-          --target-os-username ubuntu \
-          --ssh-public-key-file ~/.ssh/id_rsa_bastion.pub \
-          --wait-for-state SUCCEEDED \
-          --wait-interval-seconds 10
-
-      - name: Get Bastion Session OCID
-        id: get-session-ocid
-        run: |
-          echo oci bastion session list --bastion-id ${{ secrets.BASTION_OCID }} --query 'data'
-          SESSION_DETAILS=$(oci bastion session list --bastion-id ${{ secrets.BASTION_OCID }} --query 'data[0]')
-          echo "SESSION_OCID=$(echo $SESSION_DETAILS | jq -r '.id')" >> $GITHUB_ENV
+          SESSION_OCID=$(oci bastion session create-managed-ssh \
+            --bastion-id ${{ secrets.BASTION_OCID }} \
+            --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
+            --target-os-username ubuntu \
+            --ssh-public-key-file ~/.ssh/id_rsa_bastion.pub \
+            --wait-for-state SUCCEEDED \
+            --wait-interval-seconds 10 \
+            --query 'data.id' --raw-output)
+          echo "SESSION_OCID=$SESSION_OCID" >> $GITHUB_ENV
 
       - name: Get SSH Command and key scan
         run: |
           SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata".command' --raw-output)
-          echo "Original SSH_COMMAND: $SSH_COMMAND"
-
           BASTION_KEY_PATH="~/.ssh/id_rsa_bastion"
           SSH_COMMAND=$(echo "$SSH_COMMAND" | sed 's|<privateKey>|'"$BASTION_KEY_PATH"'|g')
-
-          echo "Final SSH_COMMAND: $SSH_COMMAND"
           echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
-
           BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}' | tr -d '"')
           ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
 
@@ -126,35 +154,29 @@ jobs:
         env:
           SSH_COMMAND: ${{ env.SSH_COMMAND }}
         run: |
-          
           chmod 600 ~/.ssh/id_rsa_bastion
           
-          echo "SSH Command: $SSH_COMMAND"
-          SSH_COMMAND="${SSH_COMMAND/ssh /ssh -vvv -o StrictHostKeyChecking=no }"
-          
+          # Execute commands on the remote server via the bastion session
           eval $SSH_COMMAND << EOF
             echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-            docker pull speculatingwook/api-server:latest
+            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:latest
             ./restart-prod.sh
           EOF
 
       - name: Clean up Bastion Session
         if: always()
         run: |
-          oci bastion session delete --session-id ${{ env.SESSION_OCID }} --force
+          if [ -n "${{ env.SESSION_OCID }}" ]; then
+            oci bastion session delete --session-id ${{ env.SESSION_OCID }} --force
+          else
+            echo "Session OCID not found, skipping cleanup."
+          fi
 
 #      - name: Rollback on Failure
 #        if: failure()
+#        needs: build # Make sure it runs after a failed deploy but gets timestamp from build
 #        env:
-#          SSH_COMMAND: ${{ env.SSH_COMMAND }}
+#          SSH_COMMAND: ${{ env.SSH_COMMAND }} # This might not be available if previous steps failed
 #        run: |
-#          chmod 600 ~/.ssh/id_rsa_bastion
-#
-#          eval "$SSH_COMMAND" << EOF
-#            FAILED_TAG=${{ needs.build.outputs.timestamp }}
-#            docker rmi ${{ secrets.DOCKER_USERNAME }}/api-server:$FAILED_TAG || true
-#            LAST_SUCCESSFUL_TAG=$(docker images --format "{{.Tag}}" | grep -E '^[0-9]{14}$' | sort -r | head -n 1)
-#            docker pull ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
-#            docker rm -f api-server || true
-#            docker run -d --name api-server -p 8080:8080 --env-file .env ${{ secrets.DOCKER_USERNAME }}/api-server:$LAST_SUCCESSFUL_TAG
-#          EOF
+#          # Rollback logic needs to be re-evaluated as SSH_COMMAND might not be set
+#          # It's better to create a new bastion session for rollback.
