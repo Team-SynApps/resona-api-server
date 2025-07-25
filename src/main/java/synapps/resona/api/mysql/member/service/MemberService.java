@@ -3,6 +3,7 @@ package synapps.resona.api.mysql.member.service;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -160,13 +161,13 @@ public class MemberService {
   }
 
   @Transactional
-  public String deleteUser() {
+  public Map<String, String> deleteUser() {
     User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     Member member = memberRepository.findByEmail(principal.getUsername())
         .orElseThrow(MemberException::memberNotFound);
     member.softDelete();
     memberRepository.save(member);
-    return "delete successful";
+    return Map.of("message", "User deleted successfully.");
   }
 
   public boolean isCurrentUser(HttpServletRequest request, String requestEmail) {

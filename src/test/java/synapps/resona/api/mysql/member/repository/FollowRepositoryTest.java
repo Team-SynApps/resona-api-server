@@ -135,6 +135,7 @@ class FollowRepositoryTest extends IntegrationTestSupport {
         Set.of(Language.KOREAN),
         Set.of(Language.ENGLISH),
         nickname,
+        nickname + "-tag",
         "http://profile.img/" + nickname,
         "2000-01-01"
     );

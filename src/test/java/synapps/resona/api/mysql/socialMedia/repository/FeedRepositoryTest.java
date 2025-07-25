@@ -201,7 +201,7 @@ class FeedRepositoryTest extends IntegrationTestSupport {
     Profile profile = Profile.of(
         CountryCode.KR, CountryCode.KR,
         Set.of(Language.KOREAN), Set.of(Language.ENGLISH),
-        nickname, "http://img.url/" + nickname, "2000-01-01"
+        nickname,nickname+"-tag", "http://img.url/" + nickname, "2000-01-01"
     );
 
     return Member.of(accountInfo, memberDetails, profile, email, "password", LocalDateTime.now());

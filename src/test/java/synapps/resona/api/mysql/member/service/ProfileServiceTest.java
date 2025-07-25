@@ -72,6 +72,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
 
     RegisterRequest request = new RegisterRequest(
         email,
+        "test tag",
         "secure123!",
         CountryCode.KR,
         CountryCode.KR,
