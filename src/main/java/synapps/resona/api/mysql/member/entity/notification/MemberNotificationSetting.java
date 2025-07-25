@@ -54,4 +54,12 @@ public class MemberNotificationSetting {
     return new MemberNotificationSetting(member, friendRequestEnabled, marketingEnabled,
         serviceNotificationEnabled, socialNotificationEnabled);
   }
+
+  public void update(boolean friendRequestEnabled, boolean marketingEnabled,
+      boolean serviceNotificationEnabled, boolean socialNotificationEnabled) {
+    this.friendRequestEnabled = friendRequestEnabled;
+    this.marketingEnabled = marketingEnabled;
+    this.serviceNotificationEnabled = serviceNotificationEnabled;
+    this.socialNotificationEnabled = socialNotificationEnabled;
+  }
 }

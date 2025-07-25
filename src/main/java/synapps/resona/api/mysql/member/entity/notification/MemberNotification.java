@@ -10,14 +10,16 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.member.Member;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class MemberNotification {
+public class MemberNotification extends BaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,28 +44,21 @@ public class MemberNotification {
   @Column(name = "icon")
   private String icon;
 
+  @Column(name = "is_read")
+  private boolean isRead;
 
+
+  @Builder
   private MemberNotification(Member member, String title, String body, String image, String icon) {
     this.member = member;
     this.title = title;
     this.body = body;
     this.image = image;
     this.icon = icon;
+    this.isRead = false; // 기본값은 false
   }
 
-  private MemberNotification(Member member, String title, String body) {
-    this.member = member;
-    this.title = title;
-    this.body = body;
+  public void read() {
+    this.isRead = true;
   }
-
-  public static MemberNotification of(Member member, String title, String body, String image,
-      String icon) {
-    return new MemberNotification(member, title, body, image, icon);
-  }
-
-  public static MemberNotification of(Member member, String title, String body) {
-    return new MemberNotification(member, title, body);
-  }
-
 }

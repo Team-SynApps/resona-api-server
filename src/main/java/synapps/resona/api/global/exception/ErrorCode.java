@@ -86,6 +86,10 @@ public enum ErrorCode {
 
   // comment
   COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMM001", "Comment not found"),
+
+  // notification
+  NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTI001", "Notification not found"),
+  NOTIFICATION_SETTING_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTI001", "Notification setting not found"),
   ;
 
   private final String code;
