@@ -51,9 +51,19 @@ public class MemberNotification {
     this.icon = icon;
   }
 
+  private MemberNotification(Member member, String title, String body) {
+    this.member = member;
+    this.title = title;
+    this.body = body;
+  }
+
   public static MemberNotification of(Member member, String title, String body, String image,
       String icon) {
     return new MemberNotification(member, title, body, image, icon);
+  }
+
+  public static MemberNotification of(Member member, String title, String body) {
+    return new MemberNotification(member, title, body);
   }
 
 }
