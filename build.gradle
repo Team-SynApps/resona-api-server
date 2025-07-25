@@ -77,7 +77,7 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok:1.18.20'
 
 	// fcm
-	implementation 'com.google.firebase:firebase-admin:9.2.0'
+	implementation 'com.google.firebase:firebase-admin:9.5.0'
 
 	// log
 	implementation 'org.springframework.boot:spring-boot-starter-log4j2'

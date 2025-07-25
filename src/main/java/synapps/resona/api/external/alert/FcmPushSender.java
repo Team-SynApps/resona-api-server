@@ -24,24 +24,24 @@ public class FcmPushSender {
             .setTitle("알림 제목")
             .setBody(fcmSendRequest.notificationType())
             .build())
-        .setAndroidConfig( // Android
-            AndroidConfig.builder()
-                .setNotification(
-                    AndroidNotification.builder()
-                        .setTitle("알림 제목")
-                        .setBody(fcmSendRequest.notificationType())
-                        .setClickAction("push_click")
-                        .build()
-                ).build()
-        ).setApnsConfig( // IOS
-            ApnsConfig.builder()
-                .setAps(Aps.builder()
-                    .setCategory("push_click")
-                    .setBadge(1)
-                    .setSound("default")
-                    .build()
-                ).build()
-        )
+//        .setAndroidConfig( // Android
+//            AndroidConfig.builder()
+//                .setNotification(
+//                    AndroidNotification.builder()
+//                        .setTitle("알림 제목")
+//                        .setBody(fcmSendRequest.notificationType())
+//                        .setClickAction("push_click")
+//                        .build()
+//                ).build()
+//        ).setApnsConfig( // IOS
+//            ApnsConfig.builder()
+//                .setAps(Aps.builder()
+//                    .setCategory("push_click")
+////                    .setBadge(1)
+//                    .setSound("default")
+//                    .build()
+//                ).build()
+//        )
         .build();
     try {
       return FirebaseMessaging.getInstance().send(message);
