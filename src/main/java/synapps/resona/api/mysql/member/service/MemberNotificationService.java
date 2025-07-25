@@ -113,14 +113,10 @@ public class MemberNotificationService {
 
   @Transactional
   public void deleteNotification(Long notificationId) {
-    String memberEmail = memberService.getMemberEmail();
-    Member member = memberRepository.findByEmail(memberEmail)
-        .orElseThrow(MemberException::memberNotFound);
-
     MemberNotification notification = notificationRepository.findById(notificationId)
         .orElseThrow(NotificationException::notificationNotFound);
 
-    notificationRepository.delete(notification);
+    notification.softDelete();
   }
 
   public void sendMessage(String token, String title, String body) throws FirebaseMessagingException {

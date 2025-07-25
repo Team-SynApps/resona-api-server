@@ -21,7 +21,7 @@ import synapps.resona.api.mysql.member.dto.response.notification.NotificationSet
 import synapps.resona.api.mysql.member.service.MemberNotificationService;
 
 @RestController
-@RequestMapping("/api/member/notification")
+@RequestMapping("/notification")
 @RequiredArgsConstructor
 @Tag(name = "Member Notification", description = "회원 알림 관련 API")
 public class MemberNotificationController {
