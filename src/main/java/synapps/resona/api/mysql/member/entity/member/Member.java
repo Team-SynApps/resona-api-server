@@ -26,6 +26,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
+import synapps.resona.api.mysql.member.entity.notification.MemberNotification;
+import synapps.resona.api.mysql.member.entity.notification.MemberNotificationSetting;
+import synapps.resona.api.mysql.member.entity.notification.MemberPushToken;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.socialMedia.entity.Mention;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
@@ -67,6 +70,9 @@ public class Member extends BaseEntity {
   @OneToMany(mappedBy = "complainTo")
   private final List<FeedComplaint> complainedMembers = new ArrayList<>();
 
+  @OneToMany(mappedBy = "member")
+  private final List<MemberPushToken> pushTokens = new ArrayList<>();
+
   @NotBlank
   @Size(max = 50)
   @Email
@@ -86,6 +92,10 @@ public class Member extends BaseEntity {
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
   @JoinColumn(name = "profile_id")
   private Profile profile;
+
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "notification_setting_id")
+  private MemberNotificationSetting notificationSetting;
 
   @NotNull
   @Column(name = "last_accessed_at")
@@ -135,5 +145,9 @@ public class Member extends BaseEntity {
   public void encodePassword(String rawPassword) {
     BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     this.password = passwordEncoder.encode(rawPassword);
+  }
+
+  public void addNotificationSetting(MemberNotificationSetting memberNotificationSetting) {
+    this.notificationSetting = memberNotificationSetting;
   }
 }
