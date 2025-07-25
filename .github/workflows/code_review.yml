@@ -27,6 +27,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: Run Code Review Model
+        working-directory: ./cody-code-reviewer
         run: |
           python src/review_pull_request.py ${{ github.event.pull_request.number }} ${{ github.repository }} > ${{ github.workspace }}/output.txt
         env:
@@ -36,6 +37,7 @@ jobs:
           OPENAI_MODEL: "gpt-4o"
 
       - name: Comment on Pull Request
+        working-directory: ./cody-code-reviewer
         run: |
           python src/comment_on_pr.py ${{ github.event.pull_request.number }} "${{ secrets.GITHUB_TOKEN }}" ${{ github.repository }}
         env:
