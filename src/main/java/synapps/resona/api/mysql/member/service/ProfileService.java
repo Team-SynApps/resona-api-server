@@ -5,16 +5,15 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import synapps.resona.api.global.exception.ErrorCode;
-import synapps.resona.api.global.utils.DateTimeUtil;
+import synapps.resona.api.global.error.core.GlobalErrorCode;
 import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
 import synapps.resona.api.mysql.member.dto.response.ProfileDto;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.exception.InvalidTimeStampException;
 import synapps.resona.api.mysql.member.exception.ProfileException;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
-import synapps.resona.api.mysql.member.repository.ProfileRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
+import synapps.resona.api.mysql.member.repository.profile.ProfileRepository;
 
 
 @Service
@@ -121,9 +120,9 @@ public class ProfileService {
     String regex = "^\\d{4}-\\d{2}-\\d{2}$";
     if (!timestamp.matches(regex)) {
       throw InvalidTimeStampException.of(
-          ErrorCode.TIMESTAMP_INVALID.getMessage(),
-          ErrorCode.TIMESTAMP_INVALID.getStatus(),
-          ErrorCode.TIMESTAMP_INVALID.getCode()
+          GlobalErrorCode.TIMESTAMP_INVALID.getMessage(),
+          GlobalErrorCode.TIMESTAMP_INVALID.getStatus(),
+          GlobalErrorCode.TIMESTAMP_INVALID.getCode()
       );
     }
   }

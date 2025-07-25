@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.metadata.Meta;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.member.dto.request.auth.LoginRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
@@ -36,8 +36,8 @@ public class MemberController {
   private final AuthService authService;
   private final ServerInfoConfig serverInfo;
 
-  private MetaDataDto createSuccessMetaData(String queryString) {
-    return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
+  private Meta createSuccessMetaData(String queryString) {
+    return Meta.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
         serverInfo.getServerName());
   }
 
@@ -54,7 +54,7 @@ public class MemberController {
   @PostMapping("/join")
   public ResponseEntity<?> join(HttpServletRequest request,
       @Valid @RequestBody RegisterRequest registerRequest) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
 
     MemberRegisterResponseDto memberRegisterResponseDto = memberService.signUp(registerRequest);
 
@@ -69,14 +69,14 @@ public class MemberController {
 
   @GetMapping("/info")
   public ResponseEntity<?> getUser(HttpServletRequest request) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.getMember()));
     return ResponseEntity.ok(responseData);
   }
 
   @GetMapping("/detail")
   public ResponseEntity<?> getMemberDetailInfo(HttpServletRequest request) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData,
         List.of(memberService.getMemberDetailInfo()));
     return ResponseEntity.ok(responseData);
@@ -85,7 +85,7 @@ public class MemberController {
   @PostMapping("/password")
   public ResponseEntity<?> changePassword(HttpServletRequest request,
       @RequestBody MemberPasswordChangeDto requestBody) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseDto = new ResponseDto(metaData,
         List.of(memberService.changePassword(request, requestBody)));
     return ResponseEntity.ok(responseDto);
@@ -93,7 +93,7 @@ public class MemberController {
 
   @DeleteMapping()
   public ResponseEntity<?> deleteUser(HttpServletRequest request) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData, List.of(memberService.deleteUser()));
     return ResponseEntity.ok(responseData);
   }

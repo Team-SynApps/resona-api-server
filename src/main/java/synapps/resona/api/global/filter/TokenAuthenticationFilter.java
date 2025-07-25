@@ -19,9 +19,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
+import synapps.resona.api.global.dto.metadata.ErrorMeta;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.core.GlobalErrorCode;
 import synapps.resona.api.global.utils.HeaderUtil;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
@@ -60,18 +60,18 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         } else {
           logger.warn("Invalid token, uri: {}", request.getRequestURI());
           SecurityContextHolder.clearContext();
-          handleAuthenticationError(request, response, ErrorCode.INVALID_TOKEN);
+          handleAuthenticationError(request, response, GlobalErrorCode.INVALID_TOKEN);
           return;
         }
       } catch (ExpiredJwtException e) {
         logger.error("Token expired", e);
         SecurityContextHolder.clearContext();
-        handleAuthenticationError(request, response, ErrorCode.EXPIRED_TOKEN);
+        handleAuthenticationError(request, response, GlobalErrorCode.EXPIRED_TOKEN);
         return;
       } catch (Exception e) {
         logger.error("Could not set user authentication in security context", e);
         SecurityContextHolder.clearContext();
-        handleAuthenticationError(request, response, ErrorCode.INVALID_TOKEN);
+        handleAuthenticationError(request, response, GlobalErrorCode.INVALID_TOKEN);
         return;
       }
     } else {
@@ -87,23 +87,23 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   private void handleAuthenticationError(
       HttpServletRequest request,
       HttpServletResponse response,
-      ErrorCode errorCode) throws IOException {
+      GlobalErrorCode globalErrorCode) throws IOException {
 
-    ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
-        errorCode.getStatus().value(),
-        errorCode.getMessage(),
+    ErrorMeta metaData = ErrorMeta.createErrorMetaData(
+        globalErrorCode.getStatus().value(),
+        globalErrorCode.getMessage(),
         request.getRequestURI(),
         serverInfo.getVersionNumber(),
         serverInfo.getServerName(),
-        errorCode.getCode()
+        globalErrorCode.getCode()
     );
 
     ResponseDto responseData = new ResponseDto(
         metaData,
-        List.of(Map.of("error", errorCode.getMessage()))
+        List.of(Map.of("error", globalErrorCode.getMessage()))
     );
 
-    response.setStatus(errorCode.getStatus().value());
+    response.setStatus(globalErrorCode.getStatus().value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
 

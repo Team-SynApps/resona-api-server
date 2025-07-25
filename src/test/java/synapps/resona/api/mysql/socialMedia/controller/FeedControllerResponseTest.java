@@ -15,6 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.CursorResult;
+import synapps.resona.api.mysql.socialMedia.controller.feed.FeedController;
 import synapps.resona.api.mysql.socialMedia.dto.feed.FeedWithMediaDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRegistrationRequest;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRequest;
@@ -22,7 +23,7 @@ import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedUpdateRequest;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedReadResponse;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedResponse;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
-import synapps.resona.api.mysql.socialMedia.service.FeedService;
+import synapps.resona.api.mysql.socialMedia.service.feed.FeedService;
 
 import java.time.LocalDateTime;
 import java.util.List;

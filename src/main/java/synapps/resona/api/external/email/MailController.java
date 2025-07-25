@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.metadata.Meta;
 import synapps.resona.api.global.dto.response.ResponseDto;
 
 @RestController
@@ -24,13 +24,13 @@ public class MailController {
   private final MailService mailService;
   private final ServerInfoConfig serverInfo;
 
-  private MetaDataDto createSuccessMetaData(String queryString) {
-    return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
+  private Meta createSuccessMetaData(String queryString) {
+    return Meta.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
         serverInfo.getServerName());
   }
 
-  private MetaDataDto createFailMetaData(int status, String message, String queryString) {
-    return MetaDataDto.createErrorMetaData(status, message, queryString, serverInfo.getApiVersion(),
+  private Meta createFailMetaData(int status, String message, String queryString) {
+    return Meta.createErrorMetaData(status, message, queryString, serverInfo.getApiVersion(),
         serverInfo.getServerName());
   }
 
@@ -46,7 +46,7 @@ public class MailController {
   public ResponseEntity<?> sendMail(HttpServletRequest request, String mail) throws EmailException {
     HashMap<String, Object> result = mailService.send(mail);
 
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData, List.of(result));
     return ResponseEntity.ok(responseData);
   }
@@ -62,7 +62,7 @@ public class MailController {
   public ResponseEntity<?> mailCheckAndIssueToken(HttpServletRequest request,
       HttpServletResponse response, @Valid @RequestBody EmailCheckDto emailCheckDto)
       throws EmailException {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData,
         mailService.verifyMailAndIssueToken(emailCheckDto.getEmail(), emailCheckDto.getNumber()));
     return ResponseEntity.ok(responseData);

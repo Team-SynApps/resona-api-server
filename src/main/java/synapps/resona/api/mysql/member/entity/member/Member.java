@@ -26,15 +26,14 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
-import synapps.resona.api.mysql.member.entity.notification.MemberNotification;
 import synapps.resona.api.mysql.member.entity.notification.MemberNotificationSetting;
 import synapps.resona.api.mysql.member.entity.notification.MemberPushToken;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.socialMedia.entity.Mention;
+import synapps.resona.api.mysql.socialMedia.entity.mention.Mention;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Scrap;
-import synapps.resona.api.mysql.socialMedia.entity.feedComplaint.FeedComplaint;
+import synapps.resona.api.mysql.socialMedia.entity.complaint.FeedComplaint;
 
 @Entity
 @Getter

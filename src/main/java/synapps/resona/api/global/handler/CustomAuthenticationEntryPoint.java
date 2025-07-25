@@ -1,8 +1,6 @@
 package synapps.resona.api.global.handler;
 
 
-import static synapps.resona.api.global.exception.ErrorCode.PROVIDER_TYPE_MISSMATCH;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,9 +15,9 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
+import synapps.resona.api.global.dto.metadata.ErrorMeta;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.core.GlobalErrorCode;
 import synapps.resona.api.oauth.exception.OAuthException;
 
 /**
@@ -54,12 +52,12 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
     // cause가 OAuthException이라면 더 구체적인 메시지와 코드 사용
     if (cause instanceof OAuthException oAuthException) {
       message = oAuthException.getMessage();
-      errorCode = ErrorCode.PROVIDER_TYPE_MISSMATCH.getCode();
+      errorCode = GlobalErrorCode.PROVIDER_TYPE_MISSMATCH.getCode();
     }
 
     logger.error("Authentication error: {}", message, authException);
 
-    ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
+    ErrorMeta metaData = ErrorMeta.createErrorMetaData(
         status,
         message,
         request.getRequestURI(),

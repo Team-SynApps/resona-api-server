@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import synapps.resona.api.external.file.dto.FileMetadataDto;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.metadata.Meta;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.member.service.MemberService;
 
@@ -27,15 +27,15 @@ public class ObjectStorageController {
   private final MemberService memberService;
   private final ServerInfoConfig serverInfo;
 
-  private MetaDataDto createSuccessMetaData(String queryString) {
-    return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
+  private Meta createSuccessMetaData(String queryString) {
+    return Meta.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
         serverInfo.getServerName());
   }
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<?> uploadFile(HttpServletRequest request,
       @RequestParam("file") MultipartFile file) throws IOException {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     String email = memberService.getMemberEmail();
     FileMetadataDto fileMetadata = storageService.uploadToBuffer(file, email);
 
@@ -50,7 +50,7 @@ public class ObjectStorageController {
   )
   public ResponseEntity<?> uploadMultipleFiles(HttpServletRequest request,
       @RequestParam("files") List<MultipartFile> files) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     List<FileMetadataDto> fileMetadatas = storageService.uploadMultipleFile(files);
 
     ResponseDto responseData = new ResponseDto(metaData, fileMetadatas);
@@ -70,7 +70,7 @@ public class ObjectStorageController {
   public ResponseEntity<?> finalizeFile(HttpServletRequest request,
       @RequestBody FileMetadataDto metadata,
       @RequestParam String finalFileName) throws IOException {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     String finalUrl = storageService.copyToDisk(metadata, finalFileName);
 
     ResponseDto responseData = new ResponseDto(metaData, List.of(finalUrl));

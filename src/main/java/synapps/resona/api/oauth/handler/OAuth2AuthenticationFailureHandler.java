@@ -1,10 +1,6 @@
 package synapps.resona.api.oauth.handler;
 
-import static synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -14,13 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
-import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
+import synapps.resona.api.global.dto.metadata.ErrorMeta;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.global.exception.ErrorCode;
-import synapps.resona.api.global.utils.CookieUtil;
 import synapps.resona.api.oauth.exception.OAuthException;
 import synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
 
@@ -50,7 +42,7 @@ public class OAuth2AuthenticationFailureHandler implements AuthenticationFailure
       status = oAuthException.getStatus().value();
     }
 
-    ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
+    ErrorMeta metaData = ErrorMeta.createErrorMetaData(
         status,
         message,
         request.getRequestURI(),

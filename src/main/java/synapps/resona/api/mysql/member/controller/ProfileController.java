@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.metadata.Meta;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.member.dto.request.profile.DuplicateTagRequest;
 import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
@@ -27,8 +27,8 @@ public class ProfileController {
   private final ProfileService profileService;
   private final ServerInfoConfig serverInfo;
 
-  private MetaDataDto createSuccessMetaData(String queryString) {
-    return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
+  private Meta createSuccessMetaData(String queryString) {
+    return Meta.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
         serverInfo.getServerName());
   }
 
@@ -43,7 +43,7 @@ public class ProfileController {
   @PostMapping
   public ResponseEntity<?> registerProfile(HttpServletRequest request,
       @Valid @RequestBody ProfileRequest profileRequest) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData,
         List.of(profileService.register(profileRequest)));
     return ResponseEntity.ok(responseData);
@@ -51,7 +51,7 @@ public class ProfileController {
 
   @GetMapping
   public ResponseEntity<?> readProfile(HttpServletRequest request) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData, List.of(profileService.readProfile()));
     return ResponseEntity.ok(responseData);
   }
@@ -68,7 +68,7 @@ public class ProfileController {
   @PutMapping
   public ResponseEntity<?> editProfile(HttpServletRequest request,
       @Valid @RequestBody ProfileRequest profileRequest) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData,
         List.of(profileService.editProfile(profileRequest)));
     return ResponseEntity.ok(responseData);
@@ -76,7 +76,7 @@ public class ProfileController {
 
   @DeleteMapping
   public ResponseEntity<?> deleteProfile(HttpServletRequest request) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData, List.of(profileService.deleteProfile()));
     return ResponseEntity.ok(responseData);
   }
@@ -84,7 +84,7 @@ public class ProfileController {
   @PostMapping("/duplicate-tag")
   public ResponseEntity<?> checkDuplicateId(HttpServletRequest request,
       @RequestBody DuplicateTagRequest duplicateTagRequest) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData,
         List.of(profileService.checkDuplicateTag(duplicateTagRequest.getTag())));
     return ResponseEntity.ok(responseData);

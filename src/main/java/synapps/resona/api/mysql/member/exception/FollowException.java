@@ -1,8 +1,8 @@
 package synapps.resona.api.mysql.member.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.BaseException;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.core.BaseException;
+import synapps.resona.api.global.error.core.GlobalErrorCode;
 
 public class FollowException extends BaseException {
 
@@ -10,19 +10,19 @@ public class FollowException extends BaseException {
     super(message, status, errorCode);
   }
 
-  private static FollowException of(ErrorCode errorCode) {
-    return new FollowException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCode());
+  private static FollowException of(GlobalErrorCode globalErrorCode) {
+    return new FollowException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
   }
 
   public static FollowException alreadyFollowing() {
-    return of(ErrorCode.ALREADY_FOLLOWING);
+    return of(GlobalErrorCode.ALREADY_FOLLOWING);
   }
 
   public static FollowException cantFollowMyself() {
-    return of(ErrorCode.FOLLOWING_MYSELF);
+    return of(GlobalErrorCode.FOLLOWING_MYSELF);
   }
 
   public static FollowException relationshipNotFound() {
-    return of(ErrorCode.FOLLOW_RELATIONSHIP_NOT_FOUND);
+    return of(GlobalErrorCode.FOLLOW_RELATIONSHIP_NOT_FOUND);
   }
 }

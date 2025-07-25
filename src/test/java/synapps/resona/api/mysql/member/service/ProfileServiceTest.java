@@ -26,8 +26,8 @@ import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Gender;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.repository.account.AccountInfoRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
 
 @Transactional

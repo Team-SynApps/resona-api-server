@@ -14,7 +14,7 @@ import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.UserPrincipal;

@@ -1,7 +1,7 @@
 package synapps.resona.api.external.file.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.BaseException;
+import synapps.resona.api.global.error.core.BaseException;
 
 public class FileEmptyException extends BaseException {
 

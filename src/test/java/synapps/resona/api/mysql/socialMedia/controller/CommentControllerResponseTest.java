@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
+import synapps.resona.api.mysql.socialMedia.controller.comment.CommentController;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentPostResponse;
@@ -21,7 +22,7 @@ import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentReadResp
 import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentUpdateResponse;
 import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
-import synapps.resona.api.mysql.socialMedia.service.CommentService;
+import synapps.resona.api.mysql.socialMedia.service.comment.CommentService;
 
 import java.time.LocalDateTime;
 import java.util.List;

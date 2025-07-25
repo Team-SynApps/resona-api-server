@@ -1,8 +1,8 @@
 package synapps.resona.api.mysql.socialMedia.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.BaseException;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.core.BaseException;
+import synapps.resona.api.global.error.core.GlobalErrorCode;
 
 public class ScrapException extends BaseException {
 
@@ -10,15 +10,15 @@ public class ScrapException extends BaseException {
     super(message, status, errorCode);
   }
 
-  private static ScrapException of(ErrorCode errorCode) {
-    return new ScrapException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCode());
+  private static ScrapException of(GlobalErrorCode globalErrorCode) {
+    return new ScrapException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
   }
 
   public static ScrapException scrapNotFound() {
-    return of(ErrorCode.SCRAP_NOT_FOUND);
+    return of(GlobalErrorCode.SCRAP_NOT_FOUND);
   }
 
   public static ScrapException scrapAlreadyExist() {
-    return of(ErrorCode.SCRAP_ALREADY_EXIST);
+    return of(GlobalErrorCode.SCRAP_ALREADY_EXIST);
   }
 }

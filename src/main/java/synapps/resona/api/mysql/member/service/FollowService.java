@@ -10,8 +10,8 @@ import synapps.resona.api.mysql.member.entity.member.Follow;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.exception.FollowException;
 import synapps.resona.api.mysql.member.exception.MemberException;
-import synapps.resona.api.mysql.member.repository.FollowRepository;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.repository.member.FollowRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 
 @Service
 @Transactional

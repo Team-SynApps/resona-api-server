@@ -1,8 +1,8 @@
 package synapps.resona.api.mysql.member.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.BaseException;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.core.BaseException;
+import synapps.resona.api.global.error.core.GlobalErrorCode;
 
 public class MemberDetailsException extends BaseException {
 
@@ -10,12 +10,12 @@ public class MemberDetailsException extends BaseException {
     super(message, status, errorCode);
   }
 
-  private static MemberDetailsException of(ErrorCode errorCode) {
-    return new MemberDetailsException(errorCode.getMessage(), errorCode.getStatus(),
-        errorCode.getCode());
+  private static MemberDetailsException of(GlobalErrorCode globalErrorCode) {
+    return new MemberDetailsException(globalErrorCode.getMessage(), globalErrorCode.getStatus(),
+        globalErrorCode.getCode());
   }
 
   public static MemberDetailsException memberDetailsNotFound() {
-    return of(ErrorCode.MEMBER_DETAILS_NOT_FOUND);
+    return of(GlobalErrorCode.MEMBER_DETAILS_NOT_FOUND);
   }
 }

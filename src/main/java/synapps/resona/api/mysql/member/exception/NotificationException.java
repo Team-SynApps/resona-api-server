@@ -1,8 +1,8 @@
 package synapps.resona.api.mysql.member.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.BaseException;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.core.BaseException;
+import synapps.resona.api.global.error.core.GlobalErrorCode;
 
 public class NotificationException extends BaseException {
 
@@ -10,16 +10,16 @@ public class NotificationException extends BaseException {
     super(message, status, errorCode);
   }
 
-  public static NotificationException of(ErrorCode errorCode) {
-    return new NotificationException(errorCode.getMessage(), errorCode.getStatus(),
-        errorCode.getCode());
+  public static NotificationException of(GlobalErrorCode globalErrorCode) {
+    return new NotificationException(globalErrorCode.getMessage(), globalErrorCode.getStatus(),
+        globalErrorCode.getCode());
   }
 
   public static NotificationException notificationNotFound() {
-    return NotificationException.of(ErrorCode.NOTIFICATION_NOT_FOUND);
+    return NotificationException.of(GlobalErrorCode.NOTIFICATION_NOT_FOUND);
   }
 
   public static NotificationException notificationSettingNotFound() {
-    return NotificationException.of(ErrorCode.NOTIFICATION_NOT_FOUND);
+    return NotificationException.of(GlobalErrorCode.NOTIFICATION_NOT_FOUND);
   }
 }

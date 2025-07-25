@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.metadata.ErrorMeta;
+import synapps.resona.api.global.dto.metadata.Meta;
 import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.core.GlobalErrorCode;
 import synapps.resona.api.mysql.member.dto.request.auth.AppleLoginRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.LoginRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.RefreshRequest;
@@ -33,8 +33,8 @@ public class AuthController {
   private final AuthService authService;
   private final ServerInfoConfig serverInfo;
 
-  private MetaDataDto createSuccessMetaData(String queryString) {
-    return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
+  private Meta createSuccessMetaData(String queryString) {
+    return Meta.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
         serverInfo.getServerName());
   }
 
@@ -44,7 +44,7 @@ public class AuthController {
       HttpServletResponse response,
       @RequestBody LoginRequest loginRequest) {
     TokenResponse tokenResponse = authService.login(loginRequest);
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     return ResponseEntity.ok(new ResponseDto(metaData, List.of(tokenResponse)));
   }
 
@@ -54,7 +54,7 @@ public class AuthController {
       HttpServletResponse response,
       @RequestBody AppleLoginRequest appleRequest) throws Exception {
     TokenResponse tokenResponse = authService.appleLogin(request, response, appleRequest);
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     return ResponseEntity.ok(new ResponseDto(metaData, List.of(tokenResponse)));
   }
 
@@ -63,13 +63,13 @@ public class AuthController {
       HttpServletRequest request,
       @RequestBody RefreshRequest refreshRequest) {
     TokenResponse tokenResponse = authService.refresh(request, refreshRequest);
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     return ResponseEntity.ok(new ResponseDto(metaData, List.of(tokenResponse)));
   }
 
   @GetMapping("/member")
   public ResponseEntity<?> memberExists(HttpServletRequest request, HttpServletResponse response) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     return ResponseEntity.ok()
         .body(new ResponseDto(metaData, List.of(authService.isMember(request, response))));
   }
@@ -79,13 +79,13 @@ public class AuthController {
       AuthenticationException ex,
       HttpServletRequest request
   ) {
-    ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
-        ErrorCode.INVALID_CLIENT.getStatus().value(),
+    ErrorMeta metaData = ErrorMeta.createErrorMetaData(
+        GlobalErrorCode.INVALID_CLIENT.getStatus().value(),
         "계정정보가 일치하지 않습니다.",
         request.getRequestURI(),
         serverInfo.getApiVersion(),
         serverInfo.getServerName(),
-        ErrorCode.INVALID_CLIENT.getCode()
+        GlobalErrorCode.INVALID_CLIENT.getCode()
     );
 
     ResponseDto responseData = new ResponseDto(

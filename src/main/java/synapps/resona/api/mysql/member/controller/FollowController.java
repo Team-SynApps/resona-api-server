@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.metadata.Meta;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.member.dto.response.MemberProfileDto;
 import synapps.resona.api.mysql.member.service.FollowService;
@@ -24,8 +24,8 @@ public class FollowController {
   private final FollowService followService;
   private final ServerInfoConfig serverInfo;
 
-  private MetaDataDto createSuccessMetaData(String queryString) {
-    return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
+  private Meta createSuccessMetaData(String queryString) {
+    return Meta.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
         serverInfo.getServerName());
   }
 
@@ -37,7 +37,7 @@ public class FollowController {
       HttpServletRequest request) {
     followService.follow(memberId);
 
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData, List.of("followed"));
     return ResponseEntity.ok(responseData);
   }
@@ -50,7 +50,7 @@ public class FollowController {
       HttpServletRequest request) {
     followService.unfollow(memberId);
 
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData, List.of("unfollowed"));
     return ResponseEntity.ok(responseData);
   }
@@ -63,7 +63,7 @@ public class FollowController {
       HttpServletRequest request) {
     List<MemberProfileDto> followers = followService.getFollowers(memberId);
 
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData, followers);
     return ResponseEntity.ok(responseData);
   }
@@ -76,7 +76,7 @@ public class FollowController {
       HttpServletRequest request) {
     List<MemberProfileDto> followings = followService.getFollowings(memberId);
 
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData, followings);
     return ResponseEntity.ok(responseData);
   }

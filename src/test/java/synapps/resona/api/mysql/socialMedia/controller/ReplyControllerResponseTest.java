@@ -14,12 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
+import synapps.resona.api.mysql.socialMedia.controller.comment.ReplyController;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyUpdateRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyPostResponse;
 import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Reply;
-import synapps.resona.api.mysql.socialMedia.service.ReplyService;
+import synapps.resona.api.mysql.socialMedia.service.comment.ReplyService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;

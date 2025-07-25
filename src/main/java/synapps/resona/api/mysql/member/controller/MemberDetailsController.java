@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
+import synapps.resona.api.global.dto.metadata.Meta;
 import synapps.resona.api.global.dto.response.ResponseDto;
 import synapps.resona.api.mysql.member.dto.request.member_details.MemberDetailsRequest;
 import synapps.resona.api.mysql.member.service.MemberDetailsService;
@@ -27,8 +27,8 @@ public class MemberDetailsController {
   private final MemberDetailsService memberDetailsService;
   private final ServerInfoConfig serverInfo;
 
-  private MetaDataDto createSuccessMetaData(String queryString) {
-    return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
+  private Meta createSuccessMetaData(String queryString) {
+    return Meta.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
         serverInfo.getServerName());
   }
 
@@ -36,7 +36,7 @@ public class MemberDetailsController {
   @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
   public ResponseEntity<?> registerPersonalInfo(HttpServletRequest request,
       @Valid @RequestBody MemberDetailsRequest memberDetailsRequest) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData,
         List.of(memberDetailsService.register(memberDetailsRequest)));
     return ResponseEntity.ok(responseData);
@@ -44,7 +44,7 @@ public class MemberDetailsController {
 
   @GetMapping
   public ResponseEntity<?> readPersonalInfo(HttpServletRequest request) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData,
         List.of(memberDetailsService.getMemberDetails()));
     return ResponseEntity.ok(responseData);
@@ -63,7 +63,7 @@ public class MemberDetailsController {
   @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
   public ResponseEntity<?> editPersonalInfo(HttpServletRequest request,
       @Valid @RequestBody MemberDetailsRequest memberDetailsRequest) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData,
         List.of(memberDetailsService.editMemberDetails(memberDetailsRequest)));
     return ResponseEntity.ok(responseData);
@@ -72,7 +72,7 @@ public class MemberDetailsController {
   @DeleteMapping
   @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
   public ResponseEntity<?> deletePersonalInfo(HttpServletRequest request) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
+    Meta metaData = createSuccessMetaData(request.getQueryString());
     ResponseDto responseData = new ResponseDto(metaData,
         List.of(memberDetailsService.deleteMemberDetails()));
     return ResponseEntity.ok(responseData);
