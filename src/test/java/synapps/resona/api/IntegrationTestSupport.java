@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration;
 import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
     RedisAutoConfiguration.class,
     RedisRepositoriesAutoConfiguration.class
 })
+@ActiveProfiles("test")
 public abstract class IntegrationTestSupport {
 
 }
