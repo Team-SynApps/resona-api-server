@@ -1,8 +1,8 @@
 package synapps.resona.api.mysql.socialMedia.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.BaseException;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.core.BaseException;
+import synapps.resona.api.global.error.core.GlobalErrorCode;
 
 public class MentionException extends BaseException {
 
@@ -10,12 +10,12 @@ public class MentionException extends BaseException {
     super(message, status, errorCode);
   }
 
-  private static MentionException of(ErrorCode errorCode) {
-    return new MentionException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCode());
+  private static MentionException of(GlobalErrorCode globalErrorCode) {
+    return new MentionException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static MentionException mentionNotFound() {
-    return of(ErrorCode.MENTION_NOT_FOUND);
+    return of(GlobalErrorCode.MENTION_NOT_FOUND);
   }
 
 }

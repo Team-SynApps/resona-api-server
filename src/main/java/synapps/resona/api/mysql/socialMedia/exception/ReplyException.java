@@ -1,8 +1,8 @@
 package synapps.resona.api.mysql.socialMedia.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.BaseException;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.core.BaseException;
+import synapps.resona.api.global.error.core.GlobalErrorCode;
 
 public class ReplyException extends BaseException {
 
@@ -10,11 +10,11 @@ public class ReplyException extends BaseException {
     super(message, status, errorCode);
   }
 
-  private static ReplyException of(ErrorCode errorCode) {
-    return new ReplyException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCode());
+  private static ReplyException of(GlobalErrorCode globalErrorCode) {
+    return new ReplyException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static ReplyException replyNotFound() {
-    return of(ErrorCode.REPLY_NOT_FOUND);
+    return of(GlobalErrorCode.REPLY_NOT_FOUND);
   }
 }

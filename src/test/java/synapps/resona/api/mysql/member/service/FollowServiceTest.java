@@ -18,8 +18,8 @@ import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.response.MemberProfileDto;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Language;
-import synapps.resona.api.mysql.member.repository.FollowRepository;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.repository.member.FollowRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 
 @Transactional
 class FollowServiceTest extends IntegrationTestSupport {

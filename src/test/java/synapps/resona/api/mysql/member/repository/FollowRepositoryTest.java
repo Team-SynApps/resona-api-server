@@ -19,6 +19,8 @@ import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
+import synapps.resona.api.mysql.member.repository.member.FollowRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 
 @Transactional
 class FollowRepositoryTest extends IntegrationTestSupport {

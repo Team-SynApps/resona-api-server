@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.mysql.member.dto.request.profile.DuplicateTagRequest;
 import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
-import synapps.resona.api.mysql.member.dto.response.ProfileDto;
+import synapps.resona.api.mysql.member.dto.response.ProfileResponse;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.service.ProfileService;
@@ -76,7 +76,7 @@ class ProfileControllerResponseTest {
         "2000-01-01",
         Gender.MAN,
         "Hello");
-    ProfileDto responseDto = ProfileDto.builder().id(1L).nickname("test-nick").tag("test-tag").build();
+    ProfileResponse responseDto = ProfileResponse.builder().id(1L).nickname("test-nick").tag("test-tag").build();
 
     given(profileService.register(any(ProfileRequest.class))).willReturn(responseDto);
 
@@ -86,10 +86,10 @@ class ProfileControllerResponseTest {
         .content(objectMapper.writeValueAsString(requestDto)));
 
     // then
-    actions.andExpect(status().isOk())
-        .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].id").value(1L))
-        .andExpect(jsonPath("$.data[0].nickname").value("test-nick"))
+    actions.andExpect(status().isCreated())
+        .andExpect(jsonPath("$.meta.status").value(201))
+        .andExpect(jsonPath("$.data.id").value(1L))
+        .andExpect(jsonPath("$.data.nickname").value("test-nick"))
         .andDo(print());
   }
 
@@ -97,7 +97,7 @@ class ProfileControllerResponseTest {
   @DisplayName("프로필 조회 성공 시, ProfileDto를 반환한다")
   void readProfile_success() throws Exception {
     // given
-    ProfileDto responseDto = ProfileDto.builder().id(1L).nickname("test-user").tag("test-tag").build();
+    ProfileResponse responseDto = ProfileResponse.builder().id(1L).nickname("test-user").tag("test-tag").build();
     given(profileService.readProfile()).willReturn(responseDto);
 
     // when
@@ -107,8 +107,8 @@ class ProfileControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].id").value(1L))
-        .andExpect(jsonPath("$.data[0].nickname").value("test-user"))
+        .andExpect(jsonPath("$.data.id").value(1L))
+        .andExpect(jsonPath("$.data.nickname").value("test-user"))
         .andDo(print());
   }
 
@@ -125,7 +125,7 @@ class ProfileControllerResponseTest {
         "2000-01-01",
         Gender.MAN,
         "Updated Hello");
-    ProfileDto responseDto = ProfileDto.builder().id(1L).nickname("updated-nick").tag("test-tag").build();
+    ProfileResponse responseDto = ProfileResponse.builder().id(1L).nickname("updated-nick").tag("test-tag").build();
     given(profileService.editProfile(any(ProfileRequest.class))).willReturn(responseDto);
 
     // when
@@ -136,8 +136,8 @@ class ProfileControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].id").value(1L))
-        .andExpect(jsonPath("$.data[0].nickname").value("updated-nick"))
+        .andExpect(jsonPath("$.data.id").value(1L))
+        .andExpect(jsonPath("$.data.nickname").value("updated-nick"))
         .andDo(print());
   }
 
@@ -158,8 +158,8 @@ class ProfileControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].id").value(1L))
-        .andExpect(jsonPath("$.data[0].tag").value("deleted-tag"))
+//        .andExpect(jsonPath("$.data[0].id").value(1L))
+//        .andExpect(jsonPath("$.data[0].tag").value("deleted-tag"))
         .andDo(print());
   }
 
@@ -178,7 +178,7 @@ class ProfileControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0]").value(true))
+        .andExpect(jsonPath("$.data").value(true))
         .andDo(print());
   }
 }

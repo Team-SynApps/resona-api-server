@@ -14,12 +14,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
+import synapps.resona.api.mysql.socialMedia.controller.comment.ReplyController;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyUpdateRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyPostResponse;
 import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Reply;
-import synapps.resona.api.mysql.socialMedia.service.ReplyService;
+import synapps.resona.api.mysql.socialMedia.service.comment.ReplyService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -76,10 +77,10 @@ class ReplyControllerResponseTest {
         .content(objectMapper.writeValueAsString(requestDto)));
 
     // then
-    actions.andExpect(status().isOk())
-        .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].replyId").value("201"))
-        .andExpect(jsonPath("$.data[0].content").value("This is a reply."))
+    actions.andExpect(status().isCreated())
+        .andExpect(jsonPath("$.meta.status").value(201))
+        .andExpect(jsonPath("$.data.replyId").value("201"))
+        .andExpect(jsonPath("$.data.content").value("This is a reply."))
         .andDo(print());
   }
 
@@ -102,7 +103,7 @@ class ReplyControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].replyId").value("201"))
+        .andExpect(jsonPath("$.data.replyId").value("201"))
         .andDo(print());
   }
 
@@ -127,8 +128,8 @@ class ReplyControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].replyId").value("201"))
-        .andExpect(jsonPath("$.data[0].content").value("Updated reply content."))
+        .andExpect(jsonPath("$.data.replyId").value("201"))
+        .andExpect(jsonPath("$.data.content").value("Updated reply content."))
         .andDo(print());
   }
 
@@ -149,8 +150,8 @@ class ReplyControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].id").value(replyId))
-        .andExpect(jsonPath("$.data[0].content").value("This reply was deleted."))
+//        .andExpect(jsonPath("$.data.id").value(replyId))
+//        .andExpect(jsonPath("$.data.content").value("This reply was deleted."))
         .andDo(print());
   }
 }

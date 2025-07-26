@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import synapps.resona.api.mysql.socialMedia.dto.media.FeedMediaDto;
 
 @Data
 @NoArgsConstructor

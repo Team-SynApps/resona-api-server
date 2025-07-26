@@ -8,7 +8,7 @@ import synapps.resona.api.mysql.member.entity.hobby.GivenHobby;
 import synapps.resona.api.mysql.member.entity.hobby.Hobby;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.exception.HobbyException;
-import synapps.resona.api.mysql.member.repository.HobbyRepository;
+import synapps.resona.api.mysql.member.repository.hobby.HobbyRepository;
 
 @Service
 @RequiredArgsConstructor

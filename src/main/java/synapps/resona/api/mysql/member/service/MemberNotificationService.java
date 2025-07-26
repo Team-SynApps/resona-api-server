@@ -22,10 +22,10 @@ import synapps.resona.api.mysql.member.entity.notification.MemberNotificationSet
 import synapps.resona.api.mysql.member.entity.notification.MemberPushToken;
 import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.exception.NotificationException;
-import synapps.resona.api.mysql.member.repository.MemberNotificationRepository;
-import synapps.resona.api.mysql.member.repository.MemberNotificationSettingRepository;
-import synapps.resona.api.mysql.member.repository.MemberPushTokenRepository;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.repository.notification.MemberNotificationRepository;
+import synapps.resona.api.mysql.member.repository.notification.MemberNotificationSettingRepository;
+import synapps.resona.api.mysql.member.repository.notification.MemberPushTokenRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 
 @Service
 @RequiredArgsConstructor

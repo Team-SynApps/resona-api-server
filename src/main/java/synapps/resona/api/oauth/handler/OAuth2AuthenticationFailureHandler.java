@@ -1,26 +1,18 @@
 package synapps.resona.api.oauth.handler;
 
-import static synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
-import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
-import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
-import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.global.exception.ErrorCode;
-import synapps.resona.api.global.utils.CookieUtil;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
+import synapps.resona.api.global.dto.ErrorResponse;
+import synapps.resona.api.global.dto.RequestInfo;
+import synapps.resona.api.global.error.core.GlobalErrorCode;
 import synapps.resona.api.oauth.exception.OAuthException;
 import synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
 
@@ -31,6 +23,7 @@ public class OAuth2AuthenticationFailureHandler implements AuthenticationFailure
 
   private final ObjectMapper objectMapper;
   private final CustomOAuth2AuthorizationRequestRepository authorizationRequestRepository;
+  private final ServerInfoConfig serverInfo;
 
   @Override
   public void onAuthenticationFailure(HttpServletRequest request,
@@ -39,34 +32,38 @@ public class OAuth2AuthenticationFailureHandler implements AuthenticationFailure
 
     authorizationRequestRepository.removeAuthorizationRequestCookies(request, response);
 
-    String message = exception.getMessage();
-    String errorCode = "AUTH000";
+    String message = "인증에 실패하였습니다.";
     int status = HttpServletResponse.SC_UNAUTHORIZED;
 
-    // OAuthException이면 커스텀 정보 사용
+    // 커스텀 OAuthException인 경우, 해당 예외의 정보를 사용
     if (exception instanceof OAuthException oAuthException) {
       message = oAuthException.getMessage();
-      errorCode = oAuthException.getErrorCode();
       status = oAuthException.getStatus().value();
+    } else if (exception.getCause() != null) {
+      // 더 구체적인 원인 메시지가 있다면 사용
+      message = exception.getCause().getMessage();
+    } else if (exception.getMessage() != null) {
+      message = exception.getMessage();
     }
 
-    ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
-        status,
-        message,
-        request.getRequestURI(),
-        "1", // API version
-        "resona", // Server name
-        errorCode
+    // 1. 표준 RequestInfo 생성
+    RequestInfo requestInfo = new RequestInfo(
+        serverInfo.getApiVersion(),
+        serverInfo.getServerName(),
+        request.getRequestURI()
     );
 
-    ResponseDto responseDto = new ResponseDto(
-        metaData,
-        List.of(Map.of("error", message))
+    // 2. 표준 ErrorResponse 생성 (동적 에러 정보 사용)
+    ErrorResponse<String> errorResponse = ErrorResponse.of(
+        GlobalErrorCode.UNAUTHORIZED,
+        requestInfo,
+        message
     );
 
+    // 3. 응답 스트림에 직접 작성
     response.setStatus(status);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
-    response.getWriter().write(objectMapper.writeValueAsString(responseDto));
+    response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
   }
 }

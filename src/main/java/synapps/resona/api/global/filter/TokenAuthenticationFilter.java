@@ -8,8 +8,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,9 +17,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.ErrorMetaDataDto;
-import synapps.resona.api.global.dto.response.ResponseDto;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.dto.ErrorResponse;
+import synapps.resona.api.global.dto.RequestInfo;
+import synapps.resona.api.global.error.core.GlobalErrorCode;
 import synapps.resona.api.global.utils.HeaderUtil;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
@@ -60,18 +58,18 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         } else {
           logger.warn("Invalid token, uri: {}", request.getRequestURI());
           SecurityContextHolder.clearContext();
-          handleAuthenticationError(request, response, ErrorCode.INVALID_TOKEN);
+          handleAuthenticationError(request, response, GlobalErrorCode.INVALID_TOKEN);
           return;
         }
       } catch (ExpiredJwtException e) {
         logger.error("Token expired", e);
         SecurityContextHolder.clearContext();
-        handleAuthenticationError(request, response, ErrorCode.EXPIRED_TOKEN);
+        handleAuthenticationError(request, response, GlobalErrorCode.EXPIRED_TOKEN);
         return;
       } catch (Exception e) {
         logger.error("Could not set user authentication in security context", e);
         SecurityContextHolder.clearContext();
-        handleAuthenticationError(request, response, ErrorCode.INVALID_TOKEN);
+        handleAuthenticationError(request, response, GlobalErrorCode.INVALID_TOKEN);
         return;
       }
     } else {
@@ -87,27 +85,25 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   private void handleAuthenticationError(
       HttpServletRequest request,
       HttpServletResponse response,
-      ErrorCode errorCode) throws IOException {
+      GlobalErrorCode globalErrorCode) throws IOException {
 
-    ErrorMetaDataDto metaData = ErrorMetaDataDto.createErrorMetaData(
-        errorCode.getStatus().value(),
-        errorCode.getMessage(),
-        request.getRequestURI(),
-        serverInfo.getVersionNumber(),
+    RequestInfo requestInfo = new RequestInfo(
+        serverInfo.getApiVersion(),
         serverInfo.getServerName(),
-        errorCode.getCode()
+        request.getRequestURI()
     );
 
-    ResponseDto responseData = new ResponseDto(
-        metaData,
-        List.of(Map.of("error", errorCode.getMessage()))
+    ErrorResponse<String> errorResponse = ErrorResponse.of(
+        globalErrorCode,
+        requestInfo,
+        globalErrorCode.getMessage()
     );
 
-    response.setStatus(errorCode.getStatus().value());
+    response.setStatus(globalErrorCode.getStatus().value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
 
-    String jsonResponse = objectMapper.writeValueAsString(responseData);
+    String jsonResponse = objectMapper.writeValueAsString(errorResponse);
     response.getWriter().write(jsonResponse);
   }
 

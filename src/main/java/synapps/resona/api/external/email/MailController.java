@@ -1,21 +1,30 @@
 package synapps.resona.api.external.email;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.util.HashMap;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import synapps.resona.api.external.email.code.EmailSuccessCode;
 import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
-import synapps.resona.api.global.dto.response.ResponseDto;
+import synapps.resona.api.global.dto.ErrorResponse;
+import synapps.resona.api.global.dto.RequestInfo;
+import synapps.resona.api.global.dto.SuccessResponse;
 
+@Tag(name = "Email", description = "이메일 인증 API")
 @RestController
 @RequestMapping("/email")
 @RequiredArgsConstructor
@@ -24,75 +33,38 @@ public class MailController {
   private final MailService mailService;
   private final ServerInfoConfig serverInfo;
 
-  private MetaDataDto createSuccessMetaData(String queryString) {
-    return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
-        serverInfo.getServerName());
+  private RequestInfo createRequestInfo(String path) {
+    return new RequestInfo(serverInfo.getApiVersion(), serverInfo.getServerName(), path);
   }
 
-  private MetaDataDto createFailMetaData(int status, String message, String queryString) {
-    return MetaDataDto.createErrorMetaData(status, message, queryString, serverInfo.getApiVersion(),
-        serverInfo.getServerName());
-  }
-
-  /**
-   * 이메일 인증번호 전송을 위한 API
-   *
-   * @param request HttpServletRequest
-   * @param mail    이메일
-   * @return 남은 발송 횟수 리턴
-   * @throws EmailException 예외 발생시 이메일 예외 던짐
-   */
+  @Operation(summary = "인증 이메일 발송", description = "입력된 이메일 주소로 인증번호를 발송합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "이메일 발송 성공 (남은 발송 횟수 포함)"),
+      @ApiResponse(responseCode = "429", description = "일일 발송 횟수 초과",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  })
   @PostMapping()
-  public ResponseEntity<?> sendMail(HttpServletRequest request, String mail) throws EmailException {
+  public ResponseEntity<SuccessResponse<HashMap<String, Object>>> sendMail(HttpServletRequest request,
+      @Parameter(description = "인증번호를 받을 이메일 주소", required = true) @RequestParam String mail) throws EmailException {
     HashMap<String, Object> result = mailService.send(mail);
 
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-    ResponseDto responseData = new ResponseDto(metaData, List.of(result));
-    return ResponseEntity.ok(responseData);
+    return ResponseEntity
+        .status(EmailSuccessCode.SEND_VERIFICATION_EMAIL_SUCCESS.getStatus())
+        .body(SuccessResponse.of(EmailSuccessCode.SEND_VERIFICATION_EMAIL_SUCCESS, createRequestInfo(request.getQueryString()), result));
   }
 
-  /**
-   * @param request       HttpServletRequest
-   * @param response      HttpServletResponse
-   * @param emailCheckDto email, number
-   * @return accessToken
-   * @throws EmailException 예외 발생시 이메일 예외
-   */
+  @Operation(summary = "이메일 인증 및 임시 토큰 발급", description = "전달받은 인증번호를 확인하고, 일치할 경우 임시 토큰을 발급합니다.")
+  @ApiResponses(value = {
+      @ApiResponse(responseCode = "200", description = "이메일 인증 성공 및 임시 토큰 발급"),
+      @ApiResponse(responseCode = "406", description = "인증번호 불일치",
+          content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  })
   @PostMapping("/temp-token")
-  public ResponseEntity<?> mailCheckAndIssueToken(HttpServletRequest request,
-      HttpServletResponse response, @Valid @RequestBody EmailCheckDto emailCheckDto)
-      throws EmailException {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-    ResponseDto responseData = new ResponseDto(metaData,
-        mailService.verifyMailAndIssueToken(emailCheckDto.getEmail(), emailCheckDto.getNumber()));
-    return ResponseEntity.ok(responseData);
-  }
+  public ResponseEntity<SuccessResponse<?>> mailCheckAndIssueToken(HttpServletRequest request,
+      @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
 
-  // 인증번호 일치여부 확인
-//    @PostMapping("/verification")
-//    public ResponseEntity<?> mailCheck(HttpServletRequest request, @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
-//        boolean isMatch = emailCheckDto.getNumber().equals(redisService.getCode(emailCheckDto.getEmail()));
-//        HashMap<String, Object> map = new HashMap<>();
-//
-//        if (redisService.isEmailCheckAvailable(emailCheckDto.getEmail())) {
-//            throw EmailException.trialExceeded();
-//        }
-//
-//        if (isMatch) {
-//            int remainingCount = redisService.getRemainingEmailAuthenticates(emailCheckDto.getEmail());
-//            map.put("remaining count", remainingCount);
-//            map.put("isMatch", isMatch);
-//            MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-//            ResponseDto responseData = new ResponseDto(metaData, List.of(map));
-//            return ResponseEntity.ok(responseData);
-//        }
-//
-//        MetaDataDto metaData = createFailMetaData(ErrorCode.NOT_ACCEPTABLE.getStatus().value(), ErrorCode.NOT_ACCEPTABLE.getMessage(), request.getQueryString());
-//
-//        int remainingCount = redisService.getRemainingEmailAuthenticates(emailCheckDto.getEmail());
-//        map.put("remaining count", remainingCount);
-//
-//        ResponseDto responseData = new ResponseDto(metaData, List.of(map));
-//        return new ResponseEntity<>(responseData, HttpStatus.NOT_ACCEPTABLE);
-//    }
+    return ResponseEntity
+        .status(EmailSuccessCode.EMAIL_VERIFICATION_SUCCESS.getStatus())
+        .body(SuccessResponse.of(EmailSuccessCode.EMAIL_VERIFICATION_SUCCESS, createRequestInfo(request.getQueryString()), mailService.verifyMailAndIssueToken(emailCheckDto.getEmail(), emailCheckDto.getNumber())));
+  }
 }

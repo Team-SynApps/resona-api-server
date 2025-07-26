@@ -4,11 +4,11 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.mysql.member.dto.request.member_details.MemberDetailsRequest;
-import synapps.resona.api.mysql.member.dto.response.MemberDetailsDto;
+import synapps.resona.api.mysql.member.dto.response.MemberDetailsResponse;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.exception.MemberDetailsException;
-import synapps.resona.api.mysql.member.repository.MemberDetailsRepository;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.repository.member_details.MemberDetailsRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +30,7 @@ public class MemberDetailsService {
   }
 
   @Transactional
-  public MemberDetailsDto register(MemberDetailsRequest request) {
+  public MemberDetailsResponse register(MemberDetailsRequest request) {
     String memberEmail = memberService.getMemberEmail();
 
     MemberDetails memberDetails = memberRepository.findMemberDetailsByEmail(memberEmail)
@@ -39,15 +39,15 @@ public class MemberDetailsService {
 
     MemberDetails registeredMemberDetails = memberDetailsRepository.save(memberDetails);
 
-    return MemberDetailsDto.from(registeredMemberDetails);
+    return MemberDetailsResponse.from(registeredMemberDetails);
   }
 
-  public MemberDetailsDto getMemberDetails() {
+  public MemberDetailsResponse getMemberDetails() {
     String memberEmail = memberService.getMemberEmail();
     MemberDetails memberDetails = memberRepository.findMemberDetailsByEmail(memberEmail)
         .orElseThrow(MemberDetailsException::memberDetailsNotFound);
 
-    return MemberDetailsDto.from(memberDetails);
+    return MemberDetailsResponse.from(memberDetails);
   }
 
   @Transactional
