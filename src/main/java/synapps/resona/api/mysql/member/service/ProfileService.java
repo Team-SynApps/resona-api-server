@@ -5,7 +5,8 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import synapps.resona.api.global.error.core.GlobalErrorCode;
+import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.mysql.member.code.MemberErrorCode;
 import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
 import synapps.resona.api.mysql.member.dto.response.ProfileResponse;
 import synapps.resona.api.mysql.member.entity.profile.Language;
@@ -120,9 +121,9 @@ public class ProfileService {
     String regex = "^\\d{4}-\\d{2}-\\d{2}$";
     if (!timestamp.matches(regex)) {
       throw InvalidTimeStampException.of(
-          GlobalErrorCode.TIMESTAMP_INVALID.getMessage(),
-          GlobalErrorCode.TIMESTAMP_INVALID.getStatus(),
-          GlobalErrorCode.TIMESTAMP_INVALID.getCustomCode()
+          MemberErrorCode.TIMESTAMP_INVALID.getMessage(),
+          MemberErrorCode.TIMESTAMP_INVALID.getStatus(),
+          MemberErrorCode.TIMESTAMP_INVALID.getCustomCode()
       );
     }
   }

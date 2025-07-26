@@ -1,7 +1,8 @@
-package synapps.resona.api.global.dto;
+package synapps.resona.api.global.dto.metadata;
 
 import lombok.Getter;
-import synapps.resona.api.global.error.core.ErrorCode;
+import synapps.resona.api.global.dto.RequestInfo;
+import synapps.resona.api.global.dto.code.ErrorCode;
 
 @Getter
 public class ErrorMeta extends Meta {

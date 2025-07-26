@@ -1,4 +1,4 @@
-package synapps.resona.api.global.error;
+package synapps.resona.api.global.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
@@ -11,14 +11,16 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import synapps.resona.api.external.email.code.EmailErrorCode;
 import synapps.resona.api.external.email.dto.EmailCheckExceptionDto;
 import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.ErrorResponse;
+import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.RequestInfo;
-import synapps.resona.api.global.error.core.BaseException;
-import synapps.resona.api.global.error.core.ErrorCode;
-import synapps.resona.api.global.error.core.GlobalErrorCode;
+import synapps.resona.api.global.error.exception.BaseException;
+import synapps.resona.api.global.dto.code.ErrorCode;
+import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.mysql.member.code.AuthErrorCode;
 import synapps.resona.api.mysql.member.exception.AuthException;
 
 @RestControllerAdvice
@@ -65,10 +67,10 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(EmailException.class)
   public ResponseEntity<?> handleEmailException(EmailException ex, HttpServletRequest request) {
     RequestInfo requestInfo = createRequestInfo(request);
-    if (ex.getErrorCode().equals(GlobalErrorCode.INVALID_EMAIL_CODE.getCustomCode())) {
+    if (ex.getErrorCode().equals(EmailErrorCode.INVALID_EMAIL_CODE.getCustomCode())) {
       EmailCheckExceptionDto body = new EmailCheckExceptionDto(ex.getMessage(),
           ex.getMailCheckCountLeft());
-      return createErrorResponse(GlobalErrorCode.INVALID_EMAIL_CODE, requestInfo, body);
+      return createErrorResponse(EmailErrorCode.INVALID_EMAIL_CODE, requestInfo, body);
     }
     logger.error(ex.getMessage(), ex);
     return createErrorResponse(GlobalErrorCode.INTERNAL_SERVER_ERROR, requestInfo);
@@ -86,7 +88,7 @@ public class GlobalExceptionHandler {
     logger.error("Authentication failed: {}", ex.getMessage());
     RequestInfo requestInfo = createRequestInfo(request);
 
-    return createErrorResponse(GlobalErrorCode.LOGIN_FAILED, requestInfo, ex.getMessage());
+    return createErrorResponse(AuthErrorCode.LOGIN_FAILED, requestInfo, ex.getMessage());
   }
 
   private <T> ResponseEntity<ErrorResponse<T>> createErrorResponse(ErrorCode code, RequestInfo info) {

@@ -1,4 +1,4 @@
-package synapps.resona.api.global.error.core;
+package synapps.resona.api.global.error.exception;
 
 import org.springframework.http.HttpStatus;
 

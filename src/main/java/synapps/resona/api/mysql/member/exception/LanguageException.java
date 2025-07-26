@@ -1,8 +1,9 @@
 package synapps.resona.api.mysql.member.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.error.core.BaseException;
-import synapps.resona.api.global.error.core.GlobalErrorCode;
+import synapps.resona.api.global.error.exception.BaseException;
+import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.mysql.member.code.MemberErrorCode;
 
 public class LanguageException extends BaseException {
 
@@ -10,12 +11,12 @@ public class LanguageException extends BaseException {
     super(message, status, errorCode);
   }
 
-  private static LanguageException of(GlobalErrorCode globalErrorCode) {
-    return new LanguageException(globalErrorCode.getMessage(), globalErrorCode.getStatus(),
-        globalErrorCode.getCustomCode());
+  private static LanguageException of(MemberErrorCode errorCode) {
+    return new LanguageException(errorCode.getMessage(), errorCode.getStatus(),
+        errorCode.getCustomCode());
   }
 
   public static LanguageException languageNotFound() {
-    return LanguageException.of(GlobalErrorCode.LANGUAGE_NOT_FOUND);
+    return LanguageException.of(MemberErrorCode.LANGUAGE_NOT_FOUND);
   }
 }

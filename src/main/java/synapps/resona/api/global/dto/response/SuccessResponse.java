@@ -1,7 +1,11 @@
-package synapps.resona.api.global.dto;
+package synapps.resona.api.global.dto.response;
 
 import lombok.Getter;
-import synapps.resona.api.global.success.SuccessCode;
+import synapps.resona.api.global.dto.metadata.CursorMeta;
+import synapps.resona.api.global.dto.metadata.Meta;
+import synapps.resona.api.global.dto.RequestInfo;
+import synapps.resona.api.global.dto.metadata.SuccessMeta;
+import synapps.resona.api.global.dto.code.SuccessCode;
 
 @Getter
 public class SuccessResponse<T> extends BaseResponse<T> {

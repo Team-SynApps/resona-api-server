@@ -1,7 +1,10 @@
-package synapps.resona.api.global.dto;
+package synapps.resona.api.global.dto.response;
 
 import lombok.Getter;
-import synapps.resona.api.global.error.core.ErrorCode;
+import synapps.resona.api.global.dto.metadata.ErrorMeta;
+import synapps.resona.api.global.dto.metadata.Meta;
+import synapps.resona.api.global.dto.RequestInfo;
+import synapps.resona.api.global.dto.code.ErrorCode;
 
 @Getter
 public class ErrorResponse<T> extends BaseResponse<T>{

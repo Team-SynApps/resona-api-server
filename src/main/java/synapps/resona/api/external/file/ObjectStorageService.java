@@ -20,10 +20,11 @@ import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import synapps.resona.api.external.file.code.FileErrorCode;
 import synapps.resona.api.external.file.dto.FileMetadataDto;
 import synapps.resona.api.external.file.exception.FileEmptyException;
 import synapps.resona.api.global.config.database.StorageProperties;
-import synapps.resona.api.global.error.core.GlobalErrorCode;
+import synapps.resona.api.global.error.GlobalErrorCode;
 import synapps.resona.api.mysql.member.service.MemberService;
 
 @Service
@@ -38,8 +39,8 @@ public class ObjectStorageService {
   // 버퍼 버킷에 임시 저장
   public FileMetadataDto uploadToBuffer(MultipartFile file, String userEmail) throws IOException {
     if (file == null || file.isEmpty()) {
-      throw FileEmptyException.of(GlobalErrorCode.FILE_EMPTY_EXCEPTION.toString(),
-          GlobalErrorCode.FILE_EMPTY_EXCEPTION.getStatus(), GlobalErrorCode.FILE_EMPTY_EXCEPTION.getCustomCode());
+      throw FileEmptyException.of(FileErrorCode.FILE_EMPTY_EXCEPTION.toString(),
+          FileErrorCode.FILE_EMPTY_EXCEPTION.getStatus(), FileErrorCode.FILE_EMPTY_EXCEPTION.getCustomCode());
     }
 
     String temporaryFileName = generateTemporaryFileName(userEmail);

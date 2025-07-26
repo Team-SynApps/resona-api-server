@@ -1,7 +1,9 @@
-package synapps.resona.api.global.dto;
+package synapps.resona.api.global.dto.metadata;
 
 import lombok.Getter;
-import synapps.resona.api.global.success.SuccessCode;
+import synapps.resona.api.global.dto.RequestInfo;
+import synapps.resona.api.global.dto.code.StatusCode;
+import synapps.resona.api.global.dto.code.SuccessCode;
 
 @Getter
 public class SuccessMeta extends Meta {

@@ -1,10 +1,9 @@
-package synapps.resona.api.global.error;
+package synapps.resona.api.global.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,9 +12,10 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.ErrorResponse;
+import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.RequestInfo;
-import synapps.resona.api.global.error.core.GlobalErrorCode;
+import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.mysql.member.code.AuthErrorCode;
 
 @Component
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
     response.setContentType("application/json;charset=UTF-8");
 
     ErrorResponse<Object> errorResponse = ErrorResponse.of(
-        GlobalErrorCode.FORBIDDEN,
+        AuthErrorCode.FORBIDDEN,
         new RequestInfo(serverInfo.getApiVersion(), serverInfo.getServerName(), request.getQueryString())
     );
 

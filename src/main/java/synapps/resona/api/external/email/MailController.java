@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.RestController;
 import synapps.resona.api.external.email.code.EmailSuccessCode;
 import synapps.resona.api.external.email.exception.EmailException;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.ErrorResponse;
+import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.RequestInfo;
-import synapps.resona.api.global.dto.SuccessResponse;
+import synapps.resona.api.global.dto.response.SuccessResponse;
 
 @Tag(name = "Email", description = "이메일 인증 API")
 @RestController

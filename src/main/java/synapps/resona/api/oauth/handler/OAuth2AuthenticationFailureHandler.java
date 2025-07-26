@@ -10,9 +10,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.ErrorResponse;
+import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.RequestInfo;
-import synapps.resona.api.global.error.core.GlobalErrorCode;
+import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.mysql.member.code.AuthErrorCode;
 import synapps.resona.api.oauth.exception.OAuthException;
 import synapps.resona.api.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
 
@@ -55,7 +56,7 @@ public class OAuth2AuthenticationFailureHandler implements AuthenticationFailure
 
     // 2. 표준 ErrorResponse 생성 (동적 에러 정보 사용)
     ErrorResponse<String> errorResponse = ErrorResponse.of(
-        GlobalErrorCode.UNAUTHORIZED,
+        AuthErrorCode.UNAUTHORIZED,
         requestInfo,
         message
     );

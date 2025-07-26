@@ -1,8 +1,10 @@
-package synapps.resona.api.global.dto;
+package synapps.resona.api.global.dto.metadata;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Getter;
+import synapps.resona.api.global.dto.RequestInfo;
+import synapps.resona.api.global.dto.code.StatusCode;
 import synapps.resona.api.global.utils.DateTimeUtil;
 
 @Getter

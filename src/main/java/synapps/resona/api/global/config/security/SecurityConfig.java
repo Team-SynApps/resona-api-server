@@ -25,7 +25,7 @@ import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.filter.TokenAuthenticationFilter;
-import synapps.resona.api.global.error.CustomAccessDeniedHandler;
+import synapps.resona.api.global.handler.CustomAccessDeniedHandler;
 import synapps.resona.api.global.handler.CustomAuthenticationEntryPoint;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;

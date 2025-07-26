@@ -1,4 +1,4 @@
-package synapps.resona.api.global.dto;
+package synapps.resona.api.global.dto.code;
 
 import org.springframework.http.HttpStatus;
 

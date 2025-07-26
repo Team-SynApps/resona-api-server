@@ -1,8 +1,9 @@
 package synapps.resona.api.mysql.socialMedia.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.error.core.BaseException;
-import synapps.resona.api.global.error.core.GlobalErrorCode;
+import synapps.resona.api.global.error.exception.BaseException;
+import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.mysql.socialMedia.code.SocialErrorCode;
 
 public class FeedMediaException extends BaseException {
 
@@ -10,12 +11,12 @@ public class FeedMediaException extends BaseException {
     super(message, status, errorCode);
   }
 
-  private static FeedMediaException of(GlobalErrorCode globalErrorCode) {
-    return new FeedMediaException(globalErrorCode.getMessage(), globalErrorCode.getStatus(),
-        globalErrorCode.getCustomCode());
+  private static FeedMediaException of(SocialErrorCode errorCode) {
+    return new FeedMediaException(errorCode.getMessage(), errorCode.getStatus(),
+        errorCode.getCustomCode());
   }
 
   public static FeedMediaException imageNotFound() {
-    return of(GlobalErrorCode.IMAGE_NOT_FOUND);
+    return of(SocialErrorCode.IMAGE_NOT_FOUND);
   }
 }

@@ -17,10 +17,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.ErrorResponse;
+import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.RequestInfo;
-import synapps.resona.api.global.error.core.GlobalErrorCode;
+import synapps.resona.api.global.error.GlobalErrorCode;
 import synapps.resona.api.global.utils.HeaderUtil;
+import synapps.resona.api.mysql.member.code.AuthErrorCode;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 
@@ -58,18 +59,18 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         } else {
           logger.warn("Invalid token, uri: {}", request.getRequestURI());
           SecurityContextHolder.clearContext();
-          handleAuthenticationError(request, response, GlobalErrorCode.INVALID_TOKEN);
+          handleAuthenticationError(request, response, AuthErrorCode.INVALID_TOKEN);
           return;
         }
       } catch (ExpiredJwtException e) {
         logger.error("Token expired", e);
         SecurityContextHolder.clearContext();
-        handleAuthenticationError(request, response, GlobalErrorCode.EXPIRED_TOKEN);
+        handleAuthenticationError(request, response, AuthErrorCode.EXPIRED_TOKEN);
         return;
       } catch (Exception e) {
         logger.error("Could not set user authentication in security context", e);
         SecurityContextHolder.clearContext();
-        handleAuthenticationError(request, response, GlobalErrorCode.INVALID_TOKEN);
+        handleAuthenticationError(request, response, AuthErrorCode.INVALID_TOKEN);
         return;
       }
     } else {
@@ -85,7 +86,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   private void handleAuthenticationError(
       HttpServletRequest request,
       HttpServletResponse response,
-      GlobalErrorCode globalErrorCode) throws IOException {
+      AuthErrorCode errorCode) throws IOException {
 
     RequestInfo requestInfo = new RequestInfo(
         serverInfo.getApiVersion(),
@@ -94,12 +95,12 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     );
 
     ErrorResponse<String> errorResponse = ErrorResponse.of(
-        globalErrorCode,
+        errorCode,
         requestInfo,
-        globalErrorCode.getMessage()
+        errorCode.getMessage()
     );
 
-    response.setStatus(globalErrorCode.getStatus().value());
+    response.setStatus(errorCode.getStatus().value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
 

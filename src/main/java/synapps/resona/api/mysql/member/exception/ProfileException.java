@@ -1,8 +1,9 @@
 package synapps.resona.api.mysql.member.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.error.core.BaseException;
-import synapps.resona.api.global.error.core.GlobalErrorCode;
+import synapps.resona.api.global.error.exception.BaseException;
+import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.mysql.member.code.MemberErrorCode;
 
 public class ProfileException extends BaseException {
 
@@ -10,19 +11,19 @@ public class ProfileException extends BaseException {
     super(message, status, errorCode);
   }
 
-  private static ProfileException of(GlobalErrorCode globalErrorCode) {
-    return new ProfileException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
+  private static ProfileException of(MemberErrorCode errorCode) {
+    return new ProfileException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCustomCode());
   }
 
   public static ProfileException invalidProfile() {
-    return of(GlobalErrorCode.PROFILE_INPUT_INVALID);
+    return of(MemberErrorCode.PROFILE_INPUT_INVALID);
   }
 
   public static ProfileException profileNotFound() {
-    return of(GlobalErrorCode.PROFILE_NOT_FOUND);
+    return of(MemberErrorCode.PROFILE_NOT_FOUND);
   }
 
   public static ProfileException duplicateTag() {
-    return of(GlobalErrorCode.DUPLICATE_TAG);
+    return of(MemberErrorCode.DUPLICATE_TAG);
   }
 }

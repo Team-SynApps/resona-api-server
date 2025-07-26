@@ -11,10 +11,11 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.ErrorResponse;
+import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.RequestInfo;
-import synapps.resona.api.global.error.core.ErrorCode;
-import synapps.resona.api.global.error.core.GlobalErrorCode;
+import synapps.resona.api.global.dto.code.ErrorCode;
+import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.mysql.member.code.AuthErrorCode;
 
 // @Component 어노테이션을 추가하여 Bean으로 등록합니다.
 @Component
@@ -31,7 +32,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
       AuthenticationException authException
   ) throws IOException, ServletException {
     // 인증 실패 시, 여기서 커스텀 ErrorResponse를 생성합니다.
-    ErrorCode errorCode = GlobalErrorCode.LOGIN_FAILED;
+    ErrorCode errorCode = AuthErrorCode.LOGIN_FAILED;
     RequestInfo requestInfo = new RequestInfo(serverInfo.getApiVersion(), serverInfo.getServerName(), request.getQueryString());
 
     // 응답 상태 코드 설정

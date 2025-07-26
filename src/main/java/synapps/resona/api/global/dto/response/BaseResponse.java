@@ -1,8 +1,9 @@
-package synapps.resona.api.global.dto;
+package synapps.resona.api.global.dto.response;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
+import synapps.resona.api.global.dto.metadata.Meta;
 
 @Getter
 public abstract class BaseResponse<T> {

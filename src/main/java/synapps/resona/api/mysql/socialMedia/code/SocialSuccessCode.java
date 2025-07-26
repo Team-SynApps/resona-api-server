@@ -1,7 +1,7 @@
 package synapps.resona.api.mysql.socialMedia.code;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.success.SuccessCode;
+import synapps.resona.api.global.dto.code.SuccessCode;
 
 public enum SocialSuccessCode implements SuccessCode {
 

@@ -1,7 +1,6 @@
-package synapps.resona.api.global.success;
+package synapps.resona.api.global.dto.code;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.dto.StatusCode;
 
 public interface SuccessCode extends StatusCode {
     HttpStatus getStatus();
