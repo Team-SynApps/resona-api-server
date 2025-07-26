@@ -93,6 +93,7 @@ dependencies {
 	// test
 	testImplementation "org.springframework.boot:spring-boot-starter-test"
 	testImplementation 'org.springframework.security:spring-security-test'
+	testImplementation 'com.h2database:h2'
 
 	// stress test: gatling
 	testImplementation 'io.gatling:gatling-test-framework:3.13.1'
