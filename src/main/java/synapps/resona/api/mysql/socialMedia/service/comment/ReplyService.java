@@ -9,8 +9,7 @@ import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyPostResponse;
-import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
+import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyResponse;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Reply;
 import synapps.resona.api.mysql.socialMedia.exception.CommentException;
@@ -28,7 +27,7 @@ public class ReplyService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public ReplyPostResponse register(ReplyRequest request) {
+  public ReplyResponse register(ReplyRequest request) {
     MemberDto memberDto = memberService.getMember();
     Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
@@ -38,22 +37,22 @@ public class ReplyService {
     Reply reply = Reply.of(comment, member, request.getContent());
     replyRepository.save(reply);
 
-    return ReplyPostResponse.from(reply, comment.getId());
+    return ReplyResponse.from(reply, comment.getId());
   }
 
   @Transactional
-  public ReplyReadResponse update(ReplyUpdateRequest request) {
+  public ReplyResponse update(ReplyUpdateRequest request) {
     Reply reply = replyRepository.findWithCommentById(request.getReplyId())
         .orElseThrow(ReplyException::replyNotFound);
     reply.update(request.getContent());
-    return ReplyReadResponse.from(reply);
+    return ReplyResponse.from(reply);
   }
 
 
-  public ReplyReadResponse read(Long replyId) {
+  public ReplyResponse read(Long replyId) {
     Reply reply = replyRepository.findWithCommentById(replyId)
         .orElseThrow(ReplyException::replyNotFound);
-    return ReplyReadResponse.from(reply);
+    return ReplyResponse.from(reply);
   }
 
   @Transactional

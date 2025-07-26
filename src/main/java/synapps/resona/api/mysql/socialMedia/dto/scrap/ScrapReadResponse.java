@@ -8,7 +8,7 @@ import synapps.resona.api.mysql.socialMedia.entity.feed.Scrap;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(staticName = "of")
 @Builder
 public class ScrapReadResponse {
 

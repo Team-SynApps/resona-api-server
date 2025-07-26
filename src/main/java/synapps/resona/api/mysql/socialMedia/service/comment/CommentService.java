@@ -6,10 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentPostResponse;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentReadResponse;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentUpdateResponse;
-import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
+import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentResponse;
+import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyResponse;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.exception.CommentException;
@@ -26,42 +24,42 @@ public class CommentService {
 
 
   @Transactional
-  public CommentPostResponse register(CommentRequest request) {
+  public CommentResponse register(CommentRequest request) {
     Feed feed = feedRepository.findWithMemberById(request.getFeedId())
         .orElseThrow(FeedException::feedNotFoundException);
     Comment comment = Comment.of(feed, feed.getMember(), request.getContent());
     commentRepository.save(comment);
-    return new CommentPostResponse(comment);
+    return CommentResponse.from(comment);
   }
 
   @Transactional
-  public CommentUpdateResponse edit(CommentUpdateRequest request) {
+  public CommentResponse edit(CommentUpdateRequest request) {
     Comment comment = commentRepository.findById(request.getCommentId())
         .orElseThrow(CommentException::commentNotFound);
     comment.updateContent(request.getContent());
-    return new CommentUpdateResponse(comment);
+    return CommentResponse.from(comment);
   }
 
-  public CommentReadResponse getComment(long commentId) {
+  public CommentResponse getComment(long commentId) {
     Comment comment = commentRepository.findById(commentId)
         .orElseThrow(CommentException::commentNotFound);
-    return new CommentReadResponse(comment);
+    return CommentResponse.from(comment);
   }
 
   @Transactional
-  public List<CommentPostResponse> getCommentsByFeedId(long feedId) {
+  public List<CommentResponse> getCommentsByFeedId(long feedId) {
     List<Comment> comments = commentRepository.findAllCommentsByFeedId(feedId);
 
-    return comments.stream().map(CommentPostResponse::new).toList();
+    return comments.stream().map(CommentResponse::from).toList();
   }
 
   @Transactional
-  public List<ReplyReadResponse> getReplies(long commentId) {
+  public List<ReplyResponse> getReplies(long commentId) {
     Comment comment = commentRepository.findWithReplies(commentId)
         .orElseThrow(CommentException::commentNotFound);
     // TODO: 예외처리 해야 함.
     return comment.getReplies().stream()
-        .map(ReplyReadResponse::from)
+        .map(ReplyResponse::from)
         .toList();
   }
 

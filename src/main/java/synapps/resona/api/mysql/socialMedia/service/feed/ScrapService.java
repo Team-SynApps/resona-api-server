@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.socialMedia.dto.scrap.ScrapReadResponse;
@@ -31,29 +32,35 @@ public class ScrapService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public Scrap register(Long feedId) {
+  public ScrapReadResponse register(Long feedId) {
     MemberDto memberDto = memberService.getMember();
-    Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+    Member member = memberRepository.findById(memberDto.getId())
+        .orElseThrow(MemberException::memberNotFound);
 
-    Feed feed = feedRepository.findById(feedId).orElseThrow(FeedException::feedNotFoundException);
+    Feed feed = feedRepository.findById(feedId)
+        .orElseThrow(FeedException::feedNotFoundException);
 
-    if (scrapRepository.existsByMemberAndFeedId(member, feedId)) {
+    if (scrapRepository.existsByMemberAndFeedId(member, feed.getId())) {
       throw ScrapException.scrapAlreadyExist();
     }
 
     Scrap scrap = Scrap.of(member, feed, LocalDateTime.now());
-    return scrapRepository.save(scrap);
+    Scrap savedScrap = scrapRepository.save(scrap);
+    return ScrapReadResponse.from(savedScrap);
   }
 
-  public Scrap read(Long scrapId) {
-    return scrapRepository.findById(scrapId).orElseThrow(ScrapException::scrapNotFound);
+  @Transactional(readOnly = true)
+  public ScrapReadResponse read(Long scrapId) {
+    Scrap scrap = scrapRepository.findById(scrapId)
+        .orElseThrow(ScrapException::scrapNotFound);
+    return ScrapReadResponse.from(scrap);
   }
 
   @Transactional
-  public Scrap cancelScrap(Long scrapId) {
-    Scrap scrap = scrapRepository.findById(scrapId).orElseThrow(ScrapException::scrapNotFound);
-    scrap.softDelete();
-    return scrap;
+  public void cancelScrap(Long scrapId) {
+    Scrap scrap = scrapRepository.findById(scrapId)
+        .orElseThrow(ScrapException::scrapNotFound);
+    scrapRepository.delete(scrap); // softDelete() 대신 실제 삭제로 변경 (또는 softDelete 로직이 Scrap 엔티티에 확실히 존재해야 함)
   }
 
   @Transactional(readOnly = true)
@@ -80,7 +87,5 @@ public class ScrapService {
         hasNext,
         nextCursor
     );
-
   }
-
 }

@@ -4,12 +4,12 @@ import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
-import synapps.resona.api.mysql.socialMedia.entity.mention.Mention;
+import synapps.resona.api.mysql.socialMedia.dto.mention.MentionResponse; // 추가
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
+import synapps.resona.api.mysql.socialMedia.entity.mention.Mention;
 import synapps.resona.api.mysql.socialMedia.exception.CommentException;
 import synapps.resona.api.mysql.socialMedia.exception.MentionException;
 import synapps.resona.api.mysql.socialMedia.repository.comment.CommentRepository;
@@ -25,28 +25,27 @@ public class MentionService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public Mention register(Long commentId) {
+  public MentionResponse register(Long commentId) {
     Comment comment = commentRepository.findById(commentId)
         .orElseThrow(CommentException::commentNotFound);
-    MemberDto memberDto = memberService.getMember();
-    Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+    String email = memberService.getMemberEmail();
+    Member member = memberRepository.findByEmail(email).orElseThrow();
 
     Mention mention = Mention.of(member, comment, LocalDateTime.now());
     mentionRepository.save(mention);
 
-    return mention;
+    return MentionResponse.from(mention);
   }
 
-  public Mention read(Long mentionId) {
-    return mentionRepository.findById(mentionId).orElseThrow(MentionException::mentionNotFound);
+  public MentionResponse read(Long mentionId) {
+    Mention mention = mentionRepository.findById(mentionId).orElseThrow(MentionException::mentionNotFound);
+    return MentionResponse.from(mention);
   }
 
   @Transactional
-  public Mention delete(Long mentionId) {
+  public void delete(Long mentionId) {
     Mention mention = mentionRepository.findById(mentionId)
         .orElseThrow(MentionException::mentionNotFound);
     mention.softDelete();
-
-    return mention;
   }
 }
