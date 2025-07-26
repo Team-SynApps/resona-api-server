@@ -16,7 +16,7 @@ import org.springframework.security.core.userdetails.User;
 import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
-import synapps.resona.api.mysql.member.dto.response.ProfileDto;
+import synapps.resona.api.mysql.member.dto.response.ProfileResponse;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.account.RoleType;
@@ -26,8 +26,8 @@ import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Gender;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.repository.account.AccountInfoRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
 
 @Transactional
@@ -72,6 +72,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
 
     RegisterRequest request = new RegisterRequest(
         email,
+        "test tag",
         "secure123!",
         CountryCode.KR,
         CountryCode.KR,
@@ -108,7 +109,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
         "등록 테스트용 자기소개입니다."
     );
 
-    ProfileDto result = profileService.register(request);
+    ProfileResponse result = profileService.register(request);
 
     assertThat(result.getNickname()).isEqualTo("등록된닉네임");
     assertThat(result.getNativeLanguages()).containsExactly("KOREAN");
@@ -135,7 +136,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
 
     profileService.register(request);
 
-    ProfileDto result = profileService.readProfile();
+    ProfileResponse result = profileService.readProfile();
 
     assertThat(result.getNickname()).isEqualTo("조회용닉네임");
     assertThat(result.getGender()).isEqualTo("WOMAN");
@@ -173,7 +174,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
         "수정된 소개입니다."
     );
 
-    ProfileDto result = profileService.editProfile(updateRequest);
+    ProfileResponse result = profileService.editProfile(updateRequest);
 
     assertThat(result.getNickname()).isEqualTo("수정된닉네임");
     assertThat(result.getNationality()).isEqualTo("JP");
@@ -203,7 +204,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
 
     profileService.deleteProfile();
 
-    ProfileDto result = profileService.readProfile();
+    ProfileResponse result = profileService.readProfile();
     assertThat(result.getNickname()).isEqualTo("삭제닉네임");
   }
 
@@ -223,10 +224,10 @@ class ProfileServiceTest extends IntegrationTestSupport {
         Gender.WOMAN,
         "중복 태그 확인용 프로필"
     );
-    ProfileDto profileDto = profileService.register(request);
+    ProfileResponse profileResponse = profileService.register(request);
 
     // when
-    boolean result = profileService.checkDuplicateTag(profileDto.getTag());
+    boolean result = profileService.checkDuplicateTag(profileResponse.getTag());
 
     // then
     assertThat(result).isTrue();

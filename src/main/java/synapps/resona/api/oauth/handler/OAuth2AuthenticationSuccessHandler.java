@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
-import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRefreshTokenRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;

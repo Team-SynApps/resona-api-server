@@ -1,24 +1,28 @@
 package synapps.resona.api.mysql.member.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import synapps.resona.api.global.annotation.ApiErrorSpec;
+import synapps.resona.api.global.annotation.ApiSuccessResponse;
+import synapps.resona.api.global.annotation.ErrorCodeSpec;
+import synapps.resona.api.global.annotation.SuccessCodeSpec;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.MetaDataDto;
-import synapps.resona.api.global.dto.response.ResponseDto;
+import synapps.resona.api.global.dto.RequestInfo;
+import synapps.resona.api.global.dto.response.SuccessResponse;
+import synapps.resona.api.mysql.member.code.AuthErrorCode;
+import synapps.resona.api.mysql.member.code.MemberErrorCode;
+import synapps.resona.api.mysql.member.code.MemberSuccessCode;
 import synapps.resona.api.mysql.member.dto.request.profile.DuplicateTagRequest;
 import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
+import synapps.resona.api.mysql.member.dto.response.ProfileResponse;
 import synapps.resona.api.mysql.member.service.ProfileService;
 
+@Tag(name = "Member Profile", description = "사용자 프로필 관리 API")
 @RestController
 @RequestMapping("/profile")
 @RequiredArgsConstructor
@@ -27,68 +31,76 @@ public class ProfileController {
   private final ProfileService profileService;
   private final ServerInfoConfig serverInfo;
 
-  private MetaDataDto createSuccessMetaData(String queryString) {
-    return MetaDataDto.createSuccessMetaData(queryString, serverInfo.getApiVersion(),
-        serverInfo.getServerName());
+  private RequestInfo createRequestInfo(String path) {
+    return new RequestInfo(serverInfo.getApiVersion(), serverInfo.getServerName(), path);
   }
 
-  /**
-   * security context에 존재하는 유저의 정보를 가져오기 때문에 권한 체크를 하지 않아도 됨.
-   *
-   * @param request
-   * @param profileRequest
-   * @return
-   * @throws Exception
-   */
+  @Operation(summary = "프로필 등록", description = "사용자의 프로필을 등록합니다. (인증 필요)")
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = MemberSuccessCode.class, code = "REGISTER_PROFILE_SUCCESS", responseClass = ProfileResponse.class))
+  @ApiErrorSpec({
+      @ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"PROFILE_NOT_FOUND", "TIMESTAMP_INVALID"}),
+      @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
+  })
   @PostMapping
-  public ResponseEntity<?> registerProfile(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<ProfileResponse>> registerProfile(HttpServletRequest request,
       @Valid @RequestBody ProfileRequest profileRequest) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-    ResponseDto responseData = new ResponseDto(metaData,
-        List.of(profileService.register(profileRequest)));
-    return ResponseEntity.ok(responseData);
+    ProfileResponse response = profileService.register(profileRequest);
+    return ResponseEntity
+        .status(MemberSuccessCode.REGISTER_PROFILE_SUCCESS.getStatus())
+        .body(SuccessResponse.of(MemberSuccessCode.REGISTER_PROFILE_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
+  @Operation(summary = "프로필 조회", description = "현재 로그인된 사용자의 프로필을 조회합니다. (인증 필요)")
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = MemberSuccessCode.class, code = "GET_PROFILE_SUCCESS", responseClass = ProfileResponse.class))
+  @ApiErrorSpec({
+      @ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"PROFILE_NOT_FOUND"}),
+      @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
+  })
   @GetMapping
-  public ResponseEntity<?> readProfile(HttpServletRequest request) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-    ResponseDto responseData = new ResponseDto(metaData, List.of(profileService.readProfile()));
-    return ResponseEntity.ok(responseData);
+  public ResponseEntity<SuccessResponse<ProfileResponse>> readProfile(HttpServletRequest request) {
+    ProfileResponse response = profileService.readProfile();
+    return ResponseEntity
+        .status(MemberSuccessCode.GET_PROFILE_SUCCESS.getStatus())
+        .body(SuccessResponse.of(MemberSuccessCode.GET_PROFILE_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
-//    @GetMapping("/{memberId}")
-//    public ResponseEntity<?> getProfileByMemberId(HttpServletRequest request,
-//                                                  HttpServletResponse response,
-//                                                  @PathVariable Long memberId) throws Exception {
-//        MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-//        ResponseDto responseData = new ResponseDto(metaData, List.of(profileService.getProfileByMemberId(memberId)));
-//        return ResponseEntity.ok(responseData);
-//    }
-
+  @Operation(summary = "프로필 수정", description = "사용자의 프로필을 수정합니다. (인증 필요)")
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = MemberSuccessCode.class, code = "EDIT_PROFILE_SUCCESS", responseClass = ProfileResponse.class))
+  @ApiErrorSpec({
+      @ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"PROFILE_NOT_FOUND", "TIMESTAMP_INVALID"}),
+      @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
+  })
   @PutMapping
-  public ResponseEntity<?> editProfile(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<ProfileResponse>> editProfile(HttpServletRequest request,
       @Valid @RequestBody ProfileRequest profileRequest) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-    ResponseDto responseData = new ResponseDto(metaData,
-        List.of(profileService.editProfile(profileRequest)));
-    return ResponseEntity.ok(responseData);
+    ProfileResponse response = profileService.editProfile(profileRequest);
+    return ResponseEntity
+        .status(MemberSuccessCode.EDIT_PROFILE_SUCCESS.getStatus())
+        .body(SuccessResponse.of(MemberSuccessCode.EDIT_PROFILE_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
+  @Operation(summary = "프로필 삭제", description = "사용자의 프로필을 삭제합니다. (인증 필요)")
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = MemberSuccessCode.class, code = "DELETE_PROFILE_SUCCESS"))
+  @ApiErrorSpec({
+      @ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"PROFILE_NOT_FOUND"}),
+      @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
+  })
   @DeleteMapping
-  public ResponseEntity<?> deleteProfile(HttpServletRequest request) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-    ResponseDto responseData = new ResponseDto(metaData, List.of(profileService.deleteProfile()));
-    return ResponseEntity.ok(responseData);
+  public ResponseEntity<SuccessResponse<Void>> deleteProfile(HttpServletRequest request) {
+    profileService.deleteProfile();
+    return ResponseEntity
+        .status(MemberSuccessCode.DELETE_PROFILE_SUCCESS.getStatus())
+        .body(SuccessResponse.of(MemberSuccessCode.DELETE_PROFILE_SUCCESS, createRequestInfo(request.getRequestURI())));
   }
 
+  @Operation(summary = "프로필 태그 중복 확인", description = "회원가입 또는 프로필 수정 시 사용할 태그의 중복 여부를 확인합니다.")
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = MemberSuccessCode.class, code = "CHECK_TAG_DUPLICATE_SUCCESS", responseClass = Boolean.class))
   @PostMapping("/duplicate-tag")
-  public ResponseEntity<?> checkDuplicateId(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<Boolean>> checkDuplicateId(HttpServletRequest request,
       @RequestBody DuplicateTagRequest duplicateTagRequest) {
-    MetaDataDto metaData = createSuccessMetaData(request.getQueryString());
-    ResponseDto responseData = new ResponseDto(metaData,
-        List.of(profileService.checkDuplicateTag(duplicateTagRequest.getTag())));
-    return ResponseEntity.ok(responseData);
+    boolean response = profileService.checkDuplicateTag(duplicateTagRequest.getTag());
+    return ResponseEntity
+        .status(MemberSuccessCode.CHECK_TAG_DUPLICATE_SUCCESS.getStatus())
+        .body(SuccessResponse.of(MemberSuccessCode.CHECK_TAG_DUPLICATE_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
-
-  // 닉네임 중복 요청 로직 들어가야 함
 }

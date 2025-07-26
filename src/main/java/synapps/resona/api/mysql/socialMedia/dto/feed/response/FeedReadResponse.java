@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.mysql.socialMedia.dto.feedImage.FeedImageDto;
+import synapps.resona.api.mysql.socialMedia.dto.media.FeedImageDto;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 
 @Data

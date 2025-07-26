@@ -13,6 +13,9 @@ build/
 ## private key ###
 src/main/resources/keys/resona-bucket-private-key.pem
 
+## FCM ##
+src/main/resources/fcm-firebase.json
+
 ### STS ###
 .apt_generated
 .classpath

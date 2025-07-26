@@ -1,8 +1,9 @@
 package synapps.resona.api.mysql.member.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.BaseException;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.exception.BaseException;
+import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.mysql.member.code.MemberErrorCode;
 
 public class HobbyException extends BaseException {
 
@@ -10,11 +11,11 @@ public class HobbyException extends BaseException {
     super(message, status, errorCode);
   }
 
-  private static HobbyException of(ErrorCode errorCode) {
-    return new HobbyException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCode());
+  private static HobbyException of(MemberErrorCode errorCode) {
+    return new HobbyException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCustomCode());
   }
 
   public static HobbyException hobbyNotFound() {
-    return of(ErrorCode.HOBBY_NOT_FOUND);
+    return of(MemberErrorCode.HOBBY_NOT_FOUND);
   }
 }

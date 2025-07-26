@@ -3,6 +3,7 @@ package synapps.resona.api.mysql.member.service;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
@@ -11,7 +12,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
-import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
@@ -26,10 +26,10 @@ import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.exception.AccountInfoException;
 import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.exception.ProfileException;
-import synapps.resona.api.mysql.member.repository.AccountInfoRepository;
-import synapps.resona.api.mysql.member.repository.MemberDetailsRepository;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
-import synapps.resona.api.mysql.member.repository.ProfileRepository;
+import synapps.resona.api.mysql.member.repository.account.AccountInfoRepository;
+import synapps.resona.api.mysql.member.repository.member_details.MemberDetailsRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
+import synapps.resona.api.mysql.member.repository.profile.ProfileRepository;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 
@@ -160,13 +160,13 @@ public class MemberService {
   }
 
   @Transactional
-  public String deleteUser() {
+  public Map<String, String> deleteUser() {
     User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     Member member = memberRepository.findByEmail(principal.getUsername())
         .orElseThrow(MemberException::memberNotFound);
     member.softDelete();
     memberRepository.save(member);
-    return "delete successful";
+    return Map.of("message", "User deleted successfully.");
   }
 
   public boolean isCurrentUser(HttpServletRequest request, String requestEmail) {

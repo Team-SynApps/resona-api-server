@@ -1,7 +1,7 @@
 package synapps.resona.api.mysql.member.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.BaseException;
+import synapps.resona.api.global.error.exception.BaseException;
 
 public class InvalidTimeStampException extends BaseException {
 

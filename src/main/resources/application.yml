@@ -82,3 +82,6 @@ management:
     metrics:
       export:
         enabled: true
+
+fcm:
+  path: ${FCM_JSON_PATH}

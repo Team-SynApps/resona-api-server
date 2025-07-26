@@ -20,16 +20,15 @@ import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentPostResponse;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentReadResponse;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentUpdateResponse;
+import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentResponse;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
-import synapps.resona.api.mysql.socialMedia.repository.CommentRepository;
-import synapps.resona.api.mysql.socialMedia.repository.FeedRepository;
+import synapps.resona.api.mysql.socialMedia.repository.comment.CommentRepository;
+import synapps.resona.api.mysql.socialMedia.repository.feed.FeedRepository;
+import synapps.resona.api.mysql.socialMedia.service.comment.CommentService;
 
 @Transactional
 class CommentServiceTest extends IntegrationTestSupport {
@@ -93,7 +92,7 @@ class CommentServiceTest extends IntegrationTestSupport {
     em.clear();
 
     // when
-    CommentPostResponse response = commentService.register(request);
+    CommentResponse response = commentService.register(request);
 
     // then
     assertThat(response).isNotNull();
@@ -112,7 +111,7 @@ class CommentServiceTest extends IntegrationTestSupport {
     em.clear();
 
     // when
-    CommentUpdateResponse response = commentService.edit(request);
+    CommentResponse response = commentService.edit(request);
 
     // then
     assertThat(response.getCommentId()).isEqualTo(comment.getId());
@@ -130,7 +129,7 @@ class CommentServiceTest extends IntegrationTestSupport {
     em.clear();
 
     // when
-    CommentReadResponse response = commentService.getComment(comment.getId());
+    CommentResponse response = commentService.getComment(comment.getId());
 
     // then
     assertThat(response.getCommentId()).isEqualTo(comment.getId());
@@ -150,7 +149,7 @@ class CommentServiceTest extends IntegrationTestSupport {
     em.clear();
 
     // when
-    List<CommentPostResponse> responseList = commentService.getCommentsByFeedId(feed.getId());
+    List<CommentResponse> responseList = commentService.getCommentsByFeedId(feed.getId());
 
     // then
     assertThat(responseList).hasSize(2);

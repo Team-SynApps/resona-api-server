@@ -30,7 +30,7 @@ import synapps.resona.api.global.handler.CustomAuthenticationEntryPoint;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
 import synapps.resona.api.mysql.member.entity.account.RoleType;
-import synapps.resona.api.mysql.member.repository.MemberRefreshTokenRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRefreshTokenRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationFailureHandler;
@@ -137,7 +137,7 @@ public class SecurityConfig {
               .userInfoEndpoint((endpoint) ->
                   endpoint.userService(oAuth2UserService))
               .successHandler(oAuth2AuthenticationSuccessHandler())
-              .failureHandler(new OAuth2AuthenticationFailureHandler(objectMapper, oAuth2AuthorizationRequestRepository()));
+              .failureHandler(new OAuth2AuthenticationFailureHandler(objectMapper, oAuth2AuthorizationRequestRepository(), serverInfo));
         }
     );
 
@@ -166,7 +166,8 @@ public class SecurityConfig {
   public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler(ObjectMapper objectMapper) {
     return new OAuth2AuthenticationFailureHandler(
         objectMapper,
-        oAuth2AuthorizationRequestRepository()
+        oAuth2AuthorizationRequestRepository(),
+        serverInfo
     );
   }
 

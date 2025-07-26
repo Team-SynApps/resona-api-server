@@ -5,6 +5,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -26,7 +27,7 @@ import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
 
 
@@ -116,6 +117,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     // given
     RegisterRequest request = new RegisterRequest(
         "newuser1@example.com",           // email
+        "newuser tag",                          // tag
         "Newpass1@",                      // password (8~30 자리, 알파벳, 숫자, 특수문자 포함)
         CountryCode.KR,                   // nationality (예시: 한국)
         CountryCode.US,                   // countryOfResidence (예시: 미국)
@@ -140,10 +142,10 @@ class MemberServiceTest extends IntegrationTestSupport {
   @DisplayName("회원을 삭제한다.")
   void testDeleteUser() {
     // when
-    String result = memberService.deleteUser();
+    Map<String, String> result = memberService.deleteUser();
 
     // then
-    assertThat(result).isEqualTo("delete successful");
+    assertThat(result).isEqualTo(Map.of("message", "User deleted successfully."));
     assertThat(testMember.isDeleted()).isTrue();
   }
 }

@@ -3,7 +3,8 @@ package synapps.resona.api.external.email.exception;
 import jakarta.mail.MessagingException;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.external.email.code.EmailErrorCode;
+import synapps.resona.api.global.error.GlobalErrorCode;
 
 @Getter
 public class EmailException extends MessagingException {
@@ -24,13 +25,13 @@ public class EmailException extends MessagingException {
     this.errorCode = errorCode;
   }
 
-  private static EmailException of(ErrorCode errorCode) {
-    return new EmailException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCode());
+  private static EmailException of(EmailErrorCode errorCode) {
+    return new EmailException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCustomCode());
   }
 
   private static EmailException mailCheck(Integer mailCheckCountLeft) {
-    EmailException emailException = new EmailException(ErrorCode.INVALID_EMAIL_CODE.getMessage(),
-        ErrorCode.INVALID_EMAIL_CODE.getStatus(), ErrorCode.INVALID_EMAIL_CODE.getCode());
+    EmailException emailException = new EmailException(EmailErrorCode.INVALID_EMAIL_CODE.getMessage(),
+        EmailErrorCode.INVALID_EMAIL_CODE.getStatus(), EmailErrorCode.INVALID_EMAIL_CODE.getCustomCode());
     emailException.addMailCheckCountLeft(mailCheckCountLeft);
     return emailException;
   }
@@ -40,23 +41,23 @@ public class EmailException extends MessagingException {
   }
 
   public static EmailException emailSendFailed() {
-    return of(ErrorCode.EMAIL_SEND_FAILED);
+    return of(EmailErrorCode.EMAIL_SEND_FAILED);
   }
 
   public static EmailException sendTrialExceeded() {
-    return of(ErrorCode.SEND_TRIAL_EXCEEDED);
+    return of(EmailErrorCode.SEND_TRIAL_EXCEEDED);
   }
 
   public static EmailException verifyTrialExceeded() {
-    return of(ErrorCode.VERIFY_TRIAL_EXCEEDED);
+    return of(EmailErrorCode.VERIFY_TRIAL_EXCEEDED);
   }
 
   public static EmailException emailCodeExpired() {
-    return of(ErrorCode.CODE_EXPIRED);
+    return of(EmailErrorCode.CODE_EXPIRED);
   }
 
   public static EmailException emailCodeNotFound() {
-    return of(ErrorCode.CODE_NOT_FOUND);
+    return of(EmailErrorCode.CODE_NOT_FOUND);
   }
 
   private void addMailCheckCountLeft(Integer mailCheckCountLeft) {

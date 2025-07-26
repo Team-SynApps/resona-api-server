@@ -5,16 +5,16 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import synapps.resona.api.global.exception.ErrorCode;
-import synapps.resona.api.global.utils.DateTimeUtil;
+import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.mysql.member.code.MemberErrorCode;
 import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
-import synapps.resona.api.mysql.member.dto.response.ProfileDto;
+import synapps.resona.api.mysql.member.dto.response.ProfileResponse;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.exception.InvalidTimeStampException;
 import synapps.resona.api.mysql.member.exception.ProfileException;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
-import synapps.resona.api.mysql.member.repository.ProfileRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
+import synapps.resona.api.mysql.member.repository.profile.ProfileRepository;
 
 
 @Service
@@ -58,7 +58,7 @@ public class ProfileService {
    * @return
    */
   @Transactional
-  public ProfileDto register(ProfileRequest request) {
+  public ProfileResponse register(ProfileRequest request) {
     validateData(request);
     String memberEmail = memberService.getMemberEmail();
     Profile profile = memberRepository.findProfileByEmail(memberEmail)
@@ -67,16 +67,16 @@ public class ProfileService {
 
     Profile savedProfile = profileRepository.save(profile);
 
-    return ProfileDto.from(savedProfile);
+    return ProfileResponse.from(savedProfile);
   }
 
   @Transactional
-  public ProfileDto readProfile() {
+  public ProfileResponse readProfile() {
     String memberEmail = memberService.getMemberEmail();
     Profile profile = memberRepository.findProfileByEmail(memberEmail)
         .orElseThrow(ProfileException::profileNotFound);
 
-    return ProfileDto.from(profile);
+    return ProfileResponse.from(profile);
   }
 
   /**
@@ -86,14 +86,14 @@ public class ProfileService {
    * @return
    */
   @Transactional
-  public ProfileDto editProfile(ProfileRequest request) {
+  public ProfileResponse editProfile(ProfileRequest request) {
     validateData(request);
     String memberEmail = memberService.getMemberEmail();
     Profile profile = memberRepository.findProfileByEmail(memberEmail)
         .orElseThrow(ProfileException::profileNotFound);
     changeProfile(request, profile);
 
-    return ProfileDto.from(profile);
+    return ProfileResponse.from(profile);
   }
 
   /**
@@ -121,9 +121,9 @@ public class ProfileService {
     String regex = "^\\d{4}-\\d{2}-\\d{2}$";
     if (!timestamp.matches(regex)) {
       throw InvalidTimeStampException.of(
-          ErrorCode.TIMESTAMP_INVALID.getMessage(),
-          ErrorCode.TIMESTAMP_INVALID.getStatus(),
-          ErrorCode.TIMESTAMP_INVALID.getCode()
+          MemberErrorCode.TIMESTAMP_INVALID.getMessage(),
+          MemberErrorCode.TIMESTAMP_INVALID.getStatus(),
+          MemberErrorCode.TIMESTAMP_INVALID.getCustomCode()
       );
     }
   }

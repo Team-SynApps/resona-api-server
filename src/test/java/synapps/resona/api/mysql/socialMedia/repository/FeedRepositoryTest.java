@@ -23,9 +23,11 @@ import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.member.repository.MemberRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
+import synapps.resona.api.mysql.socialMedia.repository.comment.CommentRepository;
+import synapps.resona.api.mysql.socialMedia.repository.feed.FeedRepository;
 
 @Transactional
 class FeedRepositoryTest extends IntegrationTestSupport {
@@ -201,7 +203,7 @@ class FeedRepositoryTest extends IntegrationTestSupport {
     Profile profile = Profile.of(
         CountryCode.KR, CountryCode.KR,
         Set.of(Language.KOREAN), Set.of(Language.ENGLISH),
-        nickname, "http://img.url/" + nickname, "2000-01-01"
+        nickname,nickname+"-tag", "http://img.url/" + nickname, "2000-01-01"
     );
 
     return Member.of(accountInfo, memberDetails, profile, email, "password", LocalDateTime.now());

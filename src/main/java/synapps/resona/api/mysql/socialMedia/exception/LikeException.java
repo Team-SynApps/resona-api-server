@@ -1,8 +1,9 @@
 package synapps.resona.api.mysql.socialMedia.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.BaseException;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.exception.BaseException;
+import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.mysql.socialMedia.code.SocialErrorCode;
 
 public class LikeException extends BaseException {
 
@@ -10,11 +11,11 @@ public class LikeException extends BaseException {
     super(message, status, errorCode);
   }
 
-  private static LikeException of(ErrorCode errorCode) {
-    return new LikeException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCode());
+  private static LikeException of(SocialErrorCode errorCode) {
+    return new LikeException(errorCode.getMessage(), errorCode.getStatus(), errorCode.getCustomCode());
   }
 
   public static LikeException likeNotFound() {
-    return of(ErrorCode.LIKE_NOT_FOUND);
+    return of(SocialErrorCode.LIKE_NOT_FOUND);
   }
 }

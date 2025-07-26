@@ -1,8 +1,8 @@
 package synapps.resona.api.oauth.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.BaseException;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.exception.BaseException;
+import synapps.resona.api.global.error.GlobalErrorCode;
 
 public class OAuthProviderMissMatchException extends BaseException {
 
@@ -10,9 +10,9 @@ public class OAuthProviderMissMatchException extends BaseException {
     super(message, status, errorCode);
   }
 
-  private static OAuthProviderMissMatchException of(ErrorCode errorCode) {
-    return new OAuthProviderMissMatchException(errorCode.getMessage(), errorCode.getStatus(),
-        errorCode.getCode());
+  private static OAuthProviderMissMatchException of(GlobalErrorCode globalErrorCode) {
+    return new OAuthProviderMissMatchException(globalErrorCode.getMessage(), globalErrorCode.getStatus(),
+        globalErrorCode.getCustomCode());
   }
 
 

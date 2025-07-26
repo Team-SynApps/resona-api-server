@@ -1,8 +1,9 @@
 package synapps.resona.api.mysql.member.exception;
 
 import org.springframework.http.HttpStatus;
-import synapps.resona.api.global.exception.BaseException;
-import synapps.resona.api.global.exception.ErrorCode;
+import synapps.resona.api.global.error.exception.BaseException;
+import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.mysql.member.code.MemberErrorCode;
 
 public class AccountInfoException extends BaseException {
 
@@ -10,16 +11,16 @@ public class AccountInfoException extends BaseException {
     super(message, status, errorCode);
   }
 
-  private static AccountInfoException of(ErrorCode errorCode) {
+  private static AccountInfoException of(MemberErrorCode errorCode) {
     return new AccountInfoException(errorCode.getMessage(), errorCode.getStatus(),
-        errorCode.getCode());
+        errorCode.getCustomCode());
   }
 
   private static AccountInfoException accountNotFound() {
-    return of(ErrorCode.ACCOUNT_INFO_NOT_FOUND);
+    return of(MemberErrorCode.ACCOUNT_INFO_NOT_FOUND);
   }
 
   public static AccountInfoException accountInfoNotFound() {
-    return of(ErrorCode.ACCOUNT_BANNED);
+    return of(MemberErrorCode.ACCOUNT_BANNED);
   }
 }
