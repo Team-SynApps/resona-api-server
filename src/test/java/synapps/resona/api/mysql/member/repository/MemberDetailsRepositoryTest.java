@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.member.Member;
@@ -14,7 +15,8 @@ import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.member.repository.member_details.MemberDetailsRepository;
 
 @Transactional
-class MemberDetailsRepositoryTest extends IntegrationTestSupport {
+@DataJpaTest
+class MemberDetailsRepositoryTest {
 
   @Autowired
   private MemberDetailsRepository memberDetailsRepository;

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -30,7 +31,8 @@ import synapps.resona.api.mysql.socialMedia.repository.comment.CommentRepository
 import synapps.resona.api.mysql.socialMedia.repository.feed.FeedRepository;
 
 @Transactional
-class FeedRepositoryTest extends IntegrationTestSupport {
+@DataJpaTest
+class FeedRepositoryTest {
 
   @Autowired
   private FeedRepository feedRepository;

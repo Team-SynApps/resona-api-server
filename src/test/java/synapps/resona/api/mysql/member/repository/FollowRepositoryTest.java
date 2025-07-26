@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.member.Follow;
@@ -23,7 +24,8 @@ import synapps.resona.api.mysql.member.repository.member.FollowRepository;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 
 @Transactional
-class FollowRepositoryTest extends IntegrationTestSupport {
+@DataJpaTest
+class FollowRepositoryTest {
 
   @Autowired
   private MemberRepository memberRepository;
