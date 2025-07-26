@@ -17,9 +17,7 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.mysql.socialMedia.controller.comment.CommentController;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentPostResponse;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentReadResponse;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentUpdateResponse;
+import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentResponse;
 import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.service.comment.CommentService;
@@ -69,7 +67,7 @@ class CommentControllerResponseTest {
   void registerComment_success() throws Exception {
     // given
     CommentRequest requestDto = new CommentRequest(1L, "New Comment");
-    CommentPostResponse responseDto = new CommentPostResponse(101L, "New Comment", LocalDateTime.now());
+    CommentResponse responseDto = CommentResponse.of(101L, "New Comment", LocalDateTime.now(), LocalDateTime.now());
     given(commentService.register(any(CommentRequest.class))).willReturn(responseDto);
 
     // when
@@ -90,7 +88,7 @@ class CommentControllerResponseTest {
   void getComment_success() throws Exception {
     // given
     Long commentId = 101L;
-    CommentReadResponse responseDto = new CommentReadResponse(commentId, "A single comment", LocalDateTime.now());
+    CommentResponse responseDto = CommentResponse.of(commentId, "A single comment", LocalDateTime.now(), LocalDateTime.now());
     given(commentService.getComment(commentId)).willReturn(responseDto);
 
     // when
@@ -109,9 +107,9 @@ class CommentControllerResponseTest {
   void getComments_success() throws Exception {
     // given
     Long feedId = 1L;
-    List<CommentPostResponse> responseList = List.of(
-        new CommentPostResponse(101L, "First comment", LocalDateTime.now()),
-        new CommentPostResponse(102L, "Second comment", LocalDateTime.now())
+    List<CommentResponse> responseList = List.of(
+        CommentResponse.of(101L, "First comment", LocalDateTime.now(), LocalDateTime.now()),
+        CommentResponse.of(102L, "Second comment", LocalDateTime.now(), LocalDateTime.now())
     );
     given(commentService.getCommentsByFeedId(feedId)).willReturn(responseList);
 
@@ -156,7 +154,7 @@ class CommentControllerResponseTest {
     // given
     Long commentId = 101L;
     CommentUpdateRequest requestDto = new CommentUpdateRequest(commentId, "Updated content");
-    CommentUpdateResponse responseDto = new CommentUpdateResponse(commentId, "Updated content", LocalDateTime.now(), LocalDateTime.now());
+    CommentResponse responseDto = CommentResponse.of(commentId, "Updated content", LocalDateTime.now(), LocalDateTime.now());
     given(commentService.edit(any(CommentUpdateRequest.class))).willReturn(responseDto);
 
     // when

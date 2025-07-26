@@ -29,9 +29,7 @@ import synapps.resona.api.mysql.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.mysql.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentPostResponse;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentReadResponse;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentUpdateResponse;
+import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentResponse;
 import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
 import synapps.resona.api.mysql.socialMedia.service.comment.CommentService;
 
@@ -49,57 +47,57 @@ public class CommentController {
   }
 
   @Operation(summary = "댓글 등록", description = "피드에 새로운 댓글을 등록합니다. (인증 필요)")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "REGISTER_COMMENT_SUCCESS", responseClass = CommentPostResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "REGISTER_COMMENT_SUCCESS", responseClass = CommentResponse.class))
   @ApiErrorSpec({
       @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"FEED_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @PostMapping
-  public ResponseEntity<SuccessResponse<CommentPostResponse>> registerComment(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<CommentResponse>> registerComment(HttpServletRequest request,
       @Valid @RequestBody CommentRequest commentRequest) {
-    CommentPostResponse response = commentService.register(commentRequest);
+    CommentResponse response = commentService.register(commentRequest);
     return ResponseEntity
         .status(SocialSuccessCode.REGISTER_COMMENT_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.REGISTER_COMMENT_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
   @Operation(summary = "특정 피드의 모든 댓글 조회", description = "특정 피드에 달린 모든 댓글과 답글을 계층 구조로 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_COMMENTS_SUCCESS", listElementClass = CommentPostResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_COMMENTS_SUCCESS", listElementClass = CommentResponse.class))
   @ApiErrorSpec(@ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"FEED_NOT_FOUND"}))
   @GetMapping("/all/{feedId}")
-  public ResponseEntity<SuccessResponse<List<CommentPostResponse>>> getComments(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<List<CommentResponse>>> getComments(HttpServletRequest request,
       @Parameter(description = "댓글을 조회할 피드의 ID", required = true) @PathVariable Long feedId) {
-    List<CommentPostResponse> response = commentService.getCommentsByFeedId(feedId);
+    List<CommentResponse> response = commentService.getCommentsByFeedId(feedId);
     return ResponseEntity
         .status(SocialSuccessCode.GET_COMMENTS_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_COMMENTS_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
   @Operation(summary = "댓글 수정", description = "댓글의 내용을 수정합니다. (댓글 작성자 또는 관리자만 가능)")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "EDIT_COMMENT_SUCCESS", responseClass = CommentUpdateResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "EDIT_COMMENT_SUCCESS", responseClass = CommentResponse.class))
   @ApiErrorSpec({
       @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"COMMENT_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN", "FORBIDDEN"})
   })
   @PutMapping("/{commentId}")
   @PreAuthorize("@socialSecurity.isCommentMemberProperty(#commentId) or hasRole('ADMIN')")
-  public ResponseEntity<SuccessResponse<CommentUpdateResponse>> editComment(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<CommentResponse>> editComment(HttpServletRequest request,
       @Parameter(description = "수정할 댓글의 ID", required = true) @PathVariable Long commentId,
       @Valid @RequestBody CommentUpdateRequest commentUpdateRequest) {
     commentUpdateRequest.setCommentId(commentId);
-    CommentUpdateResponse response = commentService.edit(commentUpdateRequest);
+    CommentResponse response = commentService.edit(commentUpdateRequest);
     return ResponseEntity
         .status(SocialSuccessCode.EDIT_COMMENT_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.EDIT_COMMENT_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
   @Operation(summary = "댓글 단건 조회", description = "특정 댓글 하나의 정보를 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_COMMENT_SUCCESS", responseClass = CommentReadResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_COMMENT_SUCCESS", responseClass = CommentResponse.class))
   @ApiErrorSpec(@ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"COMMENT_NOT_FOUND"}))
   @GetMapping("/{commentId}")
-  public ResponseEntity<SuccessResponse<CommentReadResponse>> getComment(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<CommentResponse>> getComment(HttpServletRequest request,
       @Parameter(description = "조회할 댓글의 ID", required = true) @PathVariable Long commentId) {
-    CommentReadResponse response = commentService.getComment(commentId);
+    CommentResponse response = commentService.getComment(commentId);
     return ResponseEntity
         .status(SocialSuccessCode.GET_COMMENT_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_COMMENT_SUCCESS, createRequestInfo(request.getRequestURI()), response));

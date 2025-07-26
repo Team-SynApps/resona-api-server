@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.mysql.socialMedia.controller.mention.MentionController;
-import synapps.resona.api.mysql.socialMedia.dto.mention.MentionResponseDto;
+import synapps.resona.api.mysql.socialMedia.dto.mention.MentionResponse;
 import synapps.resona.api.mysql.socialMedia.service.mention.MentionService;
 
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -53,7 +53,7 @@ class MentionControllerResponseTest {
   @MockBean
   private ServerInfoConfig serverInfo;
 
-  private MentionResponseDto mockMentionResponse;
+  private MentionResponse mockMentionResponse;
 
   @BeforeEach
   void setUp() {
@@ -61,7 +61,7 @@ class MentionControllerResponseTest {
     given(serverInfo.getServerName()).willReturn("test-server");
 
     // 테스트에서 공통으로 사용할 MentionResponseDto 생성
-    mockMentionResponse = MentionResponseDto.of(1L, 101L, 201L, LocalDateTime.now());
+    mockMentionResponse = MentionResponse.of(1L, 101L, 201L, LocalDateTime.now());
   }
 
   @Test

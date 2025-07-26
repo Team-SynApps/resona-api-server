@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
-import synapps.resona.api.mysql.socialMedia.dto.mention.MentionResponseDto; // 추가
+import synapps.resona.api.mysql.socialMedia.dto.mention.MentionResponse; // 추가
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.mention.Mention;
 import synapps.resona.api.mysql.socialMedia.exception.CommentException;
@@ -25,7 +25,7 @@ public class MentionService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public MentionResponseDto register(Long commentId) {
+  public MentionResponse register(Long commentId) {
     Comment comment = commentRepository.findById(commentId)
         .orElseThrow(CommentException::commentNotFound);
     String email = memberService.getMemberEmail();
@@ -34,12 +34,12 @@ public class MentionService {
     Mention mention = Mention.of(member, comment, LocalDateTime.now());
     mentionRepository.save(mention);
 
-    return MentionResponseDto.from(mention);
+    return MentionResponse.from(mention);
   }
 
-  public MentionResponseDto read(Long mentionId) {
+  public MentionResponse read(Long mentionId) {
     Mention mention = mentionRepository.findById(mentionId).orElseThrow(MentionException::mentionNotFound);
-    return MentionResponseDto.from(mention);
+    return MentionResponse.from(mention);
   }
 
   @Transactional
