@@ -1,5 +1,6 @@
 package synapps.resona.api.mysql.socialMedia.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,11 +26,14 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @WebMvcTest(
     controllers = ScrapController.class,
@@ -44,29 +48,24 @@ class ScrapControllerResponseTest {
   @Autowired
   private MockMvc mockMvc;
 
+  @Autowired
+  private ObjectMapper objectMapper;
+
   @MockBean
   private ScrapService scrapService;
 
   @MockBean
   private ServerInfoConfig serverInfo;
 
-  private Scrap mockScrap;
+  private ScrapReadResponse mockScrapResponse;
 
   @BeforeEach
   void setUp() {
-    // 공통 Mock 설정
     given(serverInfo.getApiVersion()).willReturn("v1");
     given(serverInfo.getServerName()).willReturn("test-server");
 
-    // 테스트에서 공통으로 사용할 Scrap 엔티티 Mock 객체 생성
-    // Controller에서 Scrap -> ScrapReadResponse 변환 로직이 있으므로 엔티티 Mock이 필요합니다.
-    Feed mockFeed = mock(Feed.class);
-    given(mockFeed.getId()).willReturn(100L);
-
-    mockScrap = mock(Scrap.class);
-    given(mockScrap.getId()).willReturn(1L);
-    given(mockScrap.getFeed()).willReturn(mockFeed);
-    given(mockScrap.getCreatedAt()).willReturn(LocalDateTime.now());
+    // 테스트에서 공통으로 사용할 ScrapReadResponse DTO 생성
+    mockScrapResponse = ScrapReadResponse.of(1L, 100L, LocalDateTime.now().toString());
   }
 
   @Test
@@ -74,7 +73,7 @@ class ScrapControllerResponseTest {
   void registerScrap_success() throws Exception {
     // given
     Long feedId = 100L;
-    given(scrapService.register(feedId)).willReturn(mockScrap);
+    given(scrapService.register(feedId)).willReturn(mockScrapResponse);
 
     // when
     ResultActions actions = mockMvc.perform(post("/scrap/{feedId}", feedId)
@@ -93,7 +92,7 @@ class ScrapControllerResponseTest {
   void readScrap_success() throws Exception {
     // given
     Long scrapId = 1L;
-    given(scrapService.read(scrapId)).willReturn(mockScrap);
+    given(scrapService.read(scrapId)).willReturn(mockScrapResponse);
 
     // when
     ResultActions actions = mockMvc.perform(get("/scrap/{scrapId}", scrapId)
@@ -113,8 +112,8 @@ class ScrapControllerResponseTest {
     // given
     String nextCursor = LocalDateTime.now().toString();
     List<ScrapReadResponse> scrapList = List.of(
-        ScrapReadResponse.builder().scrapId(2L).feedId(102L).build(),
-        ScrapReadResponse.builder().scrapId(1L).feedId(101L).build()
+        ScrapReadResponse.of(2L, 102L, LocalDateTime.now().toString()),
+        ScrapReadResponse.of(1L, 101L, LocalDateTime.now().toString())
     );
     CursorResult<ScrapReadResponse> cursorResult = new CursorResult<>(scrapList, true, nextCursor);
     given(scrapService.readScrapsByCursor(any(), anyInt())).willReturn(cursorResult);
@@ -136,11 +135,12 @@ class ScrapControllerResponseTest {
   }
 
   @Test
-  @DisplayName("스크랩 취소 성공 시, 취소 처리된 ScrapReadResponse를 반환한다")
+  @DisplayName("스크랩 취소 성공 시, 200 OK와 성공 메세지를 반환한다")
   void cancelScrap_success() throws Exception {
     // given
     Long scrapId = 1L;
-    given(scrapService.cancelScrap(scrapId)).willReturn(mockScrap);
+    // scrapService.cancelScrap은 void를 반환하므로 doNothing()으로 설정
+    doNothing().when(scrapService).cancelScrap(scrapId);
 
     // when
     ResultActions actions = mockMvc.perform(delete("/scrap/{scrapId}", scrapId)
@@ -149,8 +149,10 @@ class ScrapControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data.id").value(1L))
-        .andExpect(jsonPath("$.data.feed.id").value(100L))
+        .andExpect(jsonPath("$.data").doesNotExist()) // 데이터가 없음을 확인
         .andDo(print());
+
+    // scrapService.cancelScrap이 호출되었는지 검증
+    verify(scrapService).cancelScrap(scrapId);
   }
 }
