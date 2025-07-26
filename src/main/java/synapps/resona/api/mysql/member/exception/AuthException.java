@@ -11,7 +11,7 @@ public class AuthException extends BaseException {
   }
 
   private static AuthException of(GlobalErrorCode globalErrorCode) {
-    return new AuthException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new AuthException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static AuthException invalidToken() {

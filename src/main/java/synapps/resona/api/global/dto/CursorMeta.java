@@ -1,7 +1,9 @@
 package synapps.resona.api.global.dto;
 
+import lombok.Getter;
 import synapps.resona.api.global.success.SuccessCode;
 
+@Getter
 public class CursorMeta extends Meta {
   private final String cursor;
   private final int size;

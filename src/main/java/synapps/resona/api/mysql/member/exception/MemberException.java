@@ -11,7 +11,7 @@ public class MemberException extends BaseException {
   }
 
   private static MemberException of(GlobalErrorCode globalErrorCode) {
-    return new MemberException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new MemberException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static MemberException memberNotFound() {

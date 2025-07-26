@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.global.error.core.GlobalErrorCode;
 import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
-import synapps.resona.api.mysql.member.dto.response.ProfileDto;
+import synapps.resona.api.mysql.member.dto.response.ProfileResponse;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.exception.InvalidTimeStampException;
@@ -57,7 +57,7 @@ public class ProfileService {
    * @return
    */
   @Transactional
-  public ProfileDto register(ProfileRequest request) {
+  public ProfileResponse register(ProfileRequest request) {
     validateData(request);
     String memberEmail = memberService.getMemberEmail();
     Profile profile = memberRepository.findProfileByEmail(memberEmail)
@@ -66,16 +66,16 @@ public class ProfileService {
 
     Profile savedProfile = profileRepository.save(profile);
 
-    return ProfileDto.from(savedProfile);
+    return ProfileResponse.from(savedProfile);
   }
 
   @Transactional
-  public ProfileDto readProfile() {
+  public ProfileResponse readProfile() {
     String memberEmail = memberService.getMemberEmail();
     Profile profile = memberRepository.findProfileByEmail(memberEmail)
         .orElseThrow(ProfileException::profileNotFound);
 
-    return ProfileDto.from(profile);
+    return ProfileResponse.from(profile);
   }
 
   /**
@@ -85,14 +85,14 @@ public class ProfileService {
    * @return
    */
   @Transactional
-  public ProfileDto editProfile(ProfileRequest request) {
+  public ProfileResponse editProfile(ProfileRequest request) {
     validateData(request);
     String memberEmail = memberService.getMemberEmail();
     Profile profile = memberRepository.findProfileByEmail(memberEmail)
         .orElseThrow(ProfileException::profileNotFound);
     changeProfile(request, profile);
 
-    return ProfileDto.from(profile);
+    return ProfileResponse.from(profile);
   }
 
   /**
@@ -122,7 +122,7 @@ public class ProfileService {
       throw InvalidTimeStampException.of(
           GlobalErrorCode.TIMESTAMP_INVALID.getMessage(),
           GlobalErrorCode.TIMESTAMP_INVALID.getStatus(),
-          GlobalErrorCode.TIMESTAMP_INVALID.getCode()
+          GlobalErrorCode.TIMESTAMP_INVALID.getCustomCode()
       );
     }
   }

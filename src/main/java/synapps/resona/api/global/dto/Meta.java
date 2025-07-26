@@ -2,8 +2,10 @@ package synapps.resona.api.global.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import lombok.Getter;
 import synapps.resona.api.global.utils.DateTimeUtil;
 
+@Getter
 public abstract class Meta {
 
   private final int status;

@@ -8,8 +8,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -19,8 +17,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.ErrorMeta;
-import synapps.resona.api.global.dto.response.ResponseDto;
+import synapps.resona.api.global.dto.ErrorResponse;
+import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.error.core.GlobalErrorCode;
 import synapps.resona.api.global.utils.HeaderUtil;
 import synapps.resona.api.mysql.token.AuthToken;
@@ -89,25 +87,23 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
       HttpServletResponse response,
       GlobalErrorCode globalErrorCode) throws IOException {
 
-    ErrorMeta metaData = ErrorMeta.createErrorMetaData(
-        globalErrorCode.getStatus().value(),
-        globalErrorCode.getMessage(),
-        request.getRequestURI(),
-        serverInfo.getVersionNumber(),
+    RequestInfo requestInfo = new RequestInfo(
+        serverInfo.getApiVersion(),
         serverInfo.getServerName(),
-        globalErrorCode.getCode()
+        request.getRequestURI()
     );
 
-    ResponseDto responseData = new ResponseDto(
-        metaData,
-        List.of(Map.of("error", globalErrorCode.getMessage()))
+    ErrorResponse<String> errorResponse = ErrorResponse.of(
+        globalErrorCode,
+        requestInfo,
+        globalErrorCode.getMessage()
     );
 
     response.setStatus(globalErrorCode.getStatus().value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding("UTF-8");
 
-    String jsonResponse = objectMapper.writeValueAsString(responseData);
+    String jsonResponse = objectMapper.writeValueAsString(errorResponse);
     response.getWriter().write(jsonResponse);
   }
 

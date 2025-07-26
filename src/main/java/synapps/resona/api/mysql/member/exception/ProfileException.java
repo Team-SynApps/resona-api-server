@@ -11,7 +11,7 @@ public class ProfileException extends BaseException {
   }
 
   private static ProfileException of(GlobalErrorCode globalErrorCode) {
-    return new ProfileException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new ProfileException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static ProfileException invalidProfile() {

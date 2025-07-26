@@ -11,7 +11,7 @@ public class ReplyException extends BaseException {
   }
 
   private static ReplyException of(GlobalErrorCode globalErrorCode) {
-    return new ReplyException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new ReplyException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static ReplyException replyNotFound() {

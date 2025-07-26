@@ -1,6 +1,5 @@
 package synapps.resona.api.mysql.member.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import synapps.resona.api.mysql.member.entity.member_details.MBTI;
@@ -8,7 +7,7 @@ import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 
 @Data
 @Builder
-public class MemberDetailsDto {
+public class MemberDetailsResponse {
 
   private Long id;
   private Integer timezone;
@@ -17,8 +16,8 @@ public class MemberDetailsDto {
   private String aboutMe;
   private String location;
 
-  public static MemberDetailsDto from(MemberDetails memberDetails) {
-    return MemberDetailsDto.builder()
+  public static MemberDetailsResponse from(MemberDetails memberDetails) {
+    return MemberDetailsResponse.builder()
         .id(memberDetails.getId())
         .aboutMe(memberDetails.getAboutMe())
         .location(memberDetails.getLocation())

@@ -11,7 +11,7 @@ public class FollowException extends BaseException {
   }
 
   private static FollowException of(GlobalErrorCode globalErrorCode) {
-    return new FollowException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new FollowException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static FollowException alreadyFollowing() {

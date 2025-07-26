@@ -11,7 +11,7 @@ public class MentionException extends BaseException {
   }
 
   private static MentionException of(GlobalErrorCode globalErrorCode) {
-    return new MentionException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new MentionException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static MentionException mentionNotFound() {

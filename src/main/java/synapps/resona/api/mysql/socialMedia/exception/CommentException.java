@@ -11,7 +11,7 @@ public class CommentException extends BaseException {
   }
 
   private static CommentException of(GlobalErrorCode globalErrorCode) {
-    return new CommentException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new CommentException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static CommentException commentNotFound() {

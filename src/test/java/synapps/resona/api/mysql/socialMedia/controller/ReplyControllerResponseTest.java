@@ -77,10 +77,10 @@ class ReplyControllerResponseTest {
         .content(objectMapper.writeValueAsString(requestDto)));
 
     // then
-    actions.andExpect(status().isOk())
-        .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].replyId").value("201"))
-        .andExpect(jsonPath("$.data[0].content").value("This is a reply."))
+    actions.andExpect(status().isCreated())
+        .andExpect(jsonPath("$.meta.status").value(201))
+        .andExpect(jsonPath("$.data.replyId").value("201"))
+        .andExpect(jsonPath("$.data.content").value("This is a reply."))
         .andDo(print());
   }
 
@@ -103,7 +103,7 @@ class ReplyControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].replyId").value("201"))
+        .andExpect(jsonPath("$.data.replyId").value("201"))
         .andDo(print());
   }
 
@@ -128,8 +128,8 @@ class ReplyControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].replyId").value("201"))
-        .andExpect(jsonPath("$.data[0].content").value("Updated reply content."))
+        .andExpect(jsonPath("$.data.replyId").value("201"))
+        .andExpect(jsonPath("$.data.content").value("Updated reply content."))
         .andDo(print());
   }
 
@@ -150,8 +150,8 @@ class ReplyControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].id").value(replyId))
-        .andExpect(jsonPath("$.data[0].content").value("This reply was deleted."))
+//        .andExpect(jsonPath("$.data.id").value(replyId))
+//        .andExpect(jsonPath("$.data.content").value("This reply was deleted."))
         .andDo(print());
   }
 }

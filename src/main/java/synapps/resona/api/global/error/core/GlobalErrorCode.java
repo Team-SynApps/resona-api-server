@@ -26,6 +26,7 @@ public enum GlobalErrorCode implements ErrorCode {
   UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "AUTH000", "Invalid token"),
   NOT_EXPIRED(HttpStatus.NOT_ACCEPTABLE, "AUTH007", "Access token not Expired"),
   FORBIDDEN(HttpStatus.FORBIDDEN, "AUTH008", "You do not have permission to access this resource."),
+  LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH009", "The account information does not match"),
 
   // oauth
   PROVIDER_TYPE_MISSMATCH(HttpStatus.CONFLICT, "OAUTH001", "Account info missmatch"),
@@ -115,7 +116,7 @@ public enum GlobalErrorCode implements ErrorCode {
 
   @Override
   public int getStatusCode() {
-    return 0;
+    return status.value();
   }
 
   @Override

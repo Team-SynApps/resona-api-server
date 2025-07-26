@@ -16,7 +16,7 @@ import org.springframework.security.core.userdetails.User;
 import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.member_details.MemberDetailsRequest;
-import synapps.resona.api.mysql.member.dto.response.MemberDetailsDto;
+import synapps.resona.api.mysql.member.dto.response.MemberDetailsResponse;
 import synapps.resona.api.mysql.member.entity.member_details.MBTI;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Language;
@@ -74,7 +74,7 @@ class MemberDetailsServiceTest extends IntegrationTestSupport {
     );
 
     // when
-    MemberDetailsDto result = memberDetailsService.register(request);
+    MemberDetailsResponse result = memberDetailsService.register(request);
 
     // then
     assertThat(result.getTimezone()).isEqualTo(9);
@@ -93,7 +93,7 @@ class MemberDetailsServiceTest extends IntegrationTestSupport {
     memberDetailsService.register(request);
 
     // when
-    MemberDetailsDto result = memberDetailsService.getMemberDetails();
+    MemberDetailsResponse result = memberDetailsService.getMemberDetails();
 
     // then
     assertThat(result.getTimezone()).isEqualTo(8);

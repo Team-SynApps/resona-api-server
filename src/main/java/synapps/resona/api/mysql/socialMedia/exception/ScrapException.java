@@ -11,7 +11,7 @@ public class ScrapException extends BaseException {
   }
 
   private static ScrapException of(GlobalErrorCode globalErrorCode) {
-    return new ScrapException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new ScrapException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static ScrapException scrapNotFound() {

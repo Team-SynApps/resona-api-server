@@ -11,7 +11,7 @@ public class LikeException extends BaseException {
   }
 
   private static LikeException of(GlobalErrorCode globalErrorCode) {
-    return new LikeException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new LikeException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static LikeException likeNotFound() {

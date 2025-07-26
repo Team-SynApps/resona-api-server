@@ -39,7 +39,7 @@ public class ObjectStorageService {
   public FileMetadataDto uploadToBuffer(MultipartFile file, String userEmail) throws IOException {
     if (file == null || file.isEmpty()) {
       throw FileEmptyException.of(GlobalErrorCode.FILE_EMPTY_EXCEPTION.toString(),
-          GlobalErrorCode.FILE_EMPTY_EXCEPTION.getStatus(), GlobalErrorCode.FILE_EMPTY_EXCEPTION.getCode());
+          GlobalErrorCode.FILE_EMPTY_EXCEPTION.getStatus(), GlobalErrorCode.FILE_EMPTY_EXCEPTION.getCustomCode());
     }
 
     String temporaryFileName = generateTemporaryFileName(userEmail);

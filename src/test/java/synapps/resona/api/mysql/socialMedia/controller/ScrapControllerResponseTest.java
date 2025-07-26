@@ -83,8 +83,8 @@ class ScrapControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].scrapId").value(1L))
-        .andExpect(jsonPath("$.data[0].feedId").value(100L))
+        .andExpect(jsonPath("$.data.scrapId").value(1L))
+        .andExpect(jsonPath("$.data.feedId").value(100L))
         .andDo(print());
   }
 
@@ -102,8 +102,8 @@ class ScrapControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].scrapId").value(1L))
-        .andExpect(jsonPath("$.data[0].feedId").value(100L))
+        .andExpect(jsonPath("$.data.scrapId").value(1L))
+        .andExpect(jsonPath("$.data.feedId").value(100L))
         .andDo(print());
   }
 
@@ -129,9 +129,9 @@ class ScrapControllerResponseTest {
         .andExpect(jsonPath("$.meta.status").value(200))
         .andExpect(jsonPath("$.meta.cursor").value(nextCursor))
         .andExpect(jsonPath("$.meta.hasNext").value(true))
-        .andExpect(jsonPath("$.data[0]").isArray())
-        .andExpect(jsonPath("$.data[0].length()").value(2))
-        .andExpect(jsonPath("$.data[0][0].scrapId").value(2L))
+        .andExpect(jsonPath("$.data.values").isArray())
+        .andExpect(jsonPath("$.data.values.length()").value(2))
+        .andExpect(jsonPath("$.data.values[0].scrapId").value(2L))
         .andDo(print());
   }
 
@@ -149,8 +149,8 @@ class ScrapControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].scrapId").value(1L))
-        .andExpect(jsonPath("$.data[0].feedId").value(100L))
+        .andExpect(jsonPath("$.data.id").value(1L))
+        .andExpect(jsonPath("$.data.feed.id").value(100L))
         .andDo(print());
   }
 }

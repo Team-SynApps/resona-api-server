@@ -12,7 +12,7 @@ public class AccountInfoException extends BaseException {
 
   private static AccountInfoException of(GlobalErrorCode globalErrorCode) {
     return new AccountInfoException(globalErrorCode.getMessage(), globalErrorCode.getStatus(),
-        globalErrorCode.getCode());
+        globalErrorCode.getCustomCode());
   }
 
   private static AccountInfoException accountNotFound() {

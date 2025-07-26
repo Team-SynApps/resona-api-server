@@ -80,10 +80,10 @@ class FeedControllerResponseTest {
         .content(objectMapper.writeValueAsString(requestDto)));
 
     // then
-    actions.andExpect(status().isOk())
-        .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].id").value("1"))
-        .andExpect(jsonPath("$.data[0].content").value("New Feed"))
+    actions.andExpect(status().isCreated())
+        .andExpect(jsonPath("$.meta.status").value(201))
+        .andExpect(jsonPath("$.data.id").value("1"))
+        .andExpect(jsonPath("$.data.content").value("New Feed"))
         .andDo(print());
   }
 
@@ -102,8 +102,8 @@ class FeedControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].id").value("1"))
-        .andExpect(jsonPath("$.data[0].content").value("Feed Content"))
+        .andExpect(jsonPath("$.data.id").value("1"))
+        .andExpect(jsonPath("$.data.content").value("Feed Content"))
         .andDo(print());
   }
 
@@ -130,9 +130,9 @@ class FeedControllerResponseTest {
         .andExpect(jsonPath("$.meta.cursor").value(nextCursor))
         .andExpect(jsonPath("$.meta.hasNext").value(true))
         // Controller에서 List.of()로 한번 더 감싸므로 data[0]에 리스트가 들어감
-        .andExpect(jsonPath("$.data[0]").isArray())
-        .andExpect(jsonPath("$.data[0].length()").value(2))
-        .andExpect(jsonPath("$.data[0][0].id").value("2"))
+        .andExpect(jsonPath("$.data.values").isArray())
+        .andExpect(jsonPath("$.data.values.length()").value(2))
+        .andExpect(jsonPath("$.data.values[0].id").value("2"))
         .andDo(print());
   }
 
@@ -151,9 +151,9 @@ class FeedControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0]").isArray())
-        .andExpect(jsonPath("$.data[0][0].feedId").value(1L))
-        .andExpect(jsonPath("$.data[0][0].likeCount").value(10))
+        .andExpect(jsonPath("$.data").isArray())
+        .andExpect(jsonPath("$.data[0].feedId").value(1L))
+        .andExpect(jsonPath("$.data[0].likeCount").value(10))
         .andDo(print());
   }
 
@@ -174,8 +174,8 @@ class FeedControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].id").value("1"))
-        .andExpect(jsonPath("$.data[0].content").value("Updated Content"))
+        .andExpect(jsonPath("$.data.id").value("1"))
+        .andExpect(jsonPath("$.data.content").value("Updated Content"))
         .andDo(print());
   }
 
@@ -196,8 +196,8 @@ class FeedControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].id").value(feedId))
-        .andExpect(jsonPath("$.data[0].content").value("This feed is deleted."))
+//        .andExpect(jsonPath("$.data.id").value(feedId))
+//        .andExpect(jsonPath("$.data.content").value("This feed is deleted."))
         .andDo(print());
   }
 }

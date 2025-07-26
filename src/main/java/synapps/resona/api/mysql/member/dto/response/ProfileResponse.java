@@ -1,7 +1,6 @@
 package synapps.resona.api.mysql.member.dto.response;
 
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import synapps.resona.api.global.utils.DateTimeUtil;
@@ -9,7 +8,7 @@ import synapps.resona.api.mysql.member.entity.profile.Profile;
 
 @Data
 @Builder
-public class ProfileDto {
+public class ProfileResponse {
 
   private Long id;
   private String tag;
@@ -25,8 +24,8 @@ public class ProfileDto {
   private String birth;
   private String gender;
 
-  public static ProfileDto from(Profile profile) {
-    return ProfileDto.builder()
+  public static ProfileResponse from(Profile profile) {
+    return ProfileResponse.builder()
         .id(profile.getId())
         .tag(profile.getTag())
         .nickname(profile.getNickname())

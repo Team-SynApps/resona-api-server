@@ -18,11 +18,11 @@ public class OAuthException extends AuthenticationException {
   }
 
   private static OAuthException of(GlobalErrorCode globalErrorCode) {
-    return new OAuthException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new OAuthException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   private static OAuthException of(GlobalErrorCode globalErrorCode, String customMessage) {
-    return new OAuthException(customMessage, globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new OAuthException(customMessage, globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static OAuthException OAuthProviderMissMatch(ProviderType providerType) {

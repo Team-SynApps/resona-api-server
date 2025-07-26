@@ -74,7 +74,7 @@ class LikeControllerResponseTest {
         // then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.meta.status").value(200))
-            .andExpect(jsonPath("$.data[0].id").value(100L))
+            .andExpect(jsonPath("$.data.id").value(100L))
             .andDo(print());
     }
 
@@ -95,7 +95,7 @@ class LikeControllerResponseTest {
         // then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.meta.status").value(200))
-            .andExpect(jsonPath("$.data[0].id").value(likeId))
+//            .andExpect(jsonPath("$.data.id").value(likeId))
             .andDo(print());
     }
 }

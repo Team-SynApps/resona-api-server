@@ -12,7 +12,7 @@ public class NotificationException extends BaseException {
 
   public static NotificationException of(GlobalErrorCode globalErrorCode) {
     return new NotificationException(globalErrorCode.getMessage(), globalErrorCode.getStatus(),
-        globalErrorCode.getCode());
+        globalErrorCode.getCustomCode());
   }
 
   public static NotificationException notificationNotFound() {

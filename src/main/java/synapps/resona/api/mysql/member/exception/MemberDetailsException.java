@@ -12,7 +12,7 @@ public class MemberDetailsException extends BaseException {
 
   private static MemberDetailsException of(GlobalErrorCode globalErrorCode) {
     return new MemberDetailsException(globalErrorCode.getMessage(), globalErrorCode.getStatus(),
-        globalErrorCode.getCode());
+        globalErrorCode.getCustomCode());
   }
 
   public static MemberDetailsException memberDetailsNotFound() {

@@ -11,7 +11,7 @@ public class FeedException extends BaseException {
   }
 
   private static FeedException of(GlobalErrorCode globalErrorCode) {
-    return new FeedException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new FeedException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static FeedException feedNotFoundException() {

@@ -12,7 +12,7 @@ public class LanguageException extends BaseException {
 
   private static LanguageException of(GlobalErrorCode globalErrorCode) {
     return new LanguageException(globalErrorCode.getMessage(), globalErrorCode.getStatus(),
-        globalErrorCode.getCode());
+        globalErrorCode.getCustomCode());
   }
 
   public static LanguageException languageNotFound() {

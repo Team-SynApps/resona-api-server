@@ -86,8 +86,8 @@ class AuthControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].accessToken.token").value("fake-access-token"))
-        .andExpect(jsonPath("$.data[0].registered").value(true))
+        .andExpect(jsonPath("$.data.accessToken.token").value("fake-access-token"))
+        .andExpect(jsonPath("$.data.registered").value(true))
         .andDo(print());
   }
 
@@ -106,7 +106,7 @@ class AuthControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].accessToken.token").value("fake-access-token"))
+        .andExpect(jsonPath("$.data.accessToken.token").value("fake-access-token"))
         .andDo(print());
   }
 
@@ -126,7 +126,7 @@ class AuthControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].refreshToken.token").value("fake-refresh-token"))
+        .andExpect(jsonPath("$.data.refreshToken.token").value("fake-refresh-token"))
         .andDo(print());
   }
 
@@ -144,8 +144,8 @@ class AuthControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].memberEmail").value("test@example.com"))
-        .andExpect(jsonPath("$.data[0].isMember").value(true))
+        .andExpect(jsonPath("$.data.memberEmail").value("test@example.com"))
+        .andExpect(jsonPath("$.data.isMember").value(true))
         .andDo(print());
   }
 
@@ -166,8 +166,8 @@ class AuthControllerResponseTest {
     // then
     actions.andExpect(status().isUnauthorized()) // HTTP 401 상태 코드를 기대
         .andExpect(jsonPath("$.meta.status").value(401))
-        .andExpect(jsonPath("$.meta.message").value("계정정보가 일치하지 않습니다."))
-        .andExpect(jsonPath("$.data[0].validationErrors").value("Invalid credentials"))
+        .andExpect(jsonPath("$.meta.message").value("The account information does not match"))
+        .andExpect(jsonPath("$.data").value("Invalid credentials"))
         .andDo(print());
   }
 }

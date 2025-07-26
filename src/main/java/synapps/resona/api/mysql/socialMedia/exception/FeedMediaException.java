@@ -12,7 +12,7 @@ public class FeedMediaException extends BaseException {
 
   private static FeedMediaException of(GlobalErrorCode globalErrorCode) {
     return new FeedMediaException(globalErrorCode.getMessage(), globalErrorCode.getStatus(),
-        globalErrorCode.getCode());
+        globalErrorCode.getCustomCode());
   }
 
   public static FeedMediaException imageNotFound() {

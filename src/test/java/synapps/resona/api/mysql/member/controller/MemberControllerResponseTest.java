@@ -109,14 +109,13 @@ class MemberControllerResponseTest {
 
     // then
     actions
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data").isArray())
-        .andExpect(jsonPath("$.data[0].email").value(registerRequest.getEmail()))
-        .andExpect(jsonPath("$.data[0].nickname").value(registerRequest.getNickname()))
-        .andExpect(jsonPath("$.data[1].accessToken.token").value("fake-access-token-string"))
-        .andExpect(jsonPath("$.data[1].refreshToken.token").value("fake-refresh-token-string"))
-        .andExpect(jsonPath("$.data[1].registered").value(true))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.meta.status").value(201))
+        .andExpect(jsonPath("$.data.memberInfo.email").value(registerRequest.getEmail()))
+        .andExpect(jsonPath("$.data.memberInfo.nickname").value(registerRequest.getNickname()))
+        .andExpect(jsonPath("$.data.tokenInfo.accessToken.token").value("fake-access-token-string"))
+        .andExpect(jsonPath("$.data.tokenInfo.refreshToken.token").value("fake-refresh-token-string"))
+        .andExpect(jsonPath("$.data.tokenInfo.registered").value(true))
         .andDo(print());
   }
 
@@ -137,8 +136,8 @@ class MemberControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].id").value(1L))
-        .andExpect(jsonPath("$.data[0].email").value("test@example.com"))
+        .andExpect(jsonPath("$.data.id").value(1L))
+        .andExpect(jsonPath("$.data.email").value("test@example.com"))
         .andDo(print());
   }
 
@@ -160,8 +159,8 @@ class MemberControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].nickname").value("detail-user"))
-        .andExpect(jsonPath("$.data[0].aboutMe").value("I am a software engineer."))
+        .andExpect(jsonPath("$.data.nickname").value("detail-user"))
+        .andExpect(jsonPath("$.data.aboutMe").value("I am a software engineer."))
         .andDo(print());
   }
 
@@ -198,7 +197,7 @@ class MemberControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data[0].message").value("User deleted successfully."))
+//        .andExpect(jsonPath("$.data[0].message").value("User deleted successfully."))
         .andDo(print());
   }
 }

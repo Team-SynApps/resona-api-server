@@ -12,7 +12,7 @@ public class OAuthProviderMissMatchException extends BaseException {
 
   private static OAuthProviderMissMatchException of(GlobalErrorCode globalErrorCode) {
     return new OAuthProviderMissMatchException(globalErrorCode.getMessage(), globalErrorCode.getStatus(),
-        globalErrorCode.getCode());
+        globalErrorCode.getCustomCode());
   }
 
 

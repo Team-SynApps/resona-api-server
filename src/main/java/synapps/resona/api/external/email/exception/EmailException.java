@@ -25,12 +25,12 @@ public class EmailException extends MessagingException {
   }
 
   private static EmailException of(GlobalErrorCode globalErrorCode) {
-    return new EmailException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new EmailException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   private static EmailException mailCheck(Integer mailCheckCountLeft) {
     EmailException emailException = new EmailException(GlobalErrorCode.INVALID_EMAIL_CODE.getMessage(),
-        GlobalErrorCode.INVALID_EMAIL_CODE.getStatus(), GlobalErrorCode.INVALID_EMAIL_CODE.getCode());
+        GlobalErrorCode.INVALID_EMAIL_CODE.getStatus(), GlobalErrorCode.INVALID_EMAIL_CODE.getCustomCode());
     emailException.addMailCheckCountLeft(mailCheckCountLeft);
     return emailException;
   }

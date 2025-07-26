@@ -13,9 +13,8 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.metadata.ErrorMeta;
-import synapps.resona.api.global.dto.response.ErrorResponse;
-import synapps.resona.api.global.dto.response.ResponseDto;
+import synapps.resona.api.global.dto.ErrorResponse;
+import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.error.core.GlobalErrorCode;
 
 @Component
@@ -34,25 +33,14 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     response.setContentType("application/json;charset=UTF-8");
 
-    // ErrorMetaDataDto 생성
-    ErrorMeta metaData = ErrorMeta.createErrorMetaData(
-        GlobalErrorCode.FORBIDDEN.getStatus().value(),
-        GlobalErrorCode.FORBIDDEN.getMessage(),
-        request.getRequestURI(),
-        serverInfo.getApiVersion(),
-        serverInfo.getServerName(),
-        GlobalErrorCode.FORBIDDEN.getCode()
-    );
-
-    // 응답 생성
-    ResponseDto responseData = new ResponseDto(
-        metaData,
-        List.of(new ErrorResponse("Access Denied: You do not have permission"))
+    ErrorResponse<Object> errorResponse = ErrorResponse.of(
+        GlobalErrorCode.FORBIDDEN,
+        new RequestInfo(serverInfo.getApiVersion(), serverInfo.getServerName(), request.getQueryString())
     );
 
     // 커스텀 에러 응답 반환
     response.setStatus(HttpStatus.FORBIDDEN.value());  // 403 상태 코드
-    response.getWriter().write(new ObjectMapper().writeValueAsString(responseData));
+    response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
     response.getWriter().flush();  // 응답 전송
     response.getWriter().close();  // 스트림 종료
   }

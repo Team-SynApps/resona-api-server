@@ -137,7 +137,7 @@ public class SecurityConfig {
               .userInfoEndpoint((endpoint) ->
                   endpoint.userService(oAuth2UserService))
               .successHandler(oAuth2AuthenticationSuccessHandler())
-              .failureHandler(new OAuth2AuthenticationFailureHandler(objectMapper, oAuth2AuthorizationRequestRepository()));
+              .failureHandler(new OAuth2AuthenticationFailureHandler(objectMapper, oAuth2AuthorizationRequestRepository(), serverInfo));
         }
     );
 
@@ -166,7 +166,8 @@ public class SecurityConfig {
   public OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler(ObjectMapper objectMapper) {
     return new OAuth2AuthenticationFailureHandler(
         objectMapper,
-        oAuth2AuthorizationRequestRepository()
+        oAuth2AuthorizationRequestRepository(),
+        serverInfo
     );
   }
 

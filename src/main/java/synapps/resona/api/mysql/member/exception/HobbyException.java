@@ -11,7 +11,7 @@ public class HobbyException extends BaseException {
   }
 
   private static HobbyException of(GlobalErrorCode globalErrorCode) {
-    return new HobbyException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCode());
+    return new HobbyException(globalErrorCode.getMessage(), globalErrorCode.getStatus(), globalErrorCode.getCustomCode());
   }
 
   public static HobbyException hobbyNotFound() {
