@@ -30,7 +30,7 @@ import synapps.resona.api.mysql.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentResponse;
-import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
+import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyResponse;
 import synapps.resona.api.mysql.socialMedia.service.comment.CommentService;
 
 @Tag(name = "Comment", description = "댓글 및 답글 API")
@@ -104,12 +104,12 @@ public class CommentController {
   }
 
   @Operation(summary = "댓글의 답글 목록 조회", description = "특정 댓글에 달린 모든 답글을 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_REPLIES_SUCCESS", listElementClass = ReplyReadResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_REPLIES_SUCCESS", listElementClass = ReplyResponse.class))
   @ApiErrorSpec(@ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"COMMENT_NOT_FOUND"}))
   @GetMapping("/{commentId}/replies")
-  public ResponseEntity<SuccessResponse<List<ReplyReadResponse>>> getReplies(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<List<ReplyResponse>>> getReplies(HttpServletRequest request,
       @Parameter(description = "답글을 조회할 댓글의 ID", required = true) @PathVariable Long commentId) {
-    List<ReplyReadResponse> response = commentService.getReplies(commentId);
+    List<ReplyResponse> response = commentService.getReplies(commentId);
     return ResponseEntity
         .status(SocialSuccessCode.GET_REPLIES_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_REPLIES_SUCCESS, createRequestInfo(request.getRequestURI()), response));

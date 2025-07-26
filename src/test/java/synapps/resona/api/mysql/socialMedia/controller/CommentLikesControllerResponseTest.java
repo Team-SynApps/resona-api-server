@@ -17,7 +17,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.mysql.socialMedia.controller.comment.CommentLikesController;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentLikesRequest;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentLikeResponseDto;
+import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentLikeResponse;
 import synapps.resona.api.mysql.socialMedia.service.comment.CommentLikesService;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -53,7 +53,7 @@ class CommentLikesControllerResponseTest {
   @MockBean
   private ServerInfoConfig serverInfo;
 
-  private CommentLikeResponseDto mockCommentLikeResponse;
+  private CommentLikeResponse mockCommentLikeResponse;
 
   @BeforeEach
   void setUp() {
@@ -61,7 +61,7 @@ class CommentLikesControllerResponseTest {
     given(serverInfo.getServerName()).willReturn("test-server");
 
     // 테스트에서 공통으로 사용할 CommentLikeResponseDto 생성
-    mockCommentLikeResponse = CommentLikeResponseDto.of(1L, 101L, 303L, LocalDateTime.now());
+    mockCommentLikeResponse = CommentLikeResponse.of(1L, 101L, 303L, LocalDateTime.now());
   }
 
   @Test

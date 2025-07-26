@@ -7,7 +7,7 @@ import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentLikesRequest;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentLikeResponseDto; // DTO 임포트
+import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentLikeResponse; // DTO 임포트
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.comment.CommentLikes;
 import synapps.resona.api.mysql.socialMedia.exception.CommentException;
@@ -25,7 +25,7 @@ public class CommentLikesService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public CommentLikeResponseDto register(CommentLikesRequest request) {
+  public CommentLikeResponse register(CommentLikesRequest request) {
     Comment comment = commentRepository.findById(request.getCommentId())
         .orElseThrow(CommentException::commentNotFound);
 
@@ -34,7 +34,7 @@ public class CommentLikesService {
 
     CommentLikes commentLikes = CommentLikes.of(member, comment);
     commentLikesRepository.save(commentLikes);
-    return CommentLikeResponseDto.from(commentLikes); // DTO로 변환하여 반환
+    return CommentLikeResponse.from(commentLikes); // DTO로 변환하여 반환
   }
 
   @Transactional

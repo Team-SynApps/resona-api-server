@@ -28,8 +28,7 @@ import synapps.resona.api.mysql.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.mysql.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyPostResponse;
-import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
+import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyResponse;
 import synapps.resona.api.mysql.socialMedia.service.comment.ReplyService;
 
 @Tag(name = "Reply", description = "답글(대댓글) API")
@@ -46,45 +45,45 @@ public class ReplyController {
   }
 
   @Operation(summary = "답글 등록", description = "특정 댓글에 대한 답글을 등록합니다. (인증 필요)")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "REGISTER_REPLY_SUCCESS", responseClass = ReplyPostResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "REGISTER_REPLY_SUCCESS", responseClass = ReplyResponse.class))
   @ApiErrorSpec({
       @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"COMMENT_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @PostMapping
-  public ResponseEntity<SuccessResponse<ReplyPostResponse>> registerReply(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<ReplyResponse>> registerReply(HttpServletRequest request,
       @Valid @RequestBody ReplyRequest replyRequest) {
-    ReplyPostResponse response = replyService.register(replyRequest);
+    ReplyResponse response = replyService.register(replyRequest);
     return ResponseEntity
         .status(SocialSuccessCode.REGISTER_REPLY_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.REGISTER_REPLY_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
   @Operation(summary = "단일 답글 조회", description = "특정 답글의 정보를 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_REPLY_SUCCESS", responseClass = ReplyReadResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_REPLY_SUCCESS", responseClass = ReplyResponse.class))
   @ApiErrorSpec(@ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"REPLY_NOT_FOUND"}))
   @GetMapping("/{replyId}")
-  public ResponseEntity<SuccessResponse<ReplyReadResponse>> getReply(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<ReplyResponse>> getReply(HttpServletRequest request,
       @Parameter(description = "조회할 답글의 ID", required = true) @PathVariable Long replyId) {
-    ReplyReadResponse response = replyService.read(replyId);
+    ReplyResponse response = replyService.read(replyId);
     return ResponseEntity
         .status(SocialSuccessCode.GET_REPLY_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_REPLY_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
   @Operation(summary = "답글 수정", description = "답글의 내용을 수정합니다. (답글 작성자 또는 관리자만 가능)")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "EDIT_REPLY_SUCCESS", responseClass = ReplyReadResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "EDIT_REPLY_SUCCESS", responseClass = ReplyResponse.class))
   @ApiErrorSpec({
       @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"REPLY_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN", "FORBIDDEN"})
   })
   @PutMapping("/{replyId}")
   @PreAuthorize("@socialSecurity.isReplyMemberProperty(#replyId) or hasRole('ADMIN')")
-  public ResponseEntity<SuccessResponse<ReplyReadResponse>> updateReply(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<ReplyResponse>> updateReply(HttpServletRequest request,
       @Parameter(description = "수정할 답글의 ID", required = true) @PathVariable Long replyId,
       @Valid @RequestBody ReplyUpdateRequest replyUpdateRequest) {
     replyUpdateRequest.setReplyId(replyId);
-    ReplyReadResponse response = replyService.update(replyUpdateRequest);
+    ReplyResponse response = replyService.update(replyUpdateRequest);
     return ResponseEntity
         .status(SocialSuccessCode.EDIT_REPLY_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.EDIT_REPLY_SUCCESS, createRequestInfo(request.getRequestURI()), response));

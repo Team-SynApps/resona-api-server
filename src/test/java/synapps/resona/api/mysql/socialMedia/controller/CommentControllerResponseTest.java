@@ -18,7 +18,7 @@ import synapps.resona.api.mysql.socialMedia.controller.comment.CommentController
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentResponse;
-import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
+import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyResponse;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.service.comment.CommentService;
 
@@ -131,8 +131,8 @@ class CommentControllerResponseTest {
   void getReplies_success() throws Exception {
     // given
     Long commentId = 101L;
-    List<ReplyReadResponse> responseList = List.of(
-        ReplyReadResponse.builder().replyId("201").content("This is a reply.").build()
+    List<ReplyResponse> responseList = List.of(
+        ReplyResponse.of(commentId,201L,  "This is a reply", LocalDateTime.now())
     );
     given(commentService.getReplies(commentId)).willReturn(responseList);
 

@@ -13,7 +13,7 @@ import synapps.resona.api.mysql.socialMedia.entity.comment.CommentLikes;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(staticName = "of")
-public class CommentLikeResponseDto {
+public class CommentLikeResponse {
 
   @Schema(description = "댓글 좋아요 고유 ID", example = "1")
   private Long commentLikeId;
@@ -33,8 +33,8 @@ public class CommentLikeResponseDto {
    * @param commentLikes CommentLikes 엔티티 객체
    * @return 생성된 CommentLikeResponseDto
    */
-  public static CommentLikeResponseDto from(CommentLikes commentLikes) {
-    return CommentLikeResponseDto.of(
+  public static CommentLikeResponse from(CommentLikes commentLikes) {
+    return CommentLikeResponse.of(
         commentLikes.getId(),
         commentLikes.getMember().getId(),
         commentLikes.getComment().getId(),

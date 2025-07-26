@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentResponse;
-import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
+import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyResponse;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.exception.CommentException;
@@ -54,12 +54,12 @@ public class CommentService {
   }
 
   @Transactional
-  public List<ReplyReadResponse> getReplies(long commentId) {
+  public List<ReplyResponse> getReplies(long commentId) {
     Comment comment = commentRepository.findWithReplies(commentId)
         .orElseThrow(CommentException::commentNotFound);
     // TODO: 예외처리 해야 함.
     return comment.getReplies().stream()
-        .map(ReplyReadResponse::from)
+        .map(ReplyResponse::from)
         .toList();
   }
 

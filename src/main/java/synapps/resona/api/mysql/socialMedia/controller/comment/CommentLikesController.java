@@ -24,7 +24,7 @@ import synapps.resona.api.mysql.member.code.AuthErrorCode;
 import synapps.resona.api.mysql.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.mysql.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentLikesRequest;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentLikeResponseDto; // DTO 임포트
+import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentLikeResponse; // DTO 임포트
 import synapps.resona.api.mysql.socialMedia.service.comment.CommentLikesService;
 
 @Tag(name = "Comment Like", description = "댓글 좋아요 API")
@@ -41,15 +41,15 @@ public class CommentLikesController {
   }
 
   @Operation(summary = "댓글 좋아요 등록", description = "특정 댓글에 좋아요를 등록합니다. (인증 필요)")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "LIKE_COMMENT_SUCCESS", responseClass = CommentLikeResponseDto.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "LIKE_COMMENT_SUCCESS", responseClass = CommentLikeResponse.class))
   @ApiErrorSpec({
       @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"COMMENT_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @PostMapping("/comment-like")
-  public ResponseEntity<SuccessResponse<CommentLikeResponseDto>> registerCommentLike(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<CommentLikeResponse>> registerCommentLike(HttpServletRequest request,
       @RequestBody CommentLikesRequest commentLikesRequest) {
-    CommentLikeResponseDto commentLikes = commentLikesService.register(commentLikesRequest);
+    CommentLikeResponse commentLikes = commentLikesService.register(commentLikesRequest);
     return ResponseEntity
         .status(SocialSuccessCode.LIKE_COMMENT_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.LIKE_COMMENT_SUCCESS, createRequestInfo(request.getRequestURI()), commentLikes));

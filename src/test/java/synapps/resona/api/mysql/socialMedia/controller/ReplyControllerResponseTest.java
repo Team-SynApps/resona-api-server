@@ -1,6 +1,7 @@
 package synapps.resona.api.mysql.socialMedia.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,8 +18,7 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.mysql.socialMedia.controller.comment.ReplyController;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyPostResponse;
-import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyReadResponse;
+import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyResponse;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Reply;
 import synapps.resona.api.mysql.socialMedia.service.comment.ReplyService;
 
@@ -64,11 +64,7 @@ class ReplyControllerResponseTest {
   void registerReply_success() throws Exception {
     // given
     ReplyRequest requestDto = new ReplyRequest(101L, "This is a reply.");
-    ReplyPostResponse responseDto = ReplyPostResponse.builder()
-        .replyId("201")
-        .commentId("101")
-        .content("This is a reply.")
-        .build();
+    ReplyResponse responseDto = ReplyResponse.of(101L, 201L, "This is a reply.", LocalDateTime.now());
     given(replyService.register(any(ReplyRequest.class))).willReturn(responseDto);
 
     // when
@@ -89,11 +85,7 @@ class ReplyControllerResponseTest {
   void getReply_success() throws Exception {
     // given
     Long replyId = 201L;
-    ReplyReadResponse responseDto = ReplyReadResponse.builder()
-        .replyId("201")
-        .commentId("101")
-        .content("A single reply.")
-        .build();
+    ReplyResponse responseDto = ReplyResponse.of(101L, 201L, "This is a reply.", LocalDateTime.now());
     given(replyService.read(replyId)).willReturn(responseDto);
 
     // when
@@ -113,11 +105,7 @@ class ReplyControllerResponseTest {
     // given
     Long replyId = 201L;
     ReplyUpdateRequest requestDto = new ReplyUpdateRequest(replyId, "Updated reply content.");
-    ReplyReadResponse responseDto = ReplyReadResponse.builder()
-        .replyId("201")
-        .commentId("101")
-        .content("Updated reply content.")
-        .build();
+    ReplyResponse responseDto = ReplyResponse.of(101L, 201L, "Updated reply content.", LocalDateTime.now());
     given(replyService.update(any(ReplyUpdateRequest.class))).willReturn(responseDto);
 
     // when
