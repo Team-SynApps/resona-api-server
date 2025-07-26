@@ -12,9 +12,7 @@ import synapps.resona.api.global.dto.code.ErrorCode;
 @Target({})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ErrorCodeSpec {
-  // 어떤 ErrorCode Enum을 사용할지 Class로 지정
   Class<? extends ErrorCode> enumClass();
 
-  // 문서화할 enum의 상수 이름들을 문자열로 지정
   String[] codes();
 }

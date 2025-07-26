@@ -128,20 +128,16 @@ public class SwaggerConfig {
     String statusCode = String.valueOf(successCode.getStatusCode());
     String successCodeName = successCodeSpec.code();
 
-    // [수정] 재귀 호출을 위해 depth 파라미터 추가
     Object exampleData;
     if (successCodeSpec.listElementClass() != Void.class) {
-      // 리스트 예시는 2개 정도 생성
       exampleData = List.of(
           createExampleData(successCodeSpec.listElementClass(), 0),
           createExampleData(successCodeSpec.listElementClass(), 0)
       );
     } else {
-      // 기존 단일 객체 처리
       exampleData = createExampleData(successCodeSpec.responseClass(), 0);
     }
 
-    // ... (이하 로직은 수정 없음)
     Map<String, Object> metaMap = new LinkedHashMap<>();
     metaMap.put("status", successCode.getStatusCode());
     metaMap.put("message", successCode.getMessage());
@@ -212,13 +208,12 @@ public class SwaggerConfig {
     }
 
     // 4. 프로젝트 내의 DTO 객체일 경우, 필드를 순회하며 재귀 호출
-    // (주의: 패키지 경로는 실제 프로젝트에 맞게 확인해주세요)
     if (clazz.getPackageName().startsWith("synapps.resona.api")) {
       try {
         Map<String, Object> example = new LinkedHashMap<>();
         for (Field field : clazz.getDeclaredFields()) {
           field.setAccessible(true);
-          // 재귀 호출로 하위 객체 예시 생성
+          // 재귀 호출로 하위 임시 객체 생성
           example.put(field.getName(), createExampleData(field.getType(), depth + 1));
         }
         return example;
@@ -256,7 +251,6 @@ public class SwaggerConfig {
    * @return Swagger 문서에 추가될 ApiResponse 객체
    */
   private ApiResponse createApiResponse(ErrorCode errorCode) {
-    // 실제 응답과 유사한 예시(Example)를 동적으로 생성
     Map<String, Object> metaMap = new LinkedHashMap<>();
     metaMap.put("status", errorCode.getStatusCode());
     metaMap.put("message", errorCode.getMessage());
