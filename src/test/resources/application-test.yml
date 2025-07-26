@@ -1,10 +1,11 @@
 spring:
+  # --- H2 인메모리 DB로 대체 ---
   datasource:
     url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
     username: sa
     password:
     driver-class-name: org.h2.Driver
-
+  
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -16,20 +17,57 @@ spring:
   data:
     redis:
     mongodb:
+
+  # --- OAuth 2.0 클라이언트 더미 설정 ---
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: "dummy-google-client-id-for-test"
+            clientSecret: "dummy-google-client-secret-for-test"
+          facebook:
+            clientId: "dummy-facebook-client-id-for-test"
+            clientSecret: "dummy-facebook-client-secret-for-test"
+
   mail:
     host: localhost
     port: 25
 
 jwt:
-  secret: "this-is-a-dummy-jwt-secret-for-testing-purpose-only"
+  secret: "dummy-jwt-secret-for-integration-tests-that-is-long-enough"
+
+oauth:
+  apple:
+    iss: https://appleid.apple.com
+    client-id: "com.dummy.test.client.id"
+    nonce: "dummy-nonce-value-for-testing"
 
 app:
   auth:
-    tokenSecret: "this-is-a-dummy-auth-token-secret-for-testing"
+    tokenSecret: "dummy-app-auth-token-secret-for-integration-tests"
 
 fcm:
-  path: "/dev/null"
+  path: "/dev/null" # 실제 파일 경로가 아니므로 FCM 초기화 방지
 
 oci:
   config:
-    privateKeyPath: "/dev/null"
+    userId: "dummy-oci-user-id"
+    tenancyId: "dummy-oci-tenancy-id"
+    fingerprint: "dummy-oci-fingerprint"
+    privateKeyPath: "/dev/null" # 실제 키 파일 경로가 아님
+    region: "ap-seoul-1"
+  storage:
+    bucketName: "dummy-bucket"
+    compartmentId: "dummy-compartment"
+    namespace: "dummy-namespace"
+    region: "ap-seoul-1"
+    buffer-bucket-name: "dummy-buffer-bucket"
+    disk-bucket-name: "dummy-disk-bucket"
+
+cors:
+  allowed-origins: "http://localhost:3000"
+
+swagger:
+  server:
+    url: http://localhost:8080/api/v1
