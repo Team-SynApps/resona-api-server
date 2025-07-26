@@ -2,10 +2,6 @@ package synapps.resona.api.mysql.socialMedia.controller.mention;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +13,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import synapps.resona.api.global.annotation.ApiErrorSpec;
+import synapps.resona.api.global.annotation.ApiSuccessResponse;
+import synapps.resona.api.global.annotation.ErrorCodeSpec;
+import synapps.resona.api.global.annotation.SuccessCodeSpec;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.response.SuccessResponse;
+import synapps.resona.api.mysql.member.code.AuthErrorCode;
+import synapps.resona.api.mysql.member.code.MemberErrorCode;
+import synapps.resona.api.mysql.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.mysql.socialMedia.code.SocialSuccessCode;
-import synapps.resona.api.mysql.socialMedia.entity.mention.Mention;
+import synapps.resona.api.mysql.socialMedia.dto.mention.MentionResponseDto; // 추가
 import synapps.resona.api.mysql.socialMedia.service.mention.MentionService;
 
 @Tag(name = "Mention", description = "사용자 맨션 API")
@@ -39,46 +41,38 @@ public class MentionController {
   }
 
   @Operation(summary = "맨션 등록", description = "댓글/답글을 통해 사용자를 맨션합니다. (인증 필요)")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "201", description = "맨션 등록 성공"),
-      @ApiResponse(responseCode = "401", description = "인증 실패",
-          content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-      @ApiResponse(responseCode = "404", description = "존재하지 않는 댓글 또는 사용자",
-          content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "REGISTER_MENTION_SUCCESS", responseClass = MentionResponseDto.class))
+  @ApiErrorSpec({
+      @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"COMMENT_NOT_FOUND"}),
+      @ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"MEMBER_NOT_FOUND"}),
+      @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @PostMapping("/mention/{commentId}")
-  public ResponseEntity<SuccessResponse<Mention>> registerMention(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<MentionResponseDto>> registerMention(HttpServletRequest request,
       @Parameter(description = "맨션이 포함된 댓글의 ID", required = true) @PathVariable Long commentId) {
-    Mention mention = mentionService.register(commentId);
+    MentionResponseDto mention = mentionService.register(commentId);
     return ResponseEntity
         .status(SocialSuccessCode.REGISTER_MENTION_SUCCESS.getStatus())
-        .body(SuccessResponse.of(SocialSuccessCode.REGISTER_MENTION_SUCCESS, createRequestInfo(request.getQueryString()), mention));
+        .body(SuccessResponse.of(SocialSuccessCode.REGISTER_MENTION_SUCCESS, createRequestInfo(request.getRequestURI()), mention));
   }
 
   @Operation(summary = "맨션 조회", description = "특정 맨션 정보를 조회합니다.")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "맨션 조회 성공"),
-      @ApiResponse(responseCode = "404", description = "존재하지 않는 맨션",
-          content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
-  })
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_MENTION_SUCCESS", responseClass = MentionResponseDto.class))
+  @ApiErrorSpec(@ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"MENTION_NOT_FOUND"}))
   @GetMapping("/mention/{mentionId}")
-  public ResponseEntity<SuccessResponse<Mention>> readMention(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<MentionResponseDto>> readMention(HttpServletRequest request,
       @Parameter(description = "조회할 맨션의 ID", required = true) @PathVariable Long mentionId) {
-    Mention mention = mentionService.read(mentionId);
+    MentionResponseDto mention = mentionService.read(mentionId);
     return ResponseEntity
         .status(SocialSuccessCode.GET_MENTION_SUCCESS.getStatus())
-        .body(SuccessResponse.of(SocialSuccessCode.GET_MENTION_SUCCESS, createRequestInfo(request.getQueryString()), mention));
+        .body(SuccessResponse.of(SocialSuccessCode.GET_MENTION_SUCCESS, createRequestInfo(request.getRequestURI()), mention));
   }
 
   @Operation(summary = "맨션 삭제", description = "맨션을 삭제합니다. (맨션한 사람 또는 관리자만 가능)")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "200", description = "맨션 삭제 성공"),
-      @ApiResponse(responseCode = "401", description = "인증 실패",
-          content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-      @ApiResponse(responseCode = "403", description = "권한 없음",
-          content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
-      @ApiResponse(responseCode = "404", description = "존재하지 않는 맨션",
-          content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "DELETE_MENTION_SUCCESS"))
+  @ApiErrorSpec({
+      @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"MENTION_NOT_FOUND"}),
+      @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN", "FORBIDDEN"})
   })
   @DeleteMapping("/mention/{mentionId}")
   @PreAuthorize("@socialSecurity.isMentionMemberProperty(#mentionId) or hasRole('ADMIN')")
@@ -87,6 +81,6 @@ public class MentionController {
     mentionService.delete(mentionId);
     return ResponseEntity
         .status(SocialSuccessCode.DELETE_MENTION_SUCCESS.getStatus())
-        .body(SuccessResponse.of(SocialSuccessCode.DELETE_MENTION_SUCCESS, createRequestInfo(request.getQueryString())));
+        .body(SuccessResponse.of(SocialSuccessCode.DELETE_MENTION_SUCCESS, createRequestInfo(request.getRequestURI())));
   }
 }
