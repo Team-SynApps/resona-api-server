@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,24 +21,33 @@ import synapps.resona.api.mysql.member.entity.member.Member;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@RequiredArgsConstructor
-public class UserPrincipal implements OAuth2User, UserDetails, OidcUser {
+public class UserPrincipal implements OAuth2User, UserDetails, OidcUser, CredentialsContainer {
 
+  private final Long memberId;
   private final String email;
-  private final String password;
+  private String password;
   private final ProviderType providerType;
   private final RoleType roleType;
   private final Collection<GrantedAuthority> authorities;
   private Map<String, Object> attributes;
 
+  public UserPrincipal(Long memberId, String email, String password, ProviderType providerType, RoleType roleType, Collection<GrantedAuthority> authorities) {
+    this.memberId = memberId;
+    this.email = email;
+    this.password = password;
+    this.providerType = providerType;
+    this.roleType = roleType;
+    this.authorities = authorities;
+  }
+
   public static UserPrincipal create(Member member, AccountInfo accountInfo) {
     return new UserPrincipal(
+        member.getId(),
         member.getEmail(),
         member.getPassword(),
         accountInfo.getProviderType(),
-        RoleType.USER,
-        Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.getCode()))
+        accountInfo.getRoleType(),
+        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + accountInfo.getRoleType().getCode()))
     );
   }
 
@@ -92,6 +102,14 @@ public class UserPrincipal implements OAuth2User, UserDetails, OidcUser {
   @Override
   public Map<String, Object> getClaims() {
     return null;
+  }
+
+  /**
+   * 인증 후 Spring Security에 의해 호출되어 민감한 정보를 제거
+   */
+  @Override
+  public void eraseCredentials() {
+    this.password = null;
   }
 
   @Override

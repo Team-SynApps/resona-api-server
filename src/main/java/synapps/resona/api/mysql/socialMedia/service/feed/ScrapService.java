@@ -32,8 +32,7 @@ public class ScrapService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public ScrapReadResponse register(Long feedId) {
-    MemberDto memberDto = memberService.getMember();
+  public ScrapReadResponse register(Long feedId, MemberDto memberDto) {
     Member member = memberRepository.findById(memberDto.getId())
         .orElseThrow(MemberException::memberNotFound);
 
@@ -64,8 +63,7 @@ public class ScrapService {
   }
 
   @Transactional(readOnly = true)
-  public CursorResult<ScrapReadResponse> readScrapsByCursor(String cursor, int size) {
-    MemberDto memberDto = memberService.getMember();
+  public CursorResult<ScrapReadResponse> readScrapsByCursor(String cursor, int size, MemberDto memberDto) {
     LocalDateTime cursorTime = (cursor == null || cursor.isBlank())
         ? LocalDateTime.now()
         : LocalDateTime.parse(cursor);

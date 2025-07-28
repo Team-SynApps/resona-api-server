@@ -16,10 +16,12 @@ import org.springframework.security.core.userdetails.User;
 import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.response.MemberProfileDto;
+import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.repository.member.FollowRepository;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Transactional
 class FollowServiceTest extends IntegrationTestSupport {
@@ -67,8 +69,12 @@ class FollowServiceTest extends IntegrationTestSupport {
     meId = memberRepository.findByEmail(loginEmail).orElseThrow().getId();
     targetId = memberRepository.findByEmail(targetEmail).orElseThrow().getId();
 
-    // 4. 로그인된 사용자 인증 정보 설정
-    User principal = new User(loginEmail, "", new ArrayList<>());
+    // 4. 로그인된 사용자 인증 정보 설정 (UserPrincipal 사용)
+    Member me = memberRepository.findByEmailWithAccountInfo(loginEmail)
+        .orElseThrow(() -> new RuntimeException("테스트 유저 'me'를 찾을 수 없습니다."));
+
+    UserPrincipal principal = UserPrincipal.create(me, me.getAccountInfo());
+
     SecurityContextHolder.getContext().setAuthentication(
         new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities()));
   }
@@ -117,7 +123,6 @@ class FollowServiceTest extends IntegrationTestSupport {
   @DisplayName("팔로워 목록을 조회할 수 있다")
   void getFollowers_success() {
     // given
-    // 상대방이 나를 팔로우한 상황 만들기
     String thirdEmail = "another@resona.com";
     RegisterRequest anotherReq = new RegisterRequest(
         thirdEmail, "another tag", "pw", CountryCode.KR, CountryCode.KR,
@@ -125,21 +130,20 @@ class FollowServiceTest extends IntegrationTestSupport {
         "제3자", "http://img.third"
     );
 
-    // 임시 회원 생성 후 정식 회원 전환
     tempTokenService.createTemporaryToken(anotherReq.getEmail());
     memberService.signUp(anotherReq);
 
-    Long thirdId = memberRepository.findByEmail(thirdEmail).orElseThrow().getId();
+    Member third = memberRepository.findByEmailWithAccountInfo(thirdEmail)
+        .orElseThrow(() -> new RuntimeException("테스트 유저 'third'를 찾을 수 없습니다."));
 
-    // 제3자로 로그인 교체
-    User third = new User(thirdEmail, "", new ArrayList<>());
+    UserPrincipal thirdPrincipal = UserPrincipal.create(third, third.getAccountInfo());
+
     SecurityContextHolder.getContext().setAuthentication(
-        new UsernamePasswordAuthenticationToken(third, null, third.getAuthorities()));
-
+        new UsernamePasswordAuthenticationToken(thirdPrincipal, null, thirdPrincipal.getAuthorities())
+    );
     followService.follow(meId); // 제3자가 나(meId)를 팔로우
 
     // when
-    // 다시 내(meId) 팔로워 목록을 조회
     List<MemberProfileDto> result = followService.getFollowers(meId);
 
     // then

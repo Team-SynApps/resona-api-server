@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.socialMedia.controller.comment.ReplyController;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyUpdateRequest;
@@ -65,7 +66,7 @@ class ReplyControllerResponseTest {
     // given
     ReplyRequest requestDto = new ReplyRequest(101L, "This is a reply.");
     ReplyResponse responseDto = ReplyResponse.of(101L, 201L, "This is a reply.", LocalDateTime.now());
-    given(replyService.register(any(ReplyRequest.class))).willReturn(responseDto);
+    given(replyService.register(any(ReplyRequest.class), any(MemberDto.class))).willReturn(responseDto);
 
     // when
     ResultActions actions = mockMvc.perform(post("/replies")

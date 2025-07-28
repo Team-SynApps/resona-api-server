@@ -95,8 +95,8 @@ class FollowControllerResponseTest {
     // given
     Long memberId = 1L;
     List<MemberProfileDto> mockFollowers = List.of(
-        new MemberProfileDto(10L, "url1", "follower1", "tag1"),
-        new MemberProfileDto(11L, "url2", "follower2", "tag2")
+        MemberProfileDto.of(10L, "url1", "follower1", "tag1"),
+        MemberProfileDto.of(11L, "url2", "follower2", "tag2")
     );
     given(followService.getFollowers(memberId)).willReturn(mockFollowers);
 
@@ -122,7 +122,7 @@ class FollowControllerResponseTest {
     // given
     Long memberId = 1L;
     List<MemberProfileDto> mockFollowings = List.of(
-        new MemberProfileDto(20L, "url3", "following1", "tag3")
+        MemberProfileDto.of(20L, "url3", "following1", "tag3")
     );
     given(followService.getFollowings(memberId)).willReturn(mockFollowings);
 

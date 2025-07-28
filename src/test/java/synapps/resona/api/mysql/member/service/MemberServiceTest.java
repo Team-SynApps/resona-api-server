@@ -29,6 +29,7 @@ import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 
 @Transactional
@@ -82,29 +83,22 @@ class MemberServiceTest extends IntegrationTestSupport {
   }
 
   private void setAuthentication(String email) {
-    User userPrincipal = new User(email, "", java.util.Collections.emptyList());
+    Member member = memberRepository.findByEmailWithAccountInfo(email)
+        .orElseThrow(() -> new RuntimeException("테스트 유저 '" + email + "'를 찾을 수 없습니다."));
+
+    UserPrincipal principal = UserPrincipal.create(member, member.getAccountInfo());
+
     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-        userPrincipal, null, userPrincipal.getAuthorities());
+        principal, null, principal.getAuthorities());
     SecurityContext securityContext = SecurityContextHolder.getContext();
     securityContext.setAuthentication(auth);
-  }
-
-  @Test
-  @DisplayName("회원 정보를 조회한다.")
-  void testGetMember() {
-    // when
-    MemberDto memberDto = memberService.getMember();
-
-    // then
-    assertThat(memberDto).isNotNull();
-    assertThat(memberDto.getEmail()).isEqualTo(testMember.getEmail());
   }
 
   @Test
   @DisplayName("회원 상세 정보를 조회한다.")
   void testGetMemberDetailInfo() {
     // when
-    var memberDetailInfo = memberService.getMemberDetailInfo();
+    var memberDetailInfo = memberService.getMemberDetailInfo("test1@example.com");
 
     // then
     assertThat(memberDetailInfo).isNotNull();

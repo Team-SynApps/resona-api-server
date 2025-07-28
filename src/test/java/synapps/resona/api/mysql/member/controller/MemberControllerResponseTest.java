@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
+import synapps.resona.api.mysql.member.WithMockUserPrincipal;
 import synapps.resona.api.mysql.member.dto.request.auth.LoginRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
@@ -33,17 +34,19 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
 @WebMvcTest(
     controllers = MemberController.class,
     excludeAutoConfiguration = {
-        SecurityAutoConfiguration.class, // Security 자동 설정 해제
+//        SecurityAutoConfiguration.class, // Security 자동 설정 해제
         OAuth2ClientAutoConfiguration.class // OAuth2 클라이언트 자동 설정 해제
     }
 )
@@ -73,6 +76,7 @@ class MemberControllerResponseTest {
   }
 
   @Test
+  @WithMockUserPrincipal(memberId = 1L, email = "test@example.com")
   @DisplayName("회원가입 성공 시, 상세 회원 정보와 AuthToken을 포함한 응답을 반환한다")
   void join_success_with_detailed_dto() throws Exception {
     // given
@@ -103,6 +107,7 @@ class MemberControllerResponseTest {
     // when
     ResultActions actions = mockMvc.perform(
         post("/member/join")
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON)
             .content(objectMapper.writeValueAsString(registerRequest))
     );
@@ -120,15 +125,9 @@ class MemberControllerResponseTest {
   }
 
   @Test
+  @WithMockUserPrincipal(memberId = 1L, email = "test@example.com")
   @DisplayName("사용자 정보 조회 성공 시, MemberInfoDto를 포함한 응답을 반환한다")
   void getUser_success() throws Exception {
-    // given
-    MemberDto mockMemberDto = MemberDto.builder()
-        .id(1L)
-        .email("test@example.com")
-        .build();
-    given(memberService.getMember()).willReturn(mockMemberDto);
-
     // when
     ResultActions actions = mockMvc.perform(get("/member/info")
         .contentType(MediaType.APPLICATION_JSON));
@@ -142,6 +141,7 @@ class MemberControllerResponseTest {
   }
 
   @Test
+  @WithMockUserPrincipal(memberId = 1L, email = "test@example.com")
   @DisplayName("사용자 상세 정보 조회 성공 시, MemberInfoDto를 포함한 응답을 반환한다")
   void getMemberDetailInfo_success() throws Exception {
     // given
@@ -150,7 +150,8 @@ class MemberControllerResponseTest {
         .aboutMe("I am a software engineer.")
         .mbti("ISTJ")
         .build();
-    given(memberService.getMemberDetailInfo()).willReturn(mockMemberDetailInfo);
+
+    given(memberService.getMemberDetailInfo(anyString())).willReturn(mockMemberDetailInfo);
 
     // when
     ResultActions actions = mockMvc.perform(get("/member/detail")
@@ -165,15 +166,17 @@ class MemberControllerResponseTest {
   }
 
   @Test
+  @WithMockUserPrincipal
   @DisplayName("비밀번호 변경 성공 시, 성공 메시지를 포함한 응답을 반환한다")
   void changePassword_success() throws Exception {
     // given
     MemberPasswordChangeDto requestBody = new MemberPasswordChangeDto("test@example.com", "newPass");
-    MemberDto successResponse = MemberDto.builder().id(1L).email("test@example.com").build();
+    MemberDto successResponse = MemberDto.of(1L, "test@example.com");
     given(memberService.changePassword(any(), any(MemberPasswordChangeDto.class))).willReturn(successResponse);
 
     // when
     ResultActions actions = mockMvc.perform(post("/member/password")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(requestBody)));
 
@@ -184,6 +187,7 @@ class MemberControllerResponseTest {
   }
 
   @Test
+  @WithMockUserPrincipal
   @DisplayName("회원 탈퇴 성공 시, 성공 메시지를 포함한 응답을 반환한다")
   void deleteUser_success() throws Exception {
     // given
@@ -192,6 +196,7 @@ class MemberControllerResponseTest {
 
     // when
     ResultActions actions = mockMvc.perform(delete("/member")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON));
 
     // then

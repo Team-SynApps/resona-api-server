@@ -31,6 +31,7 @@ import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
 import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.repository.member.MemberRefreshTokenRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.handler.OAuth2AuthenticationFailureHandler;
@@ -52,6 +53,7 @@ public class SecurityConfig {
   private final ServerInfoConfig serverInfo;
   private final CustomUserDetailsService userDetailsService;
   private final MemberRefreshTokenRepository memberRefreshTokenRepository;
+  private final MemberRepository memberRepository;
   private final CustomOAuth2UserService oAuth2UserService;
   private final MemberService memberService;
   private final ClientRegistrationRepository clientRegistrationRepository;
@@ -206,7 +208,7 @@ public class SecurityConfig {
    * */
   @Bean
   public TokenAuthenticationFilter tokenAuthenticationFilter() {
-    return new TokenAuthenticationFilter(tokenProvider, objectMapper, serverInfo);
+    return new TokenAuthenticationFilter(tokenProvider, objectMapper, serverInfo, memberRepository);
   }
 
   /*

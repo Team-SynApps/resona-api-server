@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,12 +25,14 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.response.SuccessResponse;
 import synapps.resona.api.mysql.member.code.AuthErrorCode;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.mysql.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyUpdateRequest;
 import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyResponse;
 import synapps.resona.api.mysql.socialMedia.service.comment.ReplyService;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Tag(name = "Reply", description = "답글(대댓글) API")
 @RestController
@@ -52,8 +55,9 @@ public class ReplyController {
   })
   @PostMapping
   public ResponseEntity<SuccessResponse<ReplyResponse>> registerReply(HttpServletRequest request,
-      @Valid @RequestBody ReplyRequest replyRequest) {
-    ReplyResponse response = replyService.register(replyRequest);
+      @Valid @RequestBody ReplyRequest replyRequest,
+      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    ReplyResponse response = replyService.register(replyRequest, MemberDto.from(userPrincipal));
     return ResponseEntity
         .status(SocialSuccessCode.REGISTER_REPLY_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.REGISTER_REPLY_SUCCESS, createRequestInfo(request.getRequestURI()), response));

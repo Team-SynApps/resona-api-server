@@ -2,28 +2,39 @@ package synapps.resona.api.global.filter;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.RequestInfo;
+import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.error.GlobalErrorCode;
 import synapps.resona.api.global.utils.HeaderUtil;
 import synapps.resona.api.mysql.member.code.AuthErrorCode;
+import synapps.resona.api.mysql.member.entity.account.AccountInfo; // Import 추가
+import synapps.resona.api.mysql.member.entity.member.Member; // Import 추가
+import synapps.resona.api.mysql.member.exception.MemberException;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository; // Import 추가
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
+import synapps.resona.api.oauth.entity.UserPrincipal; // Import 추가
 
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
@@ -33,6 +44,24 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   private final AuthTokenProvider tokenProvider;
   private final ObjectMapper objectMapper;
   private final ServerInfoConfig serverInfo;
+  private final MemberRepository memberRepository;
+
+  private static final AntPathMatcher pathMatcher = new AntPathMatcher();
+  private static final List<String> PERMIT_ALL_URLS = Arrays.asList(
+      /* swagger v3 */
+      "/v3/api-docs/**",
+      "/swagger-ui/**",
+      "/swagger-resources/**",
+      /* auth endpoints */
+      "/auth/**",
+      /* member join */
+      "/member/join",
+      /* other public endpoints */
+      "/actuator/**",
+      "/email/**",
+      "/metrics",
+      "/error"
+  );
 
   @Override
   protected void doFilterInternal(
@@ -48,7 +77,21 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         AuthToken token = tokenProvider.convertAuthToken(tokenStr);
 
         if (token.validate()) {
-          Authentication authentication = tokenProvider.getAuthentication(token);
+          Claims claims = token.getTokenClaims();
+          String email = claims.getSubject();
+
+          Member member = memberRepository.findByEmailWithAccountInfo(email)
+              .orElseThrow(MemberException::memberNotFound);
+          AccountInfo accountInfo = member.getAccountInfo();
+
+          UserPrincipal userPrincipal = UserPrincipal.create(member, accountInfo);
+
+          Authentication authentication = new UsernamePasswordAuthenticationToken(
+              userPrincipal,
+              null,
+              userPrincipal.getAuthorities()
+          );
+
           logger.debug("Token authorities before setting context: {}",
               authentication.getAuthorities());
           SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -77,7 +120,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
       if (!request.getRequestURI().equals("/api/v1/actuator/prometheus")) {
         logger.warn("No token found in request headers, uri: {}", request.getRequestURI());
       }
-      SecurityContextHolder.clearContext();
+      // SecurityContextHolder.clearContext(); // 주석 처리 또는 제거: 토큰이 없을 때 익명 사용자로 처리되도록 함
     }
 
     filterChain.doFilter(request, response);
@@ -111,9 +154,11 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   @Override
   protected boolean shouldNotFilter(HttpServletRequest request) {
     String path = request.getRequestURI();
-    logger.debug("Checking if should not filter for path: {}", path);
-    boolean shouldNotFilter = path.startsWith("/public") || path.equals("/error");
-    logger.debug("Should not filter: {}", shouldNotFilter);
+
+    boolean shouldNotFilter = PERMIT_ALL_URLS.stream()
+        .anyMatch(pattern -> pathMatcher.match(pattern, path));
+
+    logger.debug("Checking path: {}. Should not filter: {}", path, shouldNotFilter);
     return shouldNotFilter;
   }
 }

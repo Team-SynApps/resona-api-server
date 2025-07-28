@@ -15,6 +15,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.socialMedia.controller.feed.LikeController;
 import synapps.resona.api.mysql.socialMedia.dto.like.request.LikeRequest;
 import synapps.resona.api.mysql.socialMedia.dto.like.response.LikeResponse;
@@ -65,7 +66,7 @@ class LikeControllerResponseTest {
         LikeRequest requestDto = new LikeRequest(1L);
         LikeResponse responseDto = LikeResponse.of(100L, 1L, 1L, LocalDateTime.now());
 
-        given(likeService.register(any(LikeRequest.class))).willReturn(responseDto);
+        given(likeService.register(any(LikeRequest.class), any(MemberDto.class))).willReturn(responseDto);
 
         // when
         ResultActions actions = mockMvc.perform(post("/like")

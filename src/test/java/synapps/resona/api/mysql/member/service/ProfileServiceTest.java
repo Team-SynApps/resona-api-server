@@ -31,6 +31,7 @@ import synapps.resona.api.mysql.member.exception.ProfileException;
 import synapps.resona.api.mysql.member.repository.account.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Transactional
 class ProfileServiceTest extends IntegrationTestSupport {
@@ -88,10 +89,13 @@ class ProfileServiceTest extends IntegrationTestSupport {
 
     memberService.signUp(request);
 
-    User principal = new User(email, "", new ArrayList<>());
+    Member member = memberRepository.findByEmailWithAccountInfo(email)
+        .orElseThrow(() -> new RuntimeException("테스트 유저를 찾을 수 없습니다."));
+
+    UserPrincipal principal = UserPrincipal.create(member, member.getAccountInfo());
+
     UsernamePasswordAuthenticationToken authentication =
         new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
-
     SecurityContextHolder.getContext().setAuthentication(authentication);
   }
 

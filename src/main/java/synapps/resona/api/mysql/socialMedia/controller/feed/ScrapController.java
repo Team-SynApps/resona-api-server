@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,11 +24,13 @@ import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.response.SuccessResponse;
 import synapps.resona.api.mysql.member.code.AuthErrorCode;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.mysql.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.mysql.socialMedia.dto.scrap.ScrapReadResponse;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Scrap;
 import synapps.resona.api.mysql.socialMedia.service.feed.ScrapService;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Tag(name = "Scrap", description = "피드 스크랩 API")
 @RestController
@@ -50,8 +53,9 @@ public class ScrapController {
   })
   @PostMapping("/scrap/{feedId}")
   public ResponseEntity<SuccessResponse<ScrapReadResponse>> registerScrap(HttpServletRequest request,
-      @Parameter(description = "스크랩할 피드의 ID", required = true) @PathVariable Long feedId) {
-    ScrapReadResponse scrap = scrapService.register(feedId);
+      @Parameter(description = "스크랩할 피드의 ID", required = true) @PathVariable Long feedId,
+      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    ScrapReadResponse scrap = scrapService.register(feedId, MemberDto.from(userPrincipal));
     return ResponseEntity
         .status(SocialSuccessCode.SCRAP_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.SCRAP_SUCCESS, createRequestInfo(request.getRequestURI()), scrap));
@@ -79,8 +83,9 @@ public class ScrapController {
   @GetMapping("/scraps")
   public ResponseEntity<SuccessResponse<CursorResult<ScrapReadResponse>>> readScraps(HttpServletRequest request,
       @Parameter(description = "다음 페이지를 위한 커서 (첫 페이지는 비워둠)") @RequestParam(required = false) String cursor,
-      @Parameter(description = "페이지 당 스크랩 수") @RequestParam(required = false, defaultValue = "10") int size) {
-    CursorResult<ScrapReadResponse> result = scrapService.readScrapsByCursor(cursor, size);
+      @Parameter(description = "페이지 당 스크랩 수") @RequestParam(required = false, defaultValue = "10") int size,
+      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    CursorResult<ScrapReadResponse> result = scrapService.readScrapsByCursor(cursor, size, MemberDto.from(userPrincipal));
     return ResponseEntity
         .status(SocialSuccessCode.GET_SCRAPS_SUCCESS.getStatus())
         .body(SuccessResponse.of(

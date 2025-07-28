@@ -27,8 +27,7 @@ public class ReplyService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public ReplyResponse register(ReplyRequest request) {
-    MemberDto memberDto = memberService.getMember();
+  public ReplyResponse register(ReplyRequest request, MemberDto memberDto) {
     Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
     Comment comment = commentRepository.findById(request.getCommentId())
