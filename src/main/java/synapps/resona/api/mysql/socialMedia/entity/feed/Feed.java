@@ -16,6 +16,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
 import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
@@ -25,8 +26,8 @@ import synapps.resona.api.mysql.socialMedia.entity.media.FeedMedia;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("is_deleted = false")
 public class Feed extends BaseEntity {
-
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

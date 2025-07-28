@@ -1,6 +1,7 @@
 package synapps.resona.api.mysql.member.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
@@ -26,6 +27,7 @@ import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Gender;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
+import synapps.resona.api.mysql.member.exception.ProfileException;
 import synapps.resona.api.mysql.member.repository.account.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.oauth.entity.ProviderType;
@@ -186,8 +188,9 @@ class ProfileServiceTest extends IntegrationTestSupport {
   }
 
   @Test
-  @DisplayName("프로필 삭제 시 softDelete 되어야 한다.")
+  @DisplayName("프로필 삭제 시 softDelete 되어야 하며, 더 이상 조회되지 않아야 한다.")
   void deleteProfile() {
+    // given
     ProfileRequest request = new ProfileRequest(
         "삭제닉네임",
         CountryCode.fromCode("kr"),
@@ -202,10 +205,13 @@ class ProfileServiceTest extends IntegrationTestSupport {
     );
     profileService.register(request);
 
+    // when
     profileService.deleteProfile();
 
-    ProfileResponse result = profileService.readProfile();
-    assertThat(result.getNickname()).isEqualTo("삭제닉네임");
+    // then
+    assertThrows(ProfileException.class, () -> {
+      profileService.readProfile();
+    });
   }
 
   @Test
