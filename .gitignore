@@ -9,6 +9,7 @@ build/
 .env
 .env-local
 .env-prod
+.env-test
 
 ## private key ###
 src/main/resources/keys/resona-bucket-private-key.pem

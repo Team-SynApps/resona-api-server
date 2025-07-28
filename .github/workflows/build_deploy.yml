@@ -29,11 +29,22 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
+      - name: Create OCI private key file from Secret
+        run: echo "${{ secrets.OCI_PRIVATE_KEY_CONTENT }}" > ./oci_private_key.pem
+
+      - name: Create application-test.properties
+        run: |
+              echo "Creating application-test.properties..."
+              echo "${{ secrets.TEST_PROPERTIES }}" > ./src/test/resources/application-test.properties
+              echo "oracle.cloud.config.private-key-path=./oci_private_key.pem" >> ./src/test/resources/application-test.properties
+              echo "File content:"
+              cat ./src/test/resources/application-test.properties
+
       - name: Run Gradle tests
         run: ./gradlew test
 
       - name: Upload Test Report
-        if: always() # 테스트 실패 시에도 리포트 업로드
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-report
