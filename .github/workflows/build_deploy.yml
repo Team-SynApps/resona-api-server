@@ -140,17 +140,17 @@ jobs:
           touch ~/.ssh/known_hosts
 
       - name: Create Bastion Session
-        id: create-session # Add an id to reference this step
+        id: create-session
         run: |
-          SESSION_OCID=$(oci bastion session create-managed-ssh \
-            --bastion-id ${{ secrets.BASTION_OCID }} \
-            --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
-            --target-os-username ubuntu \
-            --ssh-public-key-file ~/.ssh/id_rsa_bastion.pub \
-            --wait-for-state SUCCEEDED \
-            --wait-interval-seconds 10 \
-            --query 'data.id' --raw-output)
-          echo "SESSION_OCID=$SESSION_OCID" >> $GITHUB_ENV
+            SESSION_OCID=$(oci bastion session create-managed-ssh \
+              --bastion-id ${{ secrets.BASTION_OCID }} \
+              --target-resource-id ${{ secrets.TARGET_INSTANCE_OCID }} \
+              --target-os-username ubuntu \
+              --ssh-public-key-file ~/.ssh/id_rsa_bastion.pub \
+              --wait-for-state SUCCEEDED \
+              --wait-interval-seconds 10 \
+              --query 'data.resources[0].identifier' --raw-output)
+            echo "SESSION_OCID=$SESSION_OCID" >> $GITHUB_ENV
 
       - name: Get SSH Command and key scan
         run: |
