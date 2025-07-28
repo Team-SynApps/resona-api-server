@@ -1,11 +1,14 @@
 spring:
-  # --- H2 인메모리 DB로 대체 ---
+  config:
+    activate:
+      on-profile: test
+
   datasource:
     url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
     username: sa
     password:
     driver-class-name: org.h2.Driver
-  
+
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -13,60 +16,95 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
     show-sql: true
+    open-in-view: false
 
   data:
     redis:
+      host: localhost
+      port: 6379
     mongodb:
+      host: localhost
+      port: 27017
+      authentication-database: test
+      username: test-user
+      password: test-password
 
-  # --- OAuth 2.0 클라이언트 더미 설정 ---
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 4
+        queue-capacity: 10
+        keep-alive: 10s
+
   security:
     oauth2:
       client:
         registration:
           google:
-            clientId: "dummy-google-client-id-for-test"
-            clientSecret: "dummy-google-client-secret-for-test"
+            clientId: ${GOOGLE_CLIENT_ID:"dummy-google-client-id-for-test"}
+            clientSecret: ${GOOGLE_CLIENT_SECRET:"dummy-google-client-secret-for-test"}
           facebook:
-            clientId: "dummy-facebook-client-id-for-test"
-            clientSecret: "dummy-facebook-client-secret-for-test"
+            clientId: ${FACEBOOK_CLIENT_ID:"dummy-facebook-client-id-for-test"}
+            clientSecret: ${FACEBOOK_CLIENT_SECRET:"dummy-facebook-client-secret-for-test"}
 
   mail:
     host: localhost
     port: 25
+    username: ${GMAIL_USERNAME:"dummy"}
+    password: ${GMAIL_PASSWORD:"dummy"}
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+  name: resona
+
+api:
+  version: v1
 
 jwt:
-  secret: "dummy-jwt-secret-for-integration-tests-that-is-long-enough"
+  secret: ${JWT_SECRET:"dummy-jwt-secret-for-integration-tests-that-is-long-enough"}
 
 oauth:
   apple:
     iss: https://appleid.apple.com
-    client-id: "com.dummy.test.client.id"
-    nonce: "dummy-nonce-value-for-testing"
+    client-id: ${APPLE_CLIENT_ID:"com.dummy.test.client.id"}
+    nonce: ${APPLE_NONCE:"dummy-nonce-value-for-testing"}
+  redirect-scheme: redirect-uri
 
 app:
   auth:
-    tokenSecret: "dummy-app-auth-token-secret-for-integration-tests"
+    tokenSecret: ${AUTH_TOKEN_SECRET:"dummy-app-auth-token-secret-for-integration-tests"}
+    tokenExpiry: 1800000
+    refreshTokenExpiry: 604800000
+  oauth2:
+    authorizedRedirectUris:
+      - https://localhost:3000/oauth/redirect
 
 fcm:
   path: "/dev/null" # 실제 파일 경로가 아니므로 FCM 초기화 방지
 
 oci:
   config:
-    userId: "dummy-oci-user-id"
-    tenancyId: "dummy-oci-tenancy-id"
-    fingerprint: "dummy-oci-fingerprint"
-    privateKeyPath: "/dev/null" # 실제 키 파일 경로가 아님
-    region: "ap-seoul-1"
+    userId: ${OCI_BUCKET_USER_ID}
+    tenancyId: ${OCI_BUCKET_TENANCY_ID}
+    fingerprint: ${OCI_BUCKET_FINGERPRINT}
+    privateKeyPath: ${BUCKET_PRIVATE_KEY_PATH}
+    region: ${OCI_BUCKET_REGION}
   storage:
-    bucketName: "dummy-bucket"
-    compartmentId: "dummy-compartment"
-    namespace: "dummy-namespace"
-    region: "ap-seoul-1"
-    buffer-bucket-name: "dummy-buffer-bucket"
-    disk-bucket-name: "dummy-disk-bucket"
+    bucketName: ${OCI_BUCKET_NAME}
+    compartmentId: ${OCI_BUCKET_COMPARTMENT_ID}
+    namespace: ${OCI_BUCKET_NAMESPACE}
+    region: ${OCI_BUCKET_REGION}
+    buffer-bucket-name: ${OCI_BUFFER_BUCKET_NAME}
+    disk-bucket-name: ${OCI_DISK_BUCKET_NAME}
 
 cors:
   allowed-origins: "http://localhost:3000"
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: '*'
+  max-age: 3600
 
 swagger:
   server:
