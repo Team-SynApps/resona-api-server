@@ -29,11 +29,15 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Create secret properties file from Secret
-        run: echo "${{ secrets.TEST_PROPERTIES }}" > ./secret.properties
+      - name: Create application-test.properties
+        run: |
+          echo "Creating application-test.properties..."
+          echo "${{ secrets.TEST_PROPERTIES }}" > ./src/test/resources/application-test.properties
+          echo "File content:"
+          cat ./src/test/resources/application-test.properties
 
-      - name: Run Gradle tests with secret properties
-        run: ./gradlew test -Dspring.config.import=optional:file:./secret.properties
+      - name: Run Gradle tests
+        run: ./gradlew test
 
       - name: Upload Test Report
         if: always()
