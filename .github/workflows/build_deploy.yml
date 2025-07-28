@@ -154,12 +154,15 @@ jobs:
 
       - name: Get SSH Command and key scan
         run: |
-          SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata".command' --raw-output)
-          BASTION_KEY_PATH="~/.ssh/id_rsa_bastion"
-          SSH_COMMAND=$(echo "$SSH_COMMAND" | sed 's|<privateKey>|'"$BASTION_KEY_PATH"'|g')
-          echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
-          BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}' | tr -d '"')
-          ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
+            SSH_COMMAND=$(oci bastion session get --session-id ${{ env.SESSION_OCID }} --query 'data."ssh-metadata".command' --raw-output)
+            BASTION_KEY_PATH="~/.ssh/id_rsa_bastion"
+            
+            SSH_COMMAND=$(echo "$SSH_COMMAND" | sed "s|<privateKey>|$BASTION_KEY_PATH|g" | sed "s|ssh |ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null |")
+            
+            echo "SSH_COMMAND=$SSH_COMMAND" >> $GITHUB_ENV
+            
+            BASTION_HOST=$(echo $SSH_COMMAND | awk -F'@' '{print $2}' | awk '{print $1}' | tr -d '"')
+            ssh-keyscan -H $BASTION_HOST >> ~/.ssh/known_hosts
 
       - name: Deploy to Private Instance
         env:
