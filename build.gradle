@@ -113,3 +113,21 @@ tasks.named('test') {
 		excludeTags 'local-only'
 	}
 }
+
+// Q-Type 클래스가 생성될 디렉토리 지정
+def generatedDir = layout.buildDirectory.dir('generated/querydsl')
+
+tasks.withType(JavaCompile) {
+	options.getGeneratedSourceOutputDirectory().set(generatedDir)
+}
+
+// sourceSets에 Q-Type 경로 추가
+sourceSets {
+	main.java.srcDirs += generatedDir
+}
+
+// gradle clean 시 generated 디렉토리도 함께 삭제
+tasks.register('cleanGenerated', Delete) {
+	delete generatedDir
+}
+clean.dependsOn cleanGenerated
