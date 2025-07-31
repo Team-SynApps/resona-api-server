@@ -20,7 +20,7 @@ import org.hibernate.annotations.SQLRestriction;
 import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
-import synapps.resona.api.mysql.socialMedia.entity.complaint.FeedComplaint;
+import synapps.resona.api.mysql.socialMedia.entity.report.FeedReport;
 import synapps.resona.api.mysql.socialMedia.entity.media.FeedMedia;
 
 @Entity
@@ -44,7 +44,7 @@ public class Feed extends BaseEntity {
   private final List<FeedMedia> images = new ArrayList<>();
 
   @OneToMany(mappedBy = "feed")
-  private final List<FeedComplaint> complaints = new ArrayList<>();
+  private final List<FeedReport> complaints = new ArrayList<>();
 
   @Column(name = "is_kept")
   private final boolean isKept = false;

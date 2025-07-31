@@ -34,7 +34,7 @@ import synapps.resona.api.mysql.socialMedia.entity.mention.Mention;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Scrap;
-import synapps.resona.api.mysql.socialMedia.entity.complaint.FeedComplaint;
+import synapps.resona.api.mysql.socialMedia.entity.report.FeedReport;
 
 @Entity
 @Getter
@@ -66,10 +66,10 @@ public class Member extends BaseEntity {
   private final List<Follow> followers = new ArrayList<>();
 
   @OneToMany(mappedBy = "complainer")
-  private final List<FeedComplaint> complainers = new ArrayList<>();
+  private final List<FeedReport> complainers = new ArrayList<>();
 
   @OneToMany(mappedBy = "complainTo")
-  private final List<FeedComplaint> complainedMembers = new ArrayList<>();
+  private final List<FeedReport> complainedMembers = new ArrayList<>();
 
   @OneToMany(mappedBy = "member")
   private final List<MemberPushToken> pushTokens = new ArrayList<>();
