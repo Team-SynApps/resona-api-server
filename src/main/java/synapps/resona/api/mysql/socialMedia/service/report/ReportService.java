@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.socialMedia.service.complaint;
+package synapps.resona.api.mysql.socialMedia.service.report;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,15 +11,15 @@ import synapps.resona.api.mysql.socialMedia.dto.complaint.FeedComplaintRequest;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.entity.report.FeedReport;
 import synapps.resona.api.mysql.socialMedia.exception.FeedException;
-import synapps.resona.api.mysql.socialMedia.repository.complaint.FeedComplaintRepository;
+import synapps.resona.api.mysql.socialMedia.repository.report.ReportRepository;
 import synapps.resona.api.mysql.socialMedia.repository.feed.FeedRepository;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class FeedComplaintService {
+public class ReportService {
 
-  private final FeedComplaintRepository feedComplaintRepository;
+  private final ReportRepository reportRepository;
   private final MemberRepository memberRepository;
   private final FeedRepository feedRepository;
   private final MemberService memberService;
@@ -34,6 +34,6 @@ public class FeedComplaintService {
 
     FeedReport complaint = FeedReport.of(complainer, feed.getMember(), feed,
         request.getReportCategory(), request.isBlocked());
-    return feedComplaintRepository.save(complaint);
+    return reportRepository.save(complaint);
   }
 }

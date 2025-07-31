@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.socialMedia.controller.complaint;
+package synapps.resona.api.mysql.socialMedia.controller.report;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -24,15 +24,15 @@ import synapps.resona.api.mysql.member.code.MemberErrorCode;
 import synapps.resona.api.mysql.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.mysql.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.mysql.socialMedia.dto.complaint.FeedComplaintRequest;
-import synapps.resona.api.mysql.socialMedia.service.complaint.FeedComplaintService;
+import synapps.resona.api.mysql.socialMedia.service.report.ReportService;
 
 @Tag(name = "Complaint", description = "신고 API")
 @RestController
 @RequestMapping
 @RequiredArgsConstructor
-public class FeedComplaintsController {
+public class ReportController {
 
-  private final FeedComplaintService feedComplaintService;
+  private final ReportService reportService;
   private final ServerInfoConfig serverInfo;
 
   private RequestInfo createRequestInfo(String path) {
@@ -50,7 +50,7 @@ public class FeedComplaintsController {
   public ResponseEntity<SuccessResponse<Void>> reportFeed(HttpServletRequest request,
       @Parameter(description = "신고할 피드의 ID", required = true) @PathVariable Long feedId,
       @Valid @RequestBody FeedComplaintRequest complaintRequest) {
-    feedComplaintService.reportFeed(feedId, complaintRequest);
+    reportService.reportFeed(feedId, complaintRequest);
     return ResponseEntity
         .status(SocialSuccessCode.REPORT_FEED_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.REPORT_FEED_SUCCESS, createRequestInfo(request.getRequestURI())));

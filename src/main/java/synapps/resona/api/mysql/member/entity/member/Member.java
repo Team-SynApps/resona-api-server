@@ -35,6 +35,9 @@ import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Scrap;
 import synapps.resona.api.mysql.socialMedia.entity.report.FeedReport;
+import synapps.resona.api.mysql.socialMedia.entity.report.Report;
+import synapps.resona.api.mysql.socialMedia.entity.restriction.Block;
+import synapps.resona.api.mysql.socialMedia.entity.restriction.Hide;
 
 @Entity
 @Getter
@@ -73,6 +76,21 @@ public class Member extends BaseEntity {
 
   @OneToMany(mappedBy = "member")
   private final List<MemberPushToken> pushTokens = new ArrayList<>();
+
+  @OneToMany(mappedBy = "reporter")
+  private final List<Report> reportsMade = new ArrayList<>();
+
+  @OneToMany(mappedBy = "reported")
+  private final List<Report> reportsReceived = new ArrayList<>();
+
+  @OneToMany(mappedBy = "blocker")
+  private final List<Block> blocksMade = new ArrayList<>();
+
+  @OneToMany(mappedBy = "blocked")
+  private final List<Block> blocksReceived = new ArrayList<>();
+
+  @OneToMany(mappedBy = "member")
+  private final List<Hide> hiddenContents = new ArrayList<>();
 
   @NotBlank
   @Size(max = 50)

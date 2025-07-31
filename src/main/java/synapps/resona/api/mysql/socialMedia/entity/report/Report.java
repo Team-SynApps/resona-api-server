@@ -20,6 +20,7 @@ import synapps.resona.api.mysql.member.entity.member.Member;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "report_type")
 public abstract class Report extends BaseEntity {
+
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "report_id")
