@@ -13,10 +13,12 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import lombok.Getter;
 import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.member.Member;
 
 @Entity
+@Getter
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "report_type")
 public abstract class Report extends BaseEntity {

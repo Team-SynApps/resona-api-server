@@ -29,7 +29,7 @@ import synapps.resona.api.mysql.member.repository.account.AccountInfoRepository;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.member.repository.member_details.MemberDetailsRepository;
 import synapps.resona.api.mysql.member.repository.profile.ProfileRepository;
-import synapps.resona.api.oauth.entity.UserPrincipal; // 수정: UserPrincipal import
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Service
 @RequiredArgsConstructor

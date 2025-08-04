@@ -41,8 +41,10 @@ public enum SocialSuccessCode implements SuccessCode {
   EDIT_REPLY_SUCCESS(HttpStatus.OK, "답글 수정에 성공하였습니다."),
   DELETE_REPLY_SUCCESS(HttpStatus.OK, "답글 삭제에 성공하였습니다."),
 
-  // Complaint
+  // Report
   REPORT_FEED_SUCCESS(HttpStatus.OK, "피드 신고가 접수되었습니다."),
+  REPORT_COMMENT_SUCCESS(HttpStatus.OK, "댓글 신고가 접수되었습니다."),
+  REPORT_REPLY_SUCCESS(HttpStatus.OK, "대댓글 신고가 접수되었습니다."),
 
   // Mention
   REGISTER_MENTION_SUCCESS(HttpStatus.CREATED, "멘션 등록에 성공하였습니다."),
