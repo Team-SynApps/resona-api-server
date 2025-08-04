@@ -53,7 +53,8 @@ public enum SocialSuccessCode implements SuccessCode {
 
   // Block
   BLOCK_SUCCESS(HttpStatus.CREATED, "사용자 차단에 성공하였습니다."),
-  UNBLOCK_SUCCESS(HttpStatus.OK, "사용자 차단 해제에 성공하였습니다.");
+  UNBLOCK_SUCCESS(HttpStatus.OK, "사용자 차단 해제에 성공하였습니다."),
+  BLOCK_LIST_SUCCESS(HttpStatus.OK, "차단한 사용자 조회에 성공하였습니다.");
 
 
   private final HttpStatus status;

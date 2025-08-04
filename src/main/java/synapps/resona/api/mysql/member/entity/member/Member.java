@@ -68,12 +68,6 @@ public class Member extends BaseEntity {
   @OneToMany(mappedBy = "following")
   private final List<Follow> followers = new ArrayList<>();
 
-  @OneToMany(mappedBy = "complainer")
-  private final List<FeedReport> complainers = new ArrayList<>();
-
-  @OneToMany(mappedBy = "complainTo")
-  private final List<FeedReport> complainedMembers = new ArrayList<>();
-
   @OneToMany(mappedBy = "member")
   private final List<MemberPushToken> pushTokens = new ArrayList<>();
 

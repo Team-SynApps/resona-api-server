@@ -9,7 +9,7 @@ import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.socialMedia.entity.restriction.Block;
 
 @Repository
-public interface BlockRepository extends JpaRepository<Block, Long> {
+public interface BlockRepository extends JpaRepository<Block, Long> , BlockRepositoryCustom {
 
   boolean existsByBlockerAndBlocked(Member blocker, Member blocked);
 

@@ -1,5 +1,6 @@
-package synapps.resona.api.mysql.socialMedia.service.report;
+package synapps.resona.api.mysql.socialMedia.service.restriction;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,9 +8,11 @@ import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
+import synapps.resona.api.mysql.socialMedia.dto.restriction.BlockedMemberResponse;
 import synapps.resona.api.mysql.socialMedia.entity.restriction.Block;
 import synapps.resona.api.mysql.socialMedia.exception.BlockException;
 import synapps.resona.api.mysql.socialMedia.repository.restriction.BlockRepository;
+import synapps.resona.api.mysql.socialMedia.repository.restriction.BlockRepositoryImpl;
 
 @Service
 @RequiredArgsConstructor
@@ -54,5 +57,11 @@ public class BlockService {
     }
 
     block.softDelete();
+  }
+
+
+  @Transactional
+  public List<BlockedMemberResponse> getBlockedMembers(MemberDto memberInfo) {
+    return blockRepository.findBlockedMembers(memberInfo.getId());
   }
 }
