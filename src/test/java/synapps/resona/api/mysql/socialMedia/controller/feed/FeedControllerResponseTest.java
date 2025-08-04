@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.socialMedia.controller;
+package synapps.resona.api.mysql.socialMedia.controller.feed;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.CursorResult;
-import synapps.resona.api.mysql.socialMedia.controller.feed.FeedController;
 import synapps.resona.api.mysql.socialMedia.dto.feed.FeedWithMediaDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRegistrationRequest;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRequest;

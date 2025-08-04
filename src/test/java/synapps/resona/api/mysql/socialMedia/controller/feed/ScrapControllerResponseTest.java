@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.socialMedia.controller;
+package synapps.resona.api.mysql.socialMedia.controller.feed;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
@@ -18,7 +18,6 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.mysql.member.WithMockUserPrincipal;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
-import synapps.resona.api.mysql.socialMedia.controller.feed.ScrapController;
 import synapps.resona.api.mysql.socialMedia.dto.scrap.ScrapReadResponse;
 import synapps.resona.api.mysql.socialMedia.service.feed.ScrapService;
 

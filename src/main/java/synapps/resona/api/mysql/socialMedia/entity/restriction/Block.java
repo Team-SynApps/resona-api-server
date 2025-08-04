@@ -12,15 +12,6 @@ import synapps.resona.api.mysql.member.entity.member.Member;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("is_deleted = false")
-@Table(
-    name = "block",
-    uniqueConstraints = {
-        @UniqueConstraint(
-            name = "uk_block_blocker_blocked",
-            columnNames = {"blocker_id", "blocked_id"}
-        )
-    }
-)
 public class Block extends BaseEntity {
 
   @Id

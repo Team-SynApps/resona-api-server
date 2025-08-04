@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.socialMedia.controller;
+package synapps.resona.api.mysql.socialMedia.controller.feed;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
@@ -16,7 +16,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
-import synapps.resona.api.mysql.socialMedia.controller.feed.LikeController;
 import synapps.resona.api.mysql.socialMedia.dto.like.request.LikeRequest;
 import synapps.resona.api.mysql.socialMedia.dto.like.response.LikeResponse;
 import synapps.resona.api.mysql.socialMedia.service.feed.LikeService;

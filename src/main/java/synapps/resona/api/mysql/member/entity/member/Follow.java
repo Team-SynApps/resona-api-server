@@ -19,15 +19,6 @@ import synapps.resona.api.global.entity.BaseEntity;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(
-    name = "follow",
-    uniqueConstraints = {
-        @UniqueConstraint(
-            name = "uk_follower_following_blocked",
-            columnNames = {"follower_id", "following_id"}
-        )
-    }
-)
 @SQLRestriction("is_deleted = false")
 public class Follow extends BaseEntity {
 
