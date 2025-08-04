@@ -10,9 +10,6 @@ import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.socialMedia.dto.report.request.CommentReportRequest;
 import synapps.resona.api.mysql.socialMedia.dto.report.request.FeedReportRequest;
 import synapps.resona.api.mysql.socialMedia.dto.report.request.ReplyReportRequest;
-import synapps.resona.api.mysql.socialMedia.dto.report.response.CommentReportResponse;
-import synapps.resona.api.mysql.socialMedia.dto.report.response.FeedReportResponse;
-import synapps.resona.api.mysql.socialMedia.dto.report.response.ReplyReportResponse;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Reply;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
@@ -29,7 +26,6 @@ import synapps.resona.api.mysql.socialMedia.repository.report.ReportRepository;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ReportService {
 
   private final ReportRepository reportRepository;
@@ -39,7 +35,7 @@ public class ReportService {
   private final ReplyRepository replyRepository;
 
   @Transactional
-  public FeedReportResponse reportFeed(FeedReportRequest request, MemberDto memberInfo) {
+  public void reportFeed(FeedReportRequest request, MemberDto memberInfo) {
     Member reporter = memberRepository.findByEmail(memberInfo.getEmail())
         .orElseThrow(MemberException::memberNotFound);
 
@@ -51,12 +47,10 @@ public class ReportService {
 
     FeedReport feedReport = FeedReport.of(reporter, reported, request.getReportCategory(), feed);
     reportRepository.save(feedReport);
-
-    return FeedReportResponse.from(feedReport);
   }
 
   @Transactional
-  public CommentReportResponse reportComment(CommentReportRequest request, MemberDto memberInfo) {
+  public void reportComment(CommentReportRequest request, MemberDto memberInfo) {
     Member reporter = memberRepository.findByEmail(memberInfo.getEmail())
         .orElseThrow(MemberException::memberNotFound);
 
@@ -69,12 +63,10 @@ public class ReportService {
     CommentReport commentReport = CommentReport.of(reporter, reported, comment,
         request.getReportCategory());
     reportRepository.save(commentReport);
-
-    return CommentReportResponse.from(commentReport);
   }
 
   @Transactional
-  public ReplyReportResponse reportReply(ReplyReportRequest request, MemberDto memberInfo) {
+  public void reportReply(ReplyReportRequest request, MemberDto memberInfo) {
     Member reporter = memberRepository.findByEmail(memberInfo.getEmail())
         .orElseThrow(MemberException::memberNotFound);
 
@@ -87,7 +79,5 @@ public class ReportService {
     ReplyReport replyReport = ReplyReport.of(reporter, reported, reply,
         request.getReportCategory());
     reportRepository.save(replyReport);
-
-    return ReplyReportResponse.from(replyReport);
   }
 }

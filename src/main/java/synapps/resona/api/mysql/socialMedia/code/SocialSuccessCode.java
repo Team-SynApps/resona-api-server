@@ -49,7 +49,11 @@ public enum SocialSuccessCode implements SuccessCode {
   // Mention
   REGISTER_MENTION_SUCCESS(HttpStatus.CREATED, "멘션 등록에 성공하였습니다."),
   GET_MENTION_SUCCESS(HttpStatus.OK, "멘션 조회에 성공하였습니다."),
-  DELETE_MENTION_SUCCESS(HttpStatus.OK, "멘션 삭제에 성공하였습니다.");
+  DELETE_MENTION_SUCCESS(HttpStatus.OK, "멘션 삭제에 성공하였습니다."),
+
+  // Block
+  BLOCK_SUCCESS(HttpStatus.CREATED, "사용자 차단에 성공하였습니다."),
+  UNBLOCK_SUCCESS(HttpStatus.OK, "사용자 차단 해제에 성공하였습니다.");
 
 
   private final HttpStatus status;
