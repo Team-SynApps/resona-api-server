@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -116,13 +115,16 @@ public class FeedController {
   @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_MEMBER_FEEDS_SUCCESS", cursor = true, listElementClass = FeedReadResponse.class))
   @ApiErrorSpec(@ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"MEMBER_NOT_FOUND"}))
   @GetMapping("/feeds/member/{memberId}/cursor")
-  public ResponseEntity<SuccessResponse<CursorResult<FeedReadResponse>>> readFeedsByMemberWithCursor(HttpServletRequest request,
-      @Parameter(description = "피드 목록을 조회할 사용자의 ID", required = true) @PathVariable Long memberId,
+  public ResponseEntity<SuccessResponse<CursorResult<FeedDto>>> readFeedsByMemberWithCursor(HttpServletRequest request,
+      @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal userPrincipal,
+      @Parameter(description = "피드 목록을 조회할 사용자의 ID", required = true) @PathVariable Long targetMemberId,
       @Parameter(description = "다음 페이지를 위한 커서 (첫 페이지는 비워둠)") @RequestParam(required = false) String cursor,
       @Parameter(description = "페이지 당 피드 수") @RequestParam(defaultValue = "10") int size) {
-    CursorResult<FeedReadResponse> result = feedService.getFeedsByCursorAndMemberId(cursor, size, memberId);
-    return ResponseEntity
-        .status(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS.getStatus())
+    MemberDto memberInfo = MemberDto.from(userPrincipal);
+    Long viewerId = memberInfo.getId();
+    CursorResult<FeedDto> result = feedService.getFeedsByCursorAndMemberId(viewerId, targetMemberId, cursor, size);
+
+    return ResponseEntity.status(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), result));
   }
 

@@ -23,10 +23,9 @@ import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
-import synapps.resona.api.mysql.member.entity.profile.Gender;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.socialMedia.dto.feed.DefaultFeedSearchCondition;
+import synapps.resona.api.mysql.socialMedia.dto.feed.condition.DefaultFeedSearchCondition;
 import synapps.resona.api.mysql.socialMedia.dto.feed.FeedSortBy;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedDto;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
@@ -98,10 +97,12 @@ class DefaultFeedQueryStrategyTest {
   @DisplayName("최신순으로 피드를 정상적으로 조회하며, 차단/숨김된 피드는 제외된다")
   void findFeeds_LatestSort_Success() {
     // given
-    DefaultFeedSearchCondition condition = new DefaultFeedSearchCondition();
-    condition.setMemberId(viewer.getId());
-    condition.setSortBy(FeedSortBy.LATEST);
-    condition.setCursor(LocalDateTime.now());
+    DefaultFeedSearchCondition condition = DefaultFeedSearchCondition.of(
+        viewer.getId(),
+        LocalDateTime.now(),
+        FeedSortBy.LATEST
+    );
+
     Pageable pageable = PageRequest.of(0, 10);
 
     // when
@@ -120,8 +121,11 @@ class DefaultFeedQueryStrategyTest {
   @DisplayName("차단한 사용자의 피드는 조회되지 않는다")
   void findFeeds_Excludes_Blocked_Users_Feed() {
     // given
-    DefaultFeedSearchCondition condition = new DefaultFeedSearchCondition();
-    condition.setMemberId(viewer.getId());
+    DefaultFeedSearchCondition condition = DefaultFeedSearchCondition.of(
+        viewer.getId(),
+        null,
+        null
+    );
     Pageable pageable = PageRequest.of(0, 10);
 
     // when
@@ -136,8 +140,11 @@ class DefaultFeedQueryStrategyTest {
   @DisplayName("숨김 처리한 피드는 조회되지 않는다")
   void findFeeds_Excludes_Hidden_Feed() {
     // given
-    DefaultFeedSearchCondition condition = new DefaultFeedSearchCondition();
-    condition.setMemberId(viewer.getId());
+    DefaultFeedSearchCondition condition = DefaultFeedSearchCondition.of(
+        viewer.getId(),
+        null,
+        null
+    );
     Pageable pageable = PageRequest.of(0, 10);
 
     // when
@@ -152,9 +159,11 @@ class DefaultFeedQueryStrategyTest {
   @DisplayName("좋아요와 댓글 수가 정확하게 카운트된다")
   void findFeeds_Counts_Likes_And_Comments_Correctly() {
     // given
-    DefaultFeedSearchCondition condition = new DefaultFeedSearchCondition();
-    condition.setMemberId(viewer.getId());
-    condition.setSortBy(FeedSortBy.LATEST);
+    DefaultFeedSearchCondition condition = DefaultFeedSearchCondition.of(
+        viewer.getId(),
+        null,
+        FeedSortBy.LATEST
+    );
     Pageable pageable = PageRequest.of(0, 10);
 
     // when
@@ -176,9 +185,11 @@ class DefaultFeedQueryStrategyTest {
   void findFeeds_Pagination_Works_Correctly() {
     // given
     // viewer에게 보이는 피드는 총 4개 (countTestFeed, feed3, feed2, feed1)
-    DefaultFeedSearchCondition condition = new DefaultFeedSearchCondition();
-    condition.setMemberId(viewer.getId());
-    condition.setSortBy(FeedSortBy.LATEST);
+    DefaultFeedSearchCondition condition = DefaultFeedSearchCondition.of(
+        viewer.getId(),
+        null,
+        FeedSortBy.LATEST
+    );
 
     // when: 첫 페이지 (size: 3)
     Pageable page1 = PageRequest.of(0, 3);
@@ -191,10 +202,11 @@ class DefaultFeedQueryStrategyTest {
     // when: 두 번째 페이지 (size: 3)
     LocalDateTime cursor = result1.get(2).getCreatedAt(); // 마지막 피드의 시간을 커서로 사용
     Pageable page2 = PageRequest.of(0, 3); // 페이지 번호는 0으로 유지, 커서가 오프셋 역할을 함
-    DefaultFeedSearchCondition condition2 = new DefaultFeedSearchCondition();
-    condition2.setMemberId(viewer.getId());
-    condition2.setSortBy(FeedSortBy.LATEST);
-    condition2.setCursor(cursor);
+    DefaultFeedSearchCondition condition2 = DefaultFeedSearchCondition.of(
+        viewer.getId(),
+        cursor,
+        FeedSortBy.LATEST
+    );
     List<FeedDto> result2 = defaultFeedQueryStrategy.findFeeds(condition2, condition2.getCursor(), page2);
 
     // then: 나머지 1개 조회

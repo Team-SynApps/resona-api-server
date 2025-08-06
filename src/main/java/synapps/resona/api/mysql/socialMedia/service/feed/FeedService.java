@@ -10,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.external.file.ObjectStorageService;
@@ -19,8 +18,9 @@ import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
-import synapps.resona.api.mysql.socialMedia.dto.feed.DefaultFeedSearchCondition;
+import synapps.resona.api.mysql.socialMedia.dto.feed.condition.DefaultFeedSearchCondition;
 import synapps.resona.api.mysql.socialMedia.dto.feed.FeedSortBy;
+import synapps.resona.api.mysql.socialMedia.dto.feed.condition.MemberFeedSearchCondition;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedDto;
 import synapps.resona.api.mysql.socialMedia.dto.media.FeedMediaDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.FeedWithMediaDto;
@@ -70,30 +70,21 @@ public class FeedService {
     return FeedReadResponse.from(feed);
   }
 
-  public CursorResult<FeedReadResponse> getFeedsByCursorAndMemberId(String cursor, int size,
-      Long memberId) {
-    LocalDateTime cursorTime = (cursor != null) ?
-        LocalDateTime.parse(cursor) : LocalDateTime.now();
+  public CursorResult<FeedDto> getFeedsByCursorAndMemberId(Long viewerId, Long targetMemberId, String cursor, int size) {
+    Pageable pageable = PageRequest.of(0, size + 1);
 
-    Pageable pageable = PageRequest.of(0, size + 1, Sort.by(Sort.Direction.DESC, "createdAt"));
+    MemberFeedSearchCondition condition =
+        MemberFeedSearchCondition.of(
+            viewerId,
+            targetMemberId,
+            cursor != null ? LocalDateTime.parse(cursor) : null,
+            FeedSortBy.LATEST
+        );
 
-    List<Feed> feeds = feedRepository.findFeedsByCursorAndMemberId(memberId, cursorTime, pageable);
+    FeedQueryStrategy<MemberFeedSearchCondition> strategy = feedQueryStrategyFactory.findStrategy(MemberFeedSearchCondition.class);
+    List<FeedDto> feeds = strategy.findFeeds(condition, condition.getCursor(), pageable);
 
-    boolean hasNext = feeds.size() > size;
-    if (hasNext) {
-      feeds = feeds.subList(0, size);
-    }
-
-    String nextCursor = hasNext ?
-        feeds.get(feeds.size() - 1).getCreatedAt().toString() : null;
-
-    return new CursorResult<>(
-        feeds.stream()
-            .map(FeedReadResponse::from)
-            .collect(Collectors.toList()),
-        hasNext,
-        nextCursor
-    );
+    return createCursorResult(feeds, size);
   }
 
 
@@ -121,10 +112,11 @@ public class FeedService {
   public CursorResult<FeedDto> getFeedsByCursor(Long viewerId, String cursor, int size) {
     Pageable pageable = PageRequest.of(0, size + 1);
 
-    DefaultFeedSearchCondition condition = new DefaultFeedSearchCondition();
-    condition.setMemberId(viewerId); // 차단/숨김을 위해 현재 사용자 ID 전달
-    condition.setCursor(cursor != null ? LocalDateTime.parse(cursor) : null);
-    condition.setSortBy(FeedSortBy.LATEST); // 정렬 기준 설정
+    DefaultFeedSearchCondition condition =
+        DefaultFeedSearchCondition.of(
+            viewerId,
+            cursor != null ? LocalDateTime.parse(cursor) : null,
+            FeedSortBy.LATEST);
 
     FeedQueryStrategy<DefaultFeedSearchCondition> strategy = feedQueryStrategyFactory.findStrategy(DefaultFeedSearchCondition.class);
     List<FeedDto> feeds = strategy.findFeeds(condition, condition.getCursor(), pageable);

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedQueryRequest;
 import synapps.resona.api.mysql.socialMedia.repository.feed.strategy.FeedQueryStrategy;
@@ -11,26 +13,26 @@ import synapps.resona.api.mysql.socialMedia.repository.feed.strategy.FeedQuerySt
 @Component
 public class FeedQueryStrategyFactory {
   private final Map<Class<? extends FeedQueryRequest>, FeedQueryStrategy<?>> strategyMap;
+  private final Logger logger = LogManager.getLogger(FeedQueryStrategyFactory.class);
 
   public FeedQueryStrategyFactory(List<FeedQueryStrategy<?>> strategies) {
     this.strategyMap = strategies.stream()
         .collect(Collectors.toUnmodifiableMap(
-            strategy -> {
-              // supports 메서드를 통해 어떤 DTO 클래스를 지원하는지 확인
-              if (strategy.supports(synapps.resona.api.mysql.socialMedia.dto.feed.DefaultFeedSearchCondition.class)) {
-                return synapps.resona.api.mysql.socialMedia.dto.feed.DefaultFeedSearchCondition.class;
-              }
-              throw new IllegalStateException("Unsupported strategy implementation: " + strategy.getClass());
-            },
+            // Key: 각 Strategy가 스스로 지원한다고 알려주는 Condition 타입 사용
+            FeedQueryStrategy::getSupportedConditionType,
+            // Value: Strategy 인스턴스 자신
             Function.identity()
         ));
+
+    logger.info("Initialized FeedQueryStrategyFactory with strategies: {}", strategyMap.keySet());
   }
 
   @SuppressWarnings("unchecked")
   public <T extends FeedQueryRequest> FeedQueryStrategy<T> findStrategy(Class<T> requestClass) {
     FeedQueryStrategy<?> strategy = strategyMap.get(requestClass);
     if (strategy == null) {
-      throw new IllegalArgumentException("지원하는 피드 조회 전략을 찾을 수 없습니다: " + requestClass.getSimpleName());
+      logger.error("Cannot find supported feed retrieval strategy: {}", requestClass.getSimpleName());
+      throw new IllegalArgumentException("Cannot find supported feed retrieval strategy: " + requestClass.getSimpleName());
     }
     return (FeedQueryStrategy<T>) strategy;
   }
