@@ -13,6 +13,7 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import synapps.resona.api.config.WithMockUserPrincipal;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentRequest;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateRequest;
@@ -27,6 +28,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -36,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(
     controllers = CommentController.class,
     excludeAutoConfiguration = {
-        SecurityAutoConfiguration.class,
+//        SecurityAutoConfiguration.class,
         OAuth2ClientAutoConfiguration.class
     }
 )
@@ -63,6 +65,7 @@ class CommentControllerResponseTest {
 
   @Test
   @DisplayName("댓글 등록 성공 시, 등록된 CommentPostResponse를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L)
   void registerComment_success() throws Exception {
     // given
     CommentRequest requestDto = new CommentRequest(1L, "New Comment");
@@ -71,6 +74,7 @@ class CommentControllerResponseTest {
 
     // when
     ResultActions actions = mockMvc.perform(post("/comments")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(requestDto)));
 
@@ -84,6 +88,7 @@ class CommentControllerResponseTest {
 
   @Test
   @DisplayName("댓글 단건 조회 성공 시, CommentReadResponse를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L)
   void getComment_success() throws Exception {
     // given
     Long commentId = 101L;
@@ -92,6 +97,7 @@ class CommentControllerResponseTest {
 
     // when
     ResultActions actions = mockMvc.perform(get("/comments/{commentId}", commentId)
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON));
 
     // then
@@ -103,6 +109,7 @@ class CommentControllerResponseTest {
 
   @Test
   @DisplayName("피드 전체 댓글 조회 성공 시, CommentPostResponse 리스트를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L)
   void getComments_success() throws Exception {
     // given
     Long feedId = 1L;
@@ -110,7 +117,7 @@ class CommentControllerResponseTest {
         CommentResponse.of(101L, "First comment", LocalDateTime.now(), LocalDateTime.now()),
         CommentResponse.of(102L, "Second comment", LocalDateTime.now(), LocalDateTime.now())
     );
-    given(commentService.getCommentsByFeedId(feedId)).willReturn(responseList);
+    given(commentService.getCommentsByFeedId(1L, feedId)).willReturn(responseList);
 
     // when
     ResultActions actions = mockMvc.perform(get("/comments/all/{feedId}", feedId)
@@ -127,6 +134,7 @@ class CommentControllerResponseTest {
 
   @Test
   @DisplayName("댓글의 답글 조회 성공 시, ReplyReadResponse 리스트를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L)
   void getReplies_success() throws Exception {
     // given
     Long commentId = 101L;
@@ -137,6 +145,7 @@ class CommentControllerResponseTest {
 
     // when
     ResultActions actions = mockMvc.perform(get("/comments/{commentId}/replies", commentId)
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON));
 
     // then
@@ -149,6 +158,7 @@ class CommentControllerResponseTest {
 
   @Test
   @DisplayName("댓글 수정 성공 시, 수정된 CommentUpdateResponse를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L)
   void editComment_success() throws Exception {
     // given
     Long commentId = 101L;
@@ -158,6 +168,7 @@ class CommentControllerResponseTest {
 
     // when
     ResultActions actions = mockMvc.perform(put("/comments/{commentId}", commentId)
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(requestDto)));
 
@@ -171,6 +182,7 @@ class CommentControllerResponseTest {
 
   @Test
   @DisplayName("댓글 삭제 성공 시, 삭제 처리된 Comment 엔티티를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L)
   void deleteComment_success() throws Exception {
     // given
     Long commentId = 101L;
@@ -181,6 +193,7 @@ class CommentControllerResponseTest {
 
     // when
     ResultActions actions = mockMvc.perform(delete("/comments/{commentId}", commentId)
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON));
 
     // then

@@ -11,7 +11,7 @@ import synapps.resona.api.mysql.socialMedia.repository.comment.CommentRepository
 import synapps.resona.api.mysql.socialMedia.repository.feed.FeedRepository;
 import synapps.resona.api.mysql.socialMedia.repository.feed.LikesRepository;
 import synapps.resona.api.mysql.socialMedia.repository.mention.MentionRepository;
-import synapps.resona.api.mysql.socialMedia.repository.comment.ReplyRepository;
+import synapps.resona.api.mysql.socialMedia.repository.comment.reply.ReplyRepository;
 import synapps.resona.api.mysql.socialMedia.repository.feed.ScrapRepository;
 
 @Component("socialSecurity")

@@ -17,7 +17,7 @@ import synapps.resona.api.mysql.socialMedia.exception.CommentException;
 import synapps.resona.api.mysql.socialMedia.exception.FeedException;
 import synapps.resona.api.mysql.socialMedia.exception.ReplyException;
 import synapps.resona.api.mysql.socialMedia.repository.comment.CommentRepository;
-import synapps.resona.api.mysql.socialMedia.repository.comment.ReplyRepository;
+import synapps.resona.api.mysql.socialMedia.repository.comment.reply.ReplyRepository;
 import synapps.resona.api.mysql.socialMedia.repository.feed.FeedRepository;
 import synapps.resona.api.mysql.socialMedia.repository.restriction.HideRepository;
 

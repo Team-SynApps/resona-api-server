@@ -18,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import synapps.resona.api.IntegrationTestSupport;
+import synapps.resona.api.config.TestQueryDslConfig;
 import synapps.resona.api.global.config.database.QueryDslConfig;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.member.Member;
@@ -34,7 +35,7 @@ import synapps.resona.api.mysql.socialMedia.repository.feed.FeedRepository;
 
 @Transactional
 @DataJpaTest
-@Import(QueryDslConfig.class)
+@Import(TestQueryDslConfig.class)
 class FeedRepositoryTest {
 
   @Autowired

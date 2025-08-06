@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,14 +29,17 @@ import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.response.SuccessResponse;
 import synapps.resona.api.mysql.member.code.AuthErrorCode;
 import synapps.resona.api.mysql.member.code.MemberErrorCode;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.mysql.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.mysql.socialMedia.dto.feed.FeedWithMediaDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRegistrationRequest;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedUpdateRequest;
+import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedReadResponse;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedResponse;
 import synapps.resona.api.mysql.socialMedia.service.feed.FeedService;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Tag(name = "Feed", description = "피드 관련 API")
 @RestController
@@ -81,43 +85,46 @@ public class FeedController {
   }
 
   @Operation(summary = "전체 피드 목록 조회 (커서 기반)", description = "전체 피드 목록을 커서 기반 페이징으로 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_FEEDS_SUCCESS", cursor = true, listElementClass = FeedReadResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_FEEDS_SUCCESS", cursor = true, listElementClass = FeedDto.class))
   @GetMapping("/feeds")
-  public ResponseEntity<SuccessResponse<CursorResult<FeedReadResponse>>> readFeedByCursor(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<CursorResult<FeedDto>>> readFeedByCursor(HttpServletRequest request,
+      @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal userPrincipal,
       @Parameter(description = "다음 페이지를 위한 커서 (첫 페이지는 비워둠)") @RequestParam(required = false) String cursor,
       @Parameter(description = "페이지 당 피드 수") @RequestParam(defaultValue = "10") int size) {
-    CursorResult<FeedReadResponse> feeds = feedService.getFeedsByCursor(cursor, size);
-    return ResponseEntity
-        .status(SocialSuccessCode.GET_FEEDS_SUCCESS.getStatus())
-        .body(SuccessResponse.of(
-            SocialSuccessCode.GET_FEEDS_SUCCESS,
-            createRequestInfo(request.getRequestURI()),
-            feeds, feeds.getCursor(), size, feeds.isHasNext()));
+    MemberDto memberInfo = MemberDto.from(userPrincipal);
+    Long viewerId = memberInfo.getId();
+    CursorResult<FeedDto> feeds = feedService.getFeedsByCursor(viewerId, cursor, size);
+
+    return ResponseEntity.status(SocialSuccessCode.GET_FEEDS_SUCCESS.getStatus())
+        .body(SuccessResponse.of(SocialSuccessCode.GET_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), feeds, feeds.getCursor(), size, feeds.isHasNext()));
   }
 
-  @Operation(summary = "특정 사용자 피드 목록 조회", description = "특정 사용자의 모든 피드 목록을 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_MEMBER_FEEDS_SUCCESS", listElementClass = FeedWithMediaDto.class))
-  @ApiErrorSpec(@ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"MEMBER_NOT_FOUND"}))
-  @GetMapping("/feeds/member/{memberId}")
-  public ResponseEntity<SuccessResponse<List<FeedWithMediaDto>>> readFeedsByMember(HttpServletRequest request,
-      @Parameter(description = "피드 목록을 조회할 사용자의 ID", required = true) @PathVariable Long memberId) {
-    List<FeedWithMediaDto> response = feedService.getFeedsWithMediaAndLikeCount(memberId);
-    return ResponseEntity
-        .status(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS.getStatus())
-        .body(SuccessResponse.of(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), response));
-  }
+//  @Operation(summary = "특정 사용자 피드 목록 조회", description = "특정 사용자의 모든 피드 목록을 조회합니다.")
+//  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_MEMBER_FEEDS_SUCCESS", listElementClass = FeedWithMediaDto.class))
+//  @ApiErrorSpec(@ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"MEMBER_NOT_FOUND"}))
+//  @GetMapping("/feeds/member/{memberId}")
+//  public ResponseEntity<SuccessResponse<List<FeedWithMediaDto>>> readFeedsByMember(HttpServletRequest request,
+//      @Parameter(description = "피드 목록을 조회할 사용자의 ID", required = true) @PathVariable Long memberId) {
+//    List<FeedWithMediaDto> response = feedService.getFeedsWithMediaAndLikeCount(memberId);
+//    return ResponseEntity
+//        .status(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS.getStatus())
+//        .body(SuccessResponse.of(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), response));
+//  }
 
   @Operation(summary = "특정 사용자 피드 목록 조회 (커서 기반)", description = "특정 사용자의 피드 목록을 커서 기반 페이징으로 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_MEMBER_FEEDS_SUCCESS", cursor = true, listElementClass = FeedReadResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_MEMBER_FEEDS_SUCCESS", cursor = true, listElementClass = FeedDto.class))
   @ApiErrorSpec(@ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"MEMBER_NOT_FOUND"}))
-  @GetMapping("/feeds/member/{memberId}/cursor")
-  public ResponseEntity<SuccessResponse<CursorResult<FeedReadResponse>>> readFeedsByMemberWithCursor(HttpServletRequest request,
-      @Parameter(description = "피드 목록을 조회할 사용자의 ID", required = true) @PathVariable Long memberId,
+  @GetMapping("/feeds/member/{targetMemberId}/cursor")
+  public ResponseEntity<SuccessResponse<CursorResult<FeedDto>>> readFeedsByMemberWithCursor(HttpServletRequest request,
+      @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal userPrincipal,
+      @Parameter(description = "피드 목록을 조회할 사용자의 ID", required = true) @PathVariable Long targetMemberId,
       @Parameter(description = "다음 페이지를 위한 커서 (첫 페이지는 비워둠)") @RequestParam(required = false) String cursor,
       @Parameter(description = "페이지 당 피드 수") @RequestParam(defaultValue = "10") int size) {
-    CursorResult<FeedReadResponse> result = feedService.getFeedsByCursorAndMemberId(cursor, size, memberId);
-    return ResponseEntity
-        .status(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS.getStatus())
+    MemberDto memberInfo = MemberDto.from(userPrincipal);
+    Long viewerId = memberInfo.getId();
+    CursorResult<FeedDto> result = feedService.getFeedsByCursorAndMemberId(viewerId, targetMemberId, cursor, size);
+
+    return ResponseEntity.status(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), result));
   }
 

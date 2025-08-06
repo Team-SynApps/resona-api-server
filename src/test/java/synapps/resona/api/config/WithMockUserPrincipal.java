@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.member;
+package synapps.resona.api.config;
 
 import org.springframework.security.test.context.support.WithSecurityContext;
 import java.lang.annotation.Retention;
