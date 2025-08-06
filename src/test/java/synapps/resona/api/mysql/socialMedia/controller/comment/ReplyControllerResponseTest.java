@@ -2,6 +2,7 @@ package synapps.resona.api.mysql.socialMedia.controller.comment;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import synapps.resona.api.config.WithMockUserPrincipal;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.socialMedia.dto.reply.request.ReplyRequest;
@@ -26,6 +28,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -34,7 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(
     controllers = ReplyController.class,
     excludeAutoConfiguration = {
-        SecurityAutoConfiguration.class,
+//        SecurityAutoConfiguration.class,
         OAuth2ClientAutoConfiguration.class
     }
 )
@@ -61,6 +64,7 @@ class ReplyControllerResponseTest {
 
   @Test
   @DisplayName("답글 등록 성공 시, 등록된 ReplyPostResponse를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L)
   void registerReply_success() throws Exception {
     // given
     ReplyRequest requestDto = new ReplyRequest(101L, "This is a reply.");
@@ -69,6 +73,7 @@ class ReplyControllerResponseTest {
 
     // when
     ResultActions actions = mockMvc.perform(post("/replies")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(requestDto)));
 
@@ -82,25 +87,33 @@ class ReplyControllerResponseTest {
 
   @Test
   @DisplayName("답글 단건 조회 성공 시, ReplyReadResponse를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L)
   void getReply_success() throws Exception {
     // given
-    Long replyId = 201L;
-    ReplyResponse responseDto = ReplyResponse.of(101L, 201L, "This is a reply.", LocalDateTime.now());
-    given(replyService.read(replyId)).willReturn(responseDto);
+    Long memberId = 1L;
+    Long commentId = 101L;
+    List<ReplyResponse> responseDto = List.of(
+        ReplyResponse.of(101L, 201L, "This is a reply.", LocalDateTime.now()),
+        ReplyResponse.of(101L, 202L, "This is a reply 2.", LocalDateTime.now())
+    );
+    given(replyService.readAll(memberId, commentId)).willReturn(responseDto);
 
     // when
-    ResultActions actions = mockMvc.perform(get("/replies/{replyId}", replyId)
+    ResultActions actions = mockMvc.perform(get("/replies/{commentId}", commentId)
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON));
 
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data.replyId").value("201"))
+        .andExpect(jsonPath("$.data[0].replyId").value("201"))
+        .andExpect(jsonPath("$.data[1].replyId").value("202"))
         .andDo(print());
   }
 
   @Test
   @DisplayName("답글 수정 성공 시, 수정된 ReplyReadResponse를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L)
   void updateReply_success() throws Exception {
     // given
     Long replyId = 201L;
@@ -110,6 +123,7 @@ class ReplyControllerResponseTest {
 
     // when
     ResultActions actions = mockMvc.perform(put("/replies/{replyId}", replyId)
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(requestDto)));
 
@@ -123,6 +137,7 @@ class ReplyControllerResponseTest {
 
   @Test
   @DisplayName("답글 삭제 성공 시, 삭제 처리된 Reply 엔티티를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L)
   void deleteReply_success() throws Exception {
     // given
     Long replyId = 201L;
@@ -133,6 +148,7 @@ class ReplyControllerResponseTest {
 
     // when
     ResultActions actions = mockMvc.perform(delete("/replies/{replyId}", replyId)
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON));
 
     // then

@@ -1,4 +1,4 @@
-package synapps.resona.api.mysql.socialMedia.repository.comment;
+package synapps.resona.api.mysql.socialMedia.repository.comment.reply;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,7 +11,7 @@ import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Reply;
 
 @Repository
-public interface ReplyRepository extends JpaRepository<Reply, Long> {
+public interface ReplyRepository extends JpaRepository<Reply, Long> , ReplyRepositoryCustom {
 
   // for test
   List<Reply> findAllByComment(Comment comment);

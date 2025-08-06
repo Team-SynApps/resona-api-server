@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -63,13 +64,15 @@ public class ReplyController {
         .body(SuccessResponse.of(SocialSuccessCode.REGISTER_REPLY_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
-  @Operation(summary = "단일 답글 조회", description = "특정 답글의 정보를 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_REPLY_SUCCESS", responseClass = ReplyResponse.class))
+  @Operation(summary = "답글 조회", description = "댓글의 답글들의 정보를 조회합니다.")
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_REPLY_SUCCESS", listElementClass = ReplyResponse.class))
   @ApiErrorSpec(@ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"REPLY_NOT_FOUND"}))
-  @GetMapping("/{replyId}")
-  public ResponseEntity<SuccessResponse<ReplyResponse>> getReply(HttpServletRequest request,
-      @Parameter(description = "조회할 답글의 ID", required = true) @PathVariable Long replyId) {
-    ReplyResponse response = replyService.read(replyId);
+  @GetMapping("/{commentId}")
+  public ResponseEntity<SuccessResponse<List<ReplyResponse>>> getReply(HttpServletRequest request,
+      @AuthenticationPrincipal UserPrincipal userPrincipal,
+      @Parameter(description = "조회할 댓글의 ID", required = true) @PathVariable Long commentId) {
+    MemberDto memberInfo = MemberDto.from(userPrincipal);
+    List<ReplyResponse> response = replyService.readAll(memberInfo.getId(), commentId);
     return ResponseEntity
         .status(SocialSuccessCode.GET_REPLY_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_REPLY_SUCCESS, createRequestInfo(request.getRequestURI()), response));

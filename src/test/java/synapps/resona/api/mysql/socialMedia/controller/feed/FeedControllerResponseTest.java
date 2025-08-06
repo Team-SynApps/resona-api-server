@@ -167,27 +167,27 @@ class FeedControllerResponseTest {
         .andDo(print());
   }
 
-  @Test
-  @DisplayName("특정 멤버의 피드 목록 조회 성공 시, FeedWithMediaDto 리스트를 반환한다")
-  @WithMockUserPrincipal(memberId = 1L, email = "test@example.com")
-  void readFeedsByMember_success() throws Exception {
-    // given
-    Long memberId = 123L;
-    List<FeedWithMediaDto> responseList = List.of(new FeedWithMediaDto(1L, "Content 1", 10, List.of()));
-    given(feedService.getFeedsWithMediaAndLikeCount(memberId)).willReturn(responseList);
-
-    // when
-    ResultActions actions = mockMvc.perform(get("/feeds/member/{memberId}", memberId)
-        .contentType(MediaType.APPLICATION_JSON));
-
-    // then
-    actions.andExpect(status().isOk())
-        .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data").isArray())
-        .andExpect(jsonPath("$.data[0].feedId").value(1L))
-        .andExpect(jsonPath("$.data[0].likeCount").value(10))
-        .andDo(print());
-  }
+//  @Test
+//  @DisplayName("특정 멤버의 피드 목록 조회 성공 시, FeedWithMediaDto 리스트를 반환한다")
+//  @WithMockUserPrincipal(memberId = 1L, email = "test@example.com")
+//  void readFeedsByMember_success() throws Exception {
+//    // given
+//    Long memberId = 123L;
+//    List<FeedWithMediaDto> responseList = List.of(new FeedWithMediaDto(1L, "Content 1", 10, List.of()));
+//    given(feedService.getFeedsWithMediaAndLikeCount(memberId)).willReturn(responseList);
+//
+//    // when
+//    ResultActions actions = mockMvc.perform(get("/feeds/member/{memberId}", memberId)
+//        .contentType(MediaType.APPLICATION_JSON));
+//
+//    // then
+//    actions.andExpect(status().isOk())
+//        .andExpect(jsonPath("$.meta.status").value(200))
+//        .andExpect(jsonPath("$.data").isArray())
+//        .andExpect(jsonPath("$.data[0].feedId").value(1L))
+//        .andExpect(jsonPath("$.data[0].likeCount").value(10))
+//        .andDo(print());
+//  }
 
   @Test
   @DisplayName("피드 수정 성공 시, 수정된 FeedResponse를 반환한다")

@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Reply;
 
-@Schema(description = "답글 등록 응답 DTO")
+@Schema(description = "답글 응답 DTO")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(staticName = "of")
