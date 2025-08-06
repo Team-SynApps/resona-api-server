@@ -3,10 +3,9 @@ package synapps.resona.api.oauth.entity;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,33 +19,72 @@ import synapps.resona.api.mysql.member.entity.member.Member;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@RequiredArgsConstructor
-public class UserPrincipal implements OAuth2User, UserDetails, OidcUser {
+public class UserPrincipal implements OAuth2User, UserDetails, OidcUser, CredentialsContainer {
 
+  private final Long memberId;
   private final String email;
-  private final String password;
+  private String password;
   private final ProviderType providerType;
   private final RoleType roleType;
   private final Collection<GrantedAuthority> authorities;
   private Map<String, Object> attributes;
 
-  public static UserPrincipal create(Member member, AccountInfo accountInfo) {
+  public UserPrincipal(Long memberId, String email, String password, ProviderType providerType, RoleType roleType, Collection<GrantedAuthority> authorities) {
+    this.memberId = memberId;
+    this.email = email;
+    this.password = password;
+    this.providerType = providerType;
+    this.roleType = roleType;
+    this.authorities = authorities;
+  }
+
+  /**
+   * JWT 기반 인증 시 사용될 UserPrincipal 생성 메소드.
+   * 이 시점에서는 최초 로그인 방식(ProviderType)이 중요하지 않으므로 LOCAL을 기본값으로 사용합니다.
+   * @param member Member 엔티티
+   * @return UserPrincipal 객체
+   */
+  public static UserPrincipal create(Member member) {
+    AccountInfo accountInfo = member.getAccountInfo();
     return new UserPrincipal(
+        member.getId(),
         member.getEmail(),
         member.getPassword(),
-        accountInfo.getProviderType(),
-        RoleType.USER,
-        Collections.singletonList(new SimpleGrantedAuthority(RoleType.USER.getCode()))
+        ProviderType.LOCAL, // JWT 인증 시에는 ProviderType이 중요하지 않으므로 기본값 설정
+        accountInfo.getRoleType(),
+        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + accountInfo.getRoleType().getCode()))
     );
   }
 
-  public static UserPrincipal create(Member member, AccountInfo accountInfo,
-      Map<String, Object> attributes) {
-    UserPrincipal userPrincipal = create(member, accountInfo);
+  /**
+   * OAuth2 소셜 로그인 시 사용될 UserPrincipal 생성 메소드.
+   * @param member Member 엔티티
+   * @param providerType 소셜 로그인 제공자 타입
+   * @param attributes OAuth2 제공자로부터 받은 속성 정보
+   * @return UserPrincipal 객체
+   */
+  public static UserPrincipal create(Member member, ProviderType providerType, Map<String, Object> attributes) {
+    UserPrincipal userPrincipal = create(member, providerType);
     userPrincipal.setAttributes(attributes);
-
     return userPrincipal;
+  }
+
+  /**
+   * OAuth2 소셜 로그인 시 사용될 UserPrincipal 생성 메소드. (attributes가 없는 경우)
+   * @param member Member 엔티티
+   * @param providerType 소셜 로그인 제공자 타입
+   * @return UserPrincipal 객체
+   */
+  public static UserPrincipal create(Member member, ProviderType providerType) {
+    AccountInfo accountInfo = member.getAccountInfo();
+    return new UserPrincipal(
+        member.getId(),
+        member.getEmail(),
+        member.getPassword(),
+        providerType,
+        accountInfo.getRoleType(),
+        Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + accountInfo.getRoleType().getCode()))
+    );
   }
 
   @Override
@@ -92,6 +130,11 @@ public class UserPrincipal implements OAuth2User, UserDetails, OidcUser {
   @Override
   public Map<String, Object> getClaims() {
     return null;
+  }
+
+  @Override
+  public void eraseCredentials() {
+    this.password = null;
   }
 
   @Override

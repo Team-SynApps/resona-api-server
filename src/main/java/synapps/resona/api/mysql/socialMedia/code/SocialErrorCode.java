@@ -25,6 +25,11 @@ public enum SocialErrorCode implements ErrorCode {
 
   // comment
   COMMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "COMM001", "Comment not found"),
+
+  // block
+  CANNOT_BLOCK_SELF(HttpStatus.CONFLICT, "BLK001", "Cannot block self"),
+  ALREADY_BLOCKED(HttpStatus.NOT_ACCEPTABLE, "BLK002", "Already blocked"),
+  NOT_BLOCKED(HttpStatus.BAD_REQUEST, "BLK003", "Not blocked"),
   ;
 
   private final String code;

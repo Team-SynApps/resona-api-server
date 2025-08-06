@@ -11,7 +11,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.context.annotation.Import;
 import synapps.resona.api.IntegrationTestSupport;
+import synapps.resona.api.config.TestQueryDslConfig;
+import synapps.resona.api.global.config.database.QueryDslConfig;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.member.Follow;
 import synapps.resona.api.mysql.member.entity.member.Member;
@@ -25,6 +28,7 @@ import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 
 @Transactional
 @DataJpaTest
+@Import(TestQueryDslConfig.class)
 class FollowRepositoryTest {
 
   @Autowired

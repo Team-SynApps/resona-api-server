@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +26,7 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.response.SuccessResponse;
 import synapps.resona.api.mysql.member.code.AuthErrorCode;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.mysql.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentRequest;
@@ -32,6 +34,7 @@ import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateReq
 import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentResponse;
 import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyResponse;
 import synapps.resona.api.mysql.socialMedia.service.comment.CommentService;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Tag(name = "Comment", description = "댓글 및 답글 API")
 @RestController
@@ -66,8 +69,10 @@ public class CommentController {
   @ApiErrorSpec(@ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"FEED_NOT_FOUND"}))
   @GetMapping("/all/{feedId}")
   public ResponseEntity<SuccessResponse<List<CommentResponse>>> getComments(HttpServletRequest request,
+      @AuthenticationPrincipal UserPrincipal userPrincipal,
       @Parameter(description = "댓글을 조회할 피드의 ID", required = true) @PathVariable Long feedId) {
-    List<CommentResponse> response = commentService.getCommentsByFeedId(feedId);
+    MemberDto memberInfo = MemberDto.from(userPrincipal);
+    List<CommentResponse> response = commentService.getCommentsByFeedId(memberInfo.getId(), feedId);
     return ResponseEntity
         .status(SocialSuccessCode.GET_COMMENTS_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_COMMENTS_SUCCESS, createRequestInfo(request.getRequestURI()), response));

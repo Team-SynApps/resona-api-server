@@ -1,6 +1,8 @@
 package synapps.resona.api.external.file;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import synapps.resona.api.external.file.code.FileSuccessCode;
@@ -49,7 +52,13 @@ public class ObjectStorageController {
   })
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
   public ResponseEntity<SuccessResponse<FileMetadataDto>> uploadFile(HttpServletRequest request,
-      @RequestParam("file") MultipartFile file) throws IOException {
+      @Parameter(
+          description = "업로드할 단일 파일",
+          required = true,
+          content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+              schema = @Schema(type = "string", format = "binary"))
+      )
+      @RequestPart("file") MultipartFile file) throws IOException {
     String email = memberService.getMemberEmail();
     FileMetadataDto fileMetadata = storageService.uploadToBuffer(file, email);
 
@@ -70,7 +79,15 @@ public class ObjectStorageController {
       produces = MediaType.APPLICATION_JSON_VALUE
   )
   public ResponseEntity<SuccessResponse<List<FileMetadataDto>>> uploadMultipleFiles(HttpServletRequest request,
-      @RequestParam("files") List<MultipartFile> files) {
+      @Parameter(
+          description = "업로드할 다중 파일",
+          required = true,
+          content = @Content(
+              mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+              array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))
+          )
+      )
+      @RequestPart("files") List<MultipartFile> files) {
     List<FileMetadataDto> fileMetadatas = storageService.uploadMultipleFile(files);
 
     return ResponseEntity

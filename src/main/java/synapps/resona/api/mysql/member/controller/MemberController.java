@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.annotation.ApiErrorSpec;
 import synapps.resona.api.global.annotation.ApiSuccessResponse;
@@ -23,6 +24,7 @@ import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDt
 import synapps.resona.api.mysql.member.dto.response.*; // 와일드카드 import로 변경
 import synapps.resona.api.mysql.member.service.AuthService;
 import synapps.resona.api.mysql.member.service.MemberService;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Tag(name = "Member", description = "사용자 정보 관리 API")
 @RestController
@@ -62,8 +64,10 @@ public class MemberController {
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"INVALID_TOKEN", "EXPIRED_TOKEN"})
   })
   @GetMapping("/info")
-  public ResponseEntity<SuccessResponse<MemberDto>> getUser(HttpServletRequest request) {
-    MemberDto memberInfo = memberService.getMember();
+  public ResponseEntity<SuccessResponse<MemberDto>> getUser(
+      HttpServletRequest request,
+      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    MemberDto memberInfo = MemberDto.from(userPrincipal);
     return ResponseEntity
         .status(MemberSuccessCode.GET_MY_INFO_SUCCESS.getStatus())
         .body(SuccessResponse.of(MemberSuccessCode.GET_MY_INFO_SUCCESS, createRequestInfo(request.getRequestURI()), memberInfo));
@@ -76,8 +80,10 @@ public class MemberController {
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"INVALID_TOKEN", "EXPIRED_TOKEN"})
   })
   @GetMapping("/detail")
-  public ResponseEntity<SuccessResponse<MemberInfoDto>> getMemberDetailInfo(HttpServletRequest request) {
-    MemberInfoDto memberDetailInfo = memberService.getMemberDetailInfo();
+  public ResponseEntity<SuccessResponse<MemberInfoDto>> getMemberDetailInfo(
+      HttpServletRequest request,
+      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    MemberInfoDto memberDetailInfo = memberService.getMemberDetailInfo(userPrincipal.getEmail());
     return ResponseEntity
         .status(MemberSuccessCode.GET_MEMBER_DETAIL_SUCCESS.getStatus())
         .body(SuccessResponse.of(MemberSuccessCode.GET_MEMBER_DETAIL_SUCCESS, createRequestInfo(request.getRequestURI()), memberDetailInfo));

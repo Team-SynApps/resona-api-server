@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     Member member = memberRepository.findWithAccountInfoByEmail(email)
         .orElseThrow(MemberException::memberNotFound);
-    AccountInfo accountInfo = member.getAccountInfo();
-    return UserPrincipal.create(member, accountInfo);
+
+    return UserPrincipal.create(member);
   }
 }

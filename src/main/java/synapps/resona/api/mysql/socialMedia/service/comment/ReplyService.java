@@ -1,5 +1,6 @@
 package synapps.resona.api.mysql.socialMedia.service.comment;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +16,7 @@ import synapps.resona.api.mysql.socialMedia.entity.comment.Reply;
 import synapps.resona.api.mysql.socialMedia.exception.CommentException;
 import synapps.resona.api.mysql.socialMedia.exception.ReplyException;
 import synapps.resona.api.mysql.socialMedia.repository.comment.CommentRepository;
-import synapps.resona.api.mysql.socialMedia.repository.comment.ReplyRepository;
+import synapps.resona.api.mysql.socialMedia.repository.comment.reply.ReplyRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +28,7 @@ public class ReplyService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public ReplyResponse register(ReplyRequest request) {
-    MemberDto memberDto = memberService.getMember();
+  public ReplyResponse register(ReplyRequest request, MemberDto memberDto) {
     Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
     Comment comment = commentRepository.findById(request.getCommentId())
@@ -48,11 +48,11 @@ public class ReplyService {
     return ReplyResponse.from(reply);
   }
 
+  @Transactional
+  public List<ReplyResponse> readAll(Long viewerId, Long commentId) {
+    List<Reply> replies = replyRepository.findAllRepliesByCommentId(viewerId, commentId);
 
-  public ReplyResponse read(Long replyId) {
-    Reply reply = replyRepository.findWithCommentById(replyId)
-        .orElseThrow(ReplyException::replyNotFound);
-    return ReplyResponse.from(reply);
+    return replies.stream().map(ReplyResponse::from).toList();
   }
 
   @Transactional

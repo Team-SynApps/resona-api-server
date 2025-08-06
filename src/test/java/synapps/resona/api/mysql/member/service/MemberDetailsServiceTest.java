@@ -17,9 +17,12 @@ import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.member_details.MemberDetailsRequest;
 import synapps.resona.api.mysql.member.dto.response.MemberDetailsResponse;
+import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.member_details.MBTI;
 import synapps.resona.api.mysql.member.entity.profile.CountryCode;
 import synapps.resona.api.mysql.member.entity.profile.Language;
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Transactional
 class MemberDetailsServiceTest extends IntegrationTestSupport {
@@ -31,6 +34,9 @@ class MemberDetailsServiceTest extends IntegrationTestSupport {
 
   @Autowired
   private MemberDetailsService memberDetailsService;
+
+  @Autowired
+  private MemberRepository memberRepository;
 
   @Autowired
   private TempTokenService tempTokenService;
@@ -59,7 +65,11 @@ class MemberDetailsServiceTest extends IntegrationTestSupport {
     memberService.signUp(request);
 
     // 4. 테스트를 위한 인증 정보를 설정합니다.
-    User principal = new User(email, "", new ArrayList<>());
+    Member member = memberRepository.findByEmailWithAccountInfo(email)
+        .orElseThrow(() -> new RuntimeException("테스트 유저를 찾을 수 없습니다."));
+
+    UserPrincipal principal = UserPrincipal.create(member);
+
     UsernamePasswordAuthenticationToken authentication =
         new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities());
     SecurityContextHolder.getContext().setAuthentication(authentication);

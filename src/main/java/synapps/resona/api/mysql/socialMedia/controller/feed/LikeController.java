@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,12 +23,14 @@ import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.response.SuccessResponse;
 import synapps.resona.api.mysql.member.code.AuthErrorCode;
 import synapps.resona.api.mysql.member.code.MemberErrorCode;
+import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.mysql.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.mysql.socialMedia.dto.like.request.LikeRequest;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Likes;
 import synapps.resona.api.mysql.socialMedia.service.feed.LikeService;
 import synapps.resona.api.mysql.socialMedia.dto.like.response.LikeResponse;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Tag(name = "Like", description = "좋아요/좋아요 취소 API")
 @RestController
@@ -52,8 +55,9 @@ public class LikeController {
   })
   @PostMapping("/like")
   public ResponseEntity<SuccessResponse<LikeResponse>> registerLike(HttpServletRequest request,
-      @RequestBody LikeRequest likeRequest) {
-    LikeResponse response = likeService.register(likeRequest);
+      @RequestBody LikeRequest likeRequest,
+      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    LikeResponse response = likeService.register(likeRequest, MemberDto.from(userPrincipal));
     return ResponseEntity
         .status(SocialSuccessCode.LIKE_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.LIKE_SUCCESS, createRequestInfo(request.getRequestURI()), response));

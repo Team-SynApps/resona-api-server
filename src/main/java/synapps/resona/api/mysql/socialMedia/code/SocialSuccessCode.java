@@ -41,13 +41,25 @@ public enum SocialSuccessCode implements SuccessCode {
   EDIT_REPLY_SUCCESS(HttpStatus.OK, "답글 수정에 성공하였습니다."),
   DELETE_REPLY_SUCCESS(HttpStatus.OK, "답글 삭제에 성공하였습니다."),
 
-  // Complaint
+  // Report
   REPORT_FEED_SUCCESS(HttpStatus.OK, "피드 신고가 접수되었습니다."),
+  REPORT_COMMENT_SUCCESS(HttpStatus.OK, "댓글 신고가 접수되었습니다."),
+  REPORT_REPLY_SUCCESS(HttpStatus.OK, "대댓글 신고가 접수되었습니다."),
 
   // Mention
   REGISTER_MENTION_SUCCESS(HttpStatus.CREATED, "멘션 등록에 성공하였습니다."),
   GET_MENTION_SUCCESS(HttpStatus.OK, "멘션 조회에 성공하였습니다."),
-  DELETE_MENTION_SUCCESS(HttpStatus.OK, "멘션 삭제에 성공하였습니다.");
+  DELETE_MENTION_SUCCESS(HttpStatus.OK, "멘션 삭제에 성공하였습니다."),
+
+  // Block
+  BLOCK_SUCCESS(HttpStatus.CREATED, "사용자 차단에 성공하였습니다."),
+  UNBLOCK_SUCCESS(HttpStatus.OK, "사용자 차단 해제에 성공하였습니다."),
+  BLOCK_LIST_SUCCESS(HttpStatus.OK, "차단한 사용자 조회에 성공하였습니다."),
+
+  // Hide
+  HIDE_FEED_SUCCESS(HttpStatus.OK, "피드 숨김에 성공하였습니다."),
+  HIDE_COMMENT_SUCCESS(HttpStatus.OK, "댓글 숨김에 성공하였습니다."),
+  HIDE_REPLY_SUCCESS(HttpStatus.OK, "대댓글 숨김에 성공하였습니다.");
 
 
   private final HttpStatus status;

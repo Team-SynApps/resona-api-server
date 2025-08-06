@@ -26,10 +26,9 @@ public class LikeService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public LikeResponse register(LikeRequest request) {
+  public LikeResponse register(LikeRequest request, MemberDto memberDto) {
     Feed feed = feedRepository.findById(request.getFeedId())
         .orElseThrow(FeedException::feedNotFoundException);
-    MemberDto memberDto = memberService.getMember();
     Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
     Likes likes = Likes.of(member, feed);

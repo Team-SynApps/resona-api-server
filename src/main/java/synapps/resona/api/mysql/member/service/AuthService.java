@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.utils.HeaderUtil;
+import synapps.resona.api.mysql.member.code.AuthErrorCode;
 import synapps.resona.api.mysql.member.dto.request.auth.AppleLoginRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.LoginRequest;
 import synapps.resona.api.mysql.member.dto.request.auth.RefreshRequest;
@@ -25,10 +26,11 @@ import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.entity.member.MemberProvider;
 import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
-import synapps.resona.api.mysql.member.exception.AccountInfoException;
 import synapps.resona.api.mysql.member.exception.AuthException;
 import synapps.resona.api.mysql.member.exception.MemberException;
+import synapps.resona.api.mysql.member.repository.member.MemberProviderRepository;
 import synapps.resona.api.mysql.member.repository.member.MemberRefreshTokenRepository;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.token.AuthToken;
@@ -36,7 +38,6 @@ import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.apple.AppleOAuthUserProvider;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.UserPrincipal;
-import synapps.resona.api.oauth.exception.OAuthException;
 
 @Service
 @RequiredArgsConstructor
@@ -50,22 +51,26 @@ public class AuthService {
   private final AppleOAuthUserProvider appleOAuthUserProvider;
   private final MemberService memberService;
   private final MemberRepository memberRepository;
-//    private final static String REFRESH_TOKEN = "refresh_token";
+  private final MemberProviderRepository memberProviderRepository;
 
-  /**
-   * @param loginRequest email, password
-   * @return access token, refresh token, registered
-   */
   @Transactional
   public TokenResponse login(LoginRequest loginRequest) {
     String memberEmail = loginRequest.getMemberEmail();
     String memberPassword = loginRequest.getPassword();
 
-    AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(memberEmail)
-        .orElseThrow(MemberException::memberNotFound);
-    if (accountInfo.getProviderType() != ProviderType.LOCAL) {
-      throw OAuthException.OAuthProviderMissMatch(accountInfo.getProviderType());
-    }
+    Member member = memberRepository.findWithAccountInfoByEmail(memberEmail)
+        .orElseThrow(() -> new AuthException(
+            AuthErrorCode.LOGIN_FAILED.getMessage(),
+            AuthErrorCode.LOGIN_FAILED.getStatus(),
+            AuthErrorCode.LOGIN_FAILED.getCustomCode()
+        ));
+
+    memberProviderRepository.findByMemberAndProviderType(member, ProviderType.LOCAL)
+        .orElseThrow(() -> new AuthException(
+            AuthErrorCode.LOGIN_FAILED.getMessage(),
+            AuthErrorCode.LOGIN_FAILED.getStatus(),
+            AuthErrorCode.LOGIN_FAILED.getCustomCode()
+        ));
 
     Authentication authentication = getAuthentication(memberEmail, memberPassword);
     SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -90,43 +95,30 @@ public class AuthService {
         appleOAuthUserProvider.getApplePlatformMember(loginRequest.getToken());
 
     String memberEmail = applePlatformMember.getEmail();
-    String memberPassword = applePlatformMember.getPlatformId();
+    String providerId = applePlatformMember.getPlatformId();
 
-    if (memberRepository.existsByEmail(memberEmail)) {
-      AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(memberEmail)
-          .orElseThrow(AccountInfoException::accountInfoNotFound);
+    Member member = memberRepository.findWithAccountInfoByEmail(memberEmail).orElse(null);
 
-      if (accountInfo.getStatus() == AccountStatus.BANNED) {
-        throw AccountInfoException.accountInfoNotFound();
-      }
-      if (accountInfo.getProviderType() != ProviderType.APPLE) {
-        throw OAuthException.OAuthProviderMissMatch(accountInfo.getProviderType());
-      }
+    boolean isNewUser = (member == null);
 
-      if (accountInfo.getStatus() == AccountStatus.ACTIVE) {
-        Authentication authentication = getAuthentication(memberEmail, memberPassword);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        Date now = new Date();
-        long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
-
-        AuthToken accessToken = createToken(memberEmail, authentication, now);
-        AuthToken refreshToken = createRefreshToken(now, refreshTokenExpiry);
-
-        checkRefreshToken(memberEmail, refreshToken);
-
-        return new TokenResponse(accessToken, refreshToken,
-            memberService.isRegisteredMember(memberEmail));
-      }
+    if (isNewUser) {
+      member = createMemberWithProvider(memberEmail, providerId, ProviderType.APPLE);
+    } else {
+      Member finalMember = member;
+      memberProviderRepository.findByMemberAndProviderType(member, ProviderType.APPLE)
+          .orElseGet(() -> {
+            MemberProvider newProvider = MemberProvider.of(finalMember, ProviderType.APPLE, providerId);
+            return memberProviderRepository.save(newProvider);
+          });
     }
 
-    AccountInfo accountInfo = AccountInfo.of(RoleType.USER, ProviderType.APPLE,
-        AccountStatus.TEMPORARY);
-    Member member = Member.of(accountInfo, memberEmail, memberPassword, LocalDateTime.now());
-    member.encodePassword(memberPassword);
-    memberRepository.save(member);
-
-    Authentication authentication = getAuthentication(memberEmail, memberPassword);
+    // 소셜 로그인은 인증이 이미 완료된 상태이므로, UserPrincipal을 직접 생성하여 SecurityContext에 설정합니다.
+    UserPrincipal principal = UserPrincipal.create(member, ProviderType.APPLE);
+    Authentication authentication = new UsernamePasswordAuthenticationToken(
+        principal,
+        null,
+        principal.getAuthorities()
+    );
     SecurityContextHolder.getContext().setAuthentication(authentication);
 
     Date now = new Date();
@@ -136,7 +128,20 @@ public class AuthService {
 
     checkRefreshToken(memberEmail, refreshToken);
 
-    return new TokenResponse(accessToken, refreshToken, false);
+    return new TokenResponse(accessToken, refreshToken, !isNewUser && memberService.isRegisteredMember(memberEmail));
+  }
+
+  private Member createMemberWithProvider(String email, String providerId, ProviderType providerType) {
+
+    AccountInfo accountInfo = AccountInfo.of(RoleType.USER, AccountStatus.TEMPORARY);
+    Member newMember = Member.of(accountInfo, email, null, LocalDateTime.now());
+
+    memberRepository.save(newMember);
+
+    MemberProvider memberProvider = MemberProvider.of(newMember, providerType, providerId);
+    memberProviderRepository.save(memberProvider);
+
+    return newMember;
   }
 
   @Transactional
@@ -243,14 +248,4 @@ public class AuthService {
     Date now = new Date();
     return authToken.getTokenClaims().getExpiration().getTime() - now.getTime();
   }
-
-//    private void executeCookie(HttpServletRequest request,
-//                               HttpServletResponse response,
-//                               long refreshTokenExpiry,
-//                               AuthToken refreshToken) {
-//        int cookieMaxAge = (int) refreshTokenExpiry / 60;
-//        CookieUtil.deleteCookie(request, response, REFRESH_TOKEN);
-//        CookieUtil.addCookie(response, REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
-//    }
-
 }

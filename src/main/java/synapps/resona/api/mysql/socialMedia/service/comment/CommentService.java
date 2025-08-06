@@ -47,8 +47,8 @@ public class CommentService {
   }
 
   @Transactional
-  public List<CommentResponse> getCommentsByFeedId(long feedId) {
-    List<Comment> comments = commentRepository.findAllCommentsByFeedId(feedId);
+  public List<CommentResponse> getCommentsByFeedId(long viewerId, long feedId) {
+    List<Comment> comments = commentRepository.findAllCommentsByFeedIdWithReplies(viewerId, feedId);
 
     return comments.stream().map(CommentResponse::from).toList();
   }

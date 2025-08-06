@@ -1,14 +1,16 @@
 package synapps.resona.api.mysql.member.dto.response;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
 
-@Data
-@AllArgsConstructor
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(staticName = "of")
 public class MemberProfileDto {
 
   private Long memberId;
@@ -18,7 +20,7 @@ public class MemberProfileDto {
 
 
   public static MemberProfileDto from(Member member, Profile profile) {
-    return new MemberProfileDto(member.getId(), profile.getProfileImageUrl(), profile.getNickname(),
+    return MemberProfileDto.of(member.getId(), profile.getProfileImageUrl(), profile.getNickname(),
         profile.getTag());
   }
 }

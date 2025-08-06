@@ -55,7 +55,6 @@ class CommentServiceTest extends IntegrationTestSupport {
   void setUp() {
     AccountInfo accountInfo = AccountInfo.of(
         RoleType.USER,
-        synapps.resona.api.oauth.entity.ProviderType.LOCAL,
         AccountStatus.ACTIVE
     );
     member = Member.of(
@@ -149,7 +148,7 @@ class CommentServiceTest extends IntegrationTestSupport {
     em.clear();
 
     // when
-    List<CommentResponse> responseList = commentService.getCommentsByFeedId(feed.getId());
+    List<CommentResponse> responseList = commentService.getCommentsByFeedId(1L, feed.getId());
 
     // then
     assertThat(responseList).hasSize(2);

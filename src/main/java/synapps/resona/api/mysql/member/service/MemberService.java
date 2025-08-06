@@ -10,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.mysql.member.dto.request.member.MemberPasswordChangeDto;
@@ -20,6 +19,7 @@ import synapps.resona.api.mysql.member.dto.response.MemberRegisterResponseDto;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.entity.member.MemberProvider;
 import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
 import synapps.resona.api.mysql.member.entity.profile.Language;
 import synapps.resona.api.mysql.member.entity.profile.Profile;
@@ -27,11 +27,12 @@ import synapps.resona.api.mysql.member.exception.AccountInfoException;
 import synapps.resona.api.mysql.member.exception.MemberException;
 import synapps.resona.api.mysql.member.exception.ProfileException;
 import synapps.resona.api.mysql.member.repository.account.AccountInfoRepository;
-import synapps.resona.api.mysql.member.repository.member_details.MemberDetailsRepository;
+import synapps.resona.api.mysql.member.repository.member.MemberProviderRepository;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
+import synapps.resona.api.mysql.member.repository.member_details.MemberDetailsRepository;
 import synapps.resona.api.mysql.member.repository.profile.ProfileRepository;
-import synapps.resona.api.mysql.token.AuthToken;
-import synapps.resona.api.mysql.token.AuthTokenProvider;
+import synapps.resona.api.oauth.entity.ProviderType;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Service
 @RequiredArgsConstructor
@@ -41,50 +42,29 @@ public class MemberService {
   private final ProfileRepository profileRepository;
   private final MemberDetailsRepository memberDetailsRepository;
   private final AccountInfoRepository accountInfoRepository;
-  private final AuthTokenProvider authTokenProvider;
+  private final MemberProviderRepository memberProviderRepository; // Repository 주입
   private final Logger logger = LogManager.getLogger(MemberService.class);
 
   private static Set<Language> copyToMutableSet(Set<Language> source) {
     return new HashSet<>(source);
   }
 
-  /**
-   * SecurityContextHolder에서 관리하는 context에서 userPrincipal을 받아옴
-   *
-   * @return 멤버를 이메일 기준으로 불러옴 Optional 적용 고려
-   */
-  @Transactional
-  public MemberDto getMember() {
-    User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-    logger.info(userPrincipal.getUsername());
-    Member member = memberRepository.findByEmail(userPrincipal.getUsername())
-        .orElseThrow(MemberException::memberNotFound);
-
-    return MemberDto.builder()
-        .id(member.getId())
-        .email(member.getEmail())
-        .build();
-  }
-
   public String getMemberEmail() {
-    User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication()
+    UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     return userPrincipal.getUsername();
   }
 
   public Member getMemberUsingSecurityContext() {
-    User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication()
+    UserPrincipal userPrincipal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication()
         .getPrincipal();
     return memberRepository.findByEmail(userPrincipal.getUsername())
         .orElseThrow(MemberException::memberNotFound);
   }
 
   @Transactional
-  public MemberInfoDto getMemberDetailInfo() {
-    User userPrincipal = (User) SecurityContextHolder.getContext().getAuthentication()
-        .getPrincipal();
-    Member member = memberRepository.findWithAllRelationsByEmail(userPrincipal.getUsername())
+  public MemberInfoDto getMemberDetailInfo(String email) {
+    Member member = memberRepository.findWithAllRelationsByEmail(email)
         .orElseThrow(MemberException::memberNotFound);
 
     AccountInfo accountInfo = member.getAccountInfo();
@@ -96,10 +76,22 @@ public class MemberService {
 
   @Transactional
   public MemberRegisterResponseDto signUp(RegisterRequest request) {
-    checkMemberStatus(request);
-    Member member = memberRepository.findWithAllRelationsByEmail(request.getEmail())
+    // 이메일로 기존 멤버 조회 (없으면 TempTokenService에서 생성된 임시 계정)
+    Member member = memberRepository.findWithAccountInfoByEmail(request.getEmail())
         .orElseThrow(MemberException::memberNotFound);
 
+    // 계정 상태 확인 (BANNED, ACTIVE 등)
+    checkMemberStatus(member);
+
+    // LOCAL Provider 추가 (이미 있으면 중복 가입으로 간주)
+    memberProviderRepository.findByMemberAndProviderType(member, ProviderType.LOCAL)
+        .ifPresent(provider -> {
+          throw MemberException.duplicateEmail();
+        });
+    MemberProvider localProvider = MemberProvider.of(member, ProviderType.LOCAL, null);
+    member.addProvider(localProvider);
+
+    // 프로필 및 상세 정보 업데이트
     Profile profile = member.getProfile();
     if (profileRepository.existsByTag(request.getTag())) {
       throw ProfileException.duplicateTag();
@@ -120,48 +112,41 @@ public class MemberService {
     memberDetails.join(request.getTimezone());
     accountInfo.join();
 
+    // 5. 비밀번호 설정 및 저장
     member.encodePassword(request.getPassword());
     memberRepository.save(member);
-    profileRepository.save(profile);
-    memberDetailsRepository.save(memberDetails);
-    accountInfoRepository.save(accountInfo);
 
     return MemberRegisterResponseDto.from(member, profile, memberDetails);
   }
 
-  private void checkMemberStatus(RegisterRequest request) {
-    boolean isMemberExists = memberRepository.existsByEmail(request.getEmail());
-    if (!isMemberExists) {
-      throw MemberException.memberNotFound();
+  private void checkMemberStatus(Member member) {
+    AccountInfo accountInfo = member.getAccountInfo();
+    if (accountInfo == null) {
+      throw AccountInfoException.accountInfoNotFound();
     }
-    AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(request.getEmail())
-        .orElseThrow(AccountInfoException::accountInfoNotFound);
     // 차단당한 계정인 경우
     if (accountInfo.getStatus().equals(AccountStatus.BANNED)) {
       throw MemberException.unAuthenticatedRequest();
     }
-    // 이미 활성화된 계정인 경우
-    if (accountInfo.getStatus().equals(AccountStatus.ACTIVE)) {
-      throw MemberException.duplicateEmail();
-    }
   }
+
 
   @Transactional
   public MemberDto changePassword(HttpServletRequest request,
       MemberPasswordChangeDto memberPasswordChangeDto) {
-    String email = memberPasswordChangeDto.getEmail();
-    if (!isCurrentUser(request, email)) {
+
+    if (!isCurrentUser(memberPasswordChangeDto.getEmail())) {
       throw MemberException.unAuthenticatedRequest();
     }
-    Member member = memberRepository.findByEmail(email)
+    Member member = memberRepository.findByEmail(memberPasswordChangeDto.getEmail())
         .orElseThrow(MemberException::memberNotFound);
     member.encodePassword(memberPasswordChangeDto.getChangedPassword());
-    return new MemberDto(member.getId(), member.getEmail());
+    return MemberDto.of(member.getId(), member.getEmail());
   }
 
   @Transactional
   public Map<String, String> deleteUser() {
-    User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    UserPrincipal principal = (UserPrincipal) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     Member member = memberRepository.findByEmail(principal.getUsername())
         .orElseThrow(MemberException::memberNotFound);
     member.softDelete();
@@ -169,39 +154,14 @@ public class MemberService {
     return Map.of("message", "User deleted successfully.");
   }
 
-  public boolean isCurrentUser(HttpServletRequest request, String requestEmail) {
+  public boolean isCurrentUser(String requestEmail) {
     try {
-      String token = resolveToken(request);
-//            logger.debug("Resolved token: {}", token);
-
-      if (token == null) {
-        logger.debug("Token is null");
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
         return false;
       }
-
-      AuthToken authToken = authTokenProvider.convertAuthToken(token);
-      if (!authToken.validate()) {
-        logger.debug("Token validation failed");
-        return false;
-      }
-
-      Authentication authentication = authTokenProvider.getAuthentication(authToken);
-      Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
-
-//            logger.debug("Token Authentication: {}", authentication);
-//            logger.debug("Current Authentication: {}", currentAuth);
-
-      if (authentication == null || currentAuth == null) {
-        logger.debug("Either authentication or currentAuth is null");
-        return false;
-      }
-
-      boolean result = authentication.isAuthenticated() &&
-          authentication.getName().equals(requestEmail) &&
-          authentication.getName().equals(currentAuth.getName());
-
-//            log.debug("isCurrentUser result: {}", result);
-      return result;
+      UserPrincipal principal = (UserPrincipal) authentication.getPrincipal();
+      return principal.getUsername().equals(requestEmail);
     } catch (Exception e) {
       logger.error("Error in isCurrentUser", e);
       return false;
@@ -209,17 +169,8 @@ public class MemberService {
   }
 
   public boolean isRegisteredMember(String email) {
-    AccountInfo accountInfo = memberRepository.findAccountInfoByEmail(email)
-        .orElseThrow(AccountInfoException::accountInfoNotFound);
-    return !accountInfo.isAccountTemporary();
+    return memberRepository.findAccountInfoByEmail(email)
+        .map(accountInfo -> !accountInfo.isAccountTemporary())
+        .orElse(false);
   }
-
-  private String resolveToken(HttpServletRequest request) {
-    String bearerToken = request.getHeader("Authorization");
-    if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-      return bearerToken.substring(7);
-    }
-    return null;
-  }
-
 }

@@ -10,7 +10,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.external.file.ObjectStorageService;
@@ -19,6 +18,10 @@ import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.member.service.MemberService;
+import synapps.resona.api.mysql.socialMedia.dto.feed.condition.DefaultFeedSearchCondition;
+import synapps.resona.api.mysql.socialMedia.dto.feed.FeedSortBy;
+import synapps.resona.api.mysql.socialMedia.dto.feed.condition.MemberFeedSearchCondition;
+import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedDto;
 import synapps.resona.api.mysql.socialMedia.dto.media.FeedMediaDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.FeedWithMediaDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRequest;
@@ -31,6 +34,7 @@ import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Location;
 import synapps.resona.api.mysql.socialMedia.entity.media.FeedMedia;
 import synapps.resona.api.mysql.socialMedia.exception.FeedException;
+import synapps.resona.api.mysql.socialMedia.repository.feed.strategy.FeedQueryStrategy;
 import synapps.resona.api.mysql.socialMedia.repository.media.FeedMediaRepository;
 import synapps.resona.api.mysql.socialMedia.repository.feed.FeedRepository;
 import synapps.resona.api.mysql.socialMedia.repository.feed.LocationRepository;
@@ -45,6 +49,8 @@ public class FeedService {
   private final LocationRepository locationRepository;
   private final ObjectStorageService objectStorageService;
   private final MemberService memberService;
+
+  private final FeedQueryStrategyFactory feedQueryStrategyFactory;
 
   private final Logger logger = LogManager.getLogger(FeedService.class);
 
@@ -64,33 +70,26 @@ public class FeedService {
     return FeedReadResponse.from(feed);
   }
 
-  public CursorResult<FeedReadResponse> getFeedsByCursorAndMemberId(String cursor, int size,
-      Long memberId) {
-    LocalDateTime cursorTime = (cursor != null) ?
-        LocalDateTime.parse(cursor) : LocalDateTime.now();
+  @Transactional(readOnly = true)
+  public CursorResult<FeedDto> getFeedsByCursorAndMemberId(Long viewerId, Long targetMemberId, String cursor, int size) {
+    Pageable pageable = PageRequest.of(0, size + 1);
 
-    Pageable pageable = PageRequest.of(0, size + 1, Sort.by(Sort.Direction.DESC, "createdAt"));
+    MemberFeedSearchCondition condition =
+        MemberFeedSearchCondition.of(
+            viewerId,
+            targetMemberId,
+            cursor != null ? LocalDateTime.parse(cursor) : null,
+            FeedSortBy.LATEST
+        );
 
-    List<Feed> feeds = feedRepository.findFeedsByCursorAndMemberId(memberId, cursorTime, pageable);
+    FeedQueryStrategy<MemberFeedSearchCondition> strategy = feedQueryStrategyFactory.findStrategy(MemberFeedSearchCondition.class);
+    List<FeedDto> feeds = strategy.findFeeds(condition, condition.getCursor(), pageable);
 
-    boolean hasNext = feeds.size() > size;
-    if (hasNext) {
-      feeds = feeds.subList(0, size);
-    }
-
-    String nextCursor = hasNext ?
-        feeds.get(feeds.size() - 1).getCreatedAt().toString() : null;
-
-    return new CursorResult<>(
-        feeds.stream()
-            .map(FeedReadResponse::from)
-            .collect(Collectors.toList()),
-        hasNext,
-        nextCursor
-    );
+    return createCursorResult(feeds, size);
   }
 
 
+  @Transactional(readOnly = true)
   public List<FeedWithMediaDto> getFeedsWithMediaAndLikeCount(Long memberId) {
     List<Feed> feeds = feedRepository.findFeedsWithImagesByMemberId(memberId);
     Map<Long, Integer> likeCountMap = feedRepository.countLikesByMemberId(memberId).stream()
@@ -111,29 +110,20 @@ public class FeedService {
         .toList();
   }
 
+  @Transactional(readOnly = true)
+  public CursorResult<FeedDto> getFeedsByCursor(Long viewerId, String cursor, int size) {
+    Pageable pageable = PageRequest.of(0, size + 1);
 
-  public CursorResult<FeedReadResponse> getFeedsByCursor(String cursor, int size) {
-    LocalDateTime cursorTime = (cursor != null) ?
-        LocalDateTime.parse(cursor) : LocalDateTime.now();
+    DefaultFeedSearchCondition condition =
+        DefaultFeedSearchCondition.of(
+            viewerId,
+            cursor != null ? LocalDateTime.parse(cursor) : null,
+            FeedSortBy.LATEST);
 
-    Pageable pageable = PageRequest.of(0, size + 1, Sort.by(Sort.Direction.DESC, "createdAt"));
+    FeedQueryStrategy<DefaultFeedSearchCondition> strategy = feedQueryStrategyFactory.findStrategy(DefaultFeedSearchCondition.class);
+    List<FeedDto> feeds = strategy.findFeeds(condition, condition.getCursor(), pageable);
 
-    List<Feed> feeds = feedRepository.findFeedsByCursor(cursorTime, pageable);
-    boolean hasNext = feeds.size() > size;
-    if (hasNext) {
-      feeds.remove(feeds.size() - 1);
-    }
-
-    String nextCursor = hasNext ?
-        feeds.get(feeds.size() - 1).getCreatedAt().toString() : null;
-
-    return new CursorResult<>(
-        feeds.stream()
-            .map(FeedReadResponse::from)
-            .collect(Collectors.toList()),
-        hasNext,
-        nextCursor
-    );
+    return createCursorResult(feeds, size);
   }
 
 
@@ -197,5 +187,17 @@ public class FeedService {
     }
 
     return FeedResponse.from(feed, finalizedFeed);
+  }
+
+  private CursorResult<FeedDto> createCursorResult(List<FeedDto> feeds, int size) {
+    boolean hasNext = feeds.size() > size;
+    List<FeedDto> content = hasNext ? feeds.subList(0, size) : feeds;
+
+    String nextCursor = null;
+    if (hasNext) {
+      nextCursor = content.get(content.size() - 1).getCreatedAt().toString();
+    }
+
+    return new CursorResult<>(content, hasNext, nextCursor);
   }
 }

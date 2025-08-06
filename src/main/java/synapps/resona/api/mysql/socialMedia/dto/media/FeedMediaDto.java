@@ -7,13 +7,13 @@ import synapps.resona.api.mysql.socialMedia.entity.media.FeedMedia;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(staticName = "of")
 public class FeedMediaDto {
 
   private Long id;
   private String url;
 
   public static FeedMediaDto from(FeedMedia media) {
-    return new FeedMediaDto(media.getId(), media.getUrl());
+    return FeedMediaDto.of(media.getId(), media.getUrl());
   }
 }
