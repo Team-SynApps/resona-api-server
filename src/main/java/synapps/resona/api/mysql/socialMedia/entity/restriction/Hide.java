@@ -17,7 +17,7 @@ import synapps.resona.api.mysql.member.entity.member.Member;
 
 @Entity
 @Getter
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "hide_type")
 public abstract class Hide extends BaseEntity {
 

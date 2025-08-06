@@ -13,7 +13,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.mysql.member.WithMockUserPrincipal;
+import synapps.resona.api.config.WithMockUserPrincipal;
 import synapps.resona.api.mysql.member.dto.response.MemberDto;
 import synapps.resona.api.mysql.socialMedia.dto.restriction.BlockedMemberResponse;
 import synapps.resona.api.mysql.socialMedia.service.restriction.BlockService;

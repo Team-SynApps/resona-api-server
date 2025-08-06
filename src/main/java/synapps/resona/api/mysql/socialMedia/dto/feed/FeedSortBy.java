@@ -1,4 +1,7 @@
 package synapps.resona.api.mysql.socialMedia.dto.feed;
 
-public class FeedDto {
+public enum FeedSortBy {
+  LATEST,
+  POPULAR,
+  RANDOM
 }
