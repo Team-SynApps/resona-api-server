@@ -34,7 +34,6 @@ import synapps.resona.api.mysql.socialMedia.entity.mention.Mention;
 import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Scrap;
-import synapps.resona.api.mysql.socialMedia.entity.report.FeedReport;
 import synapps.resona.api.mysql.socialMedia.entity.report.Report;
 import synapps.resona.api.mysql.socialMedia.entity.restriction.Block;
 import synapps.resona.api.mysql.socialMedia.entity.restriction.Hide;
@@ -86,6 +85,9 @@ public class Member extends BaseEntity {
   @OneToMany(mappedBy = "member")
   private final List<Hide> hiddenContents = new ArrayList<>();
 
+  @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+  private final List<MemberProvider> providers = new ArrayList<>();
+
   @NotBlank
   @Size(max = 50)
   @Email
@@ -95,7 +97,6 @@ public class Member extends BaseEntity {
   private String password;
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
-  @JoinColumn(name = "account_info_id")
   private AccountInfo accountInfo;
 
   @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
@@ -162,5 +163,9 @@ public class Member extends BaseEntity {
 
   public void addNotificationSetting(MemberNotificationSetting memberNotificationSetting) {
     this.notificationSetting = memberNotificationSetting;
+  }
+
+  public void addProvider(MemberProvider provider) {
+    providers.add(provider);
   }
 }

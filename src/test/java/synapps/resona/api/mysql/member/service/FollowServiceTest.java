@@ -73,7 +73,7 @@ class FollowServiceTest extends IntegrationTestSupport {
     Member me = memberRepository.findByEmailWithAccountInfo(loginEmail)
         .orElseThrow(() -> new RuntimeException("테스트 유저 'me'를 찾을 수 없습니다."));
 
-    UserPrincipal principal = UserPrincipal.create(me, me.getAccountInfo());
+    UserPrincipal principal = UserPrincipal.create(me);
 
     SecurityContextHolder.getContext().setAuthentication(
         new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities()));
@@ -136,7 +136,7 @@ class FollowServiceTest extends IntegrationTestSupport {
     Member third = memberRepository.findByEmailWithAccountInfo(thirdEmail)
         .orElseThrow(() -> new RuntimeException("테스트 유저 'third'를 찾을 수 없습니다."));
 
-    UserPrincipal thirdPrincipal = UserPrincipal.create(third, third.getAccountInfo());
+    UserPrincipal thirdPrincipal = UserPrincipal.create(third);
 
     SecurityContextHolder.getContext().setAuthentication(
         new UsernamePasswordAuthenticationToken(thirdPrincipal, null, thirdPrincipal.getAuthorities())

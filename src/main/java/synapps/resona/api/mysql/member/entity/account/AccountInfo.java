@@ -1,19 +1,12 @@
 package synapps.resona.api.mysql.member.entity.account;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
 import synapps.resona.api.global.entity.BaseEntity;
-import synapps.resona.api.oauth.entity.ProviderType;
 
 @Entity
 @Getter
@@ -33,27 +26,22 @@ public class AccountInfo extends BaseEntity {
 
   @Enumerated(EnumType.STRING)
   @NotNull
-  @Column(name = "provider_type")
-  private ProviderType providerType;
-
-  @Enumerated(EnumType.STRING)
-  @NotNull
   @Column(name = "account_status")
   private AccountStatus status;
 
-  private AccountInfo(RoleType roleType, ProviderType providerType, AccountStatus status) {
+  private AccountInfo(RoleType roleType, AccountStatus status) {
     this.roleType = roleType;
-    this.providerType = providerType;
     this.status = status;
   }
 
-  public static AccountInfo of(RoleType roleType, ProviderType providerType, AccountStatus status) {
-    return new AccountInfo(roleType, providerType, status);
+  public static AccountInfo of(RoleType roleType, AccountStatus status) {
+    return new AccountInfo(roleType, status);
   }
 
   public static AccountInfo empty() {
-    return new AccountInfo(RoleType.GUEST, ProviderType.LOCAL, AccountStatus.TEMPORARY);
+    return new AccountInfo(RoleType.GUEST, AccountStatus.TEMPORARY);
   }
+
 
   public void updateStatus(AccountStatus accountStatus) {
     this.status = accountStatus;
@@ -71,5 +59,4 @@ public class AccountInfo extends BaseEntity {
   public boolean isAccountTemporary() {
     return this.status.equals(AccountStatus.TEMPORARY);
   }
-
 }

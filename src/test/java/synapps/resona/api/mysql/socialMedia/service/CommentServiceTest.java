@@ -55,7 +55,6 @@ class CommentServiceTest extends IntegrationTestSupport {
   void setUp() {
     AccountInfo accountInfo = AccountInfo.of(
         RoleType.USER,
-        synapps.resona.api.oauth.entity.ProviderType.LOCAL,
         AccountStatus.ACTIVE
     );
     member = Member.of(

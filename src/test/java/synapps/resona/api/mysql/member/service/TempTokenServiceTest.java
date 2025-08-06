@@ -51,7 +51,7 @@ class TempTokenServiceTest extends IntegrationTestSupport {
   @BeforeEach
   void setUp() {
     testEmail = "test@example.com";
-    testAccountInfo = AccountInfo.of(RoleType.GUEST, ProviderType.LOCAL, AccountStatus.TEMPORARY);
+    testAccountInfo = AccountInfo.of(RoleType.GUEST, AccountStatus.TEMPORARY);
     MemberDetails emptyMemberDetails = MemberDetails.empty();
     Profile emptyProfile = Profile.empty();
     testMember = Member.of(testAccountInfo, emptyMemberDetails, emptyProfile, testEmail,
