@@ -128,14 +128,29 @@ public class SwaggerConfig {
     String statusCode = String.valueOf(successCode.getStatusCode());
     String successCodeName = successCodeSpec.code();
 
-    Object exampleData;
-    if (successCodeSpec.listElementClass() != Void.class) {
-      exampleData = List.of(
+    Map<String, Object> responseExampleMap = new LinkedHashMap<>();
+    Object dataExample;
+
+    if (successCodeSpec.cursor()) {
+      // 커서 기반 응답일 경우, data는 'values', 'hasNext', 'cursor'를 포함하는 객체입니다.
+      Map<String, Object> cursorData = new LinkedHashMap<>();
+      List<Object> listData = List.of(
           createExampleData(successCodeSpec.listElementClass(), 0),
           createExampleData(successCodeSpec.listElementClass(), 0)
       );
+      cursorData.put("values", listData);
+      cursorData.put("hasNext", true);
+      cursorData.put("cursor", "a2V5XzE3MjMwNTAzOTU2NDdfNA=="); // Base64 인코딩된 커서 예시
+      dataExample = cursorData;
     } else {
-      exampleData = createExampleData(successCodeSpec.responseClass(), 0);
+      if (successCodeSpec.listElementClass() != Void.class) {
+        dataExample = List.of(
+            createExampleData(successCodeSpec.listElementClass(), 0),
+            createExampleData(successCodeSpec.listElementClass(), 0)
+        );
+      } else {
+        dataExample = createExampleData(successCodeSpec.responseClass(), 0);
+      }
     }
 
     Map<String, Object> metaMap = new LinkedHashMap<>();
@@ -147,36 +162,46 @@ public class SwaggerConfig {
     metaMap.put("serverName", "resona-api");
     metaMap.put("requestId", UUID.randomUUID().toString());
 
-    if (successCodeSpec.cursor()) {
-      metaMap.put("cursor", "string");
-      metaMap.put("size", 10);
-      metaMap.put("hasNext", true);
-    }
-
-    Map<String, Object> responseExampleMap = new LinkedHashMap<>();
     responseExampleMap.put("meta", metaMap);
-    responseExampleMap.put("data", exampleData);
+    responseExampleMap.put("data", dataExample);
 
     Example example = new Example();
     example.setSummary(successCode.getMessage());
     example.setValue(responseExampleMap);
 
-    String schemaRef = successCodeSpec.cursor() ? "#/components/schemas/CursorSuccessResponse" : "#/components/schemas/SuccessResponse";
 
-    MediaType mediaType = new MediaType();
-    mediaType.setSchema(new Schema<>().$ref(schemaRef));
+    ApiResponses apiResponses = operation.getResponses();
+    if (apiResponses == null) {
+      apiResponses = new ApiResponses();
+      operation.setResponses(apiResponses);
+    }
+
+    // ApiResponse가 없으면 생성
+    ApiResponse apiResponse = apiResponses.computeIfAbsent(statusCode, k -> new ApiResponse().description(successCode.getMessage()));
+
+    // Content가 없으면 생성
+    Content content = apiResponse.getContent();
+    if (content == null) {
+      content = new Content();
+      apiResponse.setContent(content);
+    }
+
+    // MediaType이 없으면 생성
+    MediaType mediaType = content.computeIfAbsent("application/json", k -> new MediaType());
+
+    // 스키마가 설정되지 않았다면 설정
+    if (mediaType.getSchema() == null) {
+      String schemaRef = successCodeSpec.cursor()
+          ? "#/components/schemas/CursorSuccessResponse"
+          : "#/components/schemas/SuccessResponse";
+      mediaType.setSchema(new Schema<>().$ref(schemaRef));
+    }
+
     mediaType.addExamples(successCodeName, example);
 
-    Content content = new Content().addMediaType("application/json", mediaType);
-
-    ApiResponse newApiResponse = new ApiResponse()
-        .description(successCode.getMessage())
-        .content(content);
-
-    operation.getResponses().addApiResponse(statusCode, newApiResponse);
-
-    if (statusCode.equals("201")) {
-      operation.getResponses().remove("200");
+    // 불필요한 기본 응답 코드(200) 제거
+    if (statusCode.equals("201") || statusCode.equals("204")) {
+      apiResponses.remove("200");
     }
   }
 

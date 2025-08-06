@@ -85,7 +85,7 @@ public class FeedController {
   }
 
   @Operation(summary = "전체 피드 목록 조회 (커서 기반)", description = "전체 피드 목록을 커서 기반 페이징으로 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_FEEDS_SUCCESS", cursor = true, listElementClass = FeedReadResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_FEEDS_SUCCESS", cursor = true, listElementClass = FeedDto.class))
   @GetMapping("/feeds")
   public ResponseEntity<SuccessResponse<CursorResult<FeedDto>>> readFeedByCursor(HttpServletRequest request,
       @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal userPrincipal,
@@ -99,22 +99,22 @@ public class FeedController {
         .body(SuccessResponse.of(SocialSuccessCode.GET_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), feeds, feeds.getCursor(), size, feeds.isHasNext()));
   }
 
-  @Operation(summary = "특정 사용자 피드 목록 조회", description = "특정 사용자의 모든 피드 목록을 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_MEMBER_FEEDS_SUCCESS", listElementClass = FeedWithMediaDto.class))
-  @ApiErrorSpec(@ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"MEMBER_NOT_FOUND"}))
-  @GetMapping("/feeds/member/{memberId}")
-  public ResponseEntity<SuccessResponse<List<FeedWithMediaDto>>> readFeedsByMember(HttpServletRequest request,
-      @Parameter(description = "피드 목록을 조회할 사용자의 ID", required = true) @PathVariable Long memberId) {
-    List<FeedWithMediaDto> response = feedService.getFeedsWithMediaAndLikeCount(memberId);
-    return ResponseEntity
-        .status(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS.getStatus())
-        .body(SuccessResponse.of(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), response));
-  }
+//  @Operation(summary = "특정 사용자 피드 목록 조회", description = "특정 사용자의 모든 피드 목록을 조회합니다.")
+//  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_MEMBER_FEEDS_SUCCESS", listElementClass = FeedWithMediaDto.class))
+//  @ApiErrorSpec(@ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"MEMBER_NOT_FOUND"}))
+//  @GetMapping("/feeds/member/{memberId}")
+//  public ResponseEntity<SuccessResponse<List<FeedWithMediaDto>>> readFeedsByMember(HttpServletRequest request,
+//      @Parameter(description = "피드 목록을 조회할 사용자의 ID", required = true) @PathVariable Long memberId) {
+//    List<FeedWithMediaDto> response = feedService.getFeedsWithMediaAndLikeCount(memberId);
+//    return ResponseEntity
+//        .status(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS.getStatus())
+//        .body(SuccessResponse.of(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), response));
+//  }
 
   @Operation(summary = "특정 사용자 피드 목록 조회 (커서 기반)", description = "특정 사용자의 피드 목록을 커서 기반 페이징으로 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_MEMBER_FEEDS_SUCCESS", cursor = true, listElementClass = FeedReadResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_MEMBER_FEEDS_SUCCESS", cursor = true, listElementClass = FeedDto.class))
   @ApiErrorSpec(@ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"MEMBER_NOT_FOUND"}))
-  @GetMapping("/feeds/member/{memberId}/cursor")
+  @GetMapping("/feeds/member/{targetMemberId}/cursor")
   public ResponseEntity<SuccessResponse<CursorResult<FeedDto>>> readFeedsByMemberWithCursor(HttpServletRequest request,
       @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal userPrincipal,
       @Parameter(description = "피드 목록을 조회할 사용자의 ID", required = true) @PathVariable Long targetMemberId,
