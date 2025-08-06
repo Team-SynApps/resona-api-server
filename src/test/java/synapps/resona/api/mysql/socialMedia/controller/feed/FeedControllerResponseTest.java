@@ -11,14 +11,18 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import synapps.resona.api.config.WithMockUserPrincipal;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.mysql.socialMedia.dto.feed.FeedWithMediaDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRegistrationRequest;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRequest;
 import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedUpdateRequest;
+import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedDto;
+import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedMemberDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedReadResponse;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedResponse;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
@@ -30,6 +34,7 @@ import java.util.List;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -39,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(
     controllers = FeedController.class,
     excludeAutoConfiguration = {
-        SecurityAutoConfiguration.class,
+//        SecurityAutoConfiguration.class,
         OAuth2ClientAutoConfiguration.class
     }
 )
@@ -64,8 +69,22 @@ class FeedControllerResponseTest {
     given(serverInfo.getServerName()).willReturn("test-server");
   }
 
+  private FeedDto createFeedDto(Long id, String content, LocalDateTime createdAt) {
+    FeedMemberDto memberDto = FeedMemberDto.of(100L, "test_user", "url");
+
+    return FeedDto.builder()
+        .feedId(id)
+        .content(content)
+        .member(memberDto)
+        .likeCount(5)
+        .totalCommentCount(3)
+        .createdAt(createdAt)
+        .build();
+  }
+
   @Test
   @DisplayName("피드 등록 성공 시, 등록된 FeedResponse를 반환한다")
+  @WithMockUserPrincipal
   void registerFeed_success() throws Exception {
     // given
     FeedRegistrationRequest requestDto = new FeedRegistrationRequest(List.of(), new FeedRequest());
@@ -75,6 +94,7 @@ class FeedControllerResponseTest {
 
     // when
     ResultActions actions = mockMvc.perform(post("/feed")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(requestDto)));
 
@@ -88,6 +108,7 @@ class FeedControllerResponseTest {
 
   @Test
   @DisplayName("피드 단건 조회 성공 시, FeedReadResponse를 반환한다")
+  @WithMockUserPrincipal(memberId = 100L)
   void readFeed_success() throws Exception {
     // given
     Long feedId = 1L;
@@ -107,20 +128,24 @@ class FeedControllerResponseTest {
   }
 
   @Test
-  @DisplayName("전체 피드 커서 기반 조회 성공 시, CursorResult를 반환한다")
+  @DisplayName("전체 피드 커서 기반 조회 성공 시, CursorResult를 포함한 SuccessResponse를 반환한다")
+  @WithMockUserPrincipal(memberId = 100L)
   void readFeedByCursor_success() throws Exception {
     // given
-    List<FeedReadResponse> feedList = List.of(
-        FeedReadResponse.builder().id("2").content("Feed 2").build(),
-        FeedReadResponse.builder().id("1").content("Feed 1").build()
+    LocalDateTime now = LocalDateTime.now();
+    List<FeedDto> feedList = List.of(
+        createFeedDto(2L, "Feed 2", now.minusHours(1)),
+        createFeedDto(1L, "Feed 1", now.minusHours(2))
     );
-    String nextCursor = LocalDateTime.now().toString();
-    CursorResult<FeedReadResponse> cursorResult = new CursorResult<>(feedList, true, nextCursor);
-    given(feedService.getFeedsByCursor(any(), anyInt())).willReturn(cursorResult);
+    String nextCursor = now.minusHours(2).toString();
+    CursorResult<FeedDto> cursorResult = new CursorResult<>(feedList, true, nextCursor);
+
+    given(feedService.getFeedsByCursor(anyLong(), any(), anyInt())).willReturn(cursorResult);
 
     // when
     ResultActions actions = mockMvc.perform(get("/feeds")
         .param("size", "2")
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON));
 
     // then
@@ -128,15 +153,16 @@ class FeedControllerResponseTest {
         .andExpect(jsonPath("$.meta.status").value(200))
         .andExpect(jsonPath("$.meta.cursor").value(nextCursor))
         .andExpect(jsonPath("$.meta.hasNext").value(true))
-        // Controller에서 List.of()로 한번 더 감싸므로 data[0]에 리스트가 들어감
         .andExpect(jsonPath("$.data.values").isArray())
         .andExpect(jsonPath("$.data.values.length()").value(2))
-        .andExpect(jsonPath("$.data.values[0].id").value("2"))
+        .andExpect(jsonPath("$.data.values[0].feedId").value(2))
+        .andExpect(jsonPath("$.data.values[0].content").value("Feed 2"))
         .andDo(print());
   }
 
   @Test
   @DisplayName("특정 멤버의 피드 목록 조회 성공 시, FeedWithMediaDto 리스트를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L, email = "test@example.com")
   void readFeedsByMember_success() throws Exception {
     // given
     Long memberId = 123L;
@@ -158,6 +184,7 @@ class FeedControllerResponseTest {
 
   @Test
   @DisplayName("피드 수정 성공 시, 수정된 FeedResponse를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L, email = "test@example.com")
   void editFeed_success() throws Exception {
     // given
     Long feedId = 1L;
@@ -167,6 +194,7 @@ class FeedControllerResponseTest {
 
     // when
     ResultActions actions = mockMvc.perform(put("/feed/{feedId}", feedId)
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(requestDto)));
 
@@ -180,6 +208,7 @@ class FeedControllerResponseTest {
 
   @Test
   @DisplayName("피드 삭제 성공 시, 삭제 처리된 Feed 엔티티를 반환한다")
+  @WithMockUserPrincipal(memberId = 1L, email = "test@example.com")
   void deleteFeed_success() throws Exception {
     // given
     Long feedId = 1L;
@@ -190,6 +219,7 @@ class FeedControllerResponseTest {
 
     // when
     ResultActions actions = mockMvc.perform(delete("/feed/{feedId}", feedId)
+        .with(csrf())
         .contentType(MediaType.APPLICATION_JSON));
 
     // then
