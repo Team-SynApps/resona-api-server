@@ -21,7 +21,7 @@ public class MemberInfoDto {
   private String roleType;
   private String accountStatus;
   private String lastAccessedAt;
-  private String providerType;
+//  private String providerType;
 
   // Member Details
   private Integer timezone;
@@ -58,7 +58,6 @@ public class MemberInfoDto {
     public MemberInfoDtoBuilder applyAccountInfo(AccountInfo info) {
       this.roleType = safeToString(info != null ? info.getRoleType() : null);
       this.accountStatus = safeToString(info != null ? info.getStatus() : null);
-      this.providerType = safeToString(info != null ? info.getProviderType() : null);
       return this;
     }
 

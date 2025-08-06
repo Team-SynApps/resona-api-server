@@ -48,12 +48,10 @@ class MemberServiceTest extends IntegrationTestSupport {
   void setUp() {
     AccountInfo accountInfo = AccountInfo.of(
         RoleType.USER,
-        ProviderType.LOCAL,
         AccountStatus.ACTIVE
     );
     AccountInfo tempAccountInfo = AccountInfo.of(
         RoleType.GUEST,
-        ProviderType.LOCAL,
         AccountStatus.TEMPORARY
     );
 
@@ -86,7 +84,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     Member member = memberRepository.findByEmailWithAccountInfo(email)
         .orElseThrow(() -> new RuntimeException("테스트 유저 '" + email + "'를 찾을 수 없습니다."));
 
-    UserPrincipal principal = UserPrincipal.create(member, member.getAccountInfo());
+    UserPrincipal principal = UserPrincipal.create(member);
 
     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
         principal, null, principal.getAuthorities());

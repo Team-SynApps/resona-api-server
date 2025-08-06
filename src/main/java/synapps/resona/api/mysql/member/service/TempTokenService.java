@@ -43,7 +43,6 @@ public class TempTokenService {
     if (!memberRepository.existsByEmail(email)) {
       AccountInfo accountInfo = AccountInfo.of(
           RoleType.GUEST,
-          ProviderType.LOCAL,
           AccountStatus.TEMPORARY
       );
 

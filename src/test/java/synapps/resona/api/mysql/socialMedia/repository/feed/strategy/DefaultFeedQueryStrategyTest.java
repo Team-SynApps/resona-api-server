@@ -216,7 +216,7 @@ class DefaultFeedQueryStrategyTest {
 
 
   private Member createAndPersistMember(String email, String nickname) {
-    AccountInfo accountInfo = AccountInfo.of(RoleType.USER, ProviderType.LOCAL, AccountStatus.ACTIVE);
+    AccountInfo accountInfo = AccountInfo.of(RoleType.USER, AccountStatus.ACTIVE);
     MemberDetails memberDetails = MemberDetails.empty();
     Profile profile = Profile.of(CountryCode.KR, CountryCode.KR, Set.of(Language.KOREAN), Collections.emptySet(), nickname, "tag_" + nickname, "", "2000-01-01");
     Member member = Member.of(accountInfo, memberDetails, profile, email, "password", LocalDateTime.now());

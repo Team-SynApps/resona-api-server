@@ -1,6 +1,5 @@
 package synapps.resona.api.oauth.service;
 
-
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
@@ -10,15 +9,18 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.mysql.member.entity.account.AccountInfo;
 import synapps.resona.api.mysql.member.entity.account.AccountStatus;
 import synapps.resona.api.mysql.member.entity.account.RoleType;
 import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.mysql.member.entity.member.MemberProvider;
+import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
+import synapps.resona.api.mysql.member.entity.profile.Profile;
+import synapps.resona.api.mysql.member.repository.member.MemberProviderRepository;
 import synapps.resona.api.mysql.member.repository.member.MemberRepository;
-import synapps.resona.api.mysql.token.AuthTokenProvider;
 import synapps.resona.api.oauth.entity.ProviderType;
 import synapps.resona.api.oauth.entity.UserPrincipal;
-import synapps.resona.api.oauth.exception.OAuthException;
 import synapps.resona.api.oauth.info.OAuth2UserInfo;
 import synapps.resona.api.oauth.info.OAuth2UserInfoFactory;
 
@@ -28,12 +30,12 @@ import synapps.resona.api.oauth.info.OAuth2UserInfoFactory;
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
   private final MemberRepository memberRepository;
-  private final AuthTokenProvider tokenProvider;
+  private final MemberProviderRepository memberProviderRepository; // Repository 주입
 
   @Override
+  @Transactional
   public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
     OAuth2User user = super.loadUser(userRequest);
-
     try {
       return this.process(userRequest, user);
     } catch (AuthenticationException ex) {
@@ -54,105 +56,53 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         user.getAttributes()
     );
 
-    Member savedMember = memberRepository.findWithAccountInfoByEmail(userInfo.getEmail())
+    // 이메일로 기존 회원 조회
+    Member savedMember = memberRepository.findByEmail(userInfo.getEmail())
         .orElse(null);
-    if (savedMember == null) {
+
+    if (savedMember != null) {
+      // 기존 회원이 존재하면, 현재 소셜 제공자 정보가 이미 연결되어 있는지 확인
+      Member finalSavedMember = savedMember;
+      memberProviderRepository.findByMemberAndProviderType(savedMember, providerType)
+          .orElseGet(() -> {
+            // 연결되어 있지 않다면 새로 연결
+            MemberProvider newProvider = MemberProvider.of(finalSavedMember, providerType, userInfo.getId());
+            return memberProviderRepository.save(newProvider);
+          });
+    } else {
+      // 신규 회원이면 Member와 관련 엔티티들 생성
       savedMember = createMember(userInfo, providerType);
     }
 
-    AccountInfo accountInfo = savedMember.getAccountInfo();
-
-    // TODO: Hard coded with providertype google cause we use only google login in oauth. Need to refactor.
-    if (accountInfo.getProviderType() != ProviderType.GOOGLE) {
-      throw OAuthException.OAuthProviderMissMatch(accountInfo.getProviderType());
-    }
-
-    if (providerType != accountInfo.getProviderType()) {
-      throw OAuthException.OAuthProviderMissMatch(accountInfo.getProviderType());
-    }
-
-    return UserPrincipal.create(savedMember, accountInfo, user.getAttributes());
+    // UserPrincipal 생성 시 providerType을 직접 전달
+    return UserPrincipal.create(savedMember, providerType, user.getAttributes());
   }
 
   private Member createMember(OAuth2UserInfo userInfo, ProviderType providerType) {
     LocalDateTime now = LocalDateTime.now();
 
+    // AccountInfo 생성
     AccountInfo newAccountInfo = AccountInfo.of(
         RoleType.USER,
-        providerType,
         AccountStatus.TEMPORARY
     );
+    Profile newProfile = Profile.empty();
+    MemberDetails newMemberDetails = MemberDetails.empty();
 
-    Member member = Member.of(
+    Member newMember = Member.of(
         newAccountInfo,
-        userInfo.getEmail(),       // email
-        "",                         // password
-        now                        // lastAccessedAt
+        newMemberDetails,
+        newProfile,
+        userInfo.getEmail(),
+        "", // 소셜 로그인은 비밀번호 없음
+        LocalDateTime.now()
     );
-    member = memberRepository.saveAndFlush(member);
 
-    return member;
+
+    // MemberProvider 생성 및 Member에 연결
+    MemberProvider newProvider = MemberProvider.of(newMember, providerType, userInfo.getId());
+    newMember.addProvider(newProvider);
+
+    return memberRepository.saveAndFlush(newMember);
   }
-
-//    private OAuth2User processAppleUser(OAuth2UserRequest userRequest, OAuth2User user) {
-//        try {
-//            // ID 토큰 검증
-//            String idToken = userRequest.getAdditionalParameters().get("id_token").toString();
-//            if (!tokenProvider.validateAppleToken(idToken)) {
-//                throw new OAuth2AuthenticationException("Invalid Apple ID token");
-//            }
-//
-//            // Apple은 첫 로그인 시에만 사용자 정보를 제공하므로 이를 처리
-//            Map<String, Object> attributes = user.getAttributes();
-//            String email = (String) attributes.get("email");
-//
-//            // 이메일로 기존 회원 조회
-//            Member savedMember = memberRepository.findByEmail(email).orElse(null);
-//
-//            if (savedMember != null) {
-//                // 기존 회원의 경우 프로바이더 타입 확인
-//                if (ProviderType.APPLE != savedMember.getProviderType()) {
-//                    throw new OAuthProviderMissMatchException(
-//                            "Looks like you're signed up with " + ProviderType.APPLE +
-//                                    " account. Please use your " + savedMember.getProviderType() + " account to login."
-//                    );
-//                }
-//
-//                // 사용자 정보 업데이트 (첫 로그인 시에만 제공되는 정보)
-//                Map<String, Object> userAttributes =
-//                        (Map<String, Object>) userRequest.getAdditionalParameters().get("user");
-//                if (userAttributes != null && userAttributes.containsKey("name")) {
-//                    Map<String, String> name = (Map<String, String>) userAttributes.get("name");
-//                    String fullName = name.getOrDefault("firstName", "") +
-//                            " " +
-//                            name.getOrDefault("lastName", "");
-//                    if (!fullName.trim().isEmpty()) {
-//                        savedMember.setUserNickname(fullName);
-//                        memberRepository.save(savedMember);
-//                    }
-//                }
-//            } else {
-//                // 새로운 회원 생성
-//                Map<String, Object> userAttributes =
-//                        (Map<String, Object>) userRequest.getAdditionalParameters().get("user");
-//
-//                // 기본 사용자 정보 설정
-//                Map<String, Object> finalAttributes = new HashMap<>(attributes);
-//                if (userAttributes != null && userAttributes.containsKey("name")) {
-//                    finalAttributes.put("name", userAttributes.get("name"));
-//                }
-//
-//                OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(
-//                        ProviderType.APPLE,
-//                        finalAttributes
-//                );
-//                savedMember = createMember(userInfo, ProviderType.APPLE);
-//            }
-//
-//            return UserPrincipal.create(savedMember, attributes);
-//
-//        } catch (Exception ex) {
-//            throw new OAuth2AuthenticationException(ex.getMessage());
-//        }
-//    }
 }

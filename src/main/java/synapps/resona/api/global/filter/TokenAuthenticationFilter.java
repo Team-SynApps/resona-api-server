@@ -18,23 +18,20 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.response.ErrorResponse;
-import synapps.resona.api.global.error.GlobalErrorCode;
 import synapps.resona.api.global.utils.HeaderUtil;
 import synapps.resona.api.mysql.member.code.AuthErrorCode;
-import synapps.resona.api.mysql.member.entity.account.AccountInfo; // Import 추가
-import synapps.resona.api.mysql.member.entity.member.Member; // Import 추가
+import synapps.resona.api.mysql.member.entity.member.Member;
 import synapps.resona.api.mysql.member.exception.MemberException;
-import synapps.resona.api.mysql.member.repository.member.MemberRepository; // Import 추가
+import synapps.resona.api.mysql.member.repository.member.MemberRepository;
 import synapps.resona.api.mysql.token.AuthToken;
 import synapps.resona.api.mysql.token.AuthTokenProvider;
-import synapps.resona.api.oauth.entity.UserPrincipal; // Import 추가
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
@@ -80,11 +77,10 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
           Claims claims = token.getTokenClaims();
           String email = claims.getSubject();
 
-          Member member = memberRepository.findByEmailWithAccountInfo(email)
+          Member member = memberRepository.findWithAccountInfoByEmail(email)
               .orElseThrow(MemberException::memberNotFound);
-          AccountInfo accountInfo = member.getAccountInfo();
 
-          UserPrincipal userPrincipal = UserPrincipal.create(member, accountInfo);
+          UserPrincipal userPrincipal = UserPrincipal.create(member);
 
           Authentication authentication = new UsernamePasswordAuthenticationToken(
               userPrincipal,
@@ -120,7 +116,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
       if (!request.getRequestURI().equals("/api/v1/actuator/prometheus")) {
         logger.warn("No token found in request headers, uri: {}", request.getRequestURI());
       }
-      // SecurityContextHolder.clearContext(); // 주석 처리 또는 제거: 토큰이 없을 때 익명 사용자로 처리되도록 함
     }
 
     filterChain.doFilter(request, response);
