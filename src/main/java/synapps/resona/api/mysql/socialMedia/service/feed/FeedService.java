@@ -70,6 +70,7 @@ public class FeedService {
     return FeedReadResponse.from(feed);
   }
 
+  @Transactional(readOnly = true)
   public CursorResult<FeedDto> getFeedsByCursorAndMemberId(Long viewerId, Long targetMemberId, String cursor, int size) {
     Pageable pageable = PageRequest.of(0, size + 1);
 
@@ -88,6 +89,7 @@ public class FeedService {
   }
 
 
+  @Transactional(readOnly = true)
   public List<FeedWithMediaDto> getFeedsWithMediaAndLikeCount(Long memberId) {
     List<Feed> feeds = feedRepository.findFeedsWithImagesByMemberId(memberId);
     Map<Long, Integer> likeCountMap = feedRepository.countLikesByMemberId(memberId).stream()
@@ -108,7 +110,7 @@ public class FeedService {
         .toList();
   }
 
-
+  @Transactional(readOnly = true)
   public CursorResult<FeedDto> getFeedsByCursor(Long viewerId, String cursor, int size) {
     Pageable pageable = PageRequest.of(0, size + 1);
 

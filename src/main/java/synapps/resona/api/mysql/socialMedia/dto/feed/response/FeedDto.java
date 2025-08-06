@@ -1,5 +1,6 @@
 package synapps.resona.api.mysql.socialMedia.dto.feed.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,7 +8,6 @@ import lombok.Builder;
 import lombok.Getter;
 import synapps.resona.api.mysql.socialMedia.dto.media.FeedMediaDto;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
-import synapps.resona.api.mysql.socialMedia.entity.media.FeedMedia;
 
 @Getter
 @Builder
@@ -20,6 +20,8 @@ public class FeedDto {
   private final int likeCount;
   private final List<FeedMediaDto> images;
   private final int totalCommentCount;
+
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private final LocalDateTime createdAt;
 
   public static FeedDto from(FeedWithCountsDto dto) {
