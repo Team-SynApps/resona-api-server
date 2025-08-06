@@ -25,7 +25,9 @@ import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedMemberDto;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedReadResponse;
 import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedResponse;
+import synapps.resona.api.mysql.socialMedia.dto.media.FeedMediaDto;
 import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
+import synapps.resona.api.mysql.socialMedia.entity.media.FeedMedia;
 import synapps.resona.api.mysql.socialMedia.service.feed.FeedService;
 
 import java.time.LocalDateTime;
@@ -71,11 +73,16 @@ class FeedControllerResponseTest {
 
   private FeedDto createFeedDto(Long id, String content, LocalDateTime createdAt) {
     FeedMemberDto memberDto = FeedMemberDto.of(100L, "test_user", "url");
+    List<FeedMediaDto> images = List.of(
+        FeedMediaDto.of(1L, "test-url1"),
+        FeedMediaDto.of(2L, "test-url2"),
+        FeedMediaDto.of(3L, "test-url3"));
 
     return FeedDto.builder()
         .feedId(id)
         .content(content)
         .member(memberDto)
+        .images(images)
         .likeCount(5)
         .totalCommentCount(3)
         .createdAt(createdAt)

@@ -16,6 +16,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLRestriction;
 import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.mysql.member.entity.member.Member;
@@ -40,6 +41,7 @@ public class Feed extends BaseEntity {
   @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
   private final List<Likes> likes = new ArrayList<>();
 
+  @BatchSize(size = 100)
   @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
   private final List<FeedMedia> images = new ArrayList<>();
 
