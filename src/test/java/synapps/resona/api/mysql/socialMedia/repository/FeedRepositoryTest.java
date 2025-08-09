@@ -17,21 +17,19 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.config.TestQueryDslConfig;
-import synapps.resona.api.global.config.database.QueryDslConfig;
-import synapps.resona.api.mysql.member.entity.account.AccountInfo;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.member_details.MBTI;
-import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
-import synapps.resona.api.mysql.member.entity.profile.CountryCode;
-import synapps.resona.api.mysql.member.entity.profile.Language;
-import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.member.repository.member.MemberRepository;
-import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
-import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
-import synapps.resona.api.mysql.socialMedia.repository.comment.CommentRepository;
-import synapps.resona.api.mysql.socialMedia.repository.feed.FeedRepository;
+import synapps.resona.api.member.entity.account.AccountInfo;
+import synapps.resona.api.member.entity.member.Member;
+import synapps.resona.api.member.entity.member_details.MBTI;
+import synapps.resona.api.member.entity.member_details.MemberDetails;
+import synapps.resona.api.member.entity.profile.CountryCode;
+import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.member.entity.profile.Profile;
+import synapps.resona.api.member.repository.member.MemberRepository;
+import synapps.resona.api.socialMedia.entity.comment.Comment;
+import synapps.resona.api.socialMedia.entity.feed.Feed;
+import synapps.resona.api.socialMedia.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.repository.feed.FeedRepository;
 
 @Transactional
 @DataJpaTest

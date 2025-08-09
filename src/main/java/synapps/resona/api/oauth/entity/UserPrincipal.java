@@ -13,9 +13,9 @@ import org.springframework.security.oauth2.core.oidc.OidcIdToken;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.core.user.OAuth2User;
-import synapps.resona.api.mysql.member.entity.account.AccountInfo;
-import synapps.resona.api.mysql.member.entity.account.RoleType;
-import synapps.resona.api.mysql.member.entity.member.Member;
+import synapps.resona.api.member.entity.account.AccountInfo;
+import synapps.resona.api.member.entity.account.RoleType;
+import synapps.resona.api.member.entity.member.Member;
 
 @Getter
 @Setter

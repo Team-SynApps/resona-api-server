@@ -15,10 +15,11 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.mysql.member.dto.response.MemberDto;
-import synapps.resona.api.mysql.socialMedia.dto.like.request.LikeRequest;
-import synapps.resona.api.mysql.socialMedia.dto.like.response.LikeResponse;
-import synapps.resona.api.mysql.socialMedia.service.feed.LikeService;
+import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.socialMedia.controller.feed.LikeController;
+import synapps.resona.api.socialMedia.dto.like.request.LikeRequest;
+import synapps.resona.api.socialMedia.dto.like.response.LikeResponse;
+import synapps.resona.api.socialMedia.service.feed.LikeService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;

@@ -5,7 +5,7 @@ import java.security.PublicKey;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import synapps.resona.api.mysql.member.dto.response.OAuthPlatformMemberResponse;
+import synapps.resona.api.member.dto.response.OAuthPlatformMemberResponse;
 
 @Component
 @RequiredArgsConstructor

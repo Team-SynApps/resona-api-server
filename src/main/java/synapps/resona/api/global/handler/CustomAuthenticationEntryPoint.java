@@ -14,8 +14,7 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.code.ErrorCode;
-import synapps.resona.api.global.error.GlobalErrorCode;
-import synapps.resona.api.mysql.member.code.AuthErrorCode;
+import synapps.resona.api.member.code.AuthErrorCode;
 
 // @Component 어노테이션을 추가하여 Bean으로 등록합니다.
 @Component

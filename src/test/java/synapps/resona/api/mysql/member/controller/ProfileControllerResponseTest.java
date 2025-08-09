@@ -14,14 +14,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.mysql.member.dto.request.profile.DuplicateTagRequest;
-import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
-import synapps.resona.api.mysql.member.dto.response.ProfileResponse;
-import synapps.resona.api.mysql.member.entity.profile.CountryCode;
-import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.member.service.ProfileService;
-import synapps.resona.api.mysql.member.entity.profile.Language;
-import synapps.resona.api.mysql.member.entity.profile.Gender;
+import synapps.resona.api.member.controller.ProfileController;
+import synapps.resona.api.member.dto.request.profile.DuplicateTagRequest;
+import synapps.resona.api.member.dto.request.profile.ProfileRequest;
+import synapps.resona.api.member.dto.response.ProfileResponse;
+import synapps.resona.api.member.entity.profile.CountryCode;
+import synapps.resona.api.member.entity.profile.Profile;
+import synapps.resona.api.member.service.ProfileService;
+import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.member.entity.profile.Gender;
 
 import java.util.Set;
 

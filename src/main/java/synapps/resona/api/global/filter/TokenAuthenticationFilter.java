@@ -25,12 +25,12 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.utils.HeaderUtil;
-import synapps.resona.api.mysql.member.code.AuthErrorCode;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.exception.MemberException;
-import synapps.resona.api.mysql.member.repository.member.MemberRepository;
-import synapps.resona.api.mysql.token.AuthToken;
-import synapps.resona.api.mysql.token.AuthTokenProvider;
+import synapps.resona.api.member.code.AuthErrorCode;
+import synapps.resona.api.member.entity.member.Member;
+import synapps.resona.api.member.exception.MemberException;
+import synapps.resona.api.member.repository.member.MemberRepository;
+import synapps.resona.api.token.AuthToken;
+import synapps.resona.api.token.AuthTokenProvider;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @RequiredArgsConstructor

@@ -13,8 +13,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.mysql.member.dto.response.MemberProfileDto;
-import synapps.resona.api.mysql.member.service.FollowService;
+import synapps.resona.api.member.controller.FollowController;
+import synapps.resona.api.member.dto.response.MemberProfileDto;
+import synapps.resona.api.member.service.FollowService;
 
 import java.util.List;
 
