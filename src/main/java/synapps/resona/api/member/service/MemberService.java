@@ -8,6 +8,7 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import synapps.resona.api.member.entity.member.MemberProvider;
 import synapps.resona.api.member.entity.member_details.MemberDetails;
 import synapps.resona.api.member.entity.profile.Language;
 import synapps.resona.api.member.entity.profile.Profile;
+import synapps.resona.api.member.event.MemberUpdatedEvent;
 import synapps.resona.api.member.exception.AccountInfoException;
 import synapps.resona.api.member.exception.MemberException;
 import synapps.resona.api.member.exception.ProfileException;
@@ -40,9 +42,8 @@ public class MemberService {
 
   private final MemberRepository memberRepository;
   private final ProfileRepository profileRepository;
-  private final MemberDetailsRepository memberDetailsRepository;
-  private final AccountInfoRepository accountInfoRepository;
-  private final MemberProviderRepository memberProviderRepository; // Repository 주입
+  private final MemberProviderRepository memberProviderRepository;
+  private final ApplicationEventPublisher eventPublisher;
   private final Logger logger = LogManager.getLogger(MemberService.class);
 
   private static Set<Language> copyToMutableSet(Set<Language> source) {
@@ -114,7 +115,10 @@ public class MemberService {
 
     // 5. 비밀번호 설정 및 저장
     member.encodePassword(request.getPassword());
-    memberRepository.save(member);
+    member = memberRepository.save(member);
+
+    // mongoDB 반영
+    eventPublisher.publishEvent(new MemberUpdatedEvent(member.getId(), profile));
 
     return MemberRegisterResponseDto.from(member, profile, memberDetails);
   }

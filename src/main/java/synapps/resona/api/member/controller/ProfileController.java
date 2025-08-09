@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import synapps.resona.api.global.annotation.ApiErrorSpec;
 import synapps.resona.api.global.annotation.ApiSuccessResponse;
@@ -19,8 +20,10 @@ import synapps.resona.api.member.code.MemberErrorCode;
 import synapps.resona.api.member.code.MemberSuccessCode;
 import synapps.resona.api.member.dto.request.profile.DuplicateTagRequest;
 import synapps.resona.api.member.dto.request.profile.ProfileRequest;
+import synapps.resona.api.member.dto.response.MemberDto;
 import synapps.resona.api.member.dto.response.ProfileResponse;
 import synapps.resona.api.member.service.ProfileService;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Tag(name = "Member Profile", description = "사용자 프로필 관리 API")
 @RestController
@@ -43,8 +46,10 @@ public class ProfileController {
   })
   @PostMapping
   public ResponseEntity<SuccessResponse<ProfileResponse>> registerProfile(HttpServletRequest request,
-      @Valid @RequestBody ProfileRequest profileRequest) {
-    ProfileResponse response = profileService.register(profileRequest);
+      @Valid @RequestBody ProfileRequest profileRequest,
+      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    MemberDto memberInfo = MemberDto.from(userPrincipal);
+    ProfileResponse response = profileService.register(profileRequest, memberInfo);
     return ResponseEntity
         .status(MemberSuccessCode.REGISTER_PROFILE_SUCCESS.getStatus())
         .body(SuccessResponse.of(MemberSuccessCode.REGISTER_PROFILE_SUCCESS, createRequestInfo(request.getRequestURI()), response));
@@ -57,8 +62,11 @@ public class ProfileController {
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @GetMapping
-  public ResponseEntity<SuccessResponse<ProfileResponse>> readProfile(HttpServletRequest request) {
-    ProfileResponse response = profileService.readProfile();
+  public ResponseEntity<SuccessResponse<ProfileResponse>> readProfile(
+      HttpServletRequest request,
+      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    MemberDto memberInfo = MemberDto.from(userPrincipal);
+    ProfileResponse response = profileService.readProfile(memberInfo);
     return ResponseEntity
         .status(MemberSuccessCode.GET_PROFILE_SUCCESS.getStatus())
         .body(SuccessResponse.of(MemberSuccessCode.GET_PROFILE_SUCCESS, createRequestInfo(request.getRequestURI()), response));
@@ -72,8 +80,11 @@ public class ProfileController {
   })
   @PutMapping
   public ResponseEntity<SuccessResponse<ProfileResponse>> editProfile(HttpServletRequest request,
-      @Valid @RequestBody ProfileRequest profileRequest) {
-    ProfileResponse response = profileService.editProfile(profileRequest);
+      @Valid @RequestBody ProfileRequest profileRequest,
+      @AuthenticationPrincipal UserPrincipal userPrincipal
+      ) {
+    MemberDto memberInfo = MemberDto.from(userPrincipal);
+    ProfileResponse response = profileService.editProfile(profileRequest, memberInfo);
     return ResponseEntity
         .status(MemberSuccessCode.EDIT_PROFILE_SUCCESS.getStatus())
         .body(SuccessResponse.of(MemberSuccessCode.EDIT_PROFILE_SUCCESS, createRequestInfo(request.getRequestURI()), response));
@@ -86,8 +97,11 @@ public class ProfileController {
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @DeleteMapping
-  public ResponseEntity<SuccessResponse<Void>> deleteProfile(HttpServletRequest request) {
-    profileService.deleteProfile();
+  public ResponseEntity<SuccessResponse<Void>> deleteProfile(
+      HttpServletRequest request,
+      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+    MemberDto memberInfo = MemberDto.from(userPrincipal);
+    profileService.deleteProfile(memberInfo);
     return ResponseEntity
         .status(MemberSuccessCode.DELETE_PROFILE_SUCCESS.getStatus())
         .body(SuccessResponse.of(MemberSuccessCode.DELETE_PROFILE_SUCCESS, createRequestInfo(request.getRequestURI())));

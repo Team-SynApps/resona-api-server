@@ -1,5 +1,6 @@
 package synapps.resona.api.chat.service;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class ChatService {
     }
 
     // 메시지 생성
-    ChatMessage chatMessage = ChatMessage.createTextMessage(currentMemberId, request.getContent());
+    ChatMessage chatMessage = ChatMessage.createTextMessage(currentMemberId, request.content(), LocalDateTime.now());
 
     // 메시지를 추가할 버킷을 찾거나 새로 생성
     messageBucketRepository.findLatestAvailableBucket(roomId, BUCKET_MAX_SIZE)
@@ -61,7 +62,6 @@ public class ChatService {
 
   @Transactional(readOnly = true)
   public Slice<MessageDto> getMessages(Long roomId, LocalDateTime cursor) {
-    // Pageable 객체에 정렬 기준을 명시적으로 포함
     PageRequest pageable = PageRequest.of(0, PAGE_SIZE, Sort.by(Sort.Direction.DESC, "startTime"));
 
     Slice<MessageBucket> buckets = messageBucketRepository.findMessagesBefore(roomId, cursor, pageable);

@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.member.dto.request.profile.ProfileRequest;
+import synapps.resona.api.member.dto.response.MemberDto;
 import synapps.resona.api.member.dto.response.ProfileResponse;
 import synapps.resona.api.member.entity.account.AccountInfo;
 import synapps.resona.api.member.entity.account.AccountStatus;
@@ -36,6 +37,8 @@ import synapps.resona.api.oauth.entity.UserPrincipal;
 class ProfileServiceTest extends IntegrationTestSupport {
 
   private final String email = "test@resona.com";
+
+  private final MemberDto memberInfo = MemberDto.of(1L, email);
   @Autowired
   private MemberService memberService;
   @Autowired
@@ -113,7 +116,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
         "등록 테스트용 자기소개입니다."
     );
 
-    ProfileResponse result = profileService.register(request);
+    ProfileResponse result = profileService.register(request, memberInfo);
 
     assertThat(result.getNickname()).isEqualTo("등록된닉네임");
     assertThat(result.getNativeLanguages()).containsExactly("KOREAN");
@@ -138,9 +141,9 @@ class ProfileServiceTest extends IntegrationTestSupport {
         "조회 테스트용 자기소개"
     );
 
-    profileService.register(request);
+    profileService.register(request, memberInfo);
 
-    ProfileResponse result = profileService.readProfile();
+    ProfileResponse result = profileService.readProfile(memberInfo);
 
     assertThat(result.getNickname()).isEqualTo("조회용닉네임");
     assertThat(result.getGender()).isEqualTo("WOMAN");
@@ -163,7 +166,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
         "조회 테스트용 자기소개"
     );
 
-    profileService.register(request);
+    profileService.register(request, memberInfo);
 
     ProfileRequest updateRequest = new ProfileRequest(
         "수정된닉네임",
@@ -178,7 +181,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
         "수정된 소개입니다."
     );
 
-    ProfileResponse result = profileService.editProfile(updateRequest);
+    ProfileResponse result = profileService.editProfile(updateRequest, memberInfo);
 
     assertThat(result.getNickname()).isEqualTo("수정된닉네임");
     assertThat(result.getNationality()).isEqualTo("JP");
@@ -205,14 +208,14 @@ class ProfileServiceTest extends IntegrationTestSupport {
         Gender.WOMAN,
         "삭제자기소개"
     );
-    profileService.register(request);
+    profileService.register(request, memberInfo);
 
     // when
-    profileService.deleteProfile();
+    profileService.deleteProfile(memberInfo);
 
     // then
     assertThrows(ProfileException.class, () -> {
-      profileService.readProfile();
+      profileService.readProfile(memberInfo);
     });
   }
 
@@ -232,7 +235,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
         Gender.WOMAN,
         "중복 태그 확인용 프로필"
     );
-    ProfileResponse profileResponse = profileService.register(request);
+    ProfileResponse profileResponse = profileService.register(request, memberInfo);
 
     // when
     boolean result = profileService.checkDuplicateTag(profileResponse.getTag());

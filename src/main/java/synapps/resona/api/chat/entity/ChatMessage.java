@@ -31,16 +31,10 @@ public class ChatMessage {
   /**
    *  텍스트 메시지 생성
    */
-  public static ChatMessage createTextMessage(Long senderId, String content) {
+  public static ChatMessage createTextMessage(Long senderId, String content, LocalDateTime now) {
     return new ChatMessage(
-        ObjectId.get(),
-        senderId,
-        MessageType.TEXT,
-        LocalDateTime.now(),
-        content,
-        null,
-        null,
-        null
+        ObjectId.get(), senderId, MessageType.TEXT, now,
+        content, null, null, null
     );
   }
 

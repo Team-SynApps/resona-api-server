@@ -4,12 +4,15 @@ import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.member.code.MemberErrorCode;
 import synapps.resona.api.member.dto.request.profile.ProfileRequest;
+import synapps.resona.api.member.dto.response.MemberDto;
 import synapps.resona.api.member.dto.response.ProfileResponse;
 import synapps.resona.api.member.entity.profile.Language;
 import synapps.resona.api.member.entity.profile.Profile;
+import synapps.resona.api.member.event.MemberUpdatedEvent;
 import synapps.resona.api.member.exception.InvalidTimeStampException;
 import synapps.resona.api.member.exception.ProfileException;
 import synapps.resona.api.member.repository.member.MemberRepository;
@@ -23,6 +26,7 @@ public class ProfileService {
   private final ProfileRepository profileRepository;
   private final MemberRepository memberRepository;
   private final MemberService memberService;
+  private final ApplicationEventPublisher eventPublisher;
 
   /**
    * Set을 사용하여 받게 되면 불변 컬렉션으로 인지할 수 있게 되어, Hibernate 쪽에 문제가 생길 여지가 있음. 따라서 copyToMutableSet() 을 활용하여
@@ -57,22 +61,21 @@ public class ProfileService {
    * @return
    */
   @Transactional
-  public ProfileResponse register(ProfileRequest request) {
+  public ProfileResponse register(ProfileRequest request, MemberDto memberInfo) {
     validateData(request);
-    String memberEmail = memberService.getMemberEmail();
-    Profile profile = memberRepository.findProfileByEmail(memberEmail)
+    Profile profile = memberRepository.findProfileByEmail(memberInfo.getEmail())
         .orElseThrow(ProfileException::profileNotFound);
     changeProfile(request, profile);
 
     Profile savedProfile = profileRepository.save(profile);
 
+    eventPublisher.publishEvent(new MemberUpdatedEvent(memberInfo.getId(), savedProfile));
     return ProfileResponse.from(savedProfile);
   }
 
   @Transactional
-  public ProfileResponse readProfile() {
-    String memberEmail = memberService.getMemberEmail();
-    Profile profile = memberRepository.findProfileByEmail(memberEmail)
+  public ProfileResponse readProfile(MemberDto memberInfo) {
+    Profile profile = memberRepository.findProfileByEmail(memberInfo.getEmail())
         .orElseThrow(ProfileException::profileNotFound);
 
     return ProfileResponse.from(profile);
@@ -85,10 +88,9 @@ public class ProfileService {
    * @return
    */
   @Transactional
-  public ProfileResponse editProfile(ProfileRequest request) {
+  public ProfileResponse editProfile(ProfileRequest request, MemberDto memberInfo) {
     validateData(request);
-    String memberEmail = memberService.getMemberEmail();
-    Profile profile = memberRepository.findProfileByEmail(memberEmail)
+    Profile profile = memberRepository.findProfileByEmail(memberInfo.getEmail())
         .orElseThrow(ProfileException::profileNotFound);
     changeProfile(request, profile);
 
@@ -99,9 +101,8 @@ public class ProfileService {
    * @return
    */
   @Transactional
-  public Profile deleteProfile() {
-    String memberEmail = memberService.getMemberEmail();
-    Profile profile = memberRepository.findProfileByEmail(memberEmail)
+  public Profile deleteProfile(MemberDto memberInfo) {
+    Profile profile = memberRepository.findProfileByEmail(memberInfo.getEmail())
         .orElseThrow(ProfileException::profileNotFound);
 
     profile.softDelete();

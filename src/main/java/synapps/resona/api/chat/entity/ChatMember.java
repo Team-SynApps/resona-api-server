@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import synapps.resona.api.member.entity.member.Member;
+import synapps.resona.api.member.entity.profile.Profile;
 
 
 @Getter
@@ -27,6 +29,10 @@ public class ChatMember {
 
   public static ChatMember of(Long memberId, String nickname, String profileImageUrl) {
     return new ChatMember(memberId, nickname, profileImageUrl);
+  }
+
+  public static ChatMember from(Long memberId, Profile profile) {
+    return new ChatMember(memberId, profile.getNickname(), profile.getProfileImageUrl());
   }
 
   public void updateProfile(String nickname, String profileImageUrl) {

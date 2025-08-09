@@ -6,7 +6,9 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.annotation.Commit;
+import org.springframework.test.context.jdbc.Sql;
 import synapps.resona.api.IntegrationTestSupport;
+import synapps.resona.api.chat.entity.ChatMember;
+import synapps.resona.api.chat.repository.ChatMemberRepository;
 import synapps.resona.api.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.member.dto.response.MemberRegisterResponseDto;
 import synapps.resona.api.member.entity.account.AccountInfo;
@@ -25,12 +31,13 @@ import synapps.resona.api.member.entity.member_details.MemberDetails;
 import synapps.resona.api.member.entity.profile.CountryCode;
 import synapps.resona.api.member.entity.profile.Language;
 import synapps.resona.api.member.entity.profile.Profile;
+import synapps.resona.api.member.repository.member.MemberProviderRepository;
 import synapps.resona.api.member.repository.member.MemberRepository;
 import synapps.resona.api.member.service.MemberService;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 
 
-@Transactional
+@Sql("/cleanup.sql")
 class MemberServiceTest extends IntegrationTestSupport {
 
   @Autowired
@@ -38,6 +45,12 @@ class MemberServiceTest extends IntegrationTestSupport {
 
   @Autowired
   private MemberRepository memberRepository;
+
+  @Autowired
+  private ChatMemberRepository chatMemberRepository;
+
+  @Autowired
+  private MemberProviderRepository memberProviderRepository;
 
   private Member testMember;
   private Member guestMember;
@@ -91,6 +104,7 @@ class MemberServiceTest extends IntegrationTestSupport {
   }
 
   @Test
+  @Transactional
   @DisplayName("회원 상세 정보를 조회한다.")
   void testGetMemberDetailInfo() {
     // when
@@ -102,6 +116,7 @@ class MemberServiceTest extends IntegrationTestSupport {
   }
 
   @Test
+  @Transactional
   @DisplayName("회원 가입을 한다.")
   void testSignUp() throws Exception {
     // given
@@ -129,13 +144,53 @@ class MemberServiceTest extends IntegrationTestSupport {
   }
 
   @Test
+  @Transactional
   @DisplayName("회원을 삭제한다.")
   void testDeleteUser() {
+    // given
+    String userEmail = testMember.getEmail();
+    setAuthentication(userEmail); // 삭제할 유저로 인증 설정
+
     // when
     Map<String, String> result = memberService.deleteUser();
 
     // then
     assertThat(result).isEqualTo(Map.of("message", "User deleted successfully."));
-    assertThat(testMember.isDeleted()).isTrue();
+
+    Optional<Member> foundMember = memberRepository.findByEmail(userEmail);
+    assertThat(foundMember).isEmpty();
+  }
+
+  @Test
+  @DisplayName("회원가입 시 MemberUpdatedEvent가 발행되고, MongoDB에 ChatMember가 동기화되어야 한다.")
+  void signUp_ShouldSyncToChatMemberInMongoDB() {
+    // given
+    RegisterRequest request = new RegisterRequest(
+        "newuser1@example.com",
+        "newuser_tag",
+        "Newpass1@",
+        CountryCode.KR,
+        CountryCode.US,
+        Set.of(Language.KOREAN),
+        Set.of(Language.ENGLISH),
+        9,
+        "1990-01-01",
+        "MongoDB동기화테스트",
+        "http://example.com/profile.jpg"
+    );
+
+    // when
+    MemberRegisterResponseDto newMember = memberService.signUp(request);
+
+    // then
+    assertThat(newMember).isNotNull();
+    assertThat(newMember.getEmail()).isEqualTo("newuser1@example.com");
+
+    ChatMember chatMember = chatMemberRepository.findById(newMember.getMemberId()).orElse(null);
+
+    assertThat(chatMember).isNotNull();
+    assertThat(chatMember.getId()).isEqualTo(newMember.getMemberId());
+    assertThat(chatMember.getNickname()).isEqualTo("MongoDB동기화테스트");
+    assertThat(chatMember.getProfileImageUrl()).isEqualTo("http://example.com/profile.jpg");
   }
 }
