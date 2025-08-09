@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
-import synapps.resona.api.mysql.member.entity.member.MemberRefreshToken;
+import synapps.resona.api.member.entity.member.MemberRefreshToken;
 
 public class MemberRefreshTokenTest {
 

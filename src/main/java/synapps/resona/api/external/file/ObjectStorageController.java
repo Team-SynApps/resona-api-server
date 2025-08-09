@@ -28,7 +28,7 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.response.SuccessResponse;
-import synapps.resona.api.mysql.member.service.MemberService;
+import synapps.resona.api.member.service.MemberService;
 
 @Tag(name = "File Storage", description = "파일 업로드 및 관리 API")
 @RestController

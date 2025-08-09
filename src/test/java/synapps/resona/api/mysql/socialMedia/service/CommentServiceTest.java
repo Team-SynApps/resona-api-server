@@ -14,21 +14,21 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.IntegrationTestSupport;
-import synapps.resona.api.mysql.member.entity.account.AccountInfo;
-import synapps.resona.api.mysql.member.entity.account.AccountStatus;
-import synapps.resona.api.mysql.member.entity.account.RoleType;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
-import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.member.repository.member.MemberRepository;
-import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentRequest;
-import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentResponse;
-import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
-import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
-import synapps.resona.api.mysql.socialMedia.repository.comment.CommentRepository;
-import synapps.resona.api.mysql.socialMedia.repository.feed.FeedRepository;
-import synapps.resona.api.mysql.socialMedia.service.comment.CommentService;
+import synapps.resona.api.member.entity.account.AccountInfo;
+import synapps.resona.api.member.entity.account.AccountStatus;
+import synapps.resona.api.member.entity.account.RoleType;
+import synapps.resona.api.member.entity.member.Member;
+import synapps.resona.api.member.entity.member_details.MemberDetails;
+import synapps.resona.api.member.entity.profile.Profile;
+import synapps.resona.api.member.repository.member.MemberRepository;
+import synapps.resona.api.socialMedia.dto.comment.request.CommentRequest;
+import synapps.resona.api.socialMedia.dto.comment.request.CommentUpdateRequest;
+import synapps.resona.api.socialMedia.dto.comment.response.CommentResponse;
+import synapps.resona.api.socialMedia.entity.comment.Comment;
+import synapps.resona.api.socialMedia.entity.feed.Feed;
+import synapps.resona.api.socialMedia.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.repository.feed.FeedRepository;
+import synapps.resona.api.socialMedia.service.comment.CommentService;
 
 @Transactional
 class CommentServiceTest extends IntegrationTestSupport {

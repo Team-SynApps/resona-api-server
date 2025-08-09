@@ -24,8 +24,7 @@ import synapps.resona.api.external.file.code.FileErrorCode;
 import synapps.resona.api.external.file.dto.FileMetadataDto;
 import synapps.resona.api.external.file.exception.FileEmptyException;
 import synapps.resona.api.global.config.database.StorageProperties;
-import synapps.resona.api.global.error.GlobalErrorCode;
-import synapps.resona.api.mysql.member.service.MemberService;
+import synapps.resona.api.member.service.MemberService;
 
 @Service
 @RequiredArgsConstructor

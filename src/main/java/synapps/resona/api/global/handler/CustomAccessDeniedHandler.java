@@ -14,8 +14,7 @@ import org.springframework.stereotype.Component;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.RequestInfo;
-import synapps.resona.api.global.error.GlobalErrorCode;
-import synapps.resona.api.mysql.member.code.AuthErrorCode;
+import synapps.resona.api.member.code.AuthErrorCode;
 
 @Component
 @RequiredArgsConstructor

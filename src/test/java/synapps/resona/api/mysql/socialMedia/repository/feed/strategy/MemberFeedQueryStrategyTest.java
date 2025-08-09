@@ -17,22 +17,22 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import synapps.resona.api.config.TestQueryDslConfig;
-import synapps.resona.api.mysql.member.entity.account.AccountInfo;
-import synapps.resona.api.mysql.member.entity.account.AccountStatus;
-import synapps.resona.api.mysql.member.entity.account.RoleType;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
-import synapps.resona.api.mysql.member.entity.profile.CountryCode;
-import synapps.resona.api.mysql.member.entity.profile.Language;
-import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.socialMedia.dto.feed.condition.MemberFeedSearchCondition;
-import synapps.resona.api.mysql.socialMedia.dto.feed.FeedSortBy;
-import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedDto;
-import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
-import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
-import synapps.resona.api.mysql.socialMedia.entity.feed.FeedCategory;
-import synapps.resona.api.mysql.socialMedia.entity.feed.Likes;
-import synapps.resona.api.oauth.entity.ProviderType;
+import synapps.resona.api.member.entity.account.AccountInfo;
+import synapps.resona.api.member.entity.account.AccountStatus;
+import synapps.resona.api.member.entity.account.RoleType;
+import synapps.resona.api.member.entity.member.Member;
+import synapps.resona.api.member.entity.member_details.MemberDetails;
+import synapps.resona.api.member.entity.profile.CountryCode;
+import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.member.entity.profile.Profile;
+import synapps.resona.api.socialMedia.dto.feed.condition.MemberFeedSearchCondition;
+import synapps.resona.api.socialMedia.dto.feed.FeedSortBy;
+import synapps.resona.api.socialMedia.dto.feed.response.FeedDto;
+import synapps.resona.api.socialMedia.entity.comment.Comment;
+import synapps.resona.api.socialMedia.entity.feed.Feed;
+import synapps.resona.api.socialMedia.entity.feed.FeedCategory;
+import synapps.resona.api.socialMedia.entity.feed.Likes;
+import synapps.resona.api.socialMedia.repository.feed.strategy.MemberFeedQueryStrategy;
 
 @DataJpaTest
 @Import(TestQueryDslConfig.class)

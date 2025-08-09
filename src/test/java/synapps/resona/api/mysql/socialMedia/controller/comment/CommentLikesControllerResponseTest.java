@@ -15,9 +15,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentLikesRequest;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentLikeResponse;
-import synapps.resona.api.mysql.socialMedia.service.comment.CommentLikesService;
+import synapps.resona.api.socialMedia.controller.comment.CommentLikesController;
+import synapps.resona.api.socialMedia.dto.comment.request.CommentLikesRequest;
+import synapps.resona.api.socialMedia.dto.comment.response.CommentLikeResponse;
+import synapps.resona.api.socialMedia.service.comment.CommentLikesService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;

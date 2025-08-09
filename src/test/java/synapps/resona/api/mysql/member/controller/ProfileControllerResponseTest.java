@@ -13,15 +13,18 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import synapps.resona.api.config.WithMockUserPrincipal; // Import the custom annotation
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.mysql.member.dto.request.profile.DuplicateTagRequest;
-import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
-import synapps.resona.api.mysql.member.dto.response.ProfileResponse;
-import synapps.resona.api.mysql.member.entity.profile.CountryCode;
-import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.member.service.ProfileService;
-import synapps.resona.api.mysql.member.entity.profile.Language;
-import synapps.resona.api.mysql.member.entity.profile.Gender;
+import synapps.resona.api.member.controller.ProfileController;
+import synapps.resona.api.member.dto.request.profile.DuplicateTagRequest;
+import synapps.resona.api.member.dto.request.profile.ProfileRequest;
+import synapps.resona.api.member.dto.response.MemberDto; // Import MemberDto
+import synapps.resona.api.member.dto.response.ProfileResponse;
+import synapps.resona.api.member.entity.profile.CountryCode;
+import synapps.resona.api.member.entity.profile.Profile;
+import synapps.resona.api.member.service.ProfileService;
+import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.member.entity.profile.Gender;
 
 import java.util.Set;
 
@@ -65,6 +68,7 @@ class ProfileControllerResponseTest {
 
   @Test
   @DisplayName("프로필 등록 성공 시, 등록된 ProfileDto를 반환한다")
+  @WithMockUserPrincipal // Simulate an authenticated user
   void registerProfile_success() throws Exception {
     // given
     ProfileRequest requestDto = new ProfileRequest(
@@ -78,7 +82,8 @@ class ProfileControllerResponseTest {
         "Hello");
     ProfileResponse responseDto = ProfileResponse.builder().id(1L).nickname("test-nick").tag("test-tag").build();
 
-    given(profileService.register(any(ProfileRequest.class))).willReturn(responseDto);
+    // The service method now expects a MemberDto, so we use any(MemberDto.class)
+    given(profileService.register(any(ProfileRequest.class), any(MemberDto.class))).willReturn(responseDto);
 
     // when
     ResultActions actions = mockMvc.perform(post("/profile")
@@ -95,10 +100,12 @@ class ProfileControllerResponseTest {
 
   @Test
   @DisplayName("프로필 조회 성공 시, ProfileDto를 반환한다")
+  @WithMockUserPrincipal // Simulate an authenticated user
   void readProfile_success() throws Exception {
     // given
     ProfileResponse responseDto = ProfileResponse.builder().id(1L).nickname("test-user").tag("test-tag").build();
-    given(profileService.readProfile()).willReturn(responseDto);
+    // The service method now expects a MemberDto
+    given(profileService.readProfile(any(MemberDto.class))).willReturn(responseDto);
 
     // when
     ResultActions actions = mockMvc.perform(get("/profile")
@@ -114,6 +121,7 @@ class ProfileControllerResponseTest {
 
   @Test
   @DisplayName("프로필 수정 성공 시, 수정된 ProfileDto를 반환한다")
+  @WithMockUserPrincipal // Simulate an authenticated user
   void editProfile_success() throws Exception {
     // given
     ProfileRequest requestDto = new ProfileRequest(
@@ -126,7 +134,8 @@ class ProfileControllerResponseTest {
         Gender.MAN,
         "Updated Hello");
     ProfileResponse responseDto = ProfileResponse.builder().id(1L).nickname("updated-nick").tag("test-tag").build();
-    given(profileService.editProfile(any(ProfileRequest.class))).willReturn(responseDto);
+    // The service method now expects a MemberDto
+    given(profileService.editProfile(any(ProfileRequest.class), any(MemberDto.class))).willReturn(responseDto);
 
     // when
     ResultActions actions = mockMvc.perform(put("/profile")
@@ -142,24 +151,26 @@ class ProfileControllerResponseTest {
   }
 
   @Test
-  @DisplayName("프로필 삭제 성공 시, 삭제 처리된 Profile 엔티티를 반환한다")
+  @DisplayName("프로필 삭제 성공 시, 성공 응답을 반환한다")
+  @WithMockUserPrincipal // Simulate an authenticated user
   void deleteProfile_success() throws Exception {
     // given
-    // 서비스는 Profile 엔티티를 반환하므로 Mock Entity를 생성
+    // The service method `deleteProfile` returns a Profile entity.
+    // We mock this behavior. The controller should handle this and return a proper response.
     Profile mockProfile = mock(Profile.class);
     given(mockProfile.getId()).willReturn(1L);
-    given(mockProfile.getTag()).willReturn("deleted-tag");
-    given(profileService.deleteProfile()).willReturn(mockProfile);
+
+    // The service method now expects a MemberDto
+    given(profileService.deleteProfile(any(MemberDto.class))).willReturn(mockProfile);
 
     // when
     ResultActions actions = mockMvc.perform(delete("/profile")
         .contentType(MediaType.APPLICATION_JSON));
 
     // then
+    // Assuming the controller returns a successful response wrapper upon deletion.
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-//        .andExpect(jsonPath("$.data[0].id").value(1L))
-//        .andExpect(jsonPath("$.data[0].tag").value("deleted-tag"))
         .andDo(print());
   }
 
@@ -168,7 +179,8 @@ class ProfileControllerResponseTest {
   void checkDuplicateTag_success() throws Exception {
     // given
     DuplicateTagRequest requestDto = new DuplicateTagRequest("existing-tag");
-    given(profileService.checkDuplicateTag(anyString())).willReturn(true); // 중복되는 경우
+    // This service method does not require authentication, so it remains unchanged.
+    given(profileService.checkDuplicateTag(anyString())).willReturn(true); // Case: tag is a duplicate
 
     // when
     ResultActions actions = mockMvc.perform(post("/profile/duplicate-tag")

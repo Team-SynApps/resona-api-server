@@ -15,8 +15,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.mysql.socialMedia.dto.mention.MentionResponse;
-import synapps.resona.api.mysql.socialMedia.service.mention.MentionService;
+import synapps.resona.api.socialMedia.controller.mention.MentionController;
+import synapps.resona.api.socialMedia.dto.mention.MentionResponse;
+import synapps.resona.api.socialMedia.service.mention.MentionService;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
