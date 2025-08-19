@@ -158,8 +158,8 @@ class ChatServiceTest {
 
       // then
       assertThat(result.getContent()).hasSize(2);
-      assertThat(result.getContent().get(0).getSender().getNickname()).isEqualTo("사용자2");
-      assertThat(result.getContent().get(1).getContent()).isEqualTo("메시지 1");
+      assertThat(result.getContent().get(0).sender().nickname()).isEqualTo("사용자2");
+      assertThat(result.getContent().get(1).content()).isEqualTo("메시지 1");
     }
 
     @Test

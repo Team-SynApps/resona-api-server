@@ -27,6 +27,11 @@ spring:
       authentication-database: ${MONGO_AUTH_DATABASE}
       username: ${MONGO_USERNAME}
       password: ${MONGO_PASSWORD}
+  rabbitmq:
+    host: ${RABBIT_MQ_HOST}
+    port: ${RABBIT_MQ_PORT}
+    username: ${RABBIT_MQ_USERNAME}
+    password: ${RABBIT_MQ_PASSWORD}
   task:
     execution:
       pool:
