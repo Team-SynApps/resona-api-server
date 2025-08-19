@@ -3,19 +3,18 @@ package synapps.resona.api.chat.service;
 import static synapps.resona.api.global.config.database.RabbitMQConfig.CHAT_EXCHANGE_NAME;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.chat.dto.MessageDto;
 import synapps.resona.api.chat.entity.ChatMessage;
 import synapps.resona.api.chat.entity.ChatMember;
-import synapps.resona.api.chat.exception.ChatException;
-import synapps.resona.api.chat.repository.ChatMemberRepository;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatMessagePublisher {
+  private final Logger logger = LogManager.getLogger(ChatMessagePublisher.class);
 
   private final RabbitTemplate rabbitTemplate;
 
@@ -28,9 +27,9 @@ public class ChatMessagePublisher {
 
     try {
       rabbitTemplate.convertAndSend(CHAT_EXCHANGE_NAME, routingKey, messageDto);
-      log.info("Message published to exchange '{}' with routing key '{}'. Message: {}", CHAT_EXCHANGE_NAME, routingKey, messageDto);
+      logger.info("Message published to exchange '{}' with routing key '{}'. Message: {}", CHAT_EXCHANGE_NAME, routingKey, messageDto);
     } catch (Exception e) {
-      log.error("Failed to publish message to RabbitMQ. Exchange: {}, RoutingKey: {}. Error: {}", CHAT_EXCHANGE_NAME, routingKey, e.getMessage());
+      logger.error("Failed to publish message to RabbitMQ. Exchange: {}, RoutingKey: {}. Error: {}", CHAT_EXCHANGE_NAME, routingKey, e.getMessage());
     }
   }
 }
