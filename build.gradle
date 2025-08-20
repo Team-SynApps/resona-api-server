@@ -107,6 +107,8 @@ dependencies {
 	// stress test: gatling
 	testImplementation 'io.gatling:gatling-test-framework:3.13.1'
 	testImplementation 'io.gatling.highcharts:gatling-charts-highcharts:3.13.1'
+
+	implementation 'org.springframework.boot:spring-boot-starter-amqp'
 }
 
 tasks.named('test') {

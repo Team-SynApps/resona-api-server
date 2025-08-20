@@ -1,19 +1,16 @@
-package synapps.resona.api.chat.code;
+package synapps.resona.api.matching.code;
 
 import org.springframework.http.HttpStatus;
 import synapps.resona.api.global.dto.code.ErrorCode;
 
-public enum ChatErrorCode implements ErrorCode {
-  ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT001", "Chat room not found"),
-  NOT_A_MEMBER(HttpStatus.FORBIDDEN, "CHAT002", "Not a member of this chat room"),
-  SENDER_NOT_FOUND(HttpStatus.NOT_FOUND, "CHAT003", "Sender information not found"),
-  CANNOT_CREATE_ROOM_WITH_SELF(HttpStatus.BAD_REQUEST, "CHAT004", "Cannot create a room with only yourself");
+public enum MatchingErrorCode implements ErrorCode {
+  MATCHING_FAILED(HttpStatus.NOT_FOUND, "MATCH001", "Cannot find chat partner.");
 
   private final String code;
   private final String message;
   private final HttpStatus status;
 
-  ChatErrorCode(final HttpStatus status, final String code, final String message) {
+  MatchingErrorCode(final HttpStatus status, final String code, final String message) {
     this.code = code;
     this.status = status;
     this.message = message;

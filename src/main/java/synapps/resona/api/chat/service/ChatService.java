@@ -28,14 +28,18 @@ public class ChatService {
   private final MessageBucketRepository messageBucketRepository;
   private final RoomRepository roomRepository;
   private final ChatMemberRepository chatMemberRepository;
+  private final ChatMessagePublisher chatMessagePublisher;
 
-  // TODO: 추후 메시지 발행 로직 구현해야 함(RabbitMQ)
   @Transactional
   public void sendMessage(Long currentMemberId, Long roomId, SendMessageRequest request) {
     // 유저가 채팅방 멤버인지 확인
     if (!roomRepository.isMemberInRoom(roomId, currentMemberId)) {
       throw ChatException.notMemberInRoom();
     }
+
+    // 메시지 발행에 필요한 발신자 정보 조회
+    ChatMember sender = chatMemberRepository.findById(currentMemberId)
+        .orElseThrow(ChatException::senderNotFound);
 
     // 메시지 생성
     ChatMessage chatMessage = ChatMessage.createTextMessage(currentMemberId, request.content(), LocalDateTime.now());
@@ -57,7 +61,8 @@ public class ChatService {
               messageBucketRepository.save(newBucket);
             }
         );
-    // TODO: (추후 구현) 메시지 발행 로직 (RabbitMQ)
+
+    chatMessagePublisher.publish(chatMessage, sender, roomId);
   }
 
   @Transactional(readOnly = true)
@@ -87,9 +92,9 @@ public class ChatService {
           if (sender == null) {
             throw ChatException.senderNotFound();
           }
-          return MessageDto.of(message, sender);
+          return MessageDto.of(message, sender, roomId);
         })
-        .sorted((m1, m2) -> m2.getTimestamp().compareTo(m1.getTimestamp()))
+        .sorted((m1, m2) -> m2.timestamp().compareTo(m1.timestamp()))
         .toList();
 
     return new SliceImpl<>(messageDtos, pageable, buckets.hasNext());

@@ -23,4 +23,8 @@ public class ChatException extends BaseException {
   public static ChatException senderNotFound() {
     return ChatException.of(ChatErrorCode.SENDER_NOT_FOUND);
   }
+
+  public static ChatException cannotCreateRoomWithSelf() {
+    return ChatException.of(ChatErrorCode.CANNOT_CREATE_ROOM_WITH_SELF);
+  }
 }

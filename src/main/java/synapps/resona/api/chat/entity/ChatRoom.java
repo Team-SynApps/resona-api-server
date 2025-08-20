@@ -11,6 +11,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Document(collection = "rooms")
 public class ChatRoom {
+  public static final String SEQUENCE_NAME = "rooms_sequence";
+
   @Id
   private Long id;
 
