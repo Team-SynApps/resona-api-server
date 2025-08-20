@@ -43,10 +43,15 @@ class ChatServiceTest {
 
   @Mock
   private MessageBucketRepository messageBucketRepository;
+
   @Mock
   private RoomRepository roomRepository;
+
   @Mock
   private ChatMemberRepository chatMemberRepository;
+
+  @Mock
+  private ChatMessagePublisher chatMessagePublisher;
 
   @Nested
   @DisplayName("sendMessage 메서드 테스트")
@@ -62,6 +67,9 @@ class ChatServiceTest {
 
       ChatMessage firstMessage = ChatMessage.createTextMessage(memberId, "첫 메시지", LocalDateTime.now());
       MessageBucket existingBucket = MessageBucket.createFirstBucket(roomId, 1, firstMessage);
+
+      ChatMember sender = ChatMember.of(memberId, "테스트유저", "profile.jpg");
+      given(chatMemberRepository.findById(memberId)).willReturn(Optional.of(sender));
 
       given(roomRepository.isMemberInRoom(roomId, memberId)).willReturn(true);
       given(messageBucketRepository.findLatestAvailableBucket(anyLong(), anyInt())).willReturn(Optional.of(existingBucket));
@@ -87,6 +95,9 @@ class ChatServiceTest {
       Long memberId = 1L;
       Long roomId = 100L;
       SendMessageRequest request = new SendMessageRequest("새 버킷 메시지");
+
+      ChatMember sender = ChatMember.of(memberId, "테스트유저", "profile.jpg");
+      given(chatMemberRepository.findById(memberId)).willReturn(Optional.of(sender));
 
       given(roomRepository.isMemberInRoom(roomId, memberId)).willReturn(true);
       given(messageBucketRepository.findLatestAvailableBucket(anyLong(), anyInt())).willReturn(Optional.empty());
