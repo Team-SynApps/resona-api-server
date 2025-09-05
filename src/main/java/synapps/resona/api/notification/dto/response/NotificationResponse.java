@@ -1,10 +1,10 @@
-package synapps.resona.api.member.dto.response.notification;
+package synapps.resona.api.notification.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;
-import synapps.resona.api.member.entity.notification.MemberNotification;
+import synapps.resona.api.notification.entity.MemberNotification;
 
 @Getter
 @Builder

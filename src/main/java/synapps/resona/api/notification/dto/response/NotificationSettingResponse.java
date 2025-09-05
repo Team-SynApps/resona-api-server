@@ -1,9 +1,9 @@
-package synapps.resona.api.member.dto.response.notification;
+package synapps.resona.api.notification.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
-import synapps.resona.api.member.entity.notification.MemberNotificationSetting;
+import synapps.resona.api.notification.entity.MemberNotificationSetting;
 
 @Getter
 @Builder
