@@ -4,7 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Pageable;
 import synapps.resona.api.global.annotation.DatabaseRepositories.MySQLRepository;
 import synapps.resona.api.member.entity.member.Member;
-import synapps.resona.api.member.entity.notification.MemberNotification;
+import synapps.resona.api.notification.entity.MemberNotification;
 
 import java.util.List;
 

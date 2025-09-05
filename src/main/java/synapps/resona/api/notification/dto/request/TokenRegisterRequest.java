@@ -1,6 +1,5 @@
-package synapps.resona.api.member.dto.request.notification;
+package synapps.resona.api.notification.dto.request;
 
-import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

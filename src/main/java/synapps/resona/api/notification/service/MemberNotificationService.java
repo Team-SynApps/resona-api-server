@@ -1,4 +1,4 @@
-package synapps.resona.api.member.service;
+package synapps.resona.api.notification.service;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
@@ -12,20 +12,21 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.global.dto.CursorResult;
-import synapps.resona.api.member.dto.request.notification.NotificationSettingUpdateRequest;
-import synapps.resona.api.member.dto.request.notification.TokenRegisterRequest;
-import synapps.resona.api.member.dto.response.notification.NotificationResponse;
-import synapps.resona.api.member.dto.response.notification.NotificationSettingResponse;
+import synapps.resona.api.notification.dto.request.NotificationSettingUpdateRequest;
+import synapps.resona.api.notification.dto.request.TokenRegisterRequest;
+import synapps.resona.api.notification.dto.response.NotificationResponse;
+import synapps.resona.api.notification.dto.response.NotificationSettingResponse;
 import synapps.resona.api.member.entity.member.Member;
-import synapps.resona.api.member.entity.notification.MemberNotification;
-import synapps.resona.api.member.entity.notification.MemberNotificationSetting;
-import synapps.resona.api.member.entity.notification.MemberPushToken;
+import synapps.resona.api.notification.entity.MemberNotification;
+import synapps.resona.api.notification.entity.MemberNotificationSetting;
+import synapps.resona.api.notification.entity.MemberPushToken;
 import synapps.resona.api.member.exception.MemberException;
 import synapps.resona.api.member.exception.NotificationException;
 import synapps.resona.api.member.repository.notification.MemberNotificationRepository;
 import synapps.resona.api.member.repository.notification.MemberNotificationSettingRepository;
 import synapps.resona.api.member.repository.notification.MemberPushTokenRepository;
 import synapps.resona.api.member.repository.member.MemberRepository;
+import synapps.resona.api.member.service.MemberService;
 
 @Service
 @RequiredArgsConstructor

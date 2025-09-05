@@ -1,4 +1,4 @@
-package synapps.resona.api.member.dto.request.notification;
+package synapps.resona.api.notification.dto.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;

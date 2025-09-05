@@ -1,4 +1,4 @@
-package synapps.resona.api.member.controller;
+package synapps.resona.api.notification.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -19,11 +19,11 @@ import synapps.resona.api.global.dto.response.SuccessResponse;
 import synapps.resona.api.member.code.AuthErrorCode;
 import synapps.resona.api.member.code.MemberErrorCode;
 import synapps.resona.api.member.code.MemberSuccessCode;
-import synapps.resona.api.member.dto.request.notification.NotificationSettingUpdateRequest;
-import synapps.resona.api.member.dto.request.notification.TokenRegisterRequest;
-import synapps.resona.api.member.dto.response.notification.NotificationResponse;
-import synapps.resona.api.member.dto.response.notification.NotificationSettingResponse;
-import synapps.resona.api.member.service.MemberNotificationService;
+import synapps.resona.api.notification.dto.request.NotificationSettingUpdateRequest;
+import synapps.resona.api.notification.dto.request.TokenRegisterRequest;
+import synapps.resona.api.notification.dto.response.NotificationResponse;
+import synapps.resona.api.notification.dto.response.NotificationSettingResponse;
+import synapps.resona.api.notification.service.MemberNotificationService;
 
 @RestController
 @RequestMapping("/notification")

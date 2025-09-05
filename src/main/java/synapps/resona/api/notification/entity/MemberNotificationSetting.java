@@ -1,4 +1,4 @@
-package synapps.resona.api.member.entity.notification;
+package synapps.resona.api.notification.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
