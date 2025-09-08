@@ -26,8 +26,11 @@ public class CommentDto {
   @Schema(description = "댓글 작성자", example = "test user")
   private SocialMemberDto author;
 
-  @Schema(description = "댓글 내용", example = "이 내용으로 수정되었습니다.")
+  @Schema(description = "댓글 내용", example = "댓글 내용 예시입니다.")
   private String content;
+
+  @Schema(description = "댓글 좋아요 수", example = "3")
+  private long likeCount;
 
   @Schema(description = "댓글 상태", example = "BLOCKED")
   private ContentDisplayStatus status;
@@ -42,10 +45,11 @@ public class CommentDto {
 
   private List<ReplyDto> replies = new ArrayList<>();
 
-  public static CommentDto of(Comment comment, ContentDisplayStatus status, String content, List<ReplyDto> processedReplies) {
+  public static CommentDto of(Comment comment, ContentDisplayStatus status, String content, long likeCount, List<ReplyDto> processedReplies) {
     return CommentDto.builder()
         .commentId(comment.getId())
         .author(SocialMemberDto.from(comment.getMember()))
+        .likeCount(likeCount)
         .content(content)
         .status(status)
         .createdAt(comment.getCreatedAt())

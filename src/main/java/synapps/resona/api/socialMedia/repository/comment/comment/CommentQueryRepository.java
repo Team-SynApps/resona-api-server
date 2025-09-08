@@ -47,7 +47,8 @@ public class CommentQueryRepository {
                 .where(commentLikes.comment.eq(comment))
         )
         .from(comment)
-        .join(comment.member, commentMember)
+        .join(comment.member, commentMember).fetchJoin()
+        .leftJoin(commentMember.profile).fetchJoin()
         .leftJoin(commentHide).on(
             commentHide.comment.id.eq(comment.id)
                 .and(commentHide.member.id.eq(viewerId)))
@@ -81,7 +82,8 @@ public class CommentQueryRepository {
             replyHide.id.isNotNull()
         ))
         .from(reply)
-        .join(reply.member, replyMember)
+        .join(reply.member, replyMember).fetchJoin()
+        .leftJoin(replyMember.profile).fetchJoin()
         .leftJoin(replyBlock).on(
             replyBlock.blocker.id.eq(viewerId)
                 .and(replyBlock.blocked.id.eq(replyMember.id))
@@ -124,7 +126,8 @@ public class CommentQueryRepository {
                 .where(commentLikes.comment.eq(comment))
         )
         .from(comment)
-        .join(comment.member, commentMember)
+        .join(comment.member, commentMember).fetchJoin()
+        .leftJoin(commentMember.profile).fetchJoin()
         .leftJoin(commentHide).on(
             commentHide.comment.id.eq(comment.id)
                 .and(commentHide.member.id.eq(viewerId)))
@@ -144,9 +147,18 @@ public class CommentQueryRepository {
         .map(tuple -> Objects.requireNonNull(tuple.get(comment)).getId())
         .collect(Collectors.toList());
 
-    Map<Long, List<ReplyProjectionDto>> repliesByCommentId = queryFactory
+    List<Tuple> replyTuples = queryFactory
+        .select(
+            reply.comment.id,
+            Projections.constructor(ReplyProjectionDto.class,
+                reply,
+                replyBlock.id.isNotNull(),
+                replyHide.id.isNotNull()
+            )
+        )
         .from(reply)
-        .join(reply.member, replyMember)
+        .join(reply.member, replyMember).fetchJoin()
+        .leftJoin(replyMember.profile).fetchJoin()
         .leftJoin(replyBlock).on(
             replyBlock.blocker.id.eq(viewerId)
                 .and(replyBlock.blocked.id.eq(replyMember.id))
@@ -157,17 +169,13 @@ public class CommentQueryRepository {
         )
         .where(reply.comment.id.in(commentIds))
         .orderBy(reply.createdAt.asc())
-        .transform(
-            groupBy(reply.comment.id).as(
-                list(
-                    Projections.constructor(ReplyProjectionDto.class,
-                        reply,
-                        replyBlock.id.isNotNull(),
-                        replyHide.id.isNotNull()
-                    )
-                )
-            )
-        );
+        .fetch();
+
+    Map<Long, List<ReplyProjectionDto>> repliesByCommentId = replyTuples.stream()
+        .collect(Collectors.groupingBy(
+            tuple -> tuple.get(0, Long.class),
+            Collectors.mapping(tuple -> tuple.get(1, ReplyProjectionDto.class), Collectors.toList())
+        ));
 
     return commentTuples.stream()
         .map(tuple -> {

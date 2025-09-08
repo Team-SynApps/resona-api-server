@@ -37,7 +37,7 @@ public class CommentProcessor {
         .map(this::toReplyDto)
         .collect(Collectors.toList());
 
-    return CommentDto.of(comment, status, content, processedReplies);
+    return CommentDto.of(comment, status, content, dto.getLikeCount(), processedReplies);
   }
 
   private ReplyDto toReplyDto(ReplyProjectionDto replyDto) {
