@@ -1,7 +1,7 @@
 package synapps.resona.api.fixture;
 
 import synapps.resona.api.socialMedia.dto.feed.FeedDto;
-import synapps.resona.api.socialMedia.dto.feed.FeedMemberDto;
+import synapps.resona.api.socialMedia.dto.feed.SocialMemberDto;
 import synapps.resona.api.socialMedia.dto.feed.request.FeedRegistrationRequest;
 import synapps.resona.api.socialMedia.dto.feed.request.FeedRequest;
 import synapps.resona.api.socialMedia.dto.feed.request.FeedUpdateRequest;
@@ -40,12 +40,12 @@ public class FeedFixture {
                 .build();
     }
 
-    public static FeedMemberDto createFeedMemberDto() {
-        return FeedMemberDto.of(100L, "test_user", "url");
+    public static SocialMemberDto createFeedMemberDto() {
+        return SocialMemberDto.of(100L, "test_user", "url");
     }
 
-    public static FeedMemberDto createFeedMemberDto(Long memberId, String nickname, String profileImageUrl) {
-        return FeedMemberDto.of(memberId, nickname, profileImageUrl);
+    public static SocialMemberDto createFeedMemberDto(Long memberId, String nickname, String profileImageUrl) {
+        return SocialMemberDto.of(memberId, nickname, profileImageUrl);
     }
 
     public static List<FeedMediaDto> createFeedMediaDtoList() {

@@ -16,7 +16,7 @@ import synapps.resona.api.socialMedia.entity.feed.FeedCategory;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FeedDto {
   private final Long feedId;
-  private final FeedMemberDto author;
+  private final SocialMemberDto author;
   private FeedCategory category;
   private Language language;
   private final String content;
@@ -38,7 +38,7 @@ public class FeedDto {
     Feed feed = dto.getFeed();
     return FeedDto.builder()
         .feedId(feed.getId())
-        .author(FeedMemberDto.from(feed.getMember()))
+        .author(SocialMemberDto.from(feed.getMember()))
         .content(feed.getContent())
         .category(feed.getCategory())
         .likeCount((int) dto.getLikeCount())

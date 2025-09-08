@@ -8,6 +8,7 @@ import synapps.resona.api.member.dto.response.MemberDto;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.repository.member.MemberRepository;
 import synapps.resona.api.member.service.MemberService;
+import synapps.resona.api.socialMedia.dto.reply.ReplyDto;
 import synapps.resona.api.socialMedia.dto.reply.request.ReplyRequest;
 import synapps.resona.api.socialMedia.dto.reply.request.ReplyUpdateRequest;
 import synapps.resona.api.socialMedia.dto.reply.response.ReplyResponse;
@@ -28,7 +29,7 @@ public class ReplyService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public ReplyResponse register(ReplyRequest request, MemberDto memberDto) {
+  public ReplyDto register(ReplyRequest request, MemberDto memberDto) {
     Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
 
     Comment comment = commentRepository.findById(request.getCommentId())
@@ -37,22 +38,22 @@ public class ReplyService {
     Reply reply = Reply.of(comment, member, request.getContent());
     replyRepository.save(reply);
 
-    return ReplyResponse.from(reply, comment.getId());
+    return ReplyDto.from(reply);
   }
 
   @Transactional
-  public ReplyResponse update(ReplyUpdateRequest request) {
-    Reply reply = replyRepository.findWithCommentById(request.getReplyId())
+  public ReplyDto update(ReplyUpdateRequest request) {
+    Reply reply = replyRepository.findWithCommentAndMemberById(request.getReplyId())
         .orElseThrow(ReplyException::replyNotFound);
     reply.update(request.getContent());
-    return ReplyResponse.from(reply);
+    return ReplyDto.from(reply);
   }
 
   @Transactional
-  public List<ReplyResponse> readAll(Long viewerId, Long commentId) {
+  public List<ReplyDto> readAll(Long viewerId, Long commentId) {
     List<Reply> replies = replyRepository.findAllRepliesByCommentId(viewerId, commentId);
 
-    return replies.stream().map(ReplyResponse::from).toList();
+    return replies.stream().map(ReplyDto::from).toList();
   }
 
   @Transactional

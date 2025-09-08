@@ -26,8 +26,8 @@ public abstract class BaseEntity {
   @Column(name = "is_deleted", nullable = false)
   private boolean deleted = false;
 
-
   public void softDelete() {
     this.deleted = true;
+    this.modifiedAt = LocalDateTime.now();
   }
 }

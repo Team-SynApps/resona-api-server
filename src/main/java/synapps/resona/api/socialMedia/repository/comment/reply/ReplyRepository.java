@@ -20,8 +20,9 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> , ReplyRepos
 
   @Query("SELECT r FROM Reply r " +
       "JOIN FETCH r.comment " +
+      "JOIN FETCH r.member " +
       "WHERE r.id = :replyId")
-  Optional<Reply> findWithCommentById(@Param("replyId") Long replyId);
+  Optional<Reply> findWithCommentAndMemberById(@Param("replyId") Long replyId);
 
   @Query("SELECT r FROM Reply r " +
       "WHERE r.comment.id = :commentId")
