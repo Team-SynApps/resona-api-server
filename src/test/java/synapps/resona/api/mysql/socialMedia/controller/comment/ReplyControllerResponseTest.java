@@ -18,15 +18,16 @@ import synapps.resona.api.fixture.ReplyFixture;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.member.dto.response.MemberDto;
 import synapps.resona.api.socialMedia.controller.comment.ReplyController;
-import synapps.resona.api.socialMedia.dto.reply.ReplyDto;
-import synapps.resona.api.socialMedia.dto.reply.request.ReplyRequest;
-import synapps.resona.api.socialMedia.dto.reply.request.ReplyUpdateRequest;
+import synapps.resona.api.socialMedia.dto.comment.ReplyDto;
+import synapps.resona.api.socialMedia.dto.comment.request.ReplyRequest;
+import synapps.resona.api.socialMedia.dto.comment.request.ReplyUpdateRequest;
 import synapps.resona.api.socialMedia.entity.comment.Reply;
 import synapps.resona.api.socialMedia.service.comment.ReplyService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -159,8 +160,7 @@ class ReplyControllerResponseTest {
   void deleteReply_success() throws Exception {
     // given
     Long replyId = 201L;
-    Reply mockReply = ReplyFixture.createMockReply(replyId, "This reply was deleted.");
-    given(replyService.delete(anyLong())).willReturn(mockReply);
+    doNothing().when(replyService).delete(anyLong());
 
     // when
     ResultActions actions = mockMvc.perform(delete("/replies/{replyId}", replyId)

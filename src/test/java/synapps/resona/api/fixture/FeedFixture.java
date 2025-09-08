@@ -1,5 +1,6 @@
 package synapps.resona.api.fixture;
 
+import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.socialMedia.dto.feed.FeedDto;
 import synapps.resona.api.socialMedia.dto.feed.SocialMemberDto;
 import synapps.resona.api.socialMedia.dto.feed.request.FeedRegistrationRequest;
@@ -10,8 +11,14 @@ import synapps.resona.api.socialMedia.dto.media.FeedMediaDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import synapps.resona.api.socialMedia.entity.comment.Comment;
+import synapps.resona.api.socialMedia.entity.feed.Feed;
+import synapps.resona.api.socialMedia.entity.feed.FeedCategory;
 
 public class FeedFixture {
+    public static Feed createFeed(Member member, String content) {
+        return Feed.of(member, content, FeedCategory.DAILY.name(), "ko");
+    }
 
     public static FeedDto createFeedDto(Long id, String content, LocalDateTime createdAt) {
         return FeedDto.builder()

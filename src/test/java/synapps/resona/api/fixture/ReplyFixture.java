@@ -1,9 +1,9 @@
 package synapps.resona.api.fixture;
 
 import synapps.resona.api.socialMedia.dto.feed.SocialMemberDto;
-import synapps.resona.api.socialMedia.dto.reply.ReplyDto;
-import synapps.resona.api.socialMedia.dto.reply.request.ReplyRequest;
-import synapps.resona.api.socialMedia.dto.reply.request.ReplyUpdateRequest;
+import synapps.resona.api.socialMedia.dto.comment.ReplyDto;
+import synapps.resona.api.socialMedia.dto.comment.request.ReplyRequest;
+import synapps.resona.api.socialMedia.dto.comment.request.ReplyUpdateRequest;
 import synapps.resona.api.socialMedia.entity.comment.Reply;
 
 import java.time.LocalDateTime;
@@ -18,7 +18,14 @@ public class ReplyFixture {
     }
 
     public static ReplyDto createReplyDto(Long commentId, Long replyId, String content) {
-        return ReplyDto.of(commentId, replyId, SocialMemberDto.of(1L, "test_user", "test_url"), content, LocalDateTime.now());
+        return ReplyDto.builder()
+                .commentId(commentId)
+                .replyId(replyId)
+                .author(SocialMemberDto.of(1L, "test_user", "test_url"))
+                .content(content)
+                .status(synapps.resona.api.socialMedia.entity.comment.ContentDisplayStatus.NORMAL)
+                .createdAt(LocalDateTime.now())
+                .build();
     }
 
     public static List<ReplyDto> createReplyDtoList(Long commentId) {

@@ -29,10 +29,9 @@ import synapps.resona.api.member.code.AuthErrorCode;
 import synapps.resona.api.member.dto.response.MemberDto;
 import synapps.resona.api.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.socialMedia.code.SocialSuccessCode;
-import synapps.resona.api.socialMedia.dto.reply.ReplyDto;
-import synapps.resona.api.socialMedia.dto.reply.request.ReplyRequest;
-import synapps.resona.api.socialMedia.dto.reply.request.ReplyUpdateRequest;
-import synapps.resona.api.socialMedia.dto.reply.response.ReplyResponse;
+import synapps.resona.api.socialMedia.dto.comment.ReplyDto;
+import synapps.resona.api.socialMedia.dto.comment.request.ReplyRequest;
+import synapps.resona.api.socialMedia.dto.comment.request.ReplyUpdateRequest;
 import synapps.resona.api.socialMedia.service.comment.ReplyService;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 

@@ -7,21 +7,30 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import synapps.resona.api.socialMedia.dto.reply.ReplyDto;
+import synapps.resona.api.socialMedia.dto.feed.SocialMemberDto;
 import synapps.resona.api.socialMedia.entity.comment.Comment;
+import synapps.resona.api.socialMedia.entity.comment.ContentDisplayStatus;
 
 @Schema(description = "댓글 DTO")
 @Getter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(staticName = "of")
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CommentDto {
   @Schema(description = "댓글의 ID", example = "1")
   private Long commentId;
 
+  @Schema(description = "댓글 작성자", example = "test user")
+  private SocialMemberDto author;
+
   @Schema(description = "댓글 내용", example = "이 내용으로 수정되었습니다.")
   private String content;
+
+  @Schema(description = "댓글 상태", example = "BLOCKED")
+  private ContentDisplayStatus status;
 
   @Schema(description = "댓글 생성 시각")
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
@@ -33,13 +42,27 @@ public class CommentDto {
 
   private List<ReplyDto> replies = new ArrayList<>();
 
-  public static CommentDto from(Comment comment) {
-    return CommentDto.of(
-        comment.getId(),
-        comment.getContent(),
-        comment.getCreatedAt(),
-        comment.getModifiedAt(),
-        comment.getReplies().stream().map(ReplyDto::from).toList()
-    );
+  public static CommentDto of(Comment comment, ContentDisplayStatus status, String content, List<ReplyDto> processedReplies) {
+    return CommentDto.builder()
+        .commentId(comment.getId())
+        .author(SocialMemberDto.from(comment.getMember()))
+        .content(content)
+        .status(status)
+        .createdAt(comment.getCreatedAt())
+        .modifiedAt(comment.getModifiedAt())
+        .replies(processedReplies)
+        .build();
+  }
+
+  // reply 없음
+  public static CommentDto of(Comment comment) {
+    return CommentDto.builder()
+        .commentId(comment.getId())
+        .author(SocialMemberDto.from(comment.getMember()))
+        .content(comment.getContent())
+        .status(ContentDisplayStatus.NORMAL)
+        .createdAt(comment.getCreatedAt())
+        .modifiedAt(comment.getModifiedAt())
+        .build();
   }
 }

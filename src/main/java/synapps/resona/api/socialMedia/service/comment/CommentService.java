@@ -4,15 +4,18 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import synapps.resona.api.socialMedia.dto.comment.CommentDto;
+import synapps.resona.api.socialMedia.dto.comment.CommentProjectionDto;
+import synapps.resona.api.socialMedia.dto.comment.CommentWithStatusDto;
 import synapps.resona.api.socialMedia.dto.comment.request.CommentRequest;
 import synapps.resona.api.socialMedia.dto.comment.request.CommentUpdateRequest;
-import synapps.resona.api.socialMedia.dto.comment.response.CommentResponse;
-import synapps.resona.api.socialMedia.dto.reply.response.ReplyResponse;
+import synapps.resona.api.socialMedia.dto.comment.ReplyDto;
 import synapps.resona.api.socialMedia.entity.comment.Comment;
 import synapps.resona.api.socialMedia.entity.feed.Feed;
 import synapps.resona.api.socialMedia.exception.CommentException;
 import synapps.resona.api.socialMedia.exception.FeedException;
-import synapps.resona.api.socialMedia.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.repository.comment.comment.CommentQueryRepository;
+import synapps.resona.api.socialMedia.repository.comment.comment.CommentRepository;
 import synapps.resona.api.socialMedia.repository.feed.FeedRepository;
 
 @Service
@@ -20,54 +23,54 @@ import synapps.resona.api.socialMedia.repository.feed.FeedRepository;
 public class CommentService {
 
   private final CommentRepository commentRepository;
+  private final CommentQueryRepository commentQueryRepository;
+  private final CommentProcessor commentProcessor;
   private final FeedRepository feedRepository;
-
+  private final ReplyService replyService;
 
   @Transactional
-  public CommentResponse register(CommentRequest request) {
+  public CommentDto register(CommentRequest request) {
     Feed feed = feedRepository.findWithMemberById(request.getFeedId())
         .orElseThrow(FeedException::feedNotFoundException);
     Comment comment = Comment.of(feed, feed.getMember(), request.getContent());
     commentRepository.save(comment);
-    return CommentResponse.from(comment);
+
+    return CommentDto.of(comment);
   }
 
   @Transactional
-  public CommentResponse edit(CommentUpdateRequest request) {
+  public CommentDto edit(CommentUpdateRequest request) {
     Comment comment = commentRepository.findById(request.getCommentId())
         .orElseThrow(CommentException::commentNotFound);
     comment.updateContent(request.getContent());
-    return CommentResponse.from(comment);
+    return CommentDto.of(comment);
   }
 
-  public CommentResponse getComment(long commentId) {
-    Comment comment = commentRepository.findById(commentId)
+  public CommentDto getComment(long viewerId, long commentId) {
+    CommentProjectionDto projectionDto = commentQueryRepository.findCommentProjectionById(viewerId, commentId)
         .orElseThrow(CommentException::commentNotFound);
-    return CommentResponse.from(comment);
+
+    return commentProcessor.processSingle(projectionDto);
+  }
+
+  public List<CommentDto> getCommentsByFeedId(long viewerId, long feedId) {
+    List<CommentProjectionDto> comments = commentQueryRepository.findAllCommentsByFeedIdWithReplies(viewerId, feedId);
+    return commentProcessor.process(comments);
+  }
+
+  public List<ReplyDto> getReplies(long viewerId, long commentId) {
+
+    if (!commentRepository.existsById(commentId)) {
+      throw CommentException.commentNotFound();
+    }
+
+    return replyService.readAll(viewerId, commentId);
   }
 
   @Transactional
-  public List<CommentResponse> getCommentsByFeedId(long viewerId, long feedId) {
-    List<Comment> comments = commentRepository.findAllCommentsByFeedIdWithReplies(viewerId, feedId);
-
-    return comments.stream().map(CommentResponse::from).toList();
-  }
-
-  @Transactional
-  public List<ReplyResponse> getReplies(long commentId) {
-    Comment comment = commentRepository.findWithReplies(commentId)
-        .orElseThrow(CommentException::commentNotFound);
-    // TODO: 예외처리 해야 함.
-    return comment.getReplies().stream()
-        .map(ReplyResponse::from)
-        .toList();
-  }
-
-  @Transactional
-  public Comment deleteComment(long commentId) {
+  public void deleteComment(long commentId) {
     Comment comment = commentRepository.findById(commentId)
         .orElseThrow(CommentException::commentNotFound);
     comment.softDelete();
-    return comment;
   }
 }

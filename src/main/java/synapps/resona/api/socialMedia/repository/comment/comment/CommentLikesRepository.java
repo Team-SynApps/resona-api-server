@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.repository.comment;
+package synapps.resona.api.socialMedia.repository.comment.comment;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import synapps.resona.api.global.annotation.DatabaseRepositories.MySQLRepository;

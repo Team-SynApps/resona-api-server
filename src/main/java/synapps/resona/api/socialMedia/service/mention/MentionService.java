@@ -12,7 +12,7 @@ import synapps.resona.api.socialMedia.entity.comment.Comment;
 import synapps.resona.api.socialMedia.entity.mention.Mention;
 import synapps.resona.api.socialMedia.exception.CommentException;
 import synapps.resona.api.socialMedia.exception.MentionException;
-import synapps.resona.api.socialMedia.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.repository.comment.comment.CommentRepository;
 import synapps.resona.api.socialMedia.repository.mention.MentionRepository;
 
 @Service
