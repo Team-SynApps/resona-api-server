@@ -10,7 +10,7 @@ import synapps.resona.api.member.code.MemberErrorCode;
 import synapps.resona.api.member.dto.request.profile.ProfileRequest;
 import synapps.resona.api.member.dto.response.MemberDto;
 import synapps.resona.api.member.dto.response.ProfileResponse;
-import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.profile.Profile;
 import synapps.resona.api.member.event.MemberUpdatedEvent;
 import synapps.resona.api.member.exception.InvalidTimeStampException;

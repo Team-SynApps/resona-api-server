@@ -23,7 +23,7 @@ import synapps.resona.api.member.dto.response.MemberInfoDto;
 import synapps.resona.api.member.dto.response.MemberRegisterResponseDto;
 import synapps.resona.api.member.dto.response.TokenResponse;
 import synapps.resona.api.member.entity.profile.CountryCode;
-import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.service.AuthService;
 import synapps.resona.api.member.service.MemberService;
 import synapps.resona.api.token.AuthToken;

@@ -21,7 +21,7 @@ import synapps.resona.api.member.entity.account.RoleType;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.entity.member_details.MemberDetails;
 import synapps.resona.api.member.entity.profile.CountryCode;
-import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.profile.Profile;
 import synapps.resona.api.socialMedia.entity.comment.Comment;
 import synapps.resona.api.socialMedia.entity.feed.Feed;
@@ -29,10 +29,11 @@ import synapps.resona.api.socialMedia.entity.feed.FeedCategory;
 import synapps.resona.api.socialMedia.entity.restriction.Block;
 import synapps.resona.api.socialMedia.entity.restriction.CommentHide;
 import synapps.resona.api.socialMedia.repository.comment.CommentRepositoryImpl;
+import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
 
 
 @DataJpaTest
-@Import(TestQueryDslConfig.class)
+@Import({TestQueryDslConfig.class, FeedExpressions.class})
 class CommentRepositoryImplTest {
 
   @Autowired
@@ -142,7 +143,7 @@ class CommentRepositoryImplTest {
   }
 
   private Feed createAndPersistFeed(Member member) {
-    Feed feed = Feed.of(member, "Test Feed Content", FeedCategory.DAILY.name());
+    Feed feed = Feed.of(member, "Test Feed Content", FeedCategory.DAILY.name(), "ko");
     em.persist(feed);
     return feed;
   }

@@ -16,7 +16,7 @@ import synapps.resona.api.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.member.dto.response.MemberProfileDto;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.entity.profile.CountryCode;
-import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.repository.member.FollowRepository;
 import synapps.resona.api.member.repository.member.MemberRepository;
 import synapps.resona.api.member.service.FollowService;

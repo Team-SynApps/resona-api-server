@@ -33,8 +33,7 @@ import synapps.resona.api.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.socialMedia.dto.feed.request.FeedRegistrationRequest;
 import synapps.resona.api.socialMedia.dto.feed.request.FeedUpdateRequest;
-import synapps.resona.api.socialMedia.dto.feed.response.FeedDto;
-import synapps.resona.api.socialMedia.dto.feed.response.FeedReadResponse;
+import synapps.resona.api.socialMedia.dto.feed.FeedDto;
 import synapps.resona.api.socialMedia.dto.feed.response.FeedResponse;
 import synapps.resona.api.socialMedia.service.feed.FeedService;
 import synapps.resona.api.oauth.entity.UserPrincipal;
@@ -71,12 +70,14 @@ public class FeedController {
   }
 
   @Operation(summary = "단일 피드 조회", description = "특정 ID의 피드 하나를 상세 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_FEED_SUCCESS", responseClass = FeedReadResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_FEED_SUCCESS", responseClass = FeedDto.class))
   @ApiErrorSpec(@ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"FEED_NOT_FOUND"}))
   @GetMapping("/feed/{feedId}")
-  public ResponseEntity<SuccessResponse<FeedReadResponse>> readFeed(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<FeedDto>> readFeed(HttpServletRequest request,
+      @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal userPrincipal,
       @Parameter(description = "조회할 피드의 ID", required = true) @PathVariable Long feedId) {
-    FeedReadResponse response = feedService.readFeed(feedId);
+    MemberDto memberInfo = MemberDto.from(userPrincipal);
+    FeedDto response = feedService.readFeed(feedId, memberInfo.getId());
     return ResponseEntity
         .status(SocialSuccessCode.GET_FEED_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_FEED_SUCCESS, createRequestInfo(request.getRequestURI()), response));

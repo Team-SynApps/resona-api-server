@@ -3,8 +3,6 @@ package synapps.resona.api.socialMedia.repository.feed.strategy;
 import static synapps.resona.api.member.entity.member.QMember.member;
 import static synapps.resona.api.member.entity.profile.QProfile.profile;
 import static synapps.resona.api.socialMedia.entity.feed.QFeed.feed;
-import static synapps.resona.api.socialMedia.entity.feed.QLikes.likes;
-import static synapps.resona.api.socialMedia.entity.comment.QComment.comment;
 import static synapps.resona.api.socialMedia.entity.restriction.QBlock.block;
 import static synapps.resona.api.socialMedia.entity.restriction.QFeedHide.feedHide;
 
@@ -17,8 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import synapps.resona.api.socialMedia.dto.feed.condition.DefaultFeedSearchCondition;
 import synapps.resona.api.socialMedia.dto.feed.request.FeedQueryRequest;
-import synapps.resona.api.socialMedia.dto.feed.response.FeedDto;
-import synapps.resona.api.socialMedia.dto.feed.response.FeedWithCountsDto;
+import synapps.resona.api.socialMedia.dto.feed.FeedDto;
+import synapps.resona.api.socialMedia.dto.feed.FeedDetailDto;
+import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
 import synapps.resona.api.socialMedia.repository.feed.dsl.FeedOrderSpecifier;
 import synapps.resona.api.socialMedia.repository.feed.dsl.FeedPredicate;
 
@@ -26,9 +25,10 @@ import synapps.resona.api.socialMedia.repository.feed.dsl.FeedPredicate;
 @RequiredArgsConstructor
 public class DefaultFeedQueryStrategy implements FeedQueryStrategy<DefaultFeedSearchCondition> {
   private final JPAQueryFactory queryFactory;
+  private final FeedExpressions feedExpressions;
 
   @Override
-  public List<FeedDto> findFeeds(DefaultFeedSearchCondition condition, LocalDateTime cursor, Pageable pageable) {
+  public List<FeedDto> findFeeds(DefaultFeedSearchCondition condition, LocalDateTime cursor, Pageable pageable, Long viewerId) {
     // 대상 feed의 ID 목록을 먼저 조회
     List<Long> ids = queryFactory
         .select(feed.id)
@@ -57,25 +57,22 @@ public class DefaultFeedQueryStrategy implements FeedQueryStrategy<DefaultFeedSe
     }
 
     // ID 목록으로 실제 데이터(카운트 포함)를 조회
-    List<FeedWithCountsDto> feedWithCounts = queryFactory
-        .select(
-            Projections.constructor(FeedWithCountsDto.class,
-                feed,
-                likes.id.countDistinct(),   // 좋아요 수
-                comment.id.countDistinct()  // 댓글 수
-            )
-        )
+    List<FeedDetailDto> feedDetails = queryFactory
+        .select(Projections.constructor(FeedDetailDto.class,
+            feed,
+            feedExpressions.getLikeCount(feed),
+            feedExpressions.getCommentCount(feed),
+            feedExpressions.isLiked(feed, viewerId),
+            feedExpressions.isScraped(feed, viewerId)
+        ))
         .from(feed)
         .join(feed.member, member).fetchJoin()
         .join(member.profile, profile).fetchJoin()
-        .leftJoin(likes).on(likes.feed.eq(feed))
-        .leftJoin(comment).on(comment.feed.eq(feed))
         .where(feed.id.in(ids))
-        .groupBy(feed.id)
         .orderBy(FeedOrderSpecifier.getOrderBySpecifiers(condition.getSortBy()))
         .fetch();
 
-    return feedWithCounts.stream()
+    return feedDetails.stream()
         .map(FeedDto::from)
         .toList();
   }

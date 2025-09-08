@@ -68,7 +68,7 @@ class CommentServiceTest extends IntegrationTestSupport {
     member.encodePassword("securePass123!");
     memberRepository.save(member);
 
-    feed = Feed.of(member, "테스트 피드입니다.", "DAILY");
+    feed = Feed.of(member, "테스트 피드입니다.", "DAILY", "ko");
     feedRepository.save(feed);
 
     setAuthentication(member.getEmail());

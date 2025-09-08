@@ -9,7 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import synapps.resona.api.member.entity.profile.CountryCode;
 import synapps.resona.api.member.entity.profile.Gender;
-import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.global.entity.Language;
 
 @Data
 @AllArgsConstructor

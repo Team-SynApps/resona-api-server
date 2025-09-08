@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.dto.feed.response;
+package synapps.resona.api.socialMedia.dto.feed;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

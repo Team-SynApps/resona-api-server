@@ -3,8 +3,6 @@ package synapps.resona.api.socialMedia.repository.feed.strategy;
 import static synapps.resona.api.member.entity.member.QMember.member;
 import static synapps.resona.api.member.entity.profile.QProfile.profile;
 import static synapps.resona.api.socialMedia.entity.feed.QFeed.feed;
-import static synapps.resona.api.socialMedia.entity.feed.QLikes.likes;
-import static synapps.resona.api.socialMedia.entity.comment.QComment.comment;
 import static synapps.resona.api.socialMedia.entity.restriction.QBlock.block;
 
 import com.querydsl.core.types.Projections;
@@ -16,8 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import synapps.resona.api.socialMedia.dto.feed.condition.MemberFeedSearchCondition;
 import synapps.resona.api.socialMedia.dto.feed.request.FeedQueryRequest;
-import synapps.resona.api.socialMedia.dto.feed.response.FeedDto;
-import synapps.resona.api.socialMedia.dto.feed.response.FeedWithCountsDto;
+import synapps.resona.api.socialMedia.dto.feed.FeedDto;
+import synapps.resona.api.socialMedia.dto.feed.FeedDetailDto;
+import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
 import synapps.resona.api.socialMedia.repository.feed.dsl.FeedOrderSpecifier;
 import synapps.resona.api.socialMedia.repository.feed.dsl.FeedPredicate;
 
@@ -26,10 +25,10 @@ import synapps.resona.api.socialMedia.repository.feed.dsl.FeedPredicate;
 @RequiredArgsConstructor
 public class MemberFeedQueryStrategy implements FeedQueryStrategy<MemberFeedSearchCondition> {
   private final JPAQueryFactory queryFactory;
+  private final FeedExpressions feedExpressions;
 
   @Override
-  public List<FeedDto> findFeeds(MemberFeedSearchCondition condition, LocalDateTime cursor, Pageable pageable) {
-    // 특정 사용자의 피드만 조회하므로 차단/숨김 로직은 제외 (단, 정책에 따라 추가 가능)
+  public List<FeedDto> findFeeds(MemberFeedSearchCondition condition, LocalDateTime cursor, Pageable pageable, Long viewerId) {
     List<Long> ids = queryFactory
         .select(feed.id)
         .from(feed)
@@ -51,25 +50,22 @@ public class MemberFeedQueryStrategy implements FeedQueryStrategy<MemberFeedSear
       return List.of();
     }
 
-    List<FeedWithCountsDto> feedWithCounts = queryFactory
-        .select(
-            Projections.constructor(FeedWithCountsDto.class,
-                feed,
-                likes.id.countDistinct(),
-                comment.id.countDistinct()
-            )
-        )
+    List<FeedDetailDto> feedDetails = queryFactory
+        .select(Projections.constructor(FeedDetailDto.class,
+            feed,
+            feedExpressions.getLikeCount(feed),
+            feedExpressions.getCommentCount(feed),
+            feedExpressions.isLiked(feed, viewerId),
+            feedExpressions.isScraped(feed, viewerId)
+        ))
         .from(feed)
         .join(feed.member, member).fetchJoin()
         .join(member.profile, profile).fetchJoin()
-        .leftJoin(likes).on(likes.feed.eq(feed))
-        .leftJoin(comment).on(comment.feed.eq(feed))
         .where(feed.id.in(ids))
-        .groupBy(feed.id)
         .orderBy(FeedOrderSpecifier.getOrderBySpecifiers(condition.getSortBy()))
         .fetch();
 
-    return feedWithCounts.stream()
+    return feedDetails.stream()
         .map(FeedDto::from)
         .toList();
   }

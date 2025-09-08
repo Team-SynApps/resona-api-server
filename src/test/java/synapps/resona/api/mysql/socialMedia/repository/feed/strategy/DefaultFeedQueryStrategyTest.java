@@ -23,21 +23,22 @@ import synapps.resona.api.member.entity.account.RoleType;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.entity.member_details.MemberDetails;
 import synapps.resona.api.member.entity.profile.CountryCode;
-import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.profile.Profile;
 import synapps.resona.api.socialMedia.dto.feed.condition.DefaultFeedSearchCondition;
 import synapps.resona.api.socialMedia.dto.feed.FeedSortBy;
-import synapps.resona.api.socialMedia.dto.feed.response.FeedDto;
+import synapps.resona.api.socialMedia.dto.feed.FeedDto;
 import synapps.resona.api.socialMedia.entity.comment.Comment;
 import synapps.resona.api.socialMedia.entity.feed.Feed;
 import synapps.resona.api.socialMedia.entity.feed.FeedCategory;
 import synapps.resona.api.socialMedia.entity.feed.Likes;
 import synapps.resona.api.socialMedia.entity.restriction.Block;
 import synapps.resona.api.socialMedia.entity.restriction.FeedHide;
+import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
 import synapps.resona.api.socialMedia.repository.feed.strategy.DefaultFeedQueryStrategy;
 
 @DataJpaTest
-@Import(TestQueryDslConfig.class)
+@Import({TestQueryDslConfig.class, FeedExpressions.class})
 class DefaultFeedQueryStrategyTest {
 
   @Autowired
@@ -45,6 +46,9 @@ class DefaultFeedQueryStrategyTest {
 
   @Autowired
   private JPAQueryFactory queryFactory;
+
+  @Autowired
+  private FeedExpressions feedExpressions;
 
   private DefaultFeedQueryStrategy defaultFeedQueryStrategy;
 
@@ -54,7 +58,7 @@ class DefaultFeedQueryStrategyTest {
 
   @BeforeEach
   void setUp() {
-    defaultFeedQueryStrategy = new DefaultFeedQueryStrategy(queryFactory);
+    defaultFeedQueryStrategy = new DefaultFeedQueryStrategy(queryFactory, feedExpressions);
 
     // 테스트 데이터 생성
     viewer = createAndPersistMember("viewer@test.com", "viewer");
@@ -106,7 +110,7 @@ class DefaultFeedQueryStrategyTest {
     Pageable pageable = PageRequest.of(0, 10);
 
     // when
-    List<FeedDto> result = defaultFeedQueryStrategy.findFeeds(condition, condition.getCursor(), pageable);
+    List<FeedDto> result = defaultFeedQueryStrategy.findFeeds(condition, condition.getCursor(), pageable, viewer.getId());
 
     // then
     // viewer에게 보여야 할 피드는 countTestFeed, feed3, feed2, feed1 총 4개
@@ -129,7 +133,7 @@ class DefaultFeedQueryStrategyTest {
     Pageable pageable = PageRequest.of(0, 10);
 
     // when
-    List<FeedDto> result = defaultFeedQueryStrategy.findFeeds(condition, null, pageable);
+    List<FeedDto> result = defaultFeedQueryStrategy.findFeeds(condition, null, pageable, viewer.getId());
 
     // then
     List<Long> resultFeedIds = result.stream().map(FeedDto::getFeedId).toList();
@@ -148,7 +152,7 @@ class DefaultFeedQueryStrategyTest {
     Pageable pageable = PageRequest.of(0, 10);
 
     // when
-    List<FeedDto> result = defaultFeedQueryStrategy.findFeeds(condition, null, pageable);
+    List<FeedDto> result = defaultFeedQueryStrategy.findFeeds(condition, null, pageable, viewer.getId());
 
     // then
     List<Long> resultFeedIds = result.stream().map(FeedDto::getFeedId).toList();
@@ -167,7 +171,7 @@ class DefaultFeedQueryStrategyTest {
     Pageable pageable = PageRequest.of(0, 10);
 
     // when
-    List<FeedDto> result = defaultFeedQueryStrategy.findFeeds(condition, LocalDateTime.now(), pageable);
+    List<FeedDto> result = defaultFeedQueryStrategy.findFeeds(condition, LocalDateTime.now(), pageable, viewer.getId());
 
     // then
     FeedDto resultDto = result.stream()
@@ -177,7 +181,7 @@ class DefaultFeedQueryStrategyTest {
 
     assertThat(resultDto).isNotNull();
     assertThat(resultDto.getLikeCount()).isEqualTo(2);
-    assertThat(resultDto.getTotalCommentCount()).isEqualTo(3);
+    assertThat(resultDto.getCommentCount()).isEqualTo(3);
   }
 
   @Test
@@ -193,7 +197,7 @@ class DefaultFeedQueryStrategyTest {
 
     // when: 첫 페이지 (size: 3)
     Pageable page1 = PageRequest.of(0, 3);
-    List<FeedDto> result1 = defaultFeedQueryStrategy.findFeeds(condition, LocalDateTime.now(), page1);
+    List<FeedDto> result1 = defaultFeedQueryStrategy.findFeeds(condition, LocalDateTime.now(), page1, viewer.getId());
 
     // then: 3개 조회
     assertThat(result1).hasSize(3);
@@ -207,7 +211,7 @@ class DefaultFeedQueryStrategyTest {
         cursor,
         FeedSortBy.LATEST
     );
-    List<FeedDto> result2 = defaultFeedQueryStrategy.findFeeds(condition2, condition2.getCursor(), page2);
+    List<FeedDto> result2 = defaultFeedQueryStrategy.findFeeds(condition2, condition2.getCursor(), page2, viewer.getId());
 
     // then: 나머지 1개 조회
     assertThat(result2).hasSize(1);
@@ -229,7 +233,7 @@ class DefaultFeedQueryStrategyTest {
   }
 
   private Feed createAndPersistFeed(Member member, String content, LocalDateTime createdAt) {
-    Feed feed = Feed.of(member, content, FeedCategory.DAILY.name());
+    Feed feed = Feed.of(member, content, FeedCategory.DAILY.name(), "ko");
     em.persist(feed);
     // BaseEntity의 createdAt을 강제로 설정하기 위해 JPQL 사용
     em.createQuery("UPDATE Feed f SET f.createdAt = :createdAt WHERE f.id = :id")

@@ -23,17 +23,18 @@ import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.entity.member_details.MBTI;
 import synapps.resona.api.member.entity.member_details.MemberDetails;
 import synapps.resona.api.member.entity.profile.CountryCode;
-import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.profile.Profile;
 import synapps.resona.api.member.repository.member.MemberRepository;
 import synapps.resona.api.socialMedia.entity.comment.Comment;
 import synapps.resona.api.socialMedia.entity.feed.Feed;
 import synapps.resona.api.socialMedia.repository.comment.CommentRepository;
 import synapps.resona.api.socialMedia.repository.feed.FeedRepository;
+import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
 
 @Transactional
 @DataJpaTest
-@Import(TestQueryDslConfig.class)
+@Import({TestQueryDslConfig.class, FeedExpressions.class})
 class FeedRepositoryTest {
 
   @Autowired
@@ -56,7 +57,7 @@ class FeedRepositoryTest {
     member = createMember("test@example.com", "닉네임");
     memberRepository.save(member);
 
-    feed = Feed.of(member, "첫 피드", "DAILY");
+    feed = Feed.of(member, "첫 피드", "DAILY", "ko");
     feedRepository.save(feed);
   }
 
@@ -148,7 +149,7 @@ class FeedRepositoryTest {
   void findFeedsByCursor_withMultipleFeeds() {
     // given
     for (int i = 1; i <= 5; i++) {
-      Feed f = Feed.of(member, "피드 " + i, "DAILY");
+      Feed f = Feed.of(member, "피드 " + i, "DAILY", "ko");
       feedRepository.save(f);
       sleep(10); // createdAt 시간 차이를 위해 약간의 sleep
     }
@@ -183,7 +184,7 @@ class FeedRepositoryTest {
   void findFeedsByCursorAndMemberId_multipleFeeds() {
     // given
     for (int i = 0; i < 4; i++) {
-      Feed f = Feed.of(member, "멤버 피드 " + i, "DAILY");
+      Feed f = Feed.of(member, "멤버 피드 " + i, "DAILY", "ko");
       feedRepository.save(f);
       sleep(10);
     }

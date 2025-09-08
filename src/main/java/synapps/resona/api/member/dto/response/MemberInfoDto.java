@@ -10,7 +10,7 @@ import lombok.Data;
 import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.member.entity.account.AccountInfo;
 import synapps.resona.api.member.entity.member_details.MemberDetails;
-import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.profile.Profile;
 
 @Data

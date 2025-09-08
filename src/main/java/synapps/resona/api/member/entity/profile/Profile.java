@@ -19,6 +19,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.global.utils.DateTimeUtil;
 

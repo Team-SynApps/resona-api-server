@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.dto.feed.response;
+package synapps.resona.api.socialMedia.dto.feed;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -6,34 +6,48 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.socialMedia.dto.media.FeedMediaDto;
 import synapps.resona.api.socialMedia.entity.feed.Feed;
+import synapps.resona.api.socialMedia.entity.feed.FeedCategory;
 
 @Getter
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class FeedDto {
   private final Long feedId;
-  private final FeedMemberDto member;
-
+  private final FeedMemberDto author;
+  private FeedCategory category;
+  private Language language;
   private final String content;
-  private final int likeCount;
   private final List<FeedMediaDto> images;
-  private final int totalCommentCount;
+
+  private final int likeCount;
+  private final int commentCount;
+
+  private boolean hasLiked;
+  private boolean hasScraped;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private final LocalDateTime createdAt;
 
-  public static FeedDto from(FeedWithCountsDto dto) {
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+  private final LocalDateTime modifiedAt;
+
+  public static FeedDto from(FeedDetailDto dto) {
     Feed feed = dto.getFeed();
     return FeedDto.builder()
         .feedId(feed.getId())
-        .member(FeedMemberDto.from(feed.getMember()))
+        .author(FeedMemberDto.from(feed.getMember()))
         .content(feed.getContent())
+        .category(feed.getCategory())
         .likeCount((int) dto.getLikeCount())
         .images(feed.getImages().stream().map(FeedMediaDto::from).toList()) // @BatchSize
-        .totalCommentCount((int) dto.getTotalCommentCount())
+        .commentCount((int) dto.getCommentCount())
+        .hasLiked(dto.isHasLiked())
+        .hasScraped(dto.isHasScraped())
         .createdAt(feed.getCreatedAt())
+        .modifiedAt(feed.getModifiedAt())
         .build();
   }
 }
