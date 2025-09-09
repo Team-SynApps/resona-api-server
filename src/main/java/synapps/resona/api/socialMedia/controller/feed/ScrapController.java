@@ -99,11 +99,12 @@ public class ScrapController {
       @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"SCRAP_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN", "FORBIDDEN"})
   })
-  @DeleteMapping("/scrap/{scrapId}")
+  @DeleteMapping("/scrap/{feedId}")
   @PreAuthorize("@socialSecurity.isScrapMemberProperty(#scrapId) or hasRole('ADMIN')")
   public ResponseEntity<SuccessResponse<Void>> cancelScrap(HttpServletRequest request,
-      @Parameter(description = "취소할 스크랩의 ID", required = true) @PathVariable Long scrapId) {
-    scrapService.cancelScrap(scrapId);
+      @AuthenticationPrincipal UserPrincipal userPrincipal,
+      @Parameter(description = "취소할 스크랩의 ID", required = true) @PathVariable Long feedId) {
+    scrapService.cancelScrap(feedId, userPrincipal.getMemberId());
     return ResponseEntity
         .status(SocialSuccessCode.CANCEL_SCRAP_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.CANCEL_SCRAP_SUCCESS, createRequestInfo(request.getRequestURI())));

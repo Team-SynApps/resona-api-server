@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.dto.feed.response;
+package synapps.resona.api.socialMedia.dto.feed;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -9,13 +9,13 @@ import synapps.resona.api.member.entity.member.Member;
 @Data
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(staticName = "of")
-public class FeedMemberDto {
+public class SocialMemberDto {
   private Long memberId;
   private String nickname;
   private String profileImageUrl;
 
-  public static FeedMemberDto from(Member member) {
-    return FeedMemberDto.of(
+  public static SocialMemberDto from(Member member) {
+    return SocialMemberDto.of(
         member.getId(),
         member.getProfile().getNickname(),
         member.getProfile().getProfileImageUrl());

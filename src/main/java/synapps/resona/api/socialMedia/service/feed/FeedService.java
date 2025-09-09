@@ -18,15 +18,15 @@ import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.repository.member.MemberRepository;
 import synapps.resona.api.member.service.MemberService;
+import synapps.resona.api.socialMedia.dto.feed.FeedDetailDto;
 import synapps.resona.api.socialMedia.dto.feed.condition.DefaultFeedSearchCondition;
 import synapps.resona.api.socialMedia.dto.feed.FeedSortBy;
 import synapps.resona.api.socialMedia.dto.feed.condition.MemberFeedSearchCondition;
-import synapps.resona.api.socialMedia.dto.feed.response.FeedDto;
+import synapps.resona.api.socialMedia.dto.feed.FeedDto;
 import synapps.resona.api.socialMedia.dto.media.FeedMediaDto;
 import synapps.resona.api.socialMedia.dto.feed.FeedWithMediaDto;
 import synapps.resona.api.socialMedia.dto.feed.request.FeedRequest;
 import synapps.resona.api.socialMedia.dto.feed.request.FeedUpdateRequest;
-import synapps.resona.api.socialMedia.dto.feed.response.FeedReadResponse;
 import synapps.resona.api.socialMedia.dto.feed.response.FeedResponse;
 import synapps.resona.api.socialMedia.dto.media.FeedImageDto;
 import synapps.resona.api.socialMedia.dto.location.LocationRequest;
@@ -64,10 +64,10 @@ public class FeedService {
   }
 
   @Transactional
-  public FeedReadResponse readFeed(Long feedId) {
-    Feed feed = feedRepository.findFeedWithImagesByFeedId(feedId).orElseThrow(FeedException::feedNotFoundException);
+  public FeedDto readFeed(Long feedId, Long memberId) {
+    FeedDetailDto feed = feedRepository.findFeedDetailById(feedId, memberId);
 
-    return FeedReadResponse.from(feed);
+    return FeedDto.from(feed);
   }
 
   @Transactional(readOnly = true)
@@ -83,7 +83,7 @@ public class FeedService {
         );
 
     FeedQueryStrategy<MemberFeedSearchCondition> strategy = feedQueryStrategyFactory.findStrategy(MemberFeedSearchCondition.class);
-    List<FeedDto> feeds = strategy.findFeeds(condition, condition.getCursor(), pageable);
+    List<FeedDto> feeds = strategy.findFeeds(condition, condition.getCursor(), pageable, viewerId);
 
     return createCursorResult(feeds, size);
   }
@@ -121,7 +121,7 @@ public class FeedService {
             FeedSortBy.LATEST);
 
     FeedQueryStrategy<DefaultFeedSearchCondition> strategy = feedQueryStrategyFactory.findStrategy(DefaultFeedSearchCondition.class);
-    List<FeedDto> feeds = strategy.findFeeds(condition, condition.getCursor(), pageable);
+    List<FeedDto> feeds = strategy.findFeeds(condition, condition.getCursor(), pageable, viewerId);
 
     return createCursorResult(feeds, size);
   }
@@ -145,7 +145,7 @@ public class FeedService {
     Member member = memberRepository.findByEmail(email).orElseThrow();
 
     // save feed entity
-    Feed feed = Feed.of(member, feedRequest.getContent(), feedRequest.getCategory());
+    Feed feed = Feed.of(member, feedRequest.getContent(), feedRequest.getCategory(), feedRequest.getLanguage());
     feedRepository.save(feed);
 
     // finalizing feedImages: move buffer bucket images to disk bucket

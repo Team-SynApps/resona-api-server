@@ -12,8 +12,8 @@ import synapps.resona.api.socialMedia.entity.comment.Comment;
 import synapps.resona.api.socialMedia.entity.comment.CommentLikes;
 import synapps.resona.api.socialMedia.exception.CommentException;
 import synapps.resona.api.socialMedia.exception.LikeException;
-import synapps.resona.api.socialMedia.repository.comment.CommentLikesRepository;
-import synapps.resona.api.socialMedia.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.repository.comment.comment.CommentLikesRepository;
+import synapps.resona.api.socialMedia.repository.comment.comment.CommentRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +34,7 @@ public class CommentLikesService {
 
     CommentLikes commentLikes = CommentLikes.of(member, comment);
     commentLikesRepository.save(commentLikes);
-    return CommentLikeResponse.from(commentLikes); // DTO로 변환하여 반환
+    return CommentLikeResponse.from(commentLikes);
   }
 
   @Transactional

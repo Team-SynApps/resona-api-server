@@ -18,13 +18,14 @@ import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.entity.member_details.MBTI;
 import synapps.resona.api.member.entity.member_details.MemberDetails;
 import synapps.resona.api.member.entity.profile.CountryCode;
-import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.profile.Profile;
 import synapps.resona.api.member.repository.member.MemberRepository;
+import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
 
 @Transactional
 @DataJpaTest
-@Import(TestQueryDslConfig.class)
+@Import({TestQueryDslConfig.class, FeedExpressions.class})
 class MemberRepositoryTest {
 
   @Autowired

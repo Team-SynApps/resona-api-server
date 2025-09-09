@@ -24,7 +24,7 @@ import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.entity.member_details.MemberDetails;
 import synapps.resona.api.member.entity.profile.CountryCode;
 import synapps.resona.api.member.entity.profile.Gender;
-import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.profile.Profile;
 import synapps.resona.api.member.exception.ProfileException;
 import synapps.resona.api.member.repository.account.AccountInfoRepository;

@@ -29,9 +29,9 @@ import synapps.resona.api.member.code.AuthErrorCode;
 import synapps.resona.api.member.dto.response.MemberDto;
 import synapps.resona.api.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.socialMedia.code.SocialSuccessCode;
-import synapps.resona.api.socialMedia.dto.reply.request.ReplyRequest;
-import synapps.resona.api.socialMedia.dto.reply.request.ReplyUpdateRequest;
-import synapps.resona.api.socialMedia.dto.reply.response.ReplyResponse;
+import synapps.resona.api.socialMedia.dto.comment.ReplyDto;
+import synapps.resona.api.socialMedia.dto.comment.request.ReplyRequest;
+import synapps.resona.api.socialMedia.dto.comment.request.ReplyUpdateRequest;
 import synapps.resona.api.socialMedia.service.comment.ReplyService;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 
@@ -49,48 +49,48 @@ public class ReplyController {
   }
 
   @Operation(summary = "답글 등록", description = "특정 댓글에 대한 답글을 등록합니다. (인증 필요)")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "REGISTER_REPLY_SUCCESS", responseClass = ReplyResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "REGISTER_REPLY_SUCCESS", responseClass = ReplyDto.class))
   @ApiErrorSpec({
       @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"COMMENT_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @PostMapping
-  public ResponseEntity<SuccessResponse<ReplyResponse>> registerReply(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<ReplyDto>> registerReply(HttpServletRequest request,
       @Valid @RequestBody ReplyRequest replyRequest,
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
-    ReplyResponse response = replyService.register(replyRequest, MemberDto.from(userPrincipal));
+    ReplyDto response = replyService.register(replyRequest, MemberDto.from(userPrincipal));
     return ResponseEntity
         .status(SocialSuccessCode.REGISTER_REPLY_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.REGISTER_REPLY_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
   @Operation(summary = "답글 조회", description = "댓글의 답글들의 정보를 조회합니다.")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_REPLY_SUCCESS", listElementClass = ReplyResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "GET_REPLY_SUCCESS", listElementClass = ReplyDto.class))
   @ApiErrorSpec(@ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"REPLY_NOT_FOUND"}))
   @GetMapping("/{commentId}")
-  public ResponseEntity<SuccessResponse<List<ReplyResponse>>> getReply(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<List<ReplyDto>>> getReply(HttpServletRequest request,
       @AuthenticationPrincipal UserPrincipal userPrincipal,
       @Parameter(description = "조회할 댓글의 ID", required = true) @PathVariable Long commentId) {
     MemberDto memberInfo = MemberDto.from(userPrincipal);
-    List<ReplyResponse> response = replyService.readAll(memberInfo.getId(), commentId);
+    List<ReplyDto> response = replyService.readAll(memberInfo.getId(), commentId);
     return ResponseEntity
         .status(SocialSuccessCode.GET_REPLY_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_REPLY_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
   @Operation(summary = "답글 수정", description = "답글의 내용을 수정합니다. (답글 작성자 또는 관리자만 가능)")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "EDIT_REPLY_SUCCESS", responseClass = ReplyResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "EDIT_REPLY_SUCCESS", responseClass = ReplyDto.class))
   @ApiErrorSpec({
       @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"REPLY_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN", "FORBIDDEN"})
   })
   @PutMapping("/{replyId}")
   @PreAuthorize("@socialSecurity.isReplyMemberProperty(#replyId) or hasRole('ADMIN')")
-  public ResponseEntity<SuccessResponse<ReplyResponse>> updateReply(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<ReplyDto>> updateReply(HttpServletRequest request,
       @Parameter(description = "수정할 답글의 ID", required = true) @PathVariable Long replyId,
       @Valid @RequestBody ReplyUpdateRequest replyUpdateRequest) {
     replyUpdateRequest.setReplyId(replyId);
-    ReplyResponse response = replyService.update(replyUpdateRequest);
+    ReplyDto response = replyService.update(replyUpdateRequest);
     return ResponseEntity
         .status(SocialSuccessCode.EDIT_REPLY_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.EDIT_REPLY_SUCCESS, createRequestInfo(request.getRequestURI()), response));

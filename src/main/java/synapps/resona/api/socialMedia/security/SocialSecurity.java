@@ -6,8 +6,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.service.MemberService;
-import synapps.resona.api.socialMedia.repository.comment.CommentLikesRepository;
-import synapps.resona.api.socialMedia.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.repository.comment.comment.CommentLikesRepository;
+import synapps.resona.api.socialMedia.repository.comment.comment.CommentRepository;
 import synapps.resona.api.socialMedia.repository.feed.FeedRepository;
 import synapps.resona.api.socialMedia.repository.feed.LikesRepository;
 import synapps.resona.api.socialMedia.repository.mention.MentionRepository;
@@ -51,11 +51,6 @@ public class SocialSecurity {
   public boolean isReplyMemberProperty(Long replyId) {
     Member member = memberService.getMemberUsingSecurityContext();
     return replyRepository.existsByIdAndMember(replyId, member);
-  }
-
-  public boolean isLikeMemberProperty(Long likeId) {
-    Member member = memberService.getMemberUsingSecurityContext();
-    return likesRepository.existsByIdAndMember(likeId, member);
   }
 
   public boolean isCommentLikesMemberProperty(Long commentLikesId) {

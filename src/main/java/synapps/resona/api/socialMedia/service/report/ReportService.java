@@ -19,7 +19,7 @@ import synapps.resona.api.socialMedia.entity.report.ReplyReport;
 import synapps.resona.api.socialMedia.exception.CommentException;
 import synapps.resona.api.socialMedia.exception.FeedException;
 import synapps.resona.api.socialMedia.exception.ReplyException;
-import synapps.resona.api.socialMedia.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.repository.comment.comment.CommentRepository;
 import synapps.resona.api.socialMedia.repository.comment.reply.ReplyRepository;
 import synapps.resona.api.socialMedia.repository.feed.FeedRepository;
 import synapps.resona.api.socialMedia.repository.report.ReportRepository;

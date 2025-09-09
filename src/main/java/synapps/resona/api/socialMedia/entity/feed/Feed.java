@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.SQLRestriction;
 import synapps.resona.api.global.entity.BaseEntity;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.socialMedia.entity.comment.Comment;
 import synapps.resona.api.socialMedia.entity.report.FeedReport;
@@ -59,17 +60,22 @@ public class Feed extends BaseEntity {
   private String content;
 
   @Enumerated(EnumType.STRING)
+  @Column(name = "language")
+  private Language language;
+
+  @Enumerated(EnumType.STRING)
   @Column(name = "category")
   private FeedCategory category;
 
-  private Feed(Member member, String content, String category) {
+  private Feed(Member member, String content, String category, String language) {
     this.member = member;
     this.content = content;
     this.category = FeedCategory.of(category);
+    this.language = Language.of(language);
   }
 
-  public static Feed of(Member member, String content, String category) {
-    return new Feed(member, content, category);
+  public static Feed of(Member member, String content, String category, String language) {
+    return new Feed(member, content, category, language);
   }
 
   public void updateContent(String content) {

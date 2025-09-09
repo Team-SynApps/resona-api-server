@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.dto.reply.response;
+package synapps.resona.api.socialMedia.dto.comment.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;

@@ -52,11 +52,11 @@ public class LikeController {
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
       // TODO: 서비스 로직에 중복 체크가 추가 필요 ('ALREADY_LIKED')
   })
-  @PostMapping("/like")
+  @PostMapping("/likes/{feedId}")
   public ResponseEntity<SuccessResponse<LikeResponse>> registerLike(HttpServletRequest request,
-      @RequestBody LikeRequest likeRequest,
+      @Parameter(description = "취소할 피드의 ID", required = true) @PathVariable Long feedId,
       @AuthenticationPrincipal UserPrincipal userPrincipal) {
-    LikeResponse response = likeService.register(likeRequest, MemberDto.from(userPrincipal));
+    LikeResponse response = likeService.register(feedId, userPrincipal.getMemberId());
     return ResponseEntity
         .status(SocialSuccessCode.LIKE_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.LIKE_SUCCESS, createRequestInfo(request.getRequestURI()), response));
@@ -68,11 +68,12 @@ public class LikeController {
       @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"LIKE_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN", "FORBIDDEN"})
   })
-  @DeleteMapping("/like/{likeId}")
-  @PreAuthorize("@socialSecurity.isLikeMemberProperty(#likeId) or hasRole('ADMIN')")
+  @DeleteMapping("/likes/{feedId}")
+//  @PreAuthorize("@socialSecurity.isLikeMemberProperty(#likeId) or hasRole('ADMIN')")
   public ResponseEntity<SuccessResponse<Void>> cancelLike(HttpServletRequest request,
-      @Parameter(description = "취소할 좋아요의 ID", required = true) @PathVariable Long likeId) {
-    likeService.cancel(likeId);
+      @AuthenticationPrincipal UserPrincipal userPrincipal,
+      @Parameter(description = "취소할 좋아요의 피드 ID", required = true) @PathVariable Long feedId) {
+    likeService.cancel(feedId, userPrincipal.getMemberId());
     return ResponseEntity
         .status(SocialSuccessCode.UNLIKE_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.UNLIKE_SUCCESS, createRequestInfo(request.getRequestURI())));

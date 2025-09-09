@@ -23,19 +23,20 @@ import synapps.resona.api.member.entity.account.RoleType;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.entity.member_details.MemberDetails;
 import synapps.resona.api.member.entity.profile.CountryCode;
-import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.profile.Profile;
 import synapps.resona.api.socialMedia.dto.feed.condition.MemberFeedSearchCondition;
 import synapps.resona.api.socialMedia.dto.feed.FeedSortBy;
-import synapps.resona.api.socialMedia.dto.feed.response.FeedDto;
+import synapps.resona.api.socialMedia.dto.feed.FeedDto;
 import synapps.resona.api.socialMedia.entity.comment.Comment;
 import synapps.resona.api.socialMedia.entity.feed.Feed;
 import synapps.resona.api.socialMedia.entity.feed.FeedCategory;
 import synapps.resona.api.socialMedia.entity.feed.Likes;
+import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
 import synapps.resona.api.socialMedia.repository.feed.strategy.MemberFeedQueryStrategy;
 
 @DataJpaTest
-@Import(TestQueryDslConfig.class)
+@Import({TestQueryDslConfig.class, FeedExpressions.class})
 class MemberFeedQueryStrategyTest {
 
   @Autowired
@@ -43,6 +44,9 @@ class MemberFeedQueryStrategyTest {
 
   @Autowired
   private JPAQueryFactory queryFactory;
+
+  @Autowired
+  private FeedExpressions feedExpressions;
 
   private MemberFeedQueryStrategy memberFeedQueryStrategy;
 
@@ -53,7 +57,7 @@ class MemberFeedQueryStrategyTest {
 
   @BeforeEach
   void setUp() {
-    memberFeedQueryStrategy = new MemberFeedQueryStrategy(queryFactory);
+    memberFeedQueryStrategy = new MemberFeedQueryStrategy(queryFactory, feedExpressions);
 
     // 테스트 데이터 생성
     writer1 = createAndPersistMember("writer1@test.com", "writer1");
@@ -90,11 +94,11 @@ class MemberFeedQueryStrategyTest {
     Pageable pageable = PageRequest.of(0, 10);
 
     // when
-    List<FeedDto> result = memberFeedQueryStrategy.findFeeds(condition, null, pageable);
+    List<FeedDto> result = memberFeedQueryStrategy.findFeeds(condition, null, pageable, viewer.getId());
 
     // then
     assertThat(result).hasSize(3); // writer1의 피드 3개만 조회되어야 함
-    assertThat(result).allMatch(dto -> dto.getMember().getMemberId().equals(writer1.getId())); // 모든 결과가 writer1의 피드인지 확인
+    assertThat(result).allMatch(dto -> dto.getAuthor().getMemberId().equals(writer1.getId())); // 모든 결과가 writer1의 피드인지 확인
     assertThat(result.get(0).getFeedId()).isEqualTo(writer1Feed3_withCount.getId()); // 최신순 정렬 확인
   }
 
@@ -111,7 +115,7 @@ class MemberFeedQueryStrategyTest {
     Pageable pageable = PageRequest.of(0, 10);
 
     // when
-    List<FeedDto> result = memberFeedQueryStrategy.findFeeds(condition, null, pageable);
+    List<FeedDto> result = memberFeedQueryStrategy.findFeeds(condition, null, pageable, viewer.getId());
 
     // then
     FeedDto resultDto = result.stream()
@@ -121,7 +125,7 @@ class MemberFeedQueryStrategyTest {
 
     assertThat(resultDto).isNotNull();
     assertThat(resultDto.getLikeCount()).isEqualTo(2);
-    assertThat(resultDto.getTotalCommentCount()).isEqualTo(1);
+    assertThat(resultDto.getCommentCount()).isEqualTo(1);
   }
 
   @Test
@@ -138,7 +142,7 @@ class MemberFeedQueryStrategyTest {
 
     // when: 첫 페이지 (size: 2)
     Pageable page1 = PageRequest.of(0, 2);
-    List<FeedDto> result1 = memberFeedQueryStrategy.findFeeds(condition, null, page1);
+    List<FeedDto> result1 = memberFeedQueryStrategy.findFeeds(condition, null, page1, viewer.getId());
 
     // then: 2개 조회
     assertThat(result1).hasSize(2);
@@ -153,7 +157,7 @@ class MemberFeedQueryStrategyTest {
         cursor,
         FeedSortBy.LATEST
     );
-    List<FeedDto> result2 = memberFeedQueryStrategy.findFeeds(condition2, cursor, page2);
+    List<FeedDto> result2 = memberFeedQueryStrategy.findFeeds(condition2, cursor, page2, viewer.getId());
 
     // then: 나머지 1개 조회
     assertThat(result2).hasSize(1);
@@ -177,7 +181,7 @@ class MemberFeedQueryStrategyTest {
     Pageable pageable = PageRequest.of(0, 10);
 
     // when
-    List<FeedDto> result = memberFeedQueryStrategy.findFeeds(condition, null, pageable);
+    List<FeedDto> result = memberFeedQueryStrategy.findFeeds(condition, null, pageable, viewer.getId());
 
     // then
     assertThat(result).isEmpty();
@@ -199,7 +203,7 @@ class MemberFeedQueryStrategyTest {
   }
 
   private Feed createAndPersistFeed(Member member, String content, LocalDateTime createdAt) {
-    Feed feed = Feed.of(member, content, FeedCategory.DAILY.name());
+    Feed feed = Feed.of(member, content, FeedCategory.DAILY.name(), "ko");
     em.persist(feed);
     em.createQuery("UPDATE Feed f SET f.createdAt = :createdAt WHERE f.id = :id")
         .setParameter("createdAt", createdAt)

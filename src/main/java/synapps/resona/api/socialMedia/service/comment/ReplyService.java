@@ -8,60 +8,62 @@ import synapps.resona.api.member.dto.response.MemberDto;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.repository.member.MemberRepository;
 import synapps.resona.api.member.service.MemberService;
-import synapps.resona.api.socialMedia.dto.reply.request.ReplyRequest;
-import synapps.resona.api.socialMedia.dto.reply.request.ReplyUpdateRequest;
-import synapps.resona.api.socialMedia.dto.reply.response.ReplyResponse;
+import synapps.resona.api.socialMedia.dto.comment.ReplyDto;
+import synapps.resona.api.socialMedia.dto.comment.ReplyProjectionDto;
+import synapps.resona.api.socialMedia.dto.comment.request.ReplyRequest;
+import synapps.resona.api.socialMedia.dto.comment.request.ReplyUpdateRequest;
 import synapps.resona.api.socialMedia.entity.comment.Comment;
+import synapps.resona.api.socialMedia.entity.comment.ContentDisplayStatus;
 import synapps.resona.api.socialMedia.entity.comment.Reply;
 import synapps.resona.api.socialMedia.exception.CommentException;
 import synapps.resona.api.socialMedia.exception.ReplyException;
-import synapps.resona.api.socialMedia.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.repository.comment.comment.CommentRepository;
+import synapps.resona.api.socialMedia.repository.comment.reply.ReplyQueryRepository;
 import synapps.resona.api.socialMedia.repository.comment.reply.ReplyRepository;
 
 @Service
 @RequiredArgsConstructor
 public class ReplyService {
 
-  private final MemberService memberService;
+  private final ReplyQueryRepository replyQueryRepository;
+  private final ReplyProcessor replyProcessor;
   private final ReplyRepository replyRepository;
   private final CommentRepository commentRepository;
   private final MemberRepository memberRepository;
 
   @Transactional
-  public ReplyResponse register(ReplyRequest request, MemberDto memberDto) {
+  public ReplyDto register(ReplyRequest request, MemberDto memberDto) {
     Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
-
     Comment comment = commentRepository.findById(request.getCommentId())
         .orElseThrow(CommentException::commentNotFound);
     comment.addReply();
     Reply reply = Reply.of(comment, member, request.getContent());
     replyRepository.save(reply);
 
-    return ReplyResponse.from(reply, comment.getId());
+    return ReplyDto.of(reply, ContentDisplayStatus.NORMAL, reply.getContent());
   }
 
   @Transactional
-  public ReplyResponse update(ReplyUpdateRequest request) {
-    Reply reply = replyRepository.findWithCommentById(request.getReplyId())
+  public ReplyDto update(ReplyUpdateRequest request) {
+    Reply reply = replyRepository.findWithCommentAndMemberById(request.getReplyId())
         .orElseThrow(ReplyException::replyNotFound);
     reply.update(request.getContent());
-    return ReplyResponse.from(reply);
+
+    return ReplyDto.of(reply, ContentDisplayStatus.NORMAL, reply.getContent());
+  }
+
+  @Transactional(readOnly = true)
+  public List<ReplyDto> readAll(Long viewerId, Long commentId) {
+    List<ReplyProjectionDto> projections = replyQueryRepository.findAllRepliesByCommentId(viewerId, commentId);
+
+    return replyProcessor.process(projections);
   }
 
   @Transactional
-  public List<ReplyResponse> readAll(Long viewerId, Long commentId) {
-    List<Reply> replies = replyRepository.findAllRepliesByCommentId(viewerId, commentId);
-
-    return replies.stream().map(ReplyResponse::from).toList();
-  }
-
-  @Transactional
-  public Reply delete(Long replyId) {
+  public void delete(Long replyId) {
     Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyException::replyNotFound);
     Comment comment = reply.getComment();
     comment.removeReply();
     reply.softDelete();
-
-    return reply;
   }
 }

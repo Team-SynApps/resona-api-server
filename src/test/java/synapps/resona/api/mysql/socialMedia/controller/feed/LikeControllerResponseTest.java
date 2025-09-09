@@ -14,6 +14,7 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import synapps.resona.api.config.WithMockUserPrincipal;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.member.dto.response.MemberDto;
 import synapps.resona.api.socialMedia.controller.feed.LikeController;
@@ -22,9 +23,11 @@ import synapps.resona.api.socialMedia.dto.like.response.LikeResponse;
 import synapps.resona.api.socialMedia.service.feed.LikeService;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.verify;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -33,10 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(
     controllers = LikeController.class,
-    excludeAutoConfiguration = {
-        SecurityAutoConfiguration.class,
-        OAuth2ClientAutoConfiguration.class
-    }
+    excludeAutoConfiguration = { OAuth2ClientAutoConfiguration.class }
 )
 @MockBean(JpaMetamodelMappingContext.class)
 class LikeControllerResponseTest {
@@ -61,37 +61,43 @@ class LikeControllerResponseTest {
 
     @Test
     @DisplayName("좋아요 등록 성공 시, 등록된 좋아요 정보를 반환한다")
+    @WithMockUserPrincipal
     void registerLike_success() throws Exception {
         // given
-        LikeRequest requestDto = new LikeRequest(1L);
-        LikeResponse responseDto = LikeResponse.of(100L, 1L, 1L, LocalDateTime.now());
+        Long feedId = 1L;
+        Long memberId = 1L;
+        LikeResponse responseDto = LikeResponse.of(100L, memberId, feedId, LocalDateTime.now());
 
-        given(likeService.register(any(LikeRequest.class), any(MemberDto.class))).willReturn(responseDto);
+        given(likeService.register(anyLong(), anyLong())).willReturn(responseDto);
 
         // when
-        ResultActions actions = mockMvc.perform(post("/like")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(requestDto)));
+        ResultActions actions = mockMvc.perform(post("/likes/{feedId}", feedId)
+            .with(csrf())
+            .contentType(MediaType.APPLICATION_JSON));
 
         // then
         actions.andExpect(status().isOk())
             .andExpect(jsonPath("$.meta.status").value(200))
             .andExpect(jsonPath("$.data.likeId").value(100L))
-            .andExpect(jsonPath("$.data.memberId").value(1L))
-            .andExpect(jsonPath("$.data.feedId").value(1L))
+            .andExpect(jsonPath("$.data.memberId").value(memberId))
+            .andExpect(jsonPath("$.data.feedId").value(feedId))
             .andDo(print());
+
+        verify(likeService).register(feedId, memberId);
     }
 
     @Test
     @DisplayName("좋아요 취소 성공 시, 200 OK와 성공 메세지를 반환한다")
+    @WithMockUserPrincipal
     void cancelLike_success() throws Exception {
         // given
-        Long likeId = 1L;
-        // likeService.cancel의 반환 타입이 void이므로 doNothing()을 사용
-        doNothing().when(likeService).cancel(likeId);
+        Long feedId = 1L;
+        Long memberId = 1L;
+        doNothing().when(likeService).cancel(anyLong(), anyLong());
 
         // when
-        ResultActions actions = mockMvc.perform(delete("/like/{likeId}", likeId)
+        ResultActions actions = mockMvc.perform(delete("/likes/{feedId}", feedId)
+            .with(csrf())
             .contentType(MediaType.APPLICATION_JSON));
 
         // then
@@ -100,7 +106,6 @@ class LikeControllerResponseTest {
             .andExpect(jsonPath("$.data").doesNotExist())
             .andDo(print());
 
-        // likeService.cancel(likeId)가 호출되었는지 검증
-        verify(likeService).cancel(likeId);
+        verify(likeService).cancel(feedId, memberId);
     }
 }

@@ -14,7 +14,7 @@ import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.socialMedia.entity.feed.Feed;
 
 @MySQLRepository
-public interface FeedRepository extends JpaRepository<Feed, Long> {
+public interface FeedRepository extends JpaRepository<Feed, Long>, FeedRepositoryCustom {
 
   // for test
   List<Feed> findAllByMember(Member member);
@@ -34,6 +34,7 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
       "WHERE f.member.id = :memberId " +
       "GROUP BY f.id")
   List<Object[]> countLikesByMemberId(@Param("memberId") Long memberId);
+
 
   // cursor
 //    @Query("SELECT f FROM Feed f WHERE f.createdAt < :cursor " +

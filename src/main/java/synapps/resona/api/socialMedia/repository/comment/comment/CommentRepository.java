@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.repository.comment;
+package synapps.resona.api.socialMedia.repository.comment.comment;
 
 import java.util.List;
 import java.util.Optional;

@@ -32,4 +32,8 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long> {
       Pageable pageable);
 
   Optional<Scrap> findByMemberAndFeedId(Member member, Long feedId);
+
+  @Query("SELECT s FROM Scrap s "
+      + "WHERE s.feed.id = :feedId AND s.member.id = :memberId")
+  Optional<Scrap> findScrapByFeedId(@Param("feedId") Long feedId, @Param("memberId") Long memberId);
 }

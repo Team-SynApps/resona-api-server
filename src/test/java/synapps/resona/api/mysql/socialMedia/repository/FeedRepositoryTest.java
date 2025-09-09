@@ -18,22 +18,26 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import synapps.resona.api.config.TestQueryDslConfig;
+import synapps.resona.api.fixture.CommentFixture;
+import synapps.resona.api.fixture.FeedFixture;
+import synapps.resona.api.fixture.MemberFixture;
 import synapps.resona.api.member.entity.account.AccountInfo;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.entity.member_details.MBTI;
 import synapps.resona.api.member.entity.member_details.MemberDetails;
 import synapps.resona.api.member.entity.profile.CountryCode;
-import synapps.resona.api.member.entity.profile.Language;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.profile.Profile;
 import synapps.resona.api.member.repository.member.MemberRepository;
 import synapps.resona.api.socialMedia.entity.comment.Comment;
 import synapps.resona.api.socialMedia.entity.feed.Feed;
-import synapps.resona.api.socialMedia.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.repository.comment.comment.CommentRepository;
 import synapps.resona.api.socialMedia.repository.feed.FeedRepository;
+import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
 
 @Transactional
 @DataJpaTest
-@Import(TestQueryDslConfig.class)
+@Import({TestQueryDslConfig.class, FeedExpressions.class})
 class FeedRepositoryTest {
 
   @Autowired
@@ -53,10 +57,10 @@ class FeedRepositoryTest {
 
   @BeforeEach
   void setUp() {
-    member = createMember("test@example.com", "닉네임");
+    member = MemberFixture.createMember("test@example.com", "닉네임");
     memberRepository.save(member);
 
-    feed = Feed.of(member, "첫 피드", "DAILY");
+    feed = FeedFixture.createFeed(member, "첫 피드");
     feedRepository.save(feed);
   }
 
@@ -86,7 +90,7 @@ class FeedRepositoryTest {
   @DisplayName("피드 ID로 댓글까지 fetch join 조회한다.")
   void findWithCommentById() {
     // given
-    Comment comment = Comment.of(feed, member, "댓글입니다");
+    Comment comment = CommentFixture.createComment(feed, member, "댓글입니다");
     commentRepository.save(comment);
     em.flush();
     em.clear();
@@ -148,7 +152,7 @@ class FeedRepositoryTest {
   void findFeedsByCursor_withMultipleFeeds() {
     // given
     for (int i = 1; i <= 5; i++) {
-      Feed f = Feed.of(member, "피드 " + i, "DAILY");
+      Feed f = Feed.of(member, "피드 " + i, "DAILY", "ko");
       feedRepository.save(f);
       sleep(10); // createdAt 시간 차이를 위해 약간의 sleep
     }
@@ -183,7 +187,7 @@ class FeedRepositoryTest {
   void findFeedsByCursorAndMemberId_multipleFeeds() {
     // given
     for (int i = 0; i < 4; i++) {
-      Feed f = Feed.of(member, "멤버 피드 " + i, "DAILY");
+      Feed f = Feed.of(member, "멤버 피드 " + i, "DAILY", "ko");
       feedRepository.save(f);
       sleep(10);
     }
@@ -198,19 +202,6 @@ class FeedRepositoryTest {
     // then
     assertThat(result).isNotEmpty();
     assertThat(result).allMatch(f -> f.getMember().getId().equals(member.getId()));
-  }
-
-
-  private Member createMember(String email, String nickname) {
-    AccountInfo accountInfo = AccountInfo.empty();
-    MemberDetails memberDetails = MemberDetails.of(0, "01011112222", MBTI.INFP, "소개글", "위치");
-    Profile profile = Profile.of(
-        CountryCode.KR, CountryCode.KR,
-        Set.of(Language.KOREAN), Set.of(Language.ENGLISH),
-        nickname,nickname+"-tag", "http://img.url/" + nickname, "2000-01-01"
-    );
-
-    return Member.of(accountInfo, memberDetails, profile, email, "password", LocalDateTime.now());
   }
 
   private void sleep(int millis) {

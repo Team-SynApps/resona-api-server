@@ -1,9 +1,10 @@
-package synapps.resona.api.member.entity.profile;
+package synapps.resona.api.global.entity;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import synapps.resona.api.member.exception.LanguageException;
+import synapps.resona.api.socialMedia.entity.feed.FeedCategory;
 
 public enum Language {
   AFRIKAANS("af", "Afrikaans"),
@@ -166,6 +167,12 @@ public enum Language {
         .filter(language -> language.code.equalsIgnoreCase(code))
         .findFirst()
         .orElseThrow(LanguageException::languageNotFound);
+  }
+
+  public static Language of(String s) {
+    return Arrays.stream(Language.values())
+        .filter(r -> r.toString().equals(s))
+        .findAny().orElse(NOT_DEFINED);
   }
 
 

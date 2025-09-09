@@ -26,18 +26,18 @@ public class LikeService {
   private final MemberRepository memberRepository;
 
   @Transactional
-  public LikeResponse register(LikeRequest request, MemberDto memberDto) {
-    Feed feed = feedRepository.findById(request.getFeedId())
+  public LikeResponse register(Long feedId, Long memberId) {
+    Feed feed = feedRepository.findById(feedId)
         .orElseThrow(FeedException::feedNotFoundException);
-    Member member = memberRepository.findById(memberDto.getId()).orElseThrow();
+    Member member = memberRepository.findById(memberId).orElseThrow();
 
     Likes likes = Likes.of(member, feed);
     return LikeResponse.from(likesRepository.save(likes));
   }
 
   @Transactional
-  public void cancel(Long likeId) {
-    Likes like = likesRepository.findById(likeId).orElseThrow(LikeException::likeNotFound);
+  public void cancel(Long feedId, Long memberId) {
+    Likes like = likesRepository.findLikesByFeedId(feedId, memberId).orElseThrow(LikeException::likeNotFound);
     like.softDelete();
   }
 }
