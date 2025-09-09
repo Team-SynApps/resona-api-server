@@ -56,10 +56,10 @@ public class ScrapService {
   }
 
   @Transactional
-  public void cancelScrap(Long scrapId) {
-    Scrap scrap = scrapRepository.findById(scrapId)
+  public void cancelScrap(Long feedId, Long memberId) {
+    Scrap scrap = scrapRepository.findScrapByFeedId(feedId, memberId)
         .orElseThrow(ScrapException::scrapNotFound);
-    scrapRepository.delete(scrap); // softDelete() 대신 실제 삭제로 변경 (또는 softDelete 로직이 Scrap 엔티티에 확실히 존재해야 함)
+    scrap.softDelete();
   }
 
   @Transactional(readOnly = true)

@@ -139,7 +139,7 @@ class ScrapControllerResponseTest {
   void cancelScrap_success() throws Exception {
     // given
     Long scrapId = 1L;
-    doNothing().when(scrapService).cancelScrap(scrapId);
+    doNothing().when(scrapService).cancelScrap(scrapId, 1L);
 
     // when
     ResultActions actions = mockMvc.perform(delete("/scrap/{scrapId}", scrapId)
@@ -152,6 +152,6 @@ class ScrapControllerResponseTest {
         .andExpect(jsonPath("$.data").doesNotExist())
         .andDo(print());
 
-    verify(scrapService).cancelScrap(scrapId);
+    verify(scrapService).cancelScrap(scrapId, 1L);
   }
 }
