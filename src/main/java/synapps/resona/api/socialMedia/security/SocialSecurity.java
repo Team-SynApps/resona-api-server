@@ -53,11 +53,6 @@ public class SocialSecurity {
     return replyRepository.existsByIdAndMember(replyId, member);
   }
 
-  public boolean isLikeMemberProperty(Long likeId) {
-    Member member = memberService.getMemberUsingSecurityContext();
-    return likesRepository.existsByIdAndMember(likeId, member);
-  }
-
   public boolean isCommentLikesMemberProperty(Long commentLikesId) {
     Member member = memberService.getMemberUsingSecurityContext();
     return commentLikesRepository.existsByIdAndMember(commentLikesId, member);
