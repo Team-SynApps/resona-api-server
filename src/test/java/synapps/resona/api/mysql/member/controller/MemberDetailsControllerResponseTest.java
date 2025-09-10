@@ -14,11 +14,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.mysql.member.dto.request.member_details.MemberDetailsRequest;
-import synapps.resona.api.mysql.member.dto.response.MemberDetailsResponse;
-import synapps.resona.api.mysql.member.entity.member_details.MBTI;
-import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
-import synapps.resona.api.mysql.member.service.MemberDetailsService;
+import synapps.resona.api.member.controller.MemberDetailsController;
+import synapps.resona.api.member.dto.request.member_details.MemberDetailsRequest;
+import synapps.resona.api.member.dto.response.MemberDetailsResponse;
+import synapps.resona.api.member.entity.member_details.MBTI;
+import synapps.resona.api.member.entity.member_details.MemberDetails;
+import synapps.resona.api.member.service.MemberDetailsService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;

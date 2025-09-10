@@ -23,11 +23,12 @@ spring:
       host: localhost
       port: 6379
     mongodb:
-      host: localhost
-      port: 27017
-      authentication-database: test
-      username: test-user
-      password: test-password
+      uri: mongodb://localhost/test
+  #      host: localhost
+#      port: 27017
+#      authentication-database: test
+#      username: test-user
+#      password: test-password
 
   task:
     execution:

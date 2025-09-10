@@ -6,7 +6,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
@@ -14,20 +13,22 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.config.WithMockUserPrincipal;
+import synapps.resona.api.fixture.CommentFixture;
+import synapps.resona.api.fixture.ReplyFixture;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentRequest;
-import synapps.resona.api.mysql.socialMedia.dto.comment.request.CommentUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.dto.comment.response.CommentResponse;
-import synapps.resona.api.mysql.socialMedia.dto.reply.response.ReplyResponse;
-import synapps.resona.api.mysql.socialMedia.entity.comment.Comment;
-import synapps.resona.api.mysql.socialMedia.service.comment.CommentService;
+import synapps.resona.api.socialMedia.controller.comment.CommentController;
+import synapps.resona.api.socialMedia.dto.comment.CommentDto;
+import synapps.resona.api.socialMedia.dto.comment.request.CommentRequest;
+import synapps.resona.api.socialMedia.dto.comment.request.CommentUpdateRequest;
+import synapps.resona.api.socialMedia.dto.comment.ReplyDto;
+import synapps.resona.api.socialMedia.entity.comment.Comment;
+import synapps.resona.api.socialMedia.service.comment.CommentService;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -64,12 +65,12 @@ class CommentControllerResponseTest {
   }
 
   @Test
-  @DisplayName("댓글 등록 성공 시, 등록된 CommentPostResponse를 반환한다")
+  @DisplayName("댓글 등록 성공 시, 등록된 CommentDto를 반환한다")
   @WithMockUserPrincipal(memberId = 1L)
   void registerComment_success() throws Exception {
     // given
-    CommentRequest requestDto = new CommentRequest(1L, "New Comment");
-    CommentResponse responseDto = CommentResponse.of(101L, "New Comment", LocalDateTime.now(), LocalDateTime.now());
+    CommentRequest requestDto = CommentFixture.createCommentRequest(1L, "New Comment");
+    CommentDto responseDto = CommentFixture.createCommentDto(101L, "New Comment");
     given(commentService.register(any(CommentRequest.class))).willReturn(responseDto);
 
     // when
@@ -82,18 +83,23 @@ class CommentControllerResponseTest {
     actions.andExpect(status().isCreated())
         .andExpect(jsonPath("$.meta.status").value(201))
         .andExpect(jsonPath("$.data.commentId").value(101L))
+        .andExpect(jsonPath("$.data.author.memberId").value(1L))
+        .andExpect(jsonPath("$.data.author.nickname").value("test_user"))
+        .andExpect(jsonPath("$.data.author.profileImageUrl").value("test_url"))
         .andExpect(jsonPath("$.data.content").value("New Comment"))
+        .andExpect(jsonPath("$.data.createdAt").exists())
+        .andExpect(jsonPath("$.data.modifiedAt").exists())
         .andDo(print());
   }
 
   @Test
-  @DisplayName("댓글 단건 조회 성공 시, CommentReadResponse를 반환한다")
+  @DisplayName("댓글 단건 조회 성공 시, CommentDto를 반환한다")
   @WithMockUserPrincipal(memberId = 1L)
   void getComment_success() throws Exception {
     // given
     Long commentId = 101L;
-    CommentResponse responseDto = CommentResponse.of(commentId, "A single comment", LocalDateTime.now(), LocalDateTime.now());
-    given(commentService.getComment(commentId)).willReturn(responseDto);
+    CommentDto responseDto = CommentFixture.createCommentDto(commentId, "A single comment");
+    given(commentService.getComment(1L, commentId)).willReturn(responseDto);
 
     // when
     ResultActions actions = mockMvc.perform(get("/comments/{commentId}", commentId)
@@ -104,19 +110,22 @@ class CommentControllerResponseTest {
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
         .andExpect(jsonPath("$.data.commentId").value(commentId))
+        .andExpect(jsonPath("$.data.author.memberId").value(1L))
+        .andExpect(jsonPath("$.data.author.nickname").value("test_user"))
+        .andExpect(jsonPath("$.data.author.profileImageUrl").value("test_url"))
+        .andExpect(jsonPath("$.data.content").value("A single comment"))
+        .andExpect(jsonPath("$.data.createdAt").exists())
+        .andExpect(jsonPath("$.data.modifiedAt").exists())
         .andDo(print());
   }
 
   @Test
-  @DisplayName("피드 전체 댓글 조회 성공 시, CommentPostResponse 리스트를 반환한다")
+  @DisplayName("피드 전체 댓글 조회 성공 시, CommentDto 리스트를 반환한다")
   @WithMockUserPrincipal(memberId = 1L)
   void getComments_success() throws Exception {
     // given
     Long feedId = 1L;
-    List<CommentResponse> responseList = List.of(
-        CommentResponse.of(101L, "First comment", LocalDateTime.now(), LocalDateTime.now()),
-        CommentResponse.of(102L, "Second comment", LocalDateTime.now(), LocalDateTime.now())
-    );
+    List<CommentDto> responseList = CommentFixture.createCommentDtoList();
     given(commentService.getCommentsByFeedId(1L, feedId)).willReturn(responseList);
 
     // when
@@ -128,20 +137,21 @@ class CommentControllerResponseTest {
         .andExpect(jsonPath("$.meta.status").value(200))
         .andExpect(jsonPath("$.data").isArray())
         .andExpect(jsonPath("$.data.length()").value(2))
+        .andExpect(jsonPath("$.data[0].commentId").value(101L))
+        .andExpect(jsonPath("$.data[0].content").value("First comment"))
         .andExpect(jsonPath("$.data[1].commentId").value(102L))
+        .andExpect(jsonPath("$.data[1].content").value("Second comment"))
         .andDo(print());
   }
 
   @Test
-  @DisplayName("댓글의 답글 조회 성공 시, ReplyReadResponse 리스트를 반환한다")
+  @DisplayName("댓글의 답글 조회 성공 시, ReplyDto 리스트를 반환한다")
   @WithMockUserPrincipal(memberId = 1L)
   void getReplies_success() throws Exception {
     // given
     Long commentId = 101L;
-    List<ReplyResponse> responseList = List.of(
-        ReplyResponse.of(commentId,201L,  "This is a reply", LocalDateTime.now())
-    );
-    given(commentService.getReplies(commentId)).willReturn(responseList);
+    List<ReplyDto> responseList = ReplyFixture.createReplyDtoList(commentId);
+    given(commentService.getReplies(1L, commentId)).willReturn(responseList);
 
     // when
     ResultActions actions = mockMvc.perform(get("/comments/{commentId}/replies", commentId)
@@ -152,18 +162,19 @@ class CommentControllerResponseTest {
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
         .andExpect(jsonPath("$.data").isArray())
-        .andExpect(jsonPath("$.data[0].replyId").value("201"))
+        .andExpect(jsonPath("$.data[0].replyId").value(201L))
+        .andExpect(jsonPath("$.data[0].content").value("This is a reply."))
         .andDo(print());
   }
 
   @Test
-  @DisplayName("댓글 수정 성공 시, 수정된 CommentUpdateResponse를 반환한다")
+  @DisplayName("댓글 수정 성공 시, 수정된 CommentDto를 반환한다")
   @WithMockUserPrincipal(memberId = 1L)
   void editComment_success() throws Exception {
     // given
     Long commentId = 101L;
-    CommentUpdateRequest requestDto = new CommentUpdateRequest(commentId, "Updated content");
-    CommentResponse responseDto = CommentResponse.of(commentId, "Updated content", LocalDateTime.now(), LocalDateTime.now());
+    CommentUpdateRequest requestDto = CommentFixture.createCommentUpdateRequest(commentId, "Updated content");
+    CommentDto responseDto = CommentFixture.createCommentDto(commentId, "Updated content");
     given(commentService.edit(any(CommentUpdateRequest.class))).willReturn(responseDto);
 
     // when
@@ -181,15 +192,12 @@ class CommentControllerResponseTest {
   }
 
   @Test
-  @DisplayName("댓글 삭제 성공 시, 삭제 처리된 Comment 엔티티를 반환한다")
+  @DisplayName("댓글 삭제 성공 시, 200 OK를 반환한다")
   @WithMockUserPrincipal(memberId = 1L)
   void deleteComment_success() throws Exception {
     // given
     Long commentId = 101L;
-    Comment mockComment = mock(Comment.class);
-    given(mockComment.getId()).willReturn(commentId);
-    given(mockComment.getContent()).willReturn("This comment was deleted.");
-    given(commentService.deleteComment(commentId)).willReturn(mockComment);
+    doNothing().when(commentService).deleteComment(commentId);
 
     // when
     ResultActions actions = mockMvc.perform(delete("/comments/{commentId}", commentId)
@@ -199,8 +207,7 @@ class CommentControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-//        .andExpect(jsonPath("$.data[0].id").value(commentId))
-//        .andExpect(jsonPath("$.data[0].content").value("This comment was deleted."))
+        .andExpect(jsonPath("$.data").doesNotExist())
         .andDo(print());
   }
 }

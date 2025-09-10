@@ -12,17 +12,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.global.properties.AppProperties;
-import synapps.resona.api.mysql.member.dto.response.TempTokenResponse;
-import synapps.resona.api.mysql.member.entity.account.AccountInfo;
-import synapps.resona.api.mysql.member.entity.account.AccountStatus;
-import synapps.resona.api.mysql.member.entity.account.RoleType;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
-import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.member.repository.account.AccountInfoRepository;
-import synapps.resona.api.mysql.member.repository.member.MemberRepository;
-import synapps.resona.api.mysql.token.AuthTokenProvider;
-import synapps.resona.api.oauth.entity.ProviderType;
+import synapps.resona.api.member.dto.response.TempTokenResponse;
+import synapps.resona.api.member.entity.account.AccountInfo;
+import synapps.resona.api.member.entity.account.AccountStatus;
+import synapps.resona.api.member.entity.account.RoleType;
+import synapps.resona.api.member.entity.member.Member;
+import synapps.resona.api.member.entity.member_details.MemberDetails;
+import synapps.resona.api.member.entity.profile.Profile;
+import synapps.resona.api.member.repository.account.AccountInfoRepository;
+import synapps.resona.api.member.repository.member.MemberRepository;
+import synapps.resona.api.member.service.TempTokenService;
+import synapps.resona.api.token.AuthTokenProvider;
 
 class TempTokenServiceTest extends IntegrationTestSupport {
 

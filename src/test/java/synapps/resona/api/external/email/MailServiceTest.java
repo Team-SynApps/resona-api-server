@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import synapps.resona.api.external.email.exception.EmailException;
-import synapps.resona.api.mysql.member.dto.response.TempTokenResponse;
-import synapps.resona.api.mysql.member.service.TempTokenService;
+import synapps.resona.api.member.dto.response.TempTokenResponse;
+import synapps.resona.api.member.service.TempTokenService;
 
 public class MailServiceTest {
 

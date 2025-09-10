@@ -6,29 +6,24 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.config.WithMockUserPrincipal;
+import synapps.resona.api.fixture.FeedFixture;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.CursorResult;
-import synapps.resona.api.mysql.socialMedia.dto.feed.FeedWithMediaDto;
-import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRegistrationRequest;
-import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedRequest;
-import synapps.resona.api.mysql.socialMedia.dto.feed.request.FeedUpdateRequest;
-import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedDto;
-import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedMemberDto;
-import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedReadResponse;
-import synapps.resona.api.mysql.socialMedia.dto.feed.response.FeedResponse;
-import synapps.resona.api.mysql.socialMedia.dto.media.FeedMediaDto;
-import synapps.resona.api.mysql.socialMedia.entity.feed.Feed;
-import synapps.resona.api.mysql.socialMedia.entity.media.FeedMedia;
-import synapps.resona.api.mysql.socialMedia.service.feed.FeedService;
+import synapps.resona.api.socialMedia.controller.feed.FeedController;
+import synapps.resona.api.socialMedia.dto.feed.request.FeedRegistrationRequest;
+import synapps.resona.api.socialMedia.dto.feed.request.FeedRequest;
+import synapps.resona.api.socialMedia.dto.feed.request.FeedUpdateRequest;
+import synapps.resona.api.socialMedia.dto.feed.FeedDto;
+import synapps.resona.api.socialMedia.dto.feed.response.FeedResponse;
+import synapps.resona.api.socialMedia.entity.feed.Feed;
+import synapps.resona.api.socialMedia.service.feed.FeedService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static synapps.resona.api.fixture.FeedFixture.*;
 
 
 @WebMvcTest(
@@ -71,31 +67,13 @@ class FeedControllerResponseTest {
     given(serverInfo.getServerName()).willReturn("test-server");
   }
 
-  private FeedDto createFeedDto(Long id, String content, LocalDateTime createdAt) {
-    FeedMemberDto memberDto = FeedMemberDto.of(100L, "test_user", "url");
-    List<FeedMediaDto> images = List.of(
-        FeedMediaDto.of(1L, "test-url1"),
-        FeedMediaDto.of(2L, "test-url2"),
-        FeedMediaDto.of(3L, "test-url3"));
-
-    return FeedDto.builder()
-        .feedId(id)
-        .content(content)
-        .member(memberDto)
-        .images(images)
-        .likeCount(5)
-        .totalCommentCount(3)
-        .createdAt(createdAt)
-        .build();
-  }
-
   @Test
   @DisplayName("피드 등록 성공 시, 등록된 FeedResponse를 반환한다")
   @WithMockUserPrincipal
   void registerFeed_success() throws Exception {
     // given
-    FeedRegistrationRequest requestDto = new FeedRegistrationRequest(List.of(), new FeedRequest());
-    FeedResponse responseDto = FeedResponse.builder().id("1").content("New Feed").build();
+    FeedRegistrationRequest requestDto = createFeedRegistrationRequest();
+    FeedResponse responseDto = createFeedResponse();
 
     given(feedService.registerFeed(anyList(), any(FeedRequest.class))).willReturn(responseDto);
 
@@ -115,12 +93,16 @@ class FeedControllerResponseTest {
 
   @Test
   @DisplayName("피드 단건 조회 성공 시, FeedReadResponse를 반환한다")
-  @WithMockUserPrincipal(memberId = 100L)
+  @WithMockUserPrincipal(memberId = 100L) // 현재 로그인한 사용자 ID: 100
   void readFeed_success() throws Exception {
     // given
     Long feedId = 1L;
-    FeedReadResponse responseDto = FeedReadResponse.builder().id("1").content("Feed Content").build();
-    given(feedService.readFeed(feedId)).willReturn(responseDto);
+    Long authorId = 10L;
+    Long viewerId = 100L; // @WithMockUserPrincipal ID와 일치
+
+    FeedDto responseDto = FeedFixture.createFeedDto(feedId, authorId, "Feed Content", LocalDateTime.now().minusHours(1));
+
+    given(feedService.readFeed(feedId, viewerId)).willReturn(responseDto);
 
     // when
     ResultActions actions = mockMvc.perform(get("/feed/{feedId}", feedId)
@@ -129,8 +111,19 @@ class FeedControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data.id").value("1"))
+        .andExpect(jsonPath("$.meta.message").value("피드 조회에 성공하였습니다."))
+        .andExpect(jsonPath("$.data.feedId").value(feedId))
         .andExpect(jsonPath("$.data.content").value("Feed Content"))
+        .andExpect(jsonPath("$.data.likeCount").value(10))
+        .andExpect(jsonPath("$.data.commentCount").value(5))
+        .andExpect(jsonPath("$.data.hasLiked").value(true))
+        .andExpect(jsonPath("$.data.hasScraped").value(false))
+        .andExpect(jsonPath("$.data.createdAt").exists())
+        .andExpect(jsonPath("$.data.author.memberId").value(authorId))
+        .andExpect(jsonPath("$.data.author.nickname").value("AuthorNickname"))
+        .andExpect(jsonPath("$.data.author.profileImageUrl").exists())
+        .andExpect(jsonPath("$.data.images").isArray())
+        .andExpect(jsonPath("$.data.images[0].url").value("http://image.url/1"))
         .andDo(print());
   }
 
@@ -167,36 +160,14 @@ class FeedControllerResponseTest {
         .andDo(print());
   }
 
-//  @Test
-//  @DisplayName("특정 멤버의 피드 목록 조회 성공 시, FeedWithMediaDto 리스트를 반환한다")
-//  @WithMockUserPrincipal(memberId = 1L, email = "test@example.com")
-//  void readFeedsByMember_success() throws Exception {
-//    // given
-//    Long memberId = 123L;
-//    List<FeedWithMediaDto> responseList = List.of(new FeedWithMediaDto(1L, "Content 1", 10, List.of()));
-//    given(feedService.getFeedsWithMediaAndLikeCount(memberId)).willReturn(responseList);
-//
-//    // when
-//    ResultActions actions = mockMvc.perform(get("/feeds/member/{memberId}", memberId)
-//        .contentType(MediaType.APPLICATION_JSON));
-//
-//    // then
-//    actions.andExpect(status().isOk())
-//        .andExpect(jsonPath("$.meta.status").value(200))
-//        .andExpect(jsonPath("$.data").isArray())
-//        .andExpect(jsonPath("$.data[0].feedId").value(1L))
-//        .andExpect(jsonPath("$.data[0].likeCount").value(10))
-//        .andDo(print());
-//  }
-
   @Test
   @DisplayName("피드 수정 성공 시, 수정된 FeedResponse를 반환한다")
   @WithMockUserPrincipal(memberId = 1L, email = "test@example.com")
   void editFeed_success() throws Exception {
     // given
     Long feedId = 1L;
-    FeedUpdateRequest requestDto = new FeedUpdateRequest("Updated Content");
-    FeedResponse responseDto = FeedResponse.builder().id("1").content("Updated Content").build();
+    FeedUpdateRequest requestDto = createFeedUpdateRequest();
+    FeedResponse responseDto = createUpdatedFeedResponse();
     given(feedService.updateFeed(eq(feedId), any(FeedUpdateRequest.class))).willReturn(responseDto);
 
     // when
@@ -232,8 +203,6 @@ class FeedControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-//        .andExpect(jsonPath("$.data.id").value(feedId))
-//        .andExpect(jsonPath("$.data.content").value("This feed is deleted."))
         .andDo(print());
   }
 }

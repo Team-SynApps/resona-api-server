@@ -12,23 +12,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
-import synapps.resona.api.IntegrationTestSupport;
 import synapps.resona.api.config.TestQueryDslConfig;
-import synapps.resona.api.global.config.database.QueryDslConfig;
-import synapps.resona.api.mysql.member.entity.account.AccountInfo;
-import synapps.resona.api.mysql.member.entity.member.Follow;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.member_details.MBTI;
-import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
-import synapps.resona.api.mysql.member.entity.profile.CountryCode;
-import synapps.resona.api.mysql.member.entity.profile.Language;
-import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.member.repository.member.FollowRepository;
-import synapps.resona.api.mysql.member.repository.member.MemberRepository;
+import synapps.resona.api.member.entity.account.AccountInfo;
+import synapps.resona.api.member.entity.member.Follow;
+import synapps.resona.api.member.entity.member.Member;
+import synapps.resona.api.member.entity.member_details.MBTI;
+import synapps.resona.api.member.entity.member_details.MemberDetails;
+import synapps.resona.api.member.entity.profile.CountryCode;
+import synapps.resona.api.global.entity.Language;
+import synapps.resona.api.member.entity.profile.Profile;
+import synapps.resona.api.member.repository.member.FollowRepository;
+import synapps.resona.api.member.repository.member.MemberRepository;
+import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
 
 @Transactional
 @DataJpaTest
-@Import(TestQueryDslConfig.class)
+@Import({TestQueryDslConfig.class, FeedExpressions.class})
 class FollowRepositoryTest {
 
   @Autowired

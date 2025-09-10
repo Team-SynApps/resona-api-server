@@ -5,7 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.external.email.exception.EmailException;
-import synapps.resona.api.mysql.member.service.TempTokenService;
+import synapps.resona.api.member.service.TempTokenService;
 
 @Service
 @RequiredArgsConstructor

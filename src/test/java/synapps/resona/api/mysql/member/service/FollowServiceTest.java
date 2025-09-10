@@ -3,7 +3,6 @@ package synapps.resona.api.mysql.member.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,15 +11,17 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import synapps.resona.api.IntegrationTestSupport;
-import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
-import synapps.resona.api.mysql.member.dto.response.MemberProfileDto;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.profile.CountryCode;
-import synapps.resona.api.mysql.member.entity.profile.Language;
-import synapps.resona.api.mysql.member.repository.member.FollowRepository;
-import synapps.resona.api.mysql.member.repository.member.MemberRepository;
+import synapps.resona.api.member.dto.request.auth.RegisterRequest;
+import synapps.resona.api.member.dto.response.MemberProfileDto;
+import synapps.resona.api.member.entity.member.Member;
+import synapps.resona.api.member.entity.profile.CountryCode;
+import synapps.resona.api.global.entity.Language;
+import synapps.resona.api.member.repository.member.FollowRepository;
+import synapps.resona.api.member.repository.member.MemberRepository;
+import synapps.resona.api.member.service.FollowService;
+import synapps.resona.api.member.service.MemberService;
+import synapps.resona.api.member.service.TempTokenService;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Transactional

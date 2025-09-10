@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -13,30 +12,33 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
 import synapps.resona.api.IntegrationTestSupport;
-import synapps.resona.api.mysql.member.dto.request.auth.RegisterRequest;
-import synapps.resona.api.mysql.member.dto.request.profile.ProfileRequest;
-import synapps.resona.api.mysql.member.dto.response.ProfileResponse;
-import synapps.resona.api.mysql.member.entity.account.AccountInfo;
-import synapps.resona.api.mysql.member.entity.account.AccountStatus;
-import synapps.resona.api.mysql.member.entity.account.RoleType;
-import synapps.resona.api.mysql.member.entity.member.Member;
-import synapps.resona.api.mysql.member.entity.member_details.MemberDetails;
-import synapps.resona.api.mysql.member.entity.profile.CountryCode;
-import synapps.resona.api.mysql.member.entity.profile.Gender;
-import synapps.resona.api.mysql.member.entity.profile.Language;
-import synapps.resona.api.mysql.member.entity.profile.Profile;
-import synapps.resona.api.mysql.member.exception.ProfileException;
-import synapps.resona.api.mysql.member.repository.account.AccountInfoRepository;
-import synapps.resona.api.mysql.member.repository.member.MemberRepository;
-import synapps.resona.api.oauth.entity.ProviderType;
+import synapps.resona.api.member.dto.request.auth.RegisterRequest;
+import synapps.resona.api.member.dto.request.profile.ProfileRequest;
+import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.member.dto.response.ProfileResponse;
+import synapps.resona.api.member.entity.account.AccountInfo;
+import synapps.resona.api.member.entity.account.AccountStatus;
+import synapps.resona.api.member.entity.account.RoleType;
+import synapps.resona.api.member.entity.member.Member;
+import synapps.resona.api.member.entity.member_details.MemberDetails;
+import synapps.resona.api.member.entity.profile.CountryCode;
+import synapps.resona.api.member.entity.profile.Gender;
+import synapps.resona.api.global.entity.Language;
+import synapps.resona.api.member.entity.profile.Profile;
+import synapps.resona.api.member.exception.ProfileException;
+import synapps.resona.api.member.repository.account.AccountInfoRepository;
+import synapps.resona.api.member.repository.member.MemberRepository;
+import synapps.resona.api.member.service.MemberService;
+import synapps.resona.api.member.service.ProfileService;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Transactional
 class ProfileServiceTest extends IntegrationTestSupport {
 
   private final String email = "test@resona.com";
+
+  private final MemberDto memberInfo = MemberDto.of(1L, email);
   @Autowired
   private MemberService memberService;
   @Autowired
@@ -114,7 +116,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
         "등록 테스트용 자기소개입니다."
     );
 
-    ProfileResponse result = profileService.register(request);
+    ProfileResponse result = profileService.register(request, memberInfo);
 
     assertThat(result.getNickname()).isEqualTo("등록된닉네임");
     assertThat(result.getNativeLanguages()).containsExactly("KOREAN");
@@ -139,9 +141,9 @@ class ProfileServiceTest extends IntegrationTestSupport {
         "조회 테스트용 자기소개"
     );
 
-    profileService.register(request);
+    profileService.register(request, memberInfo);
 
-    ProfileResponse result = profileService.readProfile();
+    ProfileResponse result = profileService.readProfile(memberInfo);
 
     assertThat(result.getNickname()).isEqualTo("조회용닉네임");
     assertThat(result.getGender()).isEqualTo("WOMAN");
@@ -164,7 +166,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
         "조회 테스트용 자기소개"
     );
 
-    profileService.register(request);
+    profileService.register(request, memberInfo);
 
     ProfileRequest updateRequest = new ProfileRequest(
         "수정된닉네임",
@@ -179,7 +181,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
         "수정된 소개입니다."
     );
 
-    ProfileResponse result = profileService.editProfile(updateRequest);
+    ProfileResponse result = profileService.editProfile(updateRequest, memberInfo);
 
     assertThat(result.getNickname()).isEqualTo("수정된닉네임");
     assertThat(result.getNationality()).isEqualTo("JP");
@@ -206,14 +208,14 @@ class ProfileServiceTest extends IntegrationTestSupport {
         Gender.WOMAN,
         "삭제자기소개"
     );
-    profileService.register(request);
+    profileService.register(request, memberInfo);
 
     // when
-    profileService.deleteProfile();
+    profileService.deleteProfile(memberInfo);
 
     // then
     assertThrows(ProfileException.class, () -> {
-      profileService.readProfile();
+      profileService.readProfile(memberInfo);
     });
   }
 
@@ -233,7 +235,7 @@ class ProfileServiceTest extends IntegrationTestSupport {
         Gender.WOMAN,
         "중복 태그 확인용 프로필"
     );
-    ProfileResponse profileResponse = profileService.register(request);
+    ProfileResponse profileResponse = profileService.register(request, memberInfo);
 
     // when
     boolean result = profileService.checkDuplicateTag(profileResponse.getTag());

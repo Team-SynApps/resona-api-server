@@ -17,9 +17,10 @@ import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.config.WithMockUserPrincipal;
-import synapps.resona.api.mysql.member.dto.response.MemberDto;
-import synapps.resona.api.mysql.socialMedia.dto.scrap.ScrapReadResponse;
-import synapps.resona.api.mysql.socialMedia.service.feed.ScrapService;
+import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.socialMedia.controller.feed.ScrapController;
+import synapps.resona.api.socialMedia.dto.scrap.ScrapReadResponse;
+import synapps.resona.api.socialMedia.service.feed.ScrapService;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
@@ -138,7 +139,7 @@ class ScrapControllerResponseTest {
   void cancelScrap_success() throws Exception {
     // given
     Long scrapId = 1L;
-    doNothing().when(scrapService).cancelScrap(scrapId);
+    doNothing().when(scrapService).cancelScrap(scrapId, 1L);
 
     // when
     ResultActions actions = mockMvc.perform(delete("/scrap/{scrapId}", scrapId)
@@ -151,6 +152,6 @@ class ScrapControllerResponseTest {
         .andExpect(jsonPath("$.data").doesNotExist())
         .andDo(print());
 
-    verify(scrapService).cancelScrap(scrapId);
+    verify(scrapService).cancelScrap(scrapId, 1L);
   }
 }

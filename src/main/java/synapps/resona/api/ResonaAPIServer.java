@@ -9,7 +9,6 @@ import synapps.resona.api.global.properties.AppProperties;
 import synapps.resona.api.global.properties.CorsProperties;
 
 @SpringBootApplication
-@EnableJpaAuditing
 @EnableConfigurationProperties({
     CorsProperties.class,
     AppProperties.class

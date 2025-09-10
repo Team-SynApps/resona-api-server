@@ -3,8 +3,7 @@ package synapps.resona.api.oauth.exception;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;
-import synapps.resona.api.global.error.GlobalErrorCode;
-import synapps.resona.api.mysql.member.code.AuthErrorCode;
+import synapps.resona.api.member.code.AuthErrorCode;
 import synapps.resona.api.oauth.entity.ProviderType;
 
 @Getter

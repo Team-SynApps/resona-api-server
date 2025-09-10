@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 import synapps.resona.api.global.dto.code.SuccessCode;
-import synapps.resona.api.mysql.token.AuthToken;
+import synapps.resona.api.token.AuthToken;
 
 /**
  * Swagger (OpenAPI 3.0) 설정을 위한 클래스입니다.

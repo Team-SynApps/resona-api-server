@@ -20,8 +20,8 @@ import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.error.exception.BaseException;
 import synapps.resona.api.global.dto.code.ErrorCode;
 import synapps.resona.api.global.error.GlobalErrorCode;
-import synapps.resona.api.mysql.member.code.AuthErrorCode;
-import synapps.resona.api.mysql.member.exception.AuthException;
+import synapps.resona.api.member.code.AuthErrorCode;
+import synapps.resona.api.member.exception.AuthException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
