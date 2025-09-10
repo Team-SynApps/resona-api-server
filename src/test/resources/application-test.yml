@@ -22,8 +22,8 @@ spring:
     redis:
       host: localhost
       port: 6379
-    mongodb:
-      uri: mongodb://localhost/test
+#    mongodb:
+#      uri: mongodb://localhost/test
   #      host: localhost
 #      port: 27017
 #      authentication-database: test

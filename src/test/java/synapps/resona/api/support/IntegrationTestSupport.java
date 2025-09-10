@@ -1,30 +1,23 @@
-package synapps.resona.api;
+package synapps.resona.api.support;
 
 import com.google.firebase.FirebaseApp;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.testcontainers.context.ImportTestcontainers;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import synapps.resona.api.config.TestContainerConfig;
 import synapps.resona.api.global.config.FcmConfig;
-import synapps.resona.api.global.config.database.MongoConfig;
-import synapps.resona.api.global.config.database.RedisConfig;
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @ActiveProfiles("test")
 @SpringBootTest
-class ResonaAPIServerTests {
+//@ImportTestcontainers(TestContainerConfig.class)
+public abstract class IntegrationTestSupport {
 
   @MockBean
   private FcmConfig fcmConfig;
 
   @MockBean
   private FirebaseApp firebaseApp;
-
-  @Test
-  void contextLoads() {
-  }
-
 }

@@ -8,12 +8,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
+import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import synapps.resona.api.chat.entity.ChatMember;
+import synapps.resona.api.config.TestContainerConfig;
 
 @ActiveProfiles("test")
 @DataMongoTest
+@ImportTestcontainers(TestContainerConfig.class)
 class ChatMemberRepositoryTest {
 
   @Autowired
