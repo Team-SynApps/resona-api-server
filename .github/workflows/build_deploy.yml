@@ -40,6 +40,16 @@ jobs:
               echo "File content:"
               cat ./src/test/resources/application-test.properties
 
+      - name: Check Docker Status
+        run: |
+          echo "--- Docker Info ---"
+          docker info
+          echo "--- Current User Info ---"
+          id
+
+      - name: Warm up Docker by pulling Mongo image
+        run: docker pull mongo:6.0
+
       - name: Run Gradle tests
         run: ./gradlew test
 
