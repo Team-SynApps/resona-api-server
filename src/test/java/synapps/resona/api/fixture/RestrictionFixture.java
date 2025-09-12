@@ -1,9 +1,9 @@
 package synapps.resona.api.fixture;
 
 import synapps.resona.api.member.entity.member.Member;
-import synapps.resona.api.socialMedia.entity.comment.Comment;
-import synapps.resona.api.socialMedia.entity.restriction.Block;
-import synapps.resona.api.socialMedia.entity.restriction.CommentHide;
+import synapps.resona.api.socialMedia.comment.entity.Comment;
+import synapps.resona.api.socialMedia.restriction.entity.Block;
+import synapps.resona.api.socialMedia.restriction.entity.CommentHide;
 
 public class RestrictionFixture {
   public static Block createBlock(Member blocker, Member blocked) {

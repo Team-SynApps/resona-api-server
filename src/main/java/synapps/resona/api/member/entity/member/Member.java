@@ -30,13 +30,13 @@ import synapps.resona.api.member.entity.member_details.MemberDetails;
 import synapps.resona.api.notification.entity.MemberNotificationSetting;
 import synapps.resona.api.notification.entity.MemberPushToken;
 import synapps.resona.api.member.entity.profile.Profile;
-import synapps.resona.api.socialMedia.entity.mention.Mention;
-import synapps.resona.api.socialMedia.entity.comment.Comment;
-import synapps.resona.api.socialMedia.entity.feed.Feed;
-import synapps.resona.api.socialMedia.entity.feed.Scrap;
-import synapps.resona.api.socialMedia.entity.report.Report;
-import synapps.resona.api.socialMedia.entity.restriction.Block;
-import synapps.resona.api.socialMedia.entity.restriction.Hide;
+import synapps.resona.api.socialMedia.mention.entity.Mention;
+import synapps.resona.api.socialMedia.comment.entity.Comment;
+import synapps.resona.api.socialMedia.feed.entity.Feed;
+import synapps.resona.api.socialMedia.feed.entity.Scrap;
+import synapps.resona.api.socialMedia.report.entity.Report;
+import synapps.resona.api.socialMedia.restriction.entity.Block;
+import synapps.resona.api.socialMedia.restriction.entity.Hide;
 
 @Entity
 @Getter

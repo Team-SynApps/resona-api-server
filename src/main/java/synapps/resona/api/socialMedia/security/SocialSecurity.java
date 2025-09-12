@@ -6,13 +6,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.service.MemberService;
-import synapps.resona.api.socialMedia.repository.comment.comment.CommentLikesRepository;
-import synapps.resona.api.socialMedia.repository.comment.comment.CommentRepository;
-import synapps.resona.api.socialMedia.repository.feed.FeedRepository;
-import synapps.resona.api.socialMedia.repository.feed.LikesRepository;
-import synapps.resona.api.socialMedia.repository.mention.MentionRepository;
-import synapps.resona.api.socialMedia.repository.comment.reply.ReplyRepository;
-import synapps.resona.api.socialMedia.repository.feed.ScrapRepository;
+import synapps.resona.api.socialMedia.comment.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.feed.repository.FeedRepository;
+import synapps.resona.api.socialMedia.mention.repository.MentionRepository;
+import synapps.resona.api.socialMedia.comment.repository.reply.ReplyRepository;
+import synapps.resona.api.socialMedia.feed.repository.ScrapRepository;
 
 @Component("socialSecurity")
 @RequiredArgsConstructor
@@ -25,8 +23,6 @@ public class SocialSecurity {
   private final MentionRepository mentionRepository;
   private final ScrapRepository scrapRepository;
   private final ReplyRepository replyRepository;
-  private final LikesRepository likesRepository;
-  private final CommentLikesRepository commentLikesRepository;
 
   public boolean isFeedMemberProperty(Long feedId) {
     Member member = memberService.getMemberUsingSecurityContext();
@@ -51,10 +47,5 @@ public class SocialSecurity {
   public boolean isReplyMemberProperty(Long replyId) {
     Member member = memberService.getMemberUsingSecurityContext();
     return replyRepository.existsByIdAndMember(replyId, member);
-  }
-
-  public boolean isCommentLikesMemberProperty(Long commentLikesId) {
-    Member member = memberService.getMemberUsingSecurityContext();
-    return commentLikesRepository.existsByIdAndMember(commentLikesId, member);
   }
 }

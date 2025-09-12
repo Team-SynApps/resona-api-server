@@ -1,0 +1,36 @@
+package synapps.resona.api.socialMedia.restriction.entity;
+
+import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLRestriction;
+import synapps.resona.api.member.entity.member.Member;
+import synapps.resona.api.socialMedia.comment.entity.Reply;
+
+@Entity
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SQLRestriction("is_deleted = false")
+@DiscriminatorValue("REPLY")
+public class ReplyHide extends Hide {
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "reply_id")
+  private Reply reply;
+
+  private ReplyHide(Member member, Reply reply) {
+    this.setMember(member);
+    this.reply = reply;
+  }
+
+  /**
+   * ReplyHide 엔티티를 생성하는 정적 팩토리 메서드.
+   * @param member 숨김 처리한 사용자
+   * @param reply 숨김 대상 대댓글
+   * @return 생성된 ReplyHide 객체
+   */
+  public static ReplyHide of(Member member, Reply reply) {
+    return new ReplyHide(member, reply);
+  }
+}
