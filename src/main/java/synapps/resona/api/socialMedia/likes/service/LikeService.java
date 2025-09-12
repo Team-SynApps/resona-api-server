@@ -28,7 +28,6 @@ import synapps.resona.api.socialMedia.likes.repository.ReplyLikesRepository;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class LikeService {
 
   private final FeedLikesRepository feedLikeRepository;
