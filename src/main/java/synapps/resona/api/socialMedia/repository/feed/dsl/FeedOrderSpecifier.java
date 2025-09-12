@@ -1,7 +1,7 @@
 package synapps.resona.api.socialMedia.repository.feed.dsl;
 
 import static synapps.resona.api.socialMedia.entity.feed.QFeed.feed;
-import static synapps.resona.api.socialMedia.entity.feed.QLikes.likes;
+import static synapps.resona.api.socialMedia.entity.likes.QFeedLikes.feedLikes;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.Expressions;
@@ -19,7 +19,7 @@ public final class FeedOrderSpecifier {
 
     return switch (sortBy) {
       case POPULAR -> new OrderSpecifier[]{
-          likes.id.countDistinct().desc(),
+          feedLikes.id.countDistinct().desc(),
           feed.createdAt.desc()
       };
       case RANDOM -> new OrderSpecifier[]{

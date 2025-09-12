@@ -10,7 +10,7 @@ import synapps.resona.api.socialMedia.entity.comment.Comment;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import synapps.resona.api.socialMedia.entity.comment.CommentLikes;
+import synapps.resona.api.socialMedia.entity.likes.CommentLikes;
 import synapps.resona.api.socialMedia.entity.feed.Feed;
 
 import static org.mockito.Mockito.mock;

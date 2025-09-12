@@ -1,34 +1,26 @@
-package synapps.resona.api.socialMedia.entity.comment;
+package synapps.resona.api.socialMedia.entity.likes;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.SQLRestriction;
-import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.member.entity.member.Member;
+import synapps.resona.api.socialMedia.entity.comment.Comment;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SQLRestriction("is_deleted = false")
-public class CommentLikes extends BaseEntity {
+@DiscriminatorValue("COMMENT")
+public class CommentLikes extends Likes {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "comment_likes_id")
-  private Long id;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "member_id", nullable = false)
-  private Member member;
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "comment_id", nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "comment_id")
   private Comment comment;
 
   private CommentLikes(Member member, Comment comment) {
-    this.member = member;
+    this.setMember(member);
     this.comment = comment;
   }
 

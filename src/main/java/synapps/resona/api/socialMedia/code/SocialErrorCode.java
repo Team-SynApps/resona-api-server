@@ -12,6 +12,7 @@ public enum SocialErrorCode implements ErrorCode {
 
   // like
   LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "LIKE001", "Like not found"),
+  ALREADY_LIKED(HttpStatus.CONFLICT, "LIKE002", "already liked"),
 
   // reply
   REPLY_NOT_FOUND(HttpStatus.NOT_FOUND, "REPLY001", "Reply not found"),

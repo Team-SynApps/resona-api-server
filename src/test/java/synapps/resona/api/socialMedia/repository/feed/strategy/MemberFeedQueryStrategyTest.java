@@ -31,9 +31,8 @@ import synapps.resona.api.socialMedia.dto.feed.FeedDto;
 import synapps.resona.api.socialMedia.entity.comment.Comment;
 import synapps.resona.api.socialMedia.entity.feed.Feed;
 import synapps.resona.api.socialMedia.entity.feed.FeedCategory;
-import synapps.resona.api.socialMedia.entity.feed.Likes;
+import synapps.resona.api.socialMedia.entity.likes.FeedLikes;
 import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
-import synapps.resona.api.socialMedia.repository.feed.strategy.MemberFeedQueryStrategy;
 
 @DataJpaTest
 @Import({TestQueryDslConfig.class, FeedExpressions.class})
@@ -73,8 +72,8 @@ class MemberFeedQueryStrategyTest {
     writer2Feed1 = createAndPersistFeed(writer2, "writer2's Feed", LocalDateTime.now());
 
     // 카운트 테스트를 위해 writer1Feed3_withCount에 좋아요/댓글 추가
-    em.persist(Likes.of(viewer, writer1Feed3_withCount));
-    em.persist(Likes.of(writer2, writer1Feed3_withCount));
+    em.persist(FeedLikes.of(viewer, writer1Feed3_withCount));
+    em.persist(FeedLikes.of(writer2, writer1Feed3_withCount));
     em.persist(Comment.of(writer1Feed3_withCount, viewer, "comment 1"));
 
     em.flush();

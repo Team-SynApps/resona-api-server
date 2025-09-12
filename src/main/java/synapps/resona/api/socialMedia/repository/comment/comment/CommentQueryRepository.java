@@ -1,10 +1,8 @@
 package synapps.resona.api.socialMedia.repository.comment.comment;
 
-import static com.querydsl.core.group.GroupBy.groupBy;
-import static com.querydsl.core.group.GroupBy.list;
 import static synapps.resona.api.socialMedia.entity.comment.QComment.comment;
-import static synapps.resona.api.socialMedia.entity.comment.QCommentLikes.commentLikes;
 import static synapps.resona.api.socialMedia.entity.comment.QReply.reply;
+import static synapps.resona.api.socialMedia.entity.likes.QCommentLikes.commentLikes;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;

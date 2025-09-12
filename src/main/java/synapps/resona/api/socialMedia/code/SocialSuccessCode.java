@@ -13,9 +13,18 @@ public enum SocialSuccessCode implements SuccessCode {
   EDIT_FEED_SUCCESS(HttpStatus.OK, "피드 수정에 성공하였습니다."),
   DELETE_FEED_SUCCESS(HttpStatus.OK, "피드 삭제에 성공하였습니다."),
 
-  // Like
-  LIKE_SUCCESS(HttpStatus.OK, "좋아요 처리에 성공하였습니다."),
-  UNLIKE_SUCCESS(HttpStatus.OK, "좋아요 취소에 성공하였습니다."),
+  // Feed Like
+  LIKE_FEED_SUCCESS(HttpStatus.OK, "피드 좋아요 처리에 성공하였습니다."),
+  UNLIKE_FEED_SUCCESS(HttpStatus.OK, "피드 좋아요 취소에 성공하였습니다."),
+
+  // Comment Like
+  LIKE_COMMENT_SUCCESS(HttpStatus.OK, "댓글 좋아요 처리에 성공하였습니다."),
+  UNLIKE_COMMENT_SUCCESS(HttpStatus.OK, "댓글 좋아요 취소에 성공하였습니다."),
+
+  // Reply Like
+  LIKE_REPLY_SUCCESS(HttpStatus.OK, "대댓글 좋아요 처리에 성공하였습니다."),
+  UNLIKE_REPLY_SUCCESS(HttpStatus.OK, "대댓글 좋아요 취소에 성공하였습니다."),
+
 
   // Scrap
   SCRAP_SUCCESS(HttpStatus.OK, "스크랩에 성공하였습니다."),
@@ -29,10 +38,6 @@ public enum SocialSuccessCode implements SuccessCode {
   DELETE_COMMENT_SUCCESS(HttpStatus.OK, "댓글 삭제에 성공하였습니다."),
   GET_COMMENT_SUCCESS(HttpStatus.OK, "댓글 조회에 성공하였습니다."),
   GET_COMMENTS_SUCCESS(HttpStatus.OK, "댓글 목록 조회에 성공하였습니다."),
-
-  // Comment Like
-  LIKE_COMMENT_SUCCESS(HttpStatus.OK, "댓글 좋아요 처리에 성공하였습니다."),
-  UNLIKE_COMMENT_SUCCESS(HttpStatus.OK, "댓글 좋아요 취소에 성공하였습니다."),
 
   // Reply
   REGISTER_REPLY_SUCCESS(HttpStatus.CREATED, "답글 등록에 성공하였습니다."),

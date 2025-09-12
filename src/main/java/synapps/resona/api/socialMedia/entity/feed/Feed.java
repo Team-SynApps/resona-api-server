@@ -22,6 +22,7 @@ import synapps.resona.api.global.entity.BaseEntity;
 import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.socialMedia.entity.comment.Comment;
+import synapps.resona.api.socialMedia.entity.likes.FeedLikes;
 import synapps.resona.api.socialMedia.entity.report.FeedReport;
 import synapps.resona.api.socialMedia.entity.media.FeedMedia;
 
@@ -40,7 +41,7 @@ public class Feed extends BaseEntity {
   private final List<Comment> comments = new ArrayList<>();
 
   @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
-  private final List<Likes> likes = new ArrayList<>();
+  private final List<FeedLikes> likes = new ArrayList<>();
 
   @BatchSize(size = 100)
   @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)

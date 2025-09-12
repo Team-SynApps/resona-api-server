@@ -17,4 +17,8 @@ public class LikeException extends BaseException {
   public static LikeException likeNotFound() {
     return of(SocialErrorCode.LIKE_NOT_FOUND);
   }
+
+  public static LikeException alreadyLiked() {
+    return of(SocialErrorCode.ALREADY_LIKED);
+  }
 }

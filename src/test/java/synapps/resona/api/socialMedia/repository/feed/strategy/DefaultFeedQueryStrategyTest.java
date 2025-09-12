@@ -31,11 +31,10 @@ import synapps.resona.api.socialMedia.dto.feed.FeedDto;
 import synapps.resona.api.socialMedia.entity.comment.Comment;
 import synapps.resona.api.socialMedia.entity.feed.Feed;
 import synapps.resona.api.socialMedia.entity.feed.FeedCategory;
-import synapps.resona.api.socialMedia.entity.feed.Likes;
+import synapps.resona.api.socialMedia.entity.likes.FeedLikes;
 import synapps.resona.api.socialMedia.entity.restriction.Block;
 import synapps.resona.api.socialMedia.entity.restriction.FeedHide;
 import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
-import synapps.resona.api.socialMedia.repository.feed.strategy.DefaultFeedQueryStrategy;
 
 @DataJpaTest
 @Import({TestQueryDslConfig.class, FeedExpressions.class})
@@ -81,8 +80,8 @@ class DefaultFeedQueryStrategyTest {
     // 카운트 테스트용 피드
     countTestFeed = createAndPersistFeed(writer1, "Feed for count test.", LocalDateTime.now().minusHours(3));
     // 좋아요 2개
-    em.persist(Likes.of(viewer, countTestFeed));
-    em.persist(Likes.of(writer2, countTestFeed));
+    em.persist(FeedLikes.of(viewer, countTestFeed));
+    em.persist(FeedLikes.of(writer2, countTestFeed));
     // 댓글 3개
     em.persist(Comment.of(countTestFeed, viewer, "comment 1"));
     em.persist(Comment.of(countTestFeed, writer2, "comment 2"));
