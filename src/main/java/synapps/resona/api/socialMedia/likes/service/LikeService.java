@@ -66,7 +66,7 @@ public class LikeService {
 
     feedLike.softDelete();
     long feedLikesCount = feedLikeRepository.countByFeedId(feedId);
-    return FeedLikesResponse.of(feedId, feedLikesCount - 1, feedLike.isDeleted());
+    return FeedLikesResponse.of(feedId, feedLikesCount, feedLike.isDeleted());
   }
 
   @Transactional
@@ -93,7 +93,7 @@ public class LikeService {
 
     commentLike.softDelete();
     long commentLikesCount = commentLikeRepository.countByCommentId(commentId);
-    return CommentLikesResponse.of(commentId, commentLikesCount - 1, commentLike.isDeleted());
+    return CommentLikesResponse.of(commentId, commentLikesCount, commentLike.isDeleted());
   }
 
   @Transactional
@@ -120,6 +120,6 @@ public class LikeService {
 
     replyLike.softDelete();
     long replyLikesCount = replyLikeRepository.countByReplyId(replyId);
-    return ReplyLikesResponse.of(replyId, replyLikesCount -1, replyLike.isDeleted());
+    return ReplyLikesResponse.of(replyId, replyLikesCount, replyLike.isDeleted());
   }
 }
