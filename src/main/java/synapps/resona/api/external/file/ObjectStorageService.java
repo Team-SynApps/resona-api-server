@@ -1,5 +1,6 @@
 package synapps.resona.api.external.file;
 
+import com.oracle.bmc.model.BmcException;
 import com.oracle.bmc.objectstorage.ObjectStorage;
 import com.oracle.bmc.objectstorage.model.CopyObjectDetails;
 import com.oracle.bmc.objectstorage.requests.CopyObjectRequest;
@@ -99,6 +100,24 @@ public class ObjectStorageService {
 
     objectStorageClient.copyObject(copyRequest);
     return generateFileUrl(storageProperties.getDiskBucketName(), finalFileName);
+  }
+
+  public String copyToDiskWithStructuredName(FileMetadataDto metadata, Long memberId) {
+    String finalFileName = String.format("%d/%s?width=%d&height=%d&index=%d",
+        memberId,
+        "profile_image",
+        metadata.getWidth(),
+        metadata.getHeight(),
+        metadata.getIndex()
+    );
+
+    try {
+      logger.info("Copying file from buffer '{}' to disk as '{}'", metadata.getTemporaryFileName(), finalFileName);
+      return copyToDisk(metadata, finalFileName);
+    } catch (BmcException e) {
+      logger.error("Failed to copy file with structured name: {}", metadata.getOriginalFileName(), e);
+      throw new RuntimeException("Failed to copy file: " + metadata.getOriginalFileName(), e);
+    }
   }
 
   private String generateTemporaryFileName(String userEmail) {

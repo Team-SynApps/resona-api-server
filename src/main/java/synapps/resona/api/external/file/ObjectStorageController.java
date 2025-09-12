@@ -15,6 +15,7 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,7 @@ import synapps.resona.api.global.dto.response.ErrorResponse;
 import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.response.SuccessResponse;
 import synapps.resona.api.member.service.MemberService;
+import synapps.resona.api.oauth.entity.UserPrincipal;
 
 @Tag(name = "File Storage", description = "파일 업로드 및 관리 API")
 @RestController
@@ -103,9 +105,9 @@ public class ObjectStorageController {
   })
   @PostMapping("/finalize")
   public ResponseEntity<SuccessResponse<Map<String, String>>> finalizeFile(HttpServletRequest request,
-      @RequestBody FileMetadataDto metadata,
-      @RequestParam String finalFileName) throws IOException {
-    String finalUrl = storageService.copyToDisk(metadata, finalFileName);
+      @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal userPrincipal,
+      @RequestBody FileMetadataDto metadata) throws IOException {
+    String finalUrl = storageService.copyToDiskWithStructuredName(metadata,userPrincipal.getMemberId());
 
     return ResponseEntity
         .status(FileSuccessCode.FINALIZE_FILE_SUCCESS.getStatus())
