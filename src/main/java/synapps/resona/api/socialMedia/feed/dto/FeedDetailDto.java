@@ -8,9 +8,10 @@ import synapps.resona.api.socialMedia.feed.entity.Feed;
 @AllArgsConstructor
 public class FeedDetailDto {
   private Feed feed;
-  private long likeCount;
-  private long commentCount;
+  private FeedMetaData metaData;
 
-  private boolean hasLiked;
-  private boolean hasScraped;
+
+  public static FeedDetailDto of(Feed feed, FeedMetaData feedMetaData) {
+    return new FeedDetailDto(feed, feedMetaData);
+  }
 }

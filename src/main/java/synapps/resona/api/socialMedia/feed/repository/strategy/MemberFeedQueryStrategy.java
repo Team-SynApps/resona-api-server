@@ -2,8 +2,8 @@ package synapps.resona.api.socialMedia.feed.repository.strategy;
 
 import static synapps.resona.api.member.entity.member.QMember.member;
 import static synapps.resona.api.member.entity.profile.QProfile.profile;
-import static synapps.resona.api.socialMedia.entity.feed.QFeed.feed;
-import static synapps.resona.api.socialMedia.entity.restriction.QBlock.block;
+import static synapps.resona.api.socialMedia.feed.entity.QFeed.feed;
+import static synapps.resona.api.socialMedia.restriction.entity.QBlock.block;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -12,6 +12,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import synapps.resona.api.socialMedia.feed.dto.FeedMetaData;
 import synapps.resona.api.socialMedia.feed.dto.condition.MemberFeedSearchCondition;
 import synapps.resona.api.socialMedia.feed.dto.request.FeedQueryRequest;
 import synapps.resona.api.socialMedia.feed.dto.FeedDto;
@@ -53,10 +54,12 @@ public class MemberFeedQueryStrategy implements FeedQueryStrategy<MemberFeedSear
     List<FeedDetailDto> feedDetails = queryFactory
         .select(Projections.constructor(FeedDetailDto.class,
             feed,
-            feedExpressions.getLikeCount(feed),
-            feedExpressions.getCommentCount(feed),
-            feedExpressions.isLiked(feed, viewerId),
-            feedExpressions.isScraped(feed, viewerId)
+            Projections.constructor(FeedMetaData.class,
+                feedExpressions.getLikeCount(feed),
+                feedExpressions.getCommentCount(feed),
+                feedExpressions.isLiked(feed, viewerId),
+                feedExpressions.isScraped(feed, viewerId)
+            )
         ))
         .from(feed)
         .join(feed.member, member).fetchJoin()

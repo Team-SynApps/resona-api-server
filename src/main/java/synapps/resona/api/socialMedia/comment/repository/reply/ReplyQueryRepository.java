@@ -1,8 +1,8 @@
 package synapps.resona.api.socialMedia.comment.repository.reply;
 
 import static synapps.resona.api.member.entity.member.QMember.member;
-import static synapps.resona.api.socialMedia.entity.comment.QReply.reply;
-import static synapps.resona.api.socialMedia.entity.restriction.QBlock.block;
+import static synapps.resona.api.socialMedia.comment.entity.QReply.reply;
+import static synapps.resona.api.socialMedia.restriction.entity.QBlock.block;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;

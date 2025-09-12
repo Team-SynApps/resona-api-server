@@ -52,18 +52,19 @@ public class FeedController {
   }
 
   @Operation(summary = "피드 등록", description = "새로운 피드를 등록합니다. (인증 필요)")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "REGISTER_FEED_SUCCESS", responseClass = FeedResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "REGISTER_FEED_SUCCESS", responseClass = FeedDto.class))
   @ApiErrorSpec({
       @ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"MEMBER_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @PostMapping("/feed")
-  public ResponseEntity<SuccessResponse<FeedResponse>> registerFeed(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<FeedDto>> registerFeed(HttpServletRequest request,
       @Valid @RequestBody FeedRegistrationRequest feedRegistrationRequest) {
-    FeedResponse feedResponse = feedService.registerFeed(
+    FeedDto feedResponse = feedService.registerFeed(
         feedRegistrationRequest.getMetadataList(),
         feedRegistrationRequest.getFeedRequest()
     );
+
     return ResponseEntity
         .status(SocialSuccessCode.REGISTER_FEED_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.REGISTER_FEED_SUCCESS, createRequestInfo(request.getRequestURI()), feedResponse));
@@ -119,26 +120,25 @@ public class FeedController {
       @Parameter(description = "피드 목록을 조회할 사용자의 ID", required = true) @PathVariable Long targetMemberId,
       @Parameter(description = "다음 페이지를 위한 커서 (첫 페이지는 비워둠)") @RequestParam(required = false) String cursor,
       @Parameter(description = "페이지 당 피드 수") @RequestParam(defaultValue = "10") int size) {
-    MemberDto memberInfo = MemberDto.from(userPrincipal);
-    Long viewerId = memberInfo.getId();
-    CursorResult<FeedDto> result = feedService.getFeedsByCursorAndMemberId(viewerId, targetMemberId, cursor, size);
+    CursorResult<FeedDto> result = feedService.getFeedsByCursorAndMemberId(userPrincipal.getMemberId(), targetMemberId, cursor, size);
 
     return ResponseEntity.status(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_MEMBER_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), result));
   }
 
   @Operation(summary = "피드 수정", description = "특정 피드의 내용을 수정합니다. (피드 작성자 또는 관리자만 가능)")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "EDIT_FEED_SUCCESS", responseClass = FeedResponse.class))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "EDIT_FEED_SUCCESS", responseClass = FeedDto.class))
   @ApiErrorSpec({
       @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"FEED_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN", "FORBIDDEN"})
   })
   @PutMapping("/feed/{feedId}")
   @PreAuthorize("@socialSecurity.isFeedMemberProperty(#feedId) or hasRole('ADMIN')")
-  public ResponseEntity<SuccessResponse<FeedResponse>> editFeed(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<FeedDto>> editFeed(HttpServletRequest request,
+      @Parameter(hidden = true) @AuthenticationPrincipal UserPrincipal userPrincipal,
       @Parameter(description = "수정할 피드의 ID", required = true) @PathVariable Long feedId,
       @Valid @RequestBody FeedUpdateRequest feedRequest) {
-    FeedResponse response = feedService.updateFeed(feedId, feedRequest);
+    FeedDto response = feedService.updateFeed(feedId, userPrincipal.getMemberId(), feedRequest);
     return ResponseEntity
         .status(SocialSuccessCode.EDIT_FEED_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.EDIT_FEED_SUCCESS, createRequestInfo(request.getRequestURI()), response));

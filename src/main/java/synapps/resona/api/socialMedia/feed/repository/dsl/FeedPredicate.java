@@ -1,6 +1,7 @@
 package synapps.resona.api.socialMedia.feed.repository.dsl;
 
-import static synapps.resona.api.socialMedia.entity.feed.QFeed.feed;
+
+import static synapps.resona.api.socialMedia.feed.entity.QFeed.feed;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import java.time.LocalDateTime;

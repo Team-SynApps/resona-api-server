@@ -41,11 +41,11 @@ public class FeedDto {
         .author(SocialMemberDto.from(feed.getMember()))
         .content(feed.getContent())
         .category(feed.getCategory())
-        .likeCount((int) dto.getLikeCount())
+        .likeCount((int) dto.getMetaData().getLikeCount())
         .images(feed.getImages().stream().map(FeedMediaDto::from).toList()) // @BatchSize
-        .commentCount((int) dto.getCommentCount())
-        .hasLiked(dto.isHasLiked())
-        .hasScraped(dto.isHasScraped())
+        .commentCount((int) dto.getMetaData().getCommentCount())
+        .hasLiked(dto.getMetaData().isHasLiked())
+        .hasScraped(dto.getMetaData().isHasScraped())
         .createdAt(feed.getCreatedAt())
         .modifiedAt(feed.getModifiedAt())
         .build();

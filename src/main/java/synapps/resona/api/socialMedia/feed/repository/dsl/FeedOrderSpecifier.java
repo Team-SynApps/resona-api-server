@@ -1,11 +1,12 @@
 package synapps.resona.api.socialMedia.feed.repository.dsl;
 
-import static synapps.resona.api.socialMedia.entity.feed.QFeed.feed;
-import static synapps.resona.api.socialMedia.entity.likes.QFeedLikes.feedLikes;
+import static synapps.resona.api.socialMedia.feed.entity.QFeed.feed;
+import static synapps.resona.api.socialMedia.likes.entity.QFeedLikes.feedLikes;
 
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.Expressions;
 import synapps.resona.api.socialMedia.feed.dto.FeedSortBy;
+
 
 public final class FeedOrderSpecifier {
 

@@ -1,8 +1,9 @@
 package synapps.resona.api.socialMedia.comment.repository.comment;
 
-import static synapps.resona.api.socialMedia.entity.comment.QComment.comment;
-import static synapps.resona.api.socialMedia.entity.comment.QReply.reply;
-import static synapps.resona.api.socialMedia.entity.likes.QCommentLikes.commentLikes;
+
+import static synapps.resona.api.socialMedia.comment.entity.QReply.reply;
+import static synapps.resona.api.socialMedia.likes.entity.QCommentLikes.commentLikes;
+import static synapps.resona.api.socialMedia.comment.entity.QComment.comment;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Projections;
@@ -20,9 +21,9 @@ import synapps.resona.api.member.entity.member.QMember;
 import synapps.resona.api.socialMedia.comment.dto.CommentProjectionDto;
 import synapps.resona.api.socialMedia.comment.dto.ReplyProjectionDto;
 import synapps.resona.api.socialMedia.comment.entity.Comment;
-import synapps.resona.api.socialMedia.entity.restriction.QBlock;
-import synapps.resona.api.socialMedia.entity.restriction.QCommentHide;
-import synapps.resona.api.socialMedia.entity.restriction.QReplyHide;
+import synapps.resona.api.socialMedia.restriction.entity.QBlock;
+import synapps.resona.api.socialMedia.restriction.entity.QCommentHide;
+import synapps.resona.api.socialMedia.restriction.entity.QReplyHide;
 
 @Repository
 @RequiredArgsConstructor

@@ -2,7 +2,7 @@ package synapps.resona.api.socialMedia.restriction.repository;
 
 import static synapps.resona.api.member.entity.member.QMember.member;
 import static synapps.resona.api.member.entity.profile.QProfile.profile;
-import static synapps.resona.api.socialMedia.entity.restriction.QBlock.block;
+import static synapps.resona.api.socialMedia.restriction.entity.QBlock.block;
 
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;

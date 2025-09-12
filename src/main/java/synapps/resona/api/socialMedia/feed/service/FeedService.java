@@ -17,12 +17,14 @@ import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.repository.member.MemberRepository;
 import synapps.resona.api.member.service.MemberService;
 import synapps.resona.api.socialMedia.feed.dto.FeedDetailDto;
+import synapps.resona.api.socialMedia.feed.dto.FeedMetaData;
 import synapps.resona.api.socialMedia.feed.dto.condition.DefaultFeedSearchCondition;
 import synapps.resona.api.socialMedia.feed.dto.FeedSortBy;
 import synapps.resona.api.socialMedia.feed.dto.condition.MemberFeedSearchCondition;
 import synapps.resona.api.socialMedia.feed.dto.FeedDto;
 import synapps.resona.api.socialMedia.feed.dto.request.FeedRequest;
 import synapps.resona.api.socialMedia.feed.dto.request.FeedUpdateRequest;
+import synapps.resona.api.socialMedia.feed.repository.dsl.FeedExpressions;
 import synapps.resona.api.socialMedia.media.dto.FeedImageDto;
 import synapps.resona.api.socialMedia.feed.dto.LocationRequest;
 import synapps.resona.api.socialMedia.feed.entity.Feed;
@@ -46,16 +48,19 @@ public class FeedService {
   private final MemberService memberService;
 
   private final FeedQueryStrategyFactory feedQueryStrategyFactory;
+  private final FeedExpressions feedExpressions;
 
   private final Logger logger = LogManager.getLogger(FeedService.class);
 
   @Transactional
-  public FeedDto updateFeed(Long feedId, FeedUpdateRequest feedRequest) {
+  public FeedDto updateFeed(Long feedId, Long memberId, FeedUpdateRequest feedRequest) {
     // 예외처리 해줘야 함
     Feed feed = feedRepository.findFeedWithImagesByFeedId(feedId).orElseThrow(FeedException::feedNotFoundException);
     feed.updateContent(feedRequest.getContent());
 
-    return FeedDto.from(feed);
+    FeedMetaData feedMetaData = feedExpressions.fetchFeedMetaData(feedId, memberId);
+
+    return FeedDto.from(FeedDetailDto.of(feed, feedMetaData));
   }
 
   @Transactional
@@ -101,10 +106,9 @@ public class FeedService {
 
 
   @Transactional
-  public FeedDto deleteFeed(Long feedId) {
+  public void deleteFeed(Long feedId) {
     Feed feed = feedRepository.findById(feedId).orElseThrow(FeedException::feedNotFoundException);
     feed.softDelete();
-    return FeedDto.from();
   }
 
   /**
@@ -159,7 +163,9 @@ public class FeedService {
       locationRepository.save(location);
     }
 
-    return FeedDto.from(feed, finalizedFeed);
+    FeedMetaData newFeedMetaData = new FeedMetaData(0, 0, false, false);
+
+    return FeedDto.from(FeedDetailDto.of(feed, newFeedMetaData));
   }
 
   private CursorResult<FeedDto> createCursorResult(List<FeedDto> feeds, int size) {
