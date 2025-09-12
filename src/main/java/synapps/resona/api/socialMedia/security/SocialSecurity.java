@@ -6,13 +6,11 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.service.MemberService;
-import synapps.resona.api.socialMedia.repository.likes.CommentLikesRepository;
-import synapps.resona.api.socialMedia.repository.comment.comment.CommentRepository;
-import synapps.resona.api.socialMedia.repository.feed.FeedRepository;
-import synapps.resona.api.socialMedia.repository.likes.FeedLikesRepository;
-import synapps.resona.api.socialMedia.repository.mention.MentionRepository;
-import synapps.resona.api.socialMedia.repository.comment.reply.ReplyRepository;
-import synapps.resona.api.socialMedia.repository.feed.ScrapRepository;
+import synapps.resona.api.socialMedia.comment.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.feed.repository.FeedRepository;
+import synapps.resona.api.socialMedia.mention.repository.MentionRepository;
+import synapps.resona.api.socialMedia.comment.repository.reply.ReplyRepository;
+import synapps.resona.api.socialMedia.feed.repository.ScrapRepository;
 
 @Component("socialSecurity")
 @RequiredArgsConstructor

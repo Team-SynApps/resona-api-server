@@ -16,13 +16,12 @@ import synapps.resona.api.config.WithMockUserPrincipal;
 import synapps.resona.api.fixture.CommentFixture;
 import synapps.resona.api.fixture.ReplyFixture;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.socialMedia.controller.comment.CommentController;
-import synapps.resona.api.socialMedia.dto.comment.CommentDto;
-import synapps.resona.api.socialMedia.dto.comment.request.CommentRequest;
-import synapps.resona.api.socialMedia.dto.comment.request.CommentUpdateRequest;
-import synapps.resona.api.socialMedia.dto.comment.ReplyDto;
-import synapps.resona.api.socialMedia.entity.comment.Comment;
-import synapps.resona.api.socialMedia.service.comment.CommentService;
+import synapps.resona.api.socialMedia.comment.controller.CommentController;
+import synapps.resona.api.socialMedia.comment.dto.CommentDto;
+import synapps.resona.api.socialMedia.comment.dto.request.CommentRequest;
+import synapps.resona.api.socialMedia.comment.dto.request.CommentUpdateRequest;
+import synapps.resona.api.socialMedia.comment.dto.ReplyDto;
+import synapps.resona.api.socialMedia.comment.service.CommentService;
 
 import java.util.List;
 

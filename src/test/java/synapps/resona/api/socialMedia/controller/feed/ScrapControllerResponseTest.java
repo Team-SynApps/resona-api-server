@@ -18,9 +18,9 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.config.WithMockUserPrincipal;
 import synapps.resona.api.member.dto.response.MemberDto;
-import synapps.resona.api.socialMedia.controller.feed.ScrapController;
-import synapps.resona.api.socialMedia.dto.scrap.ScrapReadResponse;
-import synapps.resona.api.socialMedia.service.feed.ScrapService;
+import synapps.resona.api.socialMedia.feed.dto.ScrapReadResponse;
+import synapps.resona.api.socialMedia.feed.controller.ScrapController;
+import synapps.resona.api.socialMedia.feed.service.ScrapService;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;

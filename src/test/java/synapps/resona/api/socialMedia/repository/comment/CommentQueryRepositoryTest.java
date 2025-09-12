@@ -18,11 +18,11 @@ import synapps.resona.api.fixture.FeedFixture;
 import synapps.resona.api.fixture.MemberFixture;
 import synapps.resona.api.fixture.RestrictionFixture;
 import synapps.resona.api.member.entity.member.Member;
-import synapps.resona.api.socialMedia.entity.comment.Comment;
-import synapps.resona.api.socialMedia.entity.feed.Feed;
-import synapps.resona.api.socialMedia.repository.comment.comment.CommentQueryRepository;
-import synapps.resona.api.socialMedia.dto.comment.CommentProjectionDto;
-import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
+import synapps.resona.api.socialMedia.comment.entity.Comment;
+import synapps.resona.api.socialMedia.feed.entity.Feed;
+import synapps.resona.api.socialMedia.comment.repository.comment.CommentQueryRepository;
+import synapps.resona.api.socialMedia.comment.dto.CommentProjectionDto;
+import synapps.resona.api.socialMedia.feed.repository.dsl.FeedExpressions;
 
 
 @DataJpaTest

@@ -17,12 +17,11 @@ import synapps.resona.api.config.WithMockUserPrincipal;
 import synapps.resona.api.fixture.ReplyFixture;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.member.dto.response.MemberDto;
-import synapps.resona.api.socialMedia.controller.comment.ReplyController;
-import synapps.resona.api.socialMedia.dto.comment.ReplyDto;
-import synapps.resona.api.socialMedia.dto.comment.request.ReplyRequest;
-import synapps.resona.api.socialMedia.dto.comment.request.ReplyUpdateRequest;
-import synapps.resona.api.socialMedia.entity.comment.Reply;
-import synapps.resona.api.socialMedia.service.comment.ReplyService;
+import synapps.resona.api.socialMedia.comment.controller.ReplyController;
+import synapps.resona.api.socialMedia.comment.dto.ReplyDto;
+import synapps.resona.api.socialMedia.comment.dto.request.ReplyRequest;
+import synapps.resona.api.socialMedia.comment.dto.request.ReplyUpdateRequest;
+import synapps.resona.api.socialMedia.comment.service.ReplyService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;

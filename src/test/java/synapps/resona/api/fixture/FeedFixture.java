@@ -1,19 +1,18 @@
 package synapps.resona.api.fixture;
 
 import synapps.resona.api.member.entity.member.Member;
-import synapps.resona.api.socialMedia.dto.feed.FeedDto;
-import synapps.resona.api.socialMedia.dto.feed.SocialMemberDto;
-import synapps.resona.api.socialMedia.dto.feed.request.FeedRegistrationRequest;
-import synapps.resona.api.socialMedia.dto.feed.request.FeedRequest;
-import synapps.resona.api.socialMedia.dto.feed.request.FeedUpdateRequest;
-import synapps.resona.api.socialMedia.dto.feed.response.FeedResponse;
-import synapps.resona.api.socialMedia.dto.media.FeedMediaDto;
+import synapps.resona.api.socialMedia.feed.dto.FeedDto;
+import synapps.resona.api.socialMedia.feed.dto.SocialMemberDto;
+import synapps.resona.api.socialMedia.feed.dto.request.FeedRegistrationRequest;
+import synapps.resona.api.socialMedia.feed.dto.request.FeedRequest;
+import synapps.resona.api.socialMedia.feed.dto.request.FeedUpdateRequest;
+import synapps.resona.api.socialMedia.feed.dto.response.FeedResponse;
+import synapps.resona.api.socialMedia.media.dto.FeedMediaDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import synapps.resona.api.socialMedia.entity.comment.Comment;
-import synapps.resona.api.socialMedia.entity.feed.Feed;
-import synapps.resona.api.socialMedia.entity.feed.FeedCategory;
+import synapps.resona.api.socialMedia.feed.entity.Feed;
+import synapps.resona.api.socialMedia.feed.entity.FeedCategory;
 
 public class FeedFixture {
     public static Feed createFeed(Member member, String content) {

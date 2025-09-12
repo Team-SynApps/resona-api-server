@@ -18,14 +18,14 @@ import synapps.resona.api.fixture.FeedFixture;
 import synapps.resona.api.fixture.MemberFixture;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.repository.member.MemberRepository;
-import synapps.resona.api.socialMedia.dto.comment.CommentDto;
-import synapps.resona.api.socialMedia.dto.comment.request.CommentRequest;
-import synapps.resona.api.socialMedia.dto.comment.request.CommentUpdateRequest;
-import synapps.resona.api.socialMedia.entity.comment.Comment;
-import synapps.resona.api.socialMedia.entity.feed.Feed;
-import synapps.resona.api.socialMedia.repository.comment.comment.CommentRepository;
-import synapps.resona.api.socialMedia.repository.feed.FeedRepository;
-import synapps.resona.api.socialMedia.service.comment.CommentService;
+import synapps.resona.api.socialMedia.comment.dto.CommentDto;
+import synapps.resona.api.socialMedia.comment.dto.request.CommentRequest;
+import synapps.resona.api.socialMedia.comment.dto.request.CommentUpdateRequest;
+import synapps.resona.api.socialMedia.comment.entity.Comment;
+import synapps.resona.api.socialMedia.feed.entity.Feed;
+import synapps.resona.api.socialMedia.comment.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.feed.repository.FeedRepository;
+import synapps.resona.api.socialMedia.comment.service.CommentService;
 
 @Transactional
 class CommentServiceTest extends IntegrationTestSupport {

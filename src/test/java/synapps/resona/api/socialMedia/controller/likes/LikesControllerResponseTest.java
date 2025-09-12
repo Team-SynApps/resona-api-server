@@ -15,10 +15,11 @@ import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.config.WithMockUserPrincipal;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.socialMedia.code.SocialSuccessCode;
-import synapps.resona.api.socialMedia.dto.like.response.CommentLikesResponse;
-import synapps.resona.api.socialMedia.dto.like.response.FeedLikesResponse;
-import synapps.resona.api.socialMedia.dto.like.response.ReplyLikesResponse;
-import synapps.resona.api.socialMedia.service.likes.LikeService;
+import synapps.resona.api.socialMedia.likes.dto.response.CommentLikesResponse;
+import synapps.resona.api.socialMedia.likes.dto.response.FeedLikesResponse;
+import synapps.resona.api.socialMedia.likes.dto.response.ReplyLikesResponse;
+import synapps.resona.api.socialMedia.likes.controller.LikesController;
+import synapps.resona.api.socialMedia.likes.service.LikeService;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;

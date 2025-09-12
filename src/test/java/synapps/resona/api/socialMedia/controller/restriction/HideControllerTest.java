@@ -14,8 +14,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.config.WithMockUserPrincipal;
 import synapps.resona.api.member.dto.response.MemberDto;
-import synapps.resona.api.socialMedia.controller.restriction.HideController;
-import synapps.resona.api.socialMedia.service.restriction.HideService;
+import synapps.resona.api.socialMedia.restriction.controller.HideController;
+import synapps.resona.api.socialMedia.restriction.service.HideService;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;

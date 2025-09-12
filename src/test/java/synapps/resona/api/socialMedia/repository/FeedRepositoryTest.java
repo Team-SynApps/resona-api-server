@@ -7,7 +7,6 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,19 +20,13 @@ import synapps.resona.api.config.TestQueryDslConfig;
 import synapps.resona.api.fixture.CommentFixture;
 import synapps.resona.api.fixture.FeedFixture;
 import synapps.resona.api.fixture.MemberFixture;
-import synapps.resona.api.member.entity.account.AccountInfo;
 import synapps.resona.api.member.entity.member.Member;
-import synapps.resona.api.member.entity.member_details.MBTI;
-import synapps.resona.api.member.entity.member_details.MemberDetails;
-import synapps.resona.api.member.entity.profile.CountryCode;
-import synapps.resona.api.global.entity.Language;
-import synapps.resona.api.member.entity.profile.Profile;
 import synapps.resona.api.member.repository.member.MemberRepository;
-import synapps.resona.api.socialMedia.entity.comment.Comment;
-import synapps.resona.api.socialMedia.entity.feed.Feed;
-import synapps.resona.api.socialMedia.repository.comment.comment.CommentRepository;
-import synapps.resona.api.socialMedia.repository.feed.FeedRepository;
-import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
+import synapps.resona.api.socialMedia.comment.entity.Comment;
+import synapps.resona.api.socialMedia.feed.entity.Feed;
+import synapps.resona.api.socialMedia.comment.repository.comment.CommentRepository;
+import synapps.resona.api.socialMedia.feed.repository.FeedRepository;
+import synapps.resona.api.socialMedia.feed.repository.dsl.FeedExpressions;
 
 @Transactional
 @DataJpaTest
