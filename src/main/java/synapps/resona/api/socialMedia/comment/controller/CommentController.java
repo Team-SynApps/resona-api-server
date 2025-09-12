@@ -32,6 +32,7 @@ import synapps.resona.api.socialMedia.comment.dto.CommentDto;
 import synapps.resona.api.socialMedia.comment.dto.request.CommentRequest;
 import synapps.resona.api.socialMedia.comment.dto.request.CommentUpdateRequest;
 import synapps.resona.api.socialMedia.comment.dto.ReplyDto;
+import synapps.resona.api.socialMedia.comment.dto.response.CommentDeleteResponse;
 import synapps.resona.api.socialMedia.comment.service.CommentService;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 
@@ -121,18 +122,18 @@ public class CommentController {
   }
 
   @Operation(summary = "댓글 삭제", description = "댓글을 삭제합니다. (댓글 작성자 또는 관리자만 가능)")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "DELETE_COMMENT_SUCCESS"))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "DELETE_COMMENT_SUCCESS", responseClass = CommentDeleteResponse.class))
   @ApiErrorSpec({
       @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"COMMENT_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN", "FORBIDDEN"})
   })
   @DeleteMapping("/{commentId}")
   @PreAuthorize("@socialSecurity.isCommentMemberProperty(#commentId) or hasRole('ADMIN')")
-  public ResponseEntity<SuccessResponse<Void>> deleteComment(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<CommentDeleteResponse>> deleteComment(HttpServletRequest request,
       @Parameter(description = "삭제할 댓글의 ID", required = true) @PathVariable Long commentId) {
-    commentService.deleteComment(commentId);
+    CommentDeleteResponse response = commentService.deleteComment(commentId);
     return ResponseEntity
         .status(SocialSuccessCode.DELETE_COMMENT_SUCCESS.getStatus())
-        .body(SuccessResponse.of(SocialSuccessCode.DELETE_COMMENT_SUCCESS, createRequestInfo(request.getRequestURI())));
+        .body(SuccessResponse.of(SocialSuccessCode.DELETE_COMMENT_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 }

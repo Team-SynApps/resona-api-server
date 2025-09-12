@@ -21,6 +21,7 @@ import synapps.resona.api.socialMedia.comment.dto.CommentDto;
 import synapps.resona.api.socialMedia.comment.dto.request.CommentRequest;
 import synapps.resona.api.socialMedia.comment.dto.request.CommentUpdateRequest;
 import synapps.resona.api.socialMedia.comment.dto.ReplyDto;
+import synapps.resona.api.socialMedia.comment.dto.response.CommentDeleteResponse;
 import synapps.resona.api.socialMedia.comment.service.CommentService;
 
 import java.util.List;
@@ -191,22 +192,23 @@ class CommentControllerResponseTest {
   }
 
   @Test
-  @DisplayName("댓글 삭제 성공 시, 200 OK를 반환한다")
-  @WithMockUserPrincipal(memberId = 1L)
+  @DisplayName("댓글 삭제 성공 시, 갱신된 댓글 수를 포함한 응답을 반환한다")
+  @WithMockUserPrincipal
   void deleteComment_success() throws Exception {
     // given
     Long commentId = 101L;
-    doNothing().when(commentService).deleteComment(commentId);
+    long expectedCommentCount = 15;
+    CommentDeleteResponse responseDto = CommentDeleteResponse.of(expectedCommentCount);
+    given(commentService.deleteComment(commentId)).willReturn(responseDto);
 
     // when
     ResultActions actions = mockMvc.perform(delete("/comments/{commentId}", commentId)
-        .with(csrf())
-        .contentType(MediaType.APPLICATION_JSON));
+        .with(csrf()));
 
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.data").doesNotExist())
+        .andExpect(jsonPath("$.data.commentCount").value(expectedCommentCount))
         .andDo(print());
   }
 }

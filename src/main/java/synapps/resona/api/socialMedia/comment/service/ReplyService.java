@@ -11,6 +11,7 @@ import synapps.resona.api.socialMedia.comment.dto.ReplyDto;
 import synapps.resona.api.socialMedia.comment.dto.ReplyProjectionDto;
 import synapps.resona.api.socialMedia.comment.dto.request.ReplyRequest;
 import synapps.resona.api.socialMedia.comment.dto.request.ReplyUpdateRequest;
+import synapps.resona.api.socialMedia.comment.dto.response.CommentDeleteResponse;
 import synapps.resona.api.socialMedia.comment.entity.Comment;
 import synapps.resona.api.socialMedia.comment.entity.ContentDisplayStatus;
 import synapps.resona.api.socialMedia.comment.entity.Reply;
@@ -19,6 +20,7 @@ import synapps.resona.api.socialMedia.comment.exception.ReplyException;
 import synapps.resona.api.socialMedia.comment.repository.comment.CommentRepository;
 import synapps.resona.api.socialMedia.comment.repository.reply.ReplyQueryRepository;
 import synapps.resona.api.socialMedia.comment.repository.reply.ReplyRepository;
+import synapps.resona.api.socialMedia.feed.repository.dsl.FeedExpressions;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +31,8 @@ public class ReplyService {
   private final ReplyRepository replyRepository;
   private final CommentRepository commentRepository;
   private final MemberRepository memberRepository;
+
+  private final FeedExpressions feedExpressions;
 
   @Transactional
   public ReplyDto register(ReplyRequest request, MemberDto memberDto) {
@@ -59,10 +63,12 @@ public class ReplyService {
   }
 
   @Transactional
-  public void delete(Long replyId) {
+  public CommentDeleteResponse delete(Long replyId) {
     Reply reply = replyRepository.findById(replyId).orElseThrow(ReplyException::replyNotFound);
     Comment comment = reply.getComment();
     comment.removeReply();
     reply.softDelete();
+    long commentCount = feedExpressions.fetchCommentCountByCommentId(comment.getId());
+    return CommentDeleteResponse.of(commentCount);
   }
 }

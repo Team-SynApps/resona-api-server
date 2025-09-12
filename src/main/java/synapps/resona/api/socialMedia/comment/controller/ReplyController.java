@@ -32,6 +32,7 @@ import synapps.resona.api.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.socialMedia.comment.dto.ReplyDto;
 import synapps.resona.api.socialMedia.comment.dto.request.ReplyRequest;
 import synapps.resona.api.socialMedia.comment.dto.request.ReplyUpdateRequest;
+import synapps.resona.api.socialMedia.comment.dto.response.CommentDeleteResponse;
 import synapps.resona.api.socialMedia.comment.service.ReplyService;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 
@@ -97,18 +98,18 @@ public class ReplyController {
   }
 
   @Operation(summary = "답글 삭제", description = "답글을 삭제합니다. (답글 작성자 또는 관리자만 가능)")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "DELETE_REPLY_SUCCESS"))
+  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "DELETE_REPLY_SUCCESS", responseClass = CommentDeleteResponse.class))
   @ApiErrorSpec({
       @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"REPLY_NOT_FOUND"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN", "FORBIDDEN"})
   })
   @DeleteMapping("/{replyId}")
   @PreAuthorize("@socialSecurity.isReplyMemberProperty(#replyId) or hasRole('ADMIN')")
-  public ResponseEntity<SuccessResponse<Void>> deleteReply(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<CommentDeleteResponse>> deleteReply(HttpServletRequest request,
       @Parameter(description = "삭제할 답글의 ID", required = true) @PathVariable Long replyId) {
-    replyService.delete(replyId);
+    CommentDeleteResponse response = replyService.delete(replyId);
     return ResponseEntity
         .status(SocialSuccessCode.DELETE_REPLY_SUCCESS.getStatus())
-        .body(SuccessResponse.of(SocialSuccessCode.DELETE_REPLY_SUCCESS, createRequestInfo(request.getRequestURI())));
+        .body(SuccessResponse.of(SocialSuccessCode.DELETE_REPLY_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 }
