@@ -22,8 +22,8 @@ public class FeedDto {
   private final String content;
   private final List<FeedMediaDto> images;
 
-  private final int likeCount;
-  private final int commentCount;
+  private final long likeCount;
+  private final long commentCount;
 
   private boolean hasLiked;
   private boolean hasScraped;

@@ -13,6 +13,6 @@ public class FeedWithMediaDto {
 
   private Long feedId;
   private String content;
-  private int likeCount;
+  private long likeCount;
   private List<FeedMediaDto> images;
 }
