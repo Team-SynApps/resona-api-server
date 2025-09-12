@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.controller.restriction;
+package synapps.resona.api.socialMedia.restriction.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,10 +11,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.config.WithMockUserPrincipal;
+import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.member.dto.response.MemberDto;
-import synapps.resona.api.socialMedia.restriction.controller.HideController;
 import synapps.resona.api.socialMedia.restriction.service.HideService;
 
 import static org.mockito.ArgumentMatchers.any;
