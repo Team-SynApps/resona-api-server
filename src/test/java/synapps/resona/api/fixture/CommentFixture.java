@@ -1,17 +1,18 @@
 package synapps.resona.api.fixture;
 
 import synapps.resona.api.member.entity.member.Member;
-import synapps.resona.api.socialMedia.dto.comment.CommentDto;
-import synapps.resona.api.socialMedia.dto.comment.request.CommentRequest;
-import synapps.resona.api.socialMedia.dto.comment.request.CommentUpdateRequest;
-import synapps.resona.api.socialMedia.dto.feed.SocialMemberDto;
-import synapps.resona.api.socialMedia.entity.comment.Comment;
+import synapps.resona.api.socialMedia.comment.entity.ContentDisplayStatus;
+import synapps.resona.api.socialMedia.comment.dto.CommentDto;
+import synapps.resona.api.socialMedia.comment.dto.request.CommentRequest;
+import synapps.resona.api.socialMedia.comment.dto.request.CommentUpdateRequest;
+import synapps.resona.api.socialMedia.feed.dto.SocialMemberDto;
+import synapps.resona.api.socialMedia.comment.entity.Comment;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import synapps.resona.api.socialMedia.entity.comment.CommentLikes;
-import synapps.resona.api.socialMedia.entity.feed.Feed;
+import synapps.resona.api.socialMedia.likes.entity.CommentLikes;
+import synapps.resona.api.socialMedia.feed.entity.Feed;
 
 import static org.mockito.Mockito.mock;
 
@@ -38,7 +39,7 @@ public class CommentFixture {
                 .commentId(commentId)
                 .author(SocialMemberDto.of(1L, "test_user", "test_url"))
                 .content(content)
-                .status(synapps.resona.api.socialMedia.entity.comment.ContentDisplayStatus.NORMAL)
+                .status(ContentDisplayStatus.NORMAL)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .replies(Collections.emptyList())

@@ -21,7 +21,7 @@ import synapps.resona.api.member.entity.profile.CountryCode;
 import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.profile.Profile;
 import synapps.resona.api.member.repository.member.MemberRepository;
-import synapps.resona.api.socialMedia.repository.feed.dsl.FeedExpressions;
+import synapps.resona.api.socialMedia.feed.repository.dsl.FeedExpressions;
 
 @Transactional
 @DataJpaTest

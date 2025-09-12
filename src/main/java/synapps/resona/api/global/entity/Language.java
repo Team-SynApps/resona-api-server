@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import synapps.resona.api.member.exception.LanguageException;
-import synapps.resona.api.socialMedia.entity.feed.FeedCategory;
 
 public enum Language {
   AFRIKAANS("af", "Afrikaans"),
