@@ -102,6 +102,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     queryParams.put("registered", memberService.isRegisteredMember(userInfo.getEmail()));
     queryParams.put("accessToken", accessToken.getToken());
     queryParams.put("refreshToken", refreshToken.getToken());
+    queryParams.put("email", userInfo.getEmail());
 
     return createRedirectScheme(baseRedirectUri, queryParams);
   }
