@@ -6,6 +6,20 @@
         pattern="%d{${LOG_DATEFORMAT_PATTERN:-yyyy-MM-dd HH:mm:ss.SSS}} %highlight{${LOG_LEVEL_PATTERN:-%5p}}{FATAL=red blink, ERROR=red, WARN=yellow bold, INFO=green, DEBUG=green bold, TRACE=blue} %style{${sys:PID}}{magenta} [%15.15t] %style{%-40.40C{1.}}{cyan} : %msg%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
     </Console>
 
+    <Http name="DiscordWarnAppender" url="${sys:DISCORD_WARN_WEBHOOK_URL}">
+      <Property name="Content-Type" value="application/json"/>
+      <PatternLayout>
+        <Pattern>{"content": "[WARN]: %enc{%m}{json}"}</Pattern>
+      </PatternLayout>
+    </Http>
+
+    <Http name="DiscordErrorAppender" url="${sys:DISCORD_ERROR_WEBHOOK_URL}">
+      <Property name="Content-Type" value="application/json"/>
+      <PatternLayout>
+        <Pattern>{"content": "[🚨ERROR]: %enc{%m}{json}"}</Pattern>
+      </PatternLayout>
+    </Http>
+
     <NoSql name="MongoDbAppender">
       <MongoDb4
         capped="true"
@@ -38,6 +52,8 @@
       <AppenderRef ref="Console"/>
       <AppenderRef ref="MongoDbAppender"/>
       <AppenderRef ref="RollingFile"/>
+      <AppenderRef ref="DiscordWarnAppender" level="WARN"/>
+      <AppenderRef ref="DiscordErrorAppender" level="ERROR"/>
     </Root>
 
     <!--        <Logger name="synapps.resona.api" level="debug"></Logger>-->
