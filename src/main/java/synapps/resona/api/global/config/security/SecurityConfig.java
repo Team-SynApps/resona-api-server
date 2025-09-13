@@ -77,6 +77,8 @@ public class SecurityConfig {
   };
 
   private static final String[] GUEST_PERMIT_URL_ARRAY = {
+      "/storage",
+      "/storage/finalize",
       "/member/password",
       "/member/join"
   };
