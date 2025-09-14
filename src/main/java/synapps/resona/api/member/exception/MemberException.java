@@ -41,4 +41,8 @@ public class MemberException extends BaseException {
   public static MemberException memberPasswordBlank() {
     return of(MemberErrorCode.MEMBER_PASSWORD_BLANK);
   }
+
+  public static MemberException invalidPasswordPolicy() {
+    return of(MemberErrorCode.INVALID_PASSWORD_POLICY);
+  }
 }

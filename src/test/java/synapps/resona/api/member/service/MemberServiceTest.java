@@ -3,11 +3,9 @@ package synapps.resona.api.member.service;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -20,16 +18,10 @@ import org.springframework.test.context.jdbc.Sql;
 import synapps.resona.api.support.IntegrationTestSupport;
 import synapps.resona.api.chat.entity.ChatMember;
 import synapps.resona.api.chat.repository.ChatMemberRepository;
+import synapps.resona.api.fixture.MemberFixture;
 import synapps.resona.api.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.member.dto.response.MemberRegisterResponseDto;
-import synapps.resona.api.member.entity.account.AccountInfo;
-import synapps.resona.api.member.entity.account.AccountStatus;
-import synapps.resona.api.member.entity.account.RoleType;
 import synapps.resona.api.member.entity.member.Member;
-import synapps.resona.api.member.entity.member_details.MemberDetails;
-import synapps.resona.api.member.entity.profile.CountryCode;
-import synapps.resona.api.global.entity.Language;
-import synapps.resona.api.member.entity.profile.Profile;
 import synapps.resona.api.member.repository.member.MemberProviderRepository;
 import synapps.resona.api.member.repository.member.MemberRepository;
 import synapps.resona.api.oauth.entity.UserPrincipal;
@@ -56,32 +48,8 @@ class MemberServiceTest extends IntegrationTestSupport {
 
   @BeforeEach
   void setUp() {
-    AccountInfo accountInfo = AccountInfo.of(
-        RoleType.USER,
-        AccountStatus.ACTIVE
-    );
-    AccountInfo tempAccountInfo = AccountInfo.of(
-        RoleType.GUEST,
-        AccountStatus.TEMPORARY
-    );
-
-    testMember = Member.of(
-        accountInfo,
-        MemberDetails.empty(),
-        Profile.empty(),
-        "test1@example.com",
-        "password1234",
-        LocalDateTime.now()
-    );
-
-    guestMember = Member.of(
-        tempAccountInfo,
-        MemberDetails.empty(),
-        Profile.empty(),
-        "newuser1@example.com",
-        "Newpass1@",
-        LocalDateTime.now()
-    );
+    testMember = MemberFixture.createTestMember();
+    guestMember = MemberFixture.createGuestMember();
 
     testMember.encodePassword("password1234");
 
@@ -111,7 +79,7 @@ class MemberServiceTest extends IntegrationTestSupport {
 
     // then
     assertThat(memberDetailInfo).isNotNull();
-    assertThat(memberDetailInfo.getRoleType()).isEqualTo(RoleType.USER.toString());
+    assertThat(memberDetailInfo.getRoleType()).isEqualTo("USER");
   }
 
   @Test
@@ -119,19 +87,7 @@ class MemberServiceTest extends IntegrationTestSupport {
   @DisplayName("회원 가입을 한다.")
   void testSignUp() throws Exception {
     // given
-    RegisterRequest request = new RegisterRequest(
-        "newuser1@example.com",           // email
-        "newuser tag",                          // tag
-        "Newpass1@",                      // password (8~30 자리, 알파벳, 숫자, 특수문자 포함)
-        CountryCode.KR,                   // nationality (예시: 한국)
-        CountryCode.US,                   // countryOfResidence (예시: 미국)
-        Set.of(Language.KOREAN),          // nativeLanguages (예시: 한국어)
-        Set.of(Language.ENGLISH),         // interestingLanguages (예시: 영어)
-        9,                                // timezone (예시: UTC+9)
-        "1990-01-01",                     // birth (yyyy-MM-dd 형식)
-        "newuser",                        // nickname (최대 15자)
-        "http://example.com/profile.jpg"  // profileImageUrl
-    );
+    RegisterRequest request = MemberFixture.createNewUserRegisterRequest();
 
     // when
     MemberRegisterResponseDto newMember = memberService.signUp(request);
@@ -164,19 +120,7 @@ class MemberServiceTest extends IntegrationTestSupport {
   @DisplayName("회원가입 시 MemberUpdatedEvent가 발행되고, MongoDB에 ChatMember가 동기화되어야 한다.")
   void signUp_ShouldSyncToChatMemberInMongoDB() {
     // given
-    RegisterRequest request = new RegisterRequest(
-        "newuser1@example.com",
-        "newuser_tag",
-        "Newpass1@",
-        CountryCode.KR,
-        CountryCode.US,
-        Set.of(Language.KOREAN),
-        Set.of(Language.ENGLISH),
-        9,
-        "1990-01-01",
-        "MongoDB동기화테스트",
-        "http://example.com/profile.jpg"
-    );
+    RegisterRequest request = MemberFixture.createMongoSyncRegisterRequest();
 
     // when
     MemberRegisterResponseDto newMember = memberService.signUp(request);
