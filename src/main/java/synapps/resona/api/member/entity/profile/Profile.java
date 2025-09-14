@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -35,7 +36,8 @@ public class Profile extends BaseEntity {
   private Long id;
 
   @NotNull
-  @Size(min = 1, max = 50)
+  @Size(min = 1, max = 30)
+  @Pattern(regexp = "^[a-zA-Z_]+$", message = "태그는 영문과 언더스코어(_)만 사용할 수 있습니다.")
   private String tag;
 
   @NotNull

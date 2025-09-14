@@ -25,7 +25,8 @@ public class RegisterRequest {
   private String email;
 
   @NotBlank
-  @Size(max = 20)
+  @Size(max = 30)
+  @Pattern(regexp = "^[a-zA-Z_]+$", message = "태그는 영문과 언더스코어(_)만 사용할 수 있습니다.")
   private String tag;
 
   @Size(max = 120)

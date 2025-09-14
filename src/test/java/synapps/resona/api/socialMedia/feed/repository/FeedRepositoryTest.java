@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.repository;
+package synapps.resona.api.socialMedia.feed.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,7 +50,7 @@ class FeedRepositoryTest {
 
   @BeforeEach
   void setUp() {
-    member = MemberFixture.createMember("test@example.com", "닉네임");
+    member = MemberFixture.createMember("test@example.com", "nickname");
     memberRepository.save(member);
 
     feed = FeedFixture.createFeed(member, "첫 피드");

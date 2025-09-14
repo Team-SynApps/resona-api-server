@@ -35,7 +35,7 @@ public class MemberFixture {
   public static RegisterRequest createDefaultRegisterRequest() {
     return new RegisterRequest(
         "test@example.com",
-        "testTag123",
+        "testTag",
         "validPassword123!",
         CountryCode.KR,
         CountryCode.US,
@@ -51,7 +51,7 @@ public class MemberFixture {
 
   public static RegisterRequest createMeRegisterRequest() {
     return new RegisterRequest(
-        "me@resona.com", "mine tag", "secure123!", CountryCode.KR, CountryCode.KR,
+        "me@resona.com", "mine_tag", "secure123!", CountryCode.KR, CountryCode.KR,
         Set.of(Language.KOREAN), Set.of(Language.ENGLISH), 9, "1998-07-21",
         "나자신", "http://image.me", false
     );
@@ -59,7 +59,7 @@ public class MemberFixture {
 
   public static RegisterRequest createTargetRegisterRequest() {
     return new RegisterRequest(
-        "target@resona.com", "other tag", "secure123!", CountryCode.KR, CountryCode.KR,
+        "target@resona.com", "other_tag", "secure123!", CountryCode.KR, CountryCode.KR,
         Set.of(Language.KOREAN), Set.of(Language.ENGLISH), 7, "1995-01-01",
         "상대방", "http://image.you", false
     );
@@ -67,7 +67,7 @@ public class MemberFixture {
 
   public static RegisterRequest createAnotherRegisterRequest() {
     return new RegisterRequest(
-        "another@resona.com", "another tag", "Qwerty12345!@", CountryCode.KR, CountryCode.KR,
+        "another@resona.com", "another_tag", "Qwerty12345!@", CountryCode.KR, CountryCode.KR,
         Set.of(Language.KOREAN), Set.of(Language.ENGLISH), 1, "2000-01-01",
         "제3자", "http://img.third", false
     );
@@ -91,7 +91,7 @@ public class MemberFixture {
 
   public static RegisterRequest createNewUserRegisterRequest() {
     return new RegisterRequest(
-        "newuser1@example.com", "newuser tag", "Newpass1@",
+        "newuser1@example.com", "newuser_tag", "Newpass1@",
         CountryCode.KR, CountryCode.US, Set.of(Language.KOREAN), Set.of(Language.ENGLISH),
         9, "1990-01-01", "newuser", "http://example.com/profile.jpg", false
     );
@@ -115,7 +115,7 @@ public class MemberFixture {
 
   public static RegisterRequest createProfileTestRegisterRequest(String email) {
     return new RegisterRequest(
-        email, "test tag", "secure123!", CountryCode.KR, CountryCode.KR,
+        email, "test_tag", "secure123!", CountryCode.KR, CountryCode.KR,
         Set.of(Language.KOREAN), Set.of(Language.ENGLISH), 9, "1998-07-21",
         "테스트닉네임", "http://image.png", false
     );
@@ -151,7 +151,7 @@ public class MemberFixture {
 
   public static RegisterRequest createDetailsTestRegisterRequest(String email) {
     return new RegisterRequest(
-        email, "test tag", "secure123!", CountryCode.KR, CountryCode.KR,
+        email, "test_tag", "secure123!", CountryCode.KR, CountryCode.KR,
         new HashSet<>(Set.of(Language.KOREAN)), new HashSet<>(Set.of(Language.ENGLISH)),
         9, "1998-07-21", "테스트닉네임", "http://image.png", false
     );
@@ -175,6 +175,40 @@ public class MemberFixture {
 
   public static MemberDetailsRequest createDetailsDeleteRequest() {
     return new MemberDetailsRequest(9, "010-0000-0000", MBTI.ISFJ, "삭제용 소개", "인천 연수구");
+  }
+
+  public static Member createCustomMember(String email, String nickname) {
+    AccountInfo accountInfo = AccountInfo.empty();
+    MemberDetails memberDetails = MemberDetails.of(0, "01011111111", MBTI.ENFJ, "about me", "location");
+
+    String tag = email.substring(0, email.indexOf('@')) + "_tag";
+    Profile profile = Profile.of(
+        CountryCode.KR,
+        CountryCode.KR,
+        Set.of(Language.KOREAN),
+        Set.of(Language.ENGLISH),
+        nickname,
+        tag,
+        "http://profile.img/" + nickname,
+        "2000-01-01"
+    );
+    return Member.of(accountInfo, memberDetails, profile, email, "password", LocalDateTime.now());
+  }
+
+  public static Member createMemberForRepositoryTest(String email) {
+    AccountInfo accountInfo = AccountInfo.empty();
+    MemberDetails memberDetails = MemberDetails.of(0, "01011111111", MBTI.ENFJ, "test about me", "test location");
+    Profile profile = Profile.of(
+        CountryCode.KR,
+        CountryCode.KR,
+        Set.of(Language.KOREAN),
+        Set.of(Language.ENGLISH),
+        "닉네임3",
+        "tag",
+        "http://profile.img/3",
+        "2000-01-01"
+    );
+    return Member.of(accountInfo, memberDetails, profile, email, "password123", LocalDateTime.now());
   }
 
 }

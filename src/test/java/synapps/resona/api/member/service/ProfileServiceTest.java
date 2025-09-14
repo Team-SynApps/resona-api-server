@@ -127,8 +127,8 @@ class ProfileServiceTest extends IntegrationTestSupport {
   @Test
   @DisplayName("이미 등록된 tag 값이 있는 경우 true를 반환한다.")
   void checkDuplicateTag_shouldReturnTrueWhenTagExists() {
-    // given: 회원가입 시 'test tag'가 이미 등록됨
-    String existingTag = "test tag";
+    // given
+    String existingTag = "test_tag";
 
     // when
     boolean result = profileService.checkDuplicateTag(existingTag);
