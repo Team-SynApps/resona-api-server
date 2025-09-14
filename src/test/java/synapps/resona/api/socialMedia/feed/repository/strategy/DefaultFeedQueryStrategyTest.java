@@ -61,8 +61,8 @@ class DefaultFeedQueryStrategyTest {
 
     // 테스트 데이터 생성
     viewer = createAndPersistMember("viewer@test.com", "viewer");
-    writer1 = createAndPersistMember("writer1@test.com", "writer1");
-    writer2 = createAndPersistMember("writer2@test.com", "writer2");
+    writer1 = createAndPersistMember("writer1@test.com", "writer_one");
+    writer2 = createAndPersistMember("writer2@test.com", "writer_two");
     blockedWriter = createAndPersistMember("blocked@test.com", "blockedWriter");
 
     // viewer가 blockedWriter를 차단

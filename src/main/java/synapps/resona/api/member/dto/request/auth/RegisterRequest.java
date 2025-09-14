@@ -25,13 +25,11 @@ public class RegisterRequest {
   private String email;
 
   @NotBlank
-  @Size(max = 20)
+  @Size(max = 30)
+  @Pattern(regexp = "^[a-zA-Z_]+$", message = "태그는 영문과 언더스코어(_)만 사용할 수 있습니다.")
   private String tag;
 
-  @NotBlank
   @Size(max = 120)
-  @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,30}$",
-      message = "비밀번호는 8~30 자리이면서 1개 이상의 알파벳, 숫자, 특수문자를 포함해야합니다.")
   private String password;
 
   @NotNull
@@ -57,6 +55,8 @@ public class RegisterRequest {
 
   @NotBlank
   private String profileImageUrl;
+
+  private boolean isSocialLogin;
 
 //
 //    @NotBlank

@@ -59,8 +59,8 @@ class MemberFeedQueryStrategyTest {
     memberFeedQueryStrategy = new MemberFeedQueryStrategy(queryFactory, feedExpressions);
 
     // 테스트 데이터 생성
-    writer1 = createAndPersistMember("writer1@test.com", "writer1");
-    writer2 = createAndPersistMember("writer2@test.com", "writer2");
+    writer1 = createAndPersistMember("writer1@test.com", "writer_one");
+    writer2 = createAndPersistMember("writer2@test.com", "writer_two");
     viewer = createAndPersistMember("viewer@test.com", "viewer"); // 좋아요, 댓글용
 
     // writer1의 피드 3개 생성

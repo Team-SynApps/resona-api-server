@@ -3,22 +3,19 @@ package synapps.resona.api.member.service;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.transaction.Transactional;
-import java.util.HashSet;
-import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import synapps.resona.api.fixture.MemberFixture;
 import synapps.resona.api.support.IntegrationTestSupport;
 import synapps.resona.api.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.member.dto.request.member_details.MemberDetailsRequest;
 import synapps.resona.api.member.dto.response.MemberDetailsResponse;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.entity.member_details.MBTI;
-import synapps.resona.api.member.entity.profile.CountryCode;
-import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.repository.member.MemberRepository;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 
@@ -41,28 +38,16 @@ class MemberDetailsServiceTest extends IntegrationTestSupport {
 
   @BeforeEach
   void setUp() {
-    // 1. 회원가입에 사용할 DTO를 준비합니다.
-    RegisterRequest request = new RegisterRequest(
-        email,
-        "test tag",
-        "secure123!",
-        CountryCode.KR,
-        CountryCode.KR,
-        new HashSet<>(Set.of(Language.KOREAN)),
-        new HashSet<>(Set.of(Language.ENGLISH)),
-        9,
-        "1998-07-21",
-        "테스트닉네임",
-        "http://image.png"
-    );
+    // 1. 회원가입에 사용할 DTO 생성
+    RegisterRequest request = MemberFixture.createDetailsTestRegisterRequest(email);
 
-    // 2. 임시 회원을 먼저 생성합니다.
+    // 2. 임시 회원 생성
     tempTokenService.createTemporaryToken(request.getEmail());
 
-    // 3. 정식 회원으로 전환합니다.
+    // 3. 정식 회원 전환
     memberService.signUp(request);
 
-    // 4. 테스트를 위한 인증 정보를 설정합니다.
+    // 4. 테스트를 위한 인증 정보 설정
     Member member = memberRepository.findByEmailWithAccountInfo(email)
         .orElseThrow(() -> new RuntimeException("테스트 유저를 찾을 수 없습니다."));
 
@@ -77,9 +62,7 @@ class MemberDetailsServiceTest extends IntegrationTestSupport {
   @DisplayName("회원 상세정보를 등록 및 수정할 수 있다.")
   void register() {
     // given
-    MemberDetailsRequest request = new MemberDetailsRequest(
-        9, "010-1234-5678", MBTI.ENFJ, "자기소개입니다", "서울 강남구"
-    );
+    MemberDetailsRequest request = MemberFixture.createDetailsRegisterRequest();
 
     // when
     MemberDetailsResponse result = memberDetailsService.register(request);
@@ -95,9 +78,7 @@ class MemberDetailsServiceTest extends IntegrationTestSupport {
   @DisplayName("회원 상세정보를 조회할 수 있다.")
   void getMemberDetails() {
     // given
-    MemberDetailsRequest request = new MemberDetailsRequest(
-        8, "010-2222-3333", MBTI.INFP, "소개글", "부산 해운대구"
-    );
+    MemberDetailsRequest request = MemberFixture.createDetailsReadRequest();
     memberDetailsService.register(request);
 
     // when
@@ -113,14 +94,10 @@ class MemberDetailsServiceTest extends IntegrationTestSupport {
   @DisplayName("회원 상세정보를 수정할 수 있다.")
   void editMemberDetails() {
     // given
-    MemberDetailsRequest initialRequest = new MemberDetailsRequest(
-        9, "010-1111-2222", MBTI.ENFJ, "초기 소개", "대전 중구"
-    );
+    MemberDetailsRequest initialRequest = MemberFixture.createDetailsInitialRequest();
     memberDetailsService.register(initialRequest);
 
-    MemberDetailsRequest updateRequest = new MemberDetailsRequest(
-        7, "010-9999-8888", MBTI.ENTP, "수정된 소개", "제주도 제주시"
-    );
+    MemberDetailsRequest updateRequest = MemberFixture.createDetailsUpdateRequest();
 
     // when
     var updated = memberDetailsService.editMemberDetails(updateRequest);
@@ -136,9 +113,7 @@ class MemberDetailsServiceTest extends IntegrationTestSupport {
   @DisplayName("회원 상세정보를 soft delete 할 수 있다.")
   void deleteMemberDetails() {
     // given
-    MemberDetailsRequest request = new MemberDetailsRequest(
-        9, "010-0000-0000", MBTI.ISFJ, "삭제용 소개", "인천 연수구"
-    );
+    MemberDetailsRequest request = MemberFixture.createDetailsDeleteRequest();
     memberDetailsService.register(request);
 
     // when

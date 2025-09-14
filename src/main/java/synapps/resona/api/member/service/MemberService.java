@@ -75,6 +75,17 @@ public class MemberService {
 
   @Transactional
   public MemberRegisterResponseDto signUp(RegisterRequest request) {
+    final String PASSWORD_PATTERN = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,30}$";
+
+    if (!request.isSocialLogin()) {
+      if (request.getPassword() == null || request.getPassword().isBlank()) {
+        throw MemberException.memberPasswordBlank();
+      }
+      if (!request.getPassword().matches(PASSWORD_PATTERN)) {
+        throw MemberException.invalidPasswordPolicy();
+      }
+    }
+
     // 이메일로 기존 멤버 조회 (없으면 TempTokenService에서 생성된 임시 계정)
     Member member = memberRepository.findWithAccountInfoByEmail(request.getEmail())
         .orElseThrow(MemberException::memberNotFound);
