@@ -37,4 +37,8 @@ public class MemberException extends BaseException {
   public static MemberException followingNotFound() {
     return of(MemberErrorCode.FOLLOWING_NOT_FOUND);
   }
+
+  public static MemberException memberPasswordBlank() {
+    return of(MemberErrorCode.MEMBER_PASSWORD_BLANK);
+  }
 }

@@ -11,6 +11,7 @@ public enum MemberErrorCode implements ErrorCode {
   INVALID_TIMESTAMP(HttpStatus.UNAUTHORIZED, "MEM004", "Invalid timestamp"),
   UNAUTHENTICATED_REQUEST(HttpStatus.FORBIDDEN, "MEM005", "Forbidden approach"),
   FOLLOWING_NOT_FOUND(HttpStatus.NOT_FOUND, "MEM006", "Member trying to Follow is Not found"),
+  MEMBER_PASSWORD_BLANK(HttpStatus.CONFLICT, "MEM007", "Member password required"),
 
   // account info
   ACCOUNT_INFO_NOT_FOUND(HttpStatus.NOT_FOUND, "ACC001", "Account Info not found"),

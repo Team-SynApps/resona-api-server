@@ -75,6 +75,10 @@ public class MemberService {
 
   @Transactional
   public MemberRegisterResponseDto signUp(RegisterRequest request) {
+    if (!request.isSocialLogin() && request.getPassword().isBlank()) {
+      throw MemberException.memberPasswordBlank();
+    }
+
     // 이메일로 기존 멤버 조회 (없으면 TempTokenService에서 생성된 임시 계정)
     Member member = memberRepository.findWithAccountInfoByEmail(request.getEmail())
         .orElseThrow(MemberException::memberNotFound);
