@@ -4,12 +4,16 @@ package synapps.resona.api.oauth.handler;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie; // Cookie 클래스 import 추가
 import java.io.IOException;
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional; // Optional 클래스 import 추가
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -20,6 +24,7 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.global.properties.AppProperties;
+import synapps.resona.api.global.utils.CookieUtil; // CookieUtil 경로 확인
 import synapps.resona.api.member.entity.account.RoleType;
 import synapps.resona.api.member.entity.member.MemberRefreshToken;
 import synapps.resona.api.member.repository.member.MemberRefreshTokenRepository;
@@ -61,7 +66,21 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
   protected String determineTargetUrl(HttpServletRequest request, HttpServletResponse response,
       Authentication authentication) {
-    String baseRedirectUri = (String) request.getSession().getAttribute(redirectScheme);
+
+    Optional<String> redirectUriCookie = CookieUtil.getCookie(request, CustomOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME)
+        .map(Cookie::getValue);
+
+    if(redirectUriCookie.isPresent() && !isAuthorizedRedirectUri(redirectUriCookie.get())) {
+      try {
+        // 허용되지 않은 URI면 에러 처리
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unauthorized Redirect URI");
+      } catch (IOException e) {
+        logger.error("Error sending redirect URI error response", e);
+      }
+      throw new IllegalArgumentException("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication.");
+    }
+
+    String baseRedirectUri = redirectUriCookie.orElse(redirectScheme);
 
     OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
     ProviderType providerType = ProviderType.valueOf(
@@ -108,23 +127,30 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
   }
 
   private String createRedirectScheme(String baseRedirectUri, Map<String, Object> queryParams) {
+    if (baseRedirectUri == null || baseRedirectUri.trim().isEmpty()) {
+      logger.error(String.format("Base redirect URI is missing. Using default scheme '%s'.", redirectScheme));
+      baseRedirectUri = redirectScheme;
+    }
+
     StringBuilder stringBuffer = new StringBuilder()
         .append(baseRedirectUri)
-        .append("://");
-    for (String key : queryParams.keySet()) {
-      stringBuffer.append(key);
-      stringBuffer.append("=");
-      stringBuffer.append(queryParams.get(key));
-      stringBuffer.append("&");
+        .append("://?");
+
+    if (!queryParams.isEmpty()) {
+      queryParams.forEach((key, value) -> {
+        stringBuffer.append(key);
+        stringBuffer.append("=");
+        stringBuffer.append(URLEncoder.encode(String.valueOf(value), StandardCharsets.UTF_8));
+        stringBuffer.append("&");
+      });
+      stringBuffer.deleteCharAt(stringBuffer.length() - 1);
     }
-    stringBuffer.deleteCharAt(stringBuffer.length() - 1);
+
     return stringBuffer.toString();
   }
 
   private void redirectToScheme(HttpServletResponse response, String redirectUri)
       throws IOException {
-    response.setContentType("application/json");
-    response.setCharacterEncoding("UTF-8");
     response.setStatus(HttpStatus.FOUND.value());
     response.sendRedirect(redirectUri);
   }
@@ -150,72 +176,13 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
     return false;
   }
 
+  /**
+   * 클라이언트가 전달한 redirect_uri가 허용된 URI인지 검증합니다.
+   * 앱스킴의 경우 host, port가 없으므로 스킴 자체를 비교해야 합니다.
+   */
   private boolean isAuthorizedRedirectUri(String uri) {
-    URI clientRedirectUri = URI.create(uri);
-
     return appProperties.getOauth2().getAuthorizedRedirectUris()
         .stream()
-        .anyMatch(authorizedRedirectUri -> {
-          // Only validate host and port. Let the clients use different paths if they want to
-          URI authorizedURI = URI.create(authorizedRedirectUri);
-          System.out.println("authorizedURI: " + authorizedURI);
-          return authorizedURI.getHost().equalsIgnoreCase(clientRedirectUri.getHost())
-              && authorizedURI.getPort() == clientRedirectUri.getPort();
-        });
+        .anyMatch(authorizedRedirectUri -> authorizedRedirectUri.equalsIgnoreCase(uri));
   }
-
-//    protected ResponseEntity<?> getResponse(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-//        Optional<String> redirectUri = CookieUtil.getCookie(request, OAuth2AuthorizationRequestBasedOnCookieRepository.REDIRECT_URI_PARAM_COOKIE_NAME)
-//                .map(Cookie::getValue);
-//
-//        if(redirectUri.isPresent() && !isAuthorizedRedirectUri(redirectUri.get())) {
-//            throw new IllegalArgumentException("Sorry! We've got an Unauthorized Redirect URI and can't proceed with the authentication");
-//        }
-//
-//        String targetUrl = redirectUri.orElse(getDefaultTargetUrl());
-//
-//        OAuth2AuthenticationToken authToken = (OAuth2AuthenticationToken) authentication;
-//        ProviderType providerType = ProviderType.valueOf(authToken.getAuthorizedClientRegistrationId().toUpperCase());
-//
-//        OidcUser user = ((OidcUser) authentication.getPrincipal());
-//        OAuth2UserInfo userInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(providerType, user.getAttributes());
-//        Collection<? extends GrantedAuthority> authorities = ((OidcUser) authentication.getPrincipal()).getAuthorities();
-//
-//        RoleType roleType = hasAuthority(authorities, RoleType.ADMIN.getCode()) ? RoleType.ADMIN : RoleType.USER;
-//
-//        Date now = new Date();
-//        AuthToken accessToken = tokenProvider.createAuthToken(
-//                userInfo.getEmail(),
-//                roleType.getCode(),
-//                new Date(now.getTime() + appProperties.getAuth().getTokenExpiry())
-//        );
-//
-//        // refresh 토큰 설정
-//        long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
-//
-//        AuthToken refreshToken = tokenProvider.createAuthToken(
-//                appProperties.getAuth().getTokenSecret(),
-//                new Date(now.getTime() + refreshTokenExpiry)
-//        );
-//
-//        // DB 저장
-//        MemberRefreshToken userRefreshToken = memberRefreshTokenRepository.findByMemberEmail(userInfo.getId());
-//        if (userRefreshToken != null) {
-//            userRefreshToken.setRefreshToken(refreshToken.getToken());
-//        } else {
-//            userRefreshToken = new MemberRefreshToken(userInfo.getEmail(), refreshToken.getToken());
-//            memberRefreshTokenRepository.saveAndFlush(userRefreshToken);
-//        }
-//
-//        int cookieMaxAge = (int) refreshTokenExpiry / 60;
-//
-//        CookieUtil.deleteCookie(request, response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN);
-//        CookieUtil.addCookie(response, OAuth2AuthorizationRequestBasedOnCookieRepository.REFRESH_TOKEN, refreshToken.getToken(), cookieMaxAge);
-//
-//        MetaDataDto metaData = MetaDataDto.createSuccessMetaData(request.getQueryString(), "1","api server");
-//        ResponseDto responseData = new ResponseDto(metaData, List.of(accessToken.getToken()));
-//
-//        return ResponseEntity.ok(responseData);
-//    }
 }
-
