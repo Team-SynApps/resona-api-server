@@ -140,7 +140,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
       queryParams.forEach((key, value) -> {
         stringBuffer.append(key);
         stringBuffer.append("=");
-        stringBuffer.append(URLEncoder.encode(String.valueOf(value), StandardCharsets.UTF_8));
+        stringBuffer.append(value);
         stringBuffer.append("&");
       });
       stringBuffer.deleteCharAt(stringBuffer.length() - 1);
