@@ -57,7 +57,7 @@ public class AuthService {
     String memberEmail = loginRequest.getMemberEmail();
     String memberPassword = loginRequest.getPassword();
 
-    Member member = memberRepository.findWithAccountInfoByEmail(memberEmail)
+    Member member = memberRepository.findWithRegisterRelationsByEmail(memberEmail)
         .orElseThrow(() -> new AuthException(
             AuthErrorCode.LOGIN_FAILED.getMessage(),
             AuthErrorCode.LOGIN_FAILED.getStatus(),
