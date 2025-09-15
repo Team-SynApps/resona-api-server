@@ -16,7 +16,7 @@
     <Http name="DiscordErrorAppender" url="${sys:DISCORD_ERROR_WEBHOOK_URL}">
       <Property name="Content-Type" value="application/json"/>
       <PatternLayout>
-        <Pattern>{"content": "[🚨ERROR]: %enc{%m}{json}"}</Pattern>
+        <Pattern>{"content": "[🚨ERROR]: %enc{%m%n%wEx}{json}"}</Pattern>
       </PatternLayout>
     </Http>
 
