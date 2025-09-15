@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.controller.mention;
+package synapps.resona.api.socialMedia.mention.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;

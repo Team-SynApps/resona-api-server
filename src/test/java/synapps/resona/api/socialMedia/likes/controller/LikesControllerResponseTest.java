@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.controller.likes;
+package synapps.resona.api.socialMedia.likes.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

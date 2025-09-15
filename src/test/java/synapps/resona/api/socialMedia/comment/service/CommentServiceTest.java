@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.service;
+package synapps.resona.api.socialMedia.comment.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

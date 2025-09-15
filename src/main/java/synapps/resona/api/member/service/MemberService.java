@@ -87,7 +87,7 @@ public class MemberService {
     }
 
     // 이메일로 기존 멤버 조회 (없으면 TempTokenService에서 생성된 임시 계정)
-    Member member = memberRepository.findWithAccountInfoByEmail(request.getEmail())
+    Member member = memberRepository.findWithRegisterRelationsByEmail(request.getEmail())
         .orElseThrow(MemberException::memberNotFound);
 
     // 계정 상태 확인 (BANNED, ACTIVE 등)

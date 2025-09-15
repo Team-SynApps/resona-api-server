@@ -28,6 +28,13 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
   @Query("SELECT m FROM Member m " +
       "JOIN FETCH m.accountInfo " +
+      "JOIN FETCH m.memberDetails " +
+      "JOIN FETCH m.profile p " +
+      "WHERE m.email = :email")
+  Optional<Member> findWithRegisterRelationsByEmail(@Param("email") String email);
+
+  @Query("SELECT m FROM Member m " +
+      "JOIN FETCH m.accountInfo " +
       "WHERE m.email = :email")
   Optional<Member> findWithAccountInfoByEmail(@Param("email") String email);
 

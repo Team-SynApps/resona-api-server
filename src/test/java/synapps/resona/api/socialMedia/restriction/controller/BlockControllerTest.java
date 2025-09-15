@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.controller.restriction;
+package synapps.resona.api.socialMedia.restriction.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

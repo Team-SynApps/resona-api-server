@@ -7,6 +7,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.testcontainers.context.ImportTestcontainers;
 import org.springframework.test.context.ActiveProfiles;
 import synapps.resona.api.config.TestContainerConfig;
+import synapps.resona.api.external.discord.notification.DeploymentNotificationListener;
+import synapps.resona.api.external.discord.service.DiscordNotificationService;
 import synapps.resona.api.global.config.FcmConfig;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -20,4 +22,7 @@ public abstract class IntegrationTestSupport {
 
   @MockBean
   private FirebaseApp firebaseApp;
+
+  @MockBean
+  private DiscordNotificationService discordNotificationService;
 }

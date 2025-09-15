@@ -110,3 +110,8 @@ cors:
 swagger:
   server:
     url: http://localhost:8080/api/v1
+
+discord:
+  webhook:
+    report: "dummy-report-url"
+    deploy: "dummy-deploy-url"
