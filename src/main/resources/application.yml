@@ -55,6 +55,7 @@ app:
   oauth2:
     authorizedRedirectUris:
       - https://localhost:3000/oauth/redirect
+      - resona
 
 # 로깅 설정
 logging:
