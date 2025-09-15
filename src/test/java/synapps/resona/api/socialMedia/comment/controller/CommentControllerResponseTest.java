@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.controller.comment;
+package synapps.resona.api.socialMedia.comment.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;

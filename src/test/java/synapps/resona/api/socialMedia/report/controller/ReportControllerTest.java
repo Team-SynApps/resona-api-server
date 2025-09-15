@@ -1,4 +1,4 @@
-package synapps.resona.api.socialMedia.controller.report;
+package synapps.resona.api.socialMedia.report.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
