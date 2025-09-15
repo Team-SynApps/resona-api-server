@@ -28,6 +28,8 @@ import synapps.resona.api.member.entity.account.RoleType;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.entity.member.MemberProvider;
 import synapps.resona.api.member.entity.member.MemberRefreshToken;
+import synapps.resona.api.member.entity.member_details.MemberDetails;
+import synapps.resona.api.member.entity.profile.Profile;
 import synapps.resona.api.member.exception.AuthException;
 import synapps.resona.api.member.repository.member.MemberProviderRepository;
 import synapps.resona.api.member.repository.member.MemberRefreshTokenRepository;
@@ -133,7 +135,9 @@ public class AuthService {
   private Member createMemberWithProvider(String email, String providerId, ProviderType providerType) {
 
     AccountInfo accountInfo = AccountInfo.of(RoleType.USER, AccountStatus.TEMPORARY);
-    Member newMember = Member.of(accountInfo, email, null, LocalDateTime.now());
+    MemberDetails memberDetails = MemberDetails.empty();
+    Profile profile = Profile.empty();
+    Member newMember = Member.of(accountInfo,memberDetails, profile, email, null, LocalDateTime.now());
 
     memberRepository.save(newMember);
 
