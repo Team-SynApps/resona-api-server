@@ -3,6 +3,7 @@ package synapps.resona.api.socialMedia.report.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import synapps.resona.api.external.discord.service.DiscordNotificationService;
 import synapps.resona.api.member.dto.response.MemberDto;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.exception.MemberException;
@@ -33,6 +34,7 @@ public class ReportService {
   private final FeedRepository feedRepository;
   private final CommentRepository commentRepository;
   private final ReplyRepository replyRepository;
+  private final DiscordNotificationService discordNotificationService;
 
   @Transactional
   public void reportFeed(FeedReportRequest request, MemberDto memberInfo) {
@@ -47,6 +49,7 @@ public class ReportService {
 
     FeedReport feedReport = FeedReport.of(reporter, reported, request.getReportCategory(), feed);
     reportRepository.save(feedReport);
+    discordNotificationService.sendReportNotification(feedReport);
   }
 
   @Transactional
@@ -63,6 +66,7 @@ public class ReportService {
     CommentReport commentReport = CommentReport.of(reporter, reported, comment,
         request.getReportCategory());
     reportRepository.save(commentReport);
+    discordNotificationService.sendReportNotification(commentReport);
   }
 
   @Transactional
@@ -79,5 +83,6 @@ public class ReportService {
     ReplyReport replyReport = ReplyReport.of(reporter, reported, reply,
         request.getReportCategory());
     reportRepository.save(replyReport);
+    discordNotificationService.sendReportNotification(replyReport);
   }
 }

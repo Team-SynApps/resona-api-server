@@ -90,3 +90,8 @@ management:
 
 fcm:
   path: ${FCM_JSON_PATH}
+
+discord:
+  webhook:
+    report: ${DISCORD_REPORT_WEBHOOK_URL}
+    deploy: ${DISCORD_DEPLOY_WEBHOOK_URL}
