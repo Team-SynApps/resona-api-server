@@ -3,18 +3,17 @@ package synapps.resona.api.member.service;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 import jakarta.transaction.Transactional;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.test.context.jdbc.Sql;
+import synapps.resona.api.support.DatabaseCleanerExtension;
 import synapps.resona.api.support.IntegrationTestSupport;
 import synapps.resona.api.chat.entity.ChatMember;
 import synapps.resona.api.chat.repository.ChatMemberRepository;
@@ -27,7 +26,7 @@ import synapps.resona.api.member.repository.member.MemberRepository;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 
 
-@Sql("/cleanup.sql")
+@ExtendWith(DatabaseCleanerExtension.class)
 @Disabled("mongodb 환경 오류로 일단 비활성화합니다.")
 class MemberServiceTest extends IntegrationTestSupport {
 
@@ -43,20 +42,17 @@ class MemberServiceTest extends IntegrationTestSupport {
   @Autowired
   private MemberProviderRepository memberProviderRepository;
 
-  private Member testMember;
-  private Member guestMember;
-
-  @BeforeEach
-  void setUp() {
-    testMember = MemberFixture.createTestMember();
-    guestMember = MemberFixture.createGuestMember();
-
-    testMember.encodePassword("password1234");
-
-    memberRepository.saveAll(List.of(testMember, guestMember));
-    // SecurityContext에 사용자 정보 설정
-    setAuthentication(testMember.getEmail());
-  }
+//  @BeforeEach
+//  void setUp() {
+//    testMember = MemberFixture.createTestMember();
+//    guestMember = MemberFixture.createGuestMember();
+//
+//    testMember.encodePassword("password1234");
+//
+//    memberRepository.saveAll(List.of(testMember, guestMember));
+//    // SecurityContext에 사용자 정보 설정
+//    setAuthentication(testMember.getEmail());
+//  }
 
   private void setAuthentication(String email) {
     Member member = memberRepository.findByEmailWithAccountInfo(email)
@@ -74,6 +70,11 @@ class MemberServiceTest extends IntegrationTestSupport {
   @Transactional
   @DisplayName("회원 상세 정보를 조회한다.")
   void testGetMemberDetailInfo() {
+    // given
+    Member testMember = MemberFixture.createTestMember();
+    memberRepository.save(testMember);
+    setAuthentication(testMember.getEmail());
+
     // when
     var memberDetailInfo = memberService.getMemberDetailInfo("test1@example.com");
 
@@ -103,8 +104,9 @@ class MemberServiceTest extends IntegrationTestSupport {
   @DisplayName("회원을 삭제한다.")
   void testDeleteUser() {
     // given
-    String userEmail = testMember.getEmail();
-    setAuthentication(userEmail); // 삭제할 유저로 인증 설정
+    Member memberToDelete = MemberFixture.createTestMember();
+    memberRepository.save(memberToDelete);
+    setAuthentication(memberToDelete.getEmail());
 
     // when
     Map<String, String> result = memberService.deleteUser();
@@ -112,7 +114,7 @@ class MemberServiceTest extends IntegrationTestSupport {
     // then
     assertThat(result).isEqualTo(Map.of("message", "User deleted successfully."));
 
-    Optional<Member> foundMember = memberRepository.findByEmail(userEmail);
+    Optional<Member> foundMember = memberRepository.findByEmail(memberToDelete.getEmail());
     assertThat(foundMember).isEmpty();
   }
 

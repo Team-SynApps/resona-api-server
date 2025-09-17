@@ -106,6 +106,8 @@ dependencies {
 	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
 	testImplementation 'org.testcontainers:mongodb'
 	testImplementation 'org.testcontainers:mysql'
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
 
 	testImplementation 'com.h2database:h2'
 
