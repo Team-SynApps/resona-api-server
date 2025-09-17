@@ -4,9 +4,9 @@ import org.springframework.http.HttpStatus;
 import synapps.resona.api.global.dto.code.SuccessCode;
 
 public enum ChatSuccessCode implements SuccessCode {
-  MESSAGE_SENT_SUCCESS(HttpStatus.CREATED, "메시지 전송에 성공하였습니다."),
-  GET_MESSAGES_SUCCESS(HttpStatus.OK, "메시지 목록 조회에 성공하였습니다."),
-  ROOM_CREATED_SUCCESS(HttpStatus.CREATED, "채팅방 생성에 성공하였습니다.");
+  MESSAGE_SENT_SUCCESS(HttpStatus.CREATED, "Message sent successfully."),
+  GET_MESSAGES_SUCCESS(HttpStatus.OK, "Successfully retrieved message list."),
+  ROOM_CREATED_SUCCESS(HttpStatus.CREATED, "Chat room created successfully.");
 
   private final HttpStatus status;
   private final String message;

@@ -45,7 +45,7 @@ public class MailController {
   })
   @PostMapping()
   public ResponseEntity<SuccessResponse<HashMap<String, Object>>> sendMail(HttpServletRequest request,
-      @Parameter(description = "인증번호를 받을 이메일 주소", required = true) @RequestParam String mail) throws EmailException {
+      @Parameter(description = "인증번호를 받을 이메일 주소", required = true) @RequestParam String mail) {
     HashMap<String, Object> result = mailService.send(mail);
 
     return ResponseEntity
@@ -61,8 +61,7 @@ public class MailController {
   })
   @PostMapping("/temp-token")
   public ResponseEntity<SuccessResponse<?>> mailCheckAndIssueToken(HttpServletRequest request,
-      @Valid @RequestBody EmailCheckDto emailCheckDto) throws EmailException {
-
+      @Valid @RequestBody EmailCheckDto emailCheckDto) {
     return ResponseEntity
         .status(EmailSuccessCode.EMAIL_VERIFICATION_SUCCESS.getStatus())
         .body(SuccessResponse.of(EmailSuccessCode.EMAIL_VERIFICATION_SUCCESS, createRequestInfo(request.getQueryString()), mailService.verifyMailAndIssueToken(emailCheckDto.getEmail(), emailCheckDto.getNumber())));

@@ -66,21 +66,27 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(EmailException.class)
   public ResponseEntity<?> handleEmailException(EmailException ex, HttpServletRequest request) {
+    logger.error("EmailException: code={}, message={}", ex.getErrorCode(), ex.getMessage(), ex);
     RequestInfo requestInfo = createRequestInfo(request);
-    if (ex.getErrorCode().equals(EmailErrorCode.INVALID_EMAIL_CODE.getCustomCode())) {
-      EmailCheckExceptionDto body = new EmailCheckExceptionDto(ex.getMessage(),
-          ex.getMailCheckCountLeft());
-      return createErrorResponse(EmailErrorCode.INVALID_EMAIL_CODE, requestInfo, body);
+
+    EmailErrorCode errorCode = EmailErrorCode.fromErrorCode(ex.getErrorCode());
+
+    if (errorCode == EmailErrorCode.INVALID_EMAIL_CODE) {
+      EmailCheckExceptionDto body = new EmailCheckExceptionDto(ex.getMessage(), ex.getMailCheckCountLeft());
+      return createErrorResponse(errorCode, requestInfo, body);
     }
-    logger.error(ex.getMessage(), ex);
-    return createErrorResponse(GlobalErrorCode.INTERNAL_SERVER_ERROR, requestInfo);
+
+    return createErrorResponse(errorCode, requestInfo);
   }
 
   @ExceptionHandler(AuthException.class)
-  public ResponseEntity<?> handleAuthException(AuthException ex, HttpServletRequest request) { // 파라미터 타입을 AuthException으로 변경
-    logger.error(ex.getMessage(), ex);
+  public ResponseEntity<ErrorResponse<String>> handleAuthException(AuthException ex, HttpServletRequest request) {
+    logger.error("AuthException: code={}, message={}", ex.getErrorCode(), ex.getMessage(), ex);
     RequestInfo requestInfo = createRequestInfo(request);
-    return createErrorResponse(GlobalErrorCode.INTERNAL_SERVER_ERROR, requestInfo);
+
+    AuthErrorCode errorCode = AuthErrorCode.fromCustomCode(ex.getErrorCode());
+
+    return createErrorResponse(errorCode, requestInfo, errorCode.getMessage());
   }
 
   @ExceptionHandler({AuthenticationException.class, BadCredentialsException.class})

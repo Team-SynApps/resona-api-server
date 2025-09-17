@@ -68,7 +68,7 @@ class HideControllerTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.meta.message").value("피드 숨김에 성공하였습니다."))
+        .andExpect(jsonPath("$.meta.message").value("Feed hidden successfully."))
         .andExpect(jsonPath("$.data").doesNotExist())
         .andDo(print());
   }
@@ -88,7 +88,7 @@ class HideControllerTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.meta.message").value("댓글 숨김에 성공하였습니다."))
+        .andExpect(jsonPath("$.meta.message").value("Comment hidden successfully."))
         .andExpect(jsonPath("$.data").doesNotExist())
         .andDo(print());
   }
@@ -108,7 +108,7 @@ class HideControllerTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.meta.message").value("대댓글 숨김에 성공하였습니다."))
+        .andExpect(jsonPath("$.meta.message").value("Reply hidden successfully."))
         .andExpect(jsonPath("$.data").doesNotExist())
         .andDo(print());
   }

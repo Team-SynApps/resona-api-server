@@ -5,8 +5,8 @@ import synapps.resona.api.global.dto.code.SuccessCode;
 
 public enum EmailSuccessCode implements SuccessCode {
 
-  SEND_VERIFICATION_EMAIL_SUCCESS(HttpStatus.OK, "인증 이메일 발송에 성공하였습니다."),
-  EMAIL_VERIFICATION_SUCCESS(HttpStatus.OK, "이메일 인증에 성공하였습니다.");
+  SEND_VERIFICATION_EMAIL_SUCCESS(HttpStatus.OK, "Verification email sent successfully."),
+  EMAIL_VERIFICATION_SUCCESS(HttpStatus.OK, "Email verification successful.");
 
   private final HttpStatus status;
   private final String message;

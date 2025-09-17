@@ -16,5 +16,5 @@ public class FeedRequest {
   private String content;
   private String category;
   private LocationRequest location;
-  private String language;
+  private String languageCode;
 }

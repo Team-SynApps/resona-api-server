@@ -18,7 +18,7 @@ public class FeedDto {
   private final Long feedId;
   private final SocialMemberDto author;
   private FeedCategory category;
-  private Language language;
+  private String languageCode;
   private final String content;
   private final List<FeedMediaDto> images;
 
@@ -41,6 +41,7 @@ public class FeedDto {
         .author(SocialMemberDto.from(feed.getMember()))
         .content(feed.getContent())
         .category(feed.getCategory())
+        .languageCode(feed.getLanguage().getCode())
         .likeCount((int) dto.getMetaData().getLikeCount())
         .images(feed.getImages().stream().map(FeedMediaDto::from).toList()) // @BatchSize
         .commentCount((int) dto.getMetaData().getCommentCount())

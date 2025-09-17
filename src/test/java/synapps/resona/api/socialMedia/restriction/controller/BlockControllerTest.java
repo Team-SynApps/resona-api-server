@@ -75,7 +75,7 @@ class BlockControllerTest {
     // then
     actions.andExpect(status().isCreated())
         .andExpect(jsonPath("$.meta.status").value(201))
-        .andExpect(jsonPath("$.meta.message").value("사용자 차단에 성공하였습니다."))
+        .andExpect(jsonPath("$.meta.message").value("User blocked successfully."))
         .andExpect(jsonPath("$.data").doesNotExist())
         .andDo(print());
   }
@@ -95,7 +95,7 @@ class BlockControllerTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.meta.message").value("사용자 차단 해제에 성공하였습니다."))
+        .andExpect(jsonPath("$.meta.message").value("User unblocked successfully."))
         .andExpect(jsonPath("$.data").doesNotExist())
         .andDo(print());
   }
@@ -118,7 +118,7 @@ class BlockControllerTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.meta.message").value("차단한 사용자 조회에 성공하였습니다."))
+        .andExpect(jsonPath("$.meta.message").value("Successfully retrieved blocked user list."))
         .andExpect(jsonPath("$.data").isArray())
         .andExpect(jsonPath("$.data.length()").value(2))
         .andExpect(jsonPath("$.data[0].blockId").value(2L))

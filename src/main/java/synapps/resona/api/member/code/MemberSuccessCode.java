@@ -6,44 +6,44 @@ import synapps.resona.api.global.dto.code.SuccessCode;
 public enum MemberSuccessCode implements SuccessCode {
 
   // Auth
-  LOGIN_SUCCESS(HttpStatus.OK, "로그인에 성공하였습니다."),
-  APPLE_LOGIN_SUCCESS(HttpStatus.OK, "애플 로그인에 성공하였습니다."),
-  TOKEN_REFRESH_SUCCESS(HttpStatus.OK, "토큰 재발급에 성공하였습니다."),
-  MEMBER_INFO_SUCCESS(HttpStatus.OK, "회원 정보 조회에 성공하였습니다."),
+  LOGIN_SUCCESS(HttpStatus.OK, "Login successful."),
+  APPLE_LOGIN_SUCCESS(HttpStatus.OK, "Apple login successful."),
+  TOKEN_REFRESH_SUCCESS(HttpStatus.OK, "Token refreshed successfully."),
+  MEMBER_INFO_SUCCESS(HttpStatus.OK, "Successfully retrieved member information."),
 
   // Follow
-  FOLLOW_SUCCESS(HttpStatus.OK, "팔로우에 성공하였습니다."),
-  UNFOLLOW_SUCCESS(HttpStatus.OK, "언팔로우에 성공하였습니다."),
-  GET_FOLLOWERS_SUCCESS(HttpStatus.OK, "팔로워 목록 조회에 성공하였습니다."),
-  GET_FOLLOWINGS_SUCCESS(HttpStatus.OK, "팔로잉 목록 조회에 성공하였습니다."),
+  FOLLOW_SUCCESS(HttpStatus.OK, "Follow successful."),
+  UNFOLLOW_SUCCESS(HttpStatus.OK, "Unfollow successful."),
+  GET_FOLLOWERS_SUCCESS(HttpStatus.OK, "Successfully retrieved follower list."),
+  GET_FOLLOWINGS_SUCCESS(HttpStatus.OK, "Successfully retrieved following list."),
 
   // Member
-  JOIN_SUCCESS(HttpStatus.CREATED, "회원가입에 성공하였습니다."),
-  GET_MY_INFO_SUCCESS(HttpStatus.OK, "내 정보 조회에 성공하였습니다."),
-  GET_MEMBER_DETAIL_SUCCESS(HttpStatus.OK, "회원 상세 정보 조회에 성공하였습니다."),
-  PASSWORD_CHANGE_SUCCESS(HttpStatus.OK, "비밀번호 변경에 성공하였습니다."),
-  DELETE_USER_SUCCESS(HttpStatus.OK, "회원 탈퇴에 성공하였습니다."),
+  JOIN_SUCCESS(HttpStatus.CREATED, "Sign up successful."),
+  GET_MY_INFO_SUCCESS(HttpStatus.OK, "Successfully retrieved my information."),
+  GET_MEMBER_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved member details."),
+  PASSWORD_CHANGE_SUCCESS(HttpStatus.OK, "Password changed successfully."),
+  DELETE_USER_SUCCESS(HttpStatus.OK, "Member deleted successfully."),
 
   // Member Details
-  REGISTER_DETAILS_SUCCESS(HttpStatus.CREATED, "개인정보 등록에 성공하였습니다."),
-  GET_DETAILS_SUCCESS(HttpStatus.OK, "개인정보 조회에 성공하였습니다."),
-  EDIT_DETAILS_SUCCESS(HttpStatus.OK, "개인정보 수정에 성공하였습니다."),
-  DELETE_DETAILS_SUCCESS(HttpStatus.OK, "개인정보 삭제에 성공하였습니다."),
+  REGISTER_DETAILS_SUCCESS(HttpStatus.CREATED, "Personal information registered successfully."),
+  GET_DETAILS_SUCCESS(HttpStatus.OK, "Successfully retrieved personal information."),
+  EDIT_DETAILS_SUCCESS(HttpStatus.OK, "Personal information updated successfully."),
+  DELETE_DETAILS_SUCCESS(HttpStatus.OK, "Personal information deleted successfully."),
 
   // Notification
-  REGISTER_FCM_TOKEN_SUCCESS(HttpStatus.OK, "FCM 토큰 등록에 성공하였습니다."),
-  GET_NOTIFICATION_SETTING_SUCCESS(HttpStatus.OK, "알림 설정 조회에 성공하였습니다."),
-  UPDATE_NOTIFICATION_SETTING_SUCCESS(HttpStatus.OK, "알림 설정 수정에 성공하였습니다."),
-  GET_NOTIFICATIONS_SUCCESS(HttpStatus.OK, "알림 목록 조회에 성공하였습니다."),
-  READ_NOTIFICATION_SUCCESS(HttpStatus.OK, "알림 읽음 처리에 성공하였습니다."),
-  DELETE_NOTIFICATION_SUCCESS(HttpStatus.OK, "알림 삭제에 성공하였습니다."),
+  REGISTER_FCM_TOKEN_SUCCESS(HttpStatus.OK, "FCM token registered successfully."),
+  GET_NOTIFICATION_SETTING_SUCCESS(HttpStatus.OK, "Successfully retrieved notification settings."),
+  UPDATE_NOTIFICATION_SETTING_SUCCESS(HttpStatus.OK, "Notification settings updated successfully."),
+  GET_NOTIFICATIONS_SUCCESS(HttpStatus.OK, "Successfully retrieved notification list."),
+  READ_NOTIFICATION_SUCCESS(HttpStatus.OK, "Notification read successfully."),
+  DELETE_NOTIFICATION_SUCCESS(HttpStatus.OK, "Notification deleted successfully."),
 
   // Profile
-  REGISTER_PROFILE_SUCCESS(HttpStatus.CREATED, "프로필 등록에 성공하였습니다."),
-  GET_PROFILE_SUCCESS(HttpStatus.OK, "프로필 조회에 성공하였습니다."),
-  EDIT_PROFILE_SUCCESS(HttpStatus.OK, "프로필 수정에 성공하였습니다."),
-  DELETE_PROFILE_SUCCESS(HttpStatus.OK, "프로필 삭제에 성공하였습니다."),
-  CHECK_TAG_DUPLICATE_SUCCESS(HttpStatus.OK, "태그 중복 검사에 성공하였습니다.");
+  REGISTER_PROFILE_SUCCESS(HttpStatus.CREATED, "Profile registered successfully."),
+  GET_PROFILE_SUCCESS(HttpStatus.OK, "Successfully retrieved profile."),
+  EDIT_PROFILE_SUCCESS(HttpStatus.OK, "Profile updated successfully."),
+  DELETE_PROFILE_SUCCESS(HttpStatus.OK, "Profile deleted successfully."),
+  CHECK_TAG_DUPLICATE_SUCCESS(HttpStatus.OK, "Tag duplication check successful.");
 
 
   private final HttpStatus status;

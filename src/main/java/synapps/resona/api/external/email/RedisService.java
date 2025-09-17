@@ -47,7 +47,7 @@ public class RedisService {
    * @param email 이메일
    * @return 이메일 검증 가능 여부
    */
-  public boolean isEmailCheckAvailable(String email) throws EmailException {
+  public boolean isEmailCheckAvailable(String email) {
     String countKey = email + NUMBER_CHECK_COUNT_KEY;
     ValueOperations<String, Object> valOperations = redisNumberCheckTemplate.opsForValue();
 
@@ -119,7 +119,7 @@ public class RedisService {
    * @return 이메일에 매칭되는 코드 번호
    * @throws EmailException 인증시간이 넘어가면 예외 발생
    */
-  public String getCode(String email) throws EmailException {
+  public String getCode(String email) {
     ValueOperations<String, Object> valOperations = redisEmailSendTemplate.opsForValue();
     Object code = valOperations.get(email);
 

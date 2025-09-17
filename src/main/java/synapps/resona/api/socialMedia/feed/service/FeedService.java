@@ -122,7 +122,7 @@ public class FeedService {
     Member member = memberRepository.findByEmail(email).orElseThrow();
 
     // save feed entity
-    Feed feed = Feed.of(member, feedRequest.getContent(), feedRequest.getCategory(), feedRequest.getLanguage());
+    Feed feed = Feed.of(member, feedRequest.getContent(), feedRequest.getCategory(), feedRequest.getLanguageCode());
     feedRepository.save(feed);
 
     // finalizing feedImages: move buffer bucket images to disk bucket
