@@ -3,7 +3,7 @@ package synapps.resona.api.socialMedia.restriction.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.member.dto.MemberDto;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.exception.MemberException;
 import synapps.resona.api.member.repository.member.MemberRepository;

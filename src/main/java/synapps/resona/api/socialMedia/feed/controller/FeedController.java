@@ -28,13 +28,12 @@ import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.response.SuccessResponse;
 import synapps.resona.api.member.code.AuthErrorCode;
 import synapps.resona.api.member.code.MemberErrorCode;
-import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.member.dto.MemberDto;
 import synapps.resona.api.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.socialMedia.feed.dto.request.FeedRegistrationRequest;
 import synapps.resona.api.socialMedia.feed.dto.request.FeedUpdateRequest;
 import synapps.resona.api.socialMedia.feed.dto.FeedDto;
-import synapps.resona.api.socialMedia.feed.dto.response.FeedResponse;
 import synapps.resona.api.socialMedia.feed.service.FeedService;
 import synapps.resona.api.oauth.entity.UserPrincipal;
 

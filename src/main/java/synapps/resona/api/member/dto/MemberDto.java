@@ -1,4 +1,4 @@
-package synapps.resona.api.member.dto.response;
+package synapps.resona.api.member.dto;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

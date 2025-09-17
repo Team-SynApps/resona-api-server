@@ -26,7 +26,7 @@ import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.RequestInfo;
 import synapps.resona.api.global.dto.response.SuccessResponse;
 import synapps.resona.api.member.code.AuthErrorCode;
-import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.member.dto.MemberDto;
 import synapps.resona.api.socialMedia.code.SocialErrorCode;
 import synapps.resona.api.socialMedia.code.SocialSuccessCode;
 import synapps.resona.api.socialMedia.comment.dto.ReplyDto;

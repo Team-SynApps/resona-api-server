@@ -17,9 +17,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.global.dto.CursorResult;
 import synapps.resona.api.config.WithMockUserPrincipal;
-import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.member.dto.MemberDto;
 import synapps.resona.api.socialMedia.feed.dto.ScrapReadResponse;
-import synapps.resona.api.socialMedia.feed.controller.ScrapController;
 import synapps.resona.api.socialMedia.feed.service.ScrapService;
 
 import static org.mockito.ArgumentMatchers.*;

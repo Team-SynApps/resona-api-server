@@ -20,7 +20,7 @@ import synapps.resona.api.member.code.MemberErrorCode;
 import synapps.resona.api.member.code.MemberSuccessCode;
 import synapps.resona.api.member.dto.request.profile.DuplicateTagRequest;
 import synapps.resona.api.member.dto.request.profile.ProfileRequest;
-import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.member.dto.MemberDto;
 import synapps.resona.api.member.dto.response.ProfileResponse;
 import synapps.resona.api.member.service.ProfileService;
 import synapps.resona.api.oauth.entity.UserPrincipal;

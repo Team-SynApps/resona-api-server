@@ -14,7 +14,7 @@ import synapps.resona.api.fixture.MemberFixture;
 import synapps.resona.api.support.IntegrationTestSupport;
 import synapps.resona.api.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.member.dto.request.profile.ProfileRequest;
-import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.member.dto.MemberDto;
 import synapps.resona.api.member.dto.response.ProfileResponse;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.exception.ProfileException;
