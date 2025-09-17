@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -115,8 +116,10 @@ public class MemberService {
         request.getNickname(),
         request.getNationality(),
         request.getCountryOfResidence(),
-        copyToMutableSet(request.getNativeLanguages()),
-        copyToMutableSet(request.getInterestingLanguages()),
+        copyToMutableSet(request.getNativeLanguageCodes().stream().map(Language::fromCode).collect(
+            Collectors.toSet())),
+        copyToMutableSet(request.getInterestingLanguageCodes().stream().map(Language::fromCode).collect(
+            Collectors.toSet())),
         request.getProfileImageUrl(),
         request.getBirth());
     memberDetails.join(request.getTimezone());

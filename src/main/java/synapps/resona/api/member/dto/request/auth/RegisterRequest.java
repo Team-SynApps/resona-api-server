@@ -38,9 +38,9 @@ public class RegisterRequest {
   @NotNull
   private CountryCode countryOfResidence;
 
-  private Set<Language> nativeLanguages;
+  private Set<String> nativeLanguageCodes;
 
-  private Set<Language> interestingLanguages;
+  private Set<String> interestingLanguageCodes;
 
   @NotNull
   private Integer timezone;
