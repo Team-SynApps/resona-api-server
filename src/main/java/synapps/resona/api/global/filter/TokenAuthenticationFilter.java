@@ -112,11 +112,12 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         handleAuthenticationError(request, response, AuthErrorCode.INVALID_TOKEN);
         return;
       }
-    } else {
-      if (!request.getRequestURI().equals("/api/v1/actuator/prometheus")) {
-        logger.warn("No token found in request headers, uri: {}", request.getRequestURI());
-      }
     }
+//    else {
+//      if (!request.getRequestURI().equals("/api/v1/actuator/prometheus")) {
+//        logger.warn("No token found in request headers, uri: {}", request.getRequestURI());
+//      }
+//    }
 
     filterChain.doFilter(request, response);
   }
