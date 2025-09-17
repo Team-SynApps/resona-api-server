@@ -68,15 +68,15 @@ public class Feed extends BaseEntity {
   @Column(name = "category")
   private FeedCategory category;
 
-  private Feed(Member member, String content, String category, String language) {
+  private Feed(Member member, String content, String category, String languageCode) {
     this.member = member;
     this.content = content;
     this.category = FeedCategory.of(category);
-    this.language = Language.of(language);
+    this.language = Language.fromCode(languageCode);
   }
 
-  public static Feed of(Member member, String content, String category, String language) {
-    return new Feed(member, content, category, language);
+  public static Feed of(Member member, String content, String category, String languageCode) {
+    return new Feed(member, content, category, languageCode);
   }
 
   public void updateContent(String content) {

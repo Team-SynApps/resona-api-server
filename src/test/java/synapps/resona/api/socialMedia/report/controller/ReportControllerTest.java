@@ -78,8 +78,8 @@ class ReportControllerTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.meta.message").value("피드 신고가 접수되었습니다."))
-        .andExpect(jsonPath("$.data").doesNotExist()) // Void 응답이므로 data 필드는 없음
+        .andExpect(jsonPath("$.meta.message").value("Feed reported successfully."))
+        .andExpect(jsonPath("$.data").doesNotExist())
         .andDo(print());
   }
 
@@ -102,7 +102,7 @@ class ReportControllerTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.meta.message").value("댓글 신고가 접수되었습니다."))
+        .andExpect(jsonPath("$.meta.message").value("Comment reported successfully."))
         .andExpect(jsonPath("$.data").doesNotExist())
         .andDo(print());
   }
@@ -126,7 +126,7 @@ class ReportControllerTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.meta.message").value("대댓글 신고가 접수되었습니다."))
+        .andExpect(jsonPath("$.meta.message").value("Reply reported successfully."))
         .andExpect(jsonPath("$.data").doesNotExist())
         .andDo(print());
   }

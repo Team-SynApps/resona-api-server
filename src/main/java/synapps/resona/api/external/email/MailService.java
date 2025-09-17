@@ -15,9 +15,9 @@ public class MailService {
   private final RedisService redisService;
   private final TempTokenService tempTokenService;
 
-  public HashMap<String, Object> send(String email) throws EmailException {
+  public HashMap<String, Object> send(String email) {
 
-    redisService.initialize(email); // 이메일 인증이 초기화 된 경우 동작
+    redisService.initialize(email);
 
     HashMap<String, Object> map = new HashMap<>();
     if (!redisService.isEmailSendAvailable(email)) {
@@ -27,7 +27,7 @@ public class MailService {
       throw EmailException.sendTrialExceeded();
     }
 
-    int number = mailSendService.sendMail(email); // 메일 전송
+    int number = mailSendService.sendMail(email);
     redisService.countSend(email);
     redisService.resetEmailCheckCount(email);
     String num = String.valueOf(number);
@@ -39,7 +39,7 @@ public class MailService {
     return map;
   }
 
-  public List<?> verifyMailAndIssueToken(String email, String number) throws EmailException {
+  public List<?> verifyMailAndIssueToken(String email, String number) {
     if (!redisService.isEmailCheckAvailable(email)) {
       throw EmailException.verifyTrialExceeded();
     }

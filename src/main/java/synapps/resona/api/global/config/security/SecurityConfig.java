@@ -80,7 +80,8 @@ public class SecurityConfig {
       "/storage",
       "/storage/finalize",
       "/member/password",
-      "/member/join"
+      "/member/join",
+      "/profile/duplicate-tag"
   };
 
   /*
