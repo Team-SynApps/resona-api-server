@@ -14,9 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.config.WithMockUserPrincipal;
-import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.member.dto.MemberDto;
 import synapps.resona.api.socialMedia.restriction.dto.BlockedMemberResponse;
-import synapps.resona.api.socialMedia.restriction.controller.BlockController;
 import synapps.resona.api.socialMedia.restriction.service.BlockService;
 
 import java.util.List;

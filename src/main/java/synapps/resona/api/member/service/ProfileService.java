@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.member.code.MemberErrorCode;
 import synapps.resona.api.member.dto.request.profile.ProfileRequest;
-import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.member.dto.MemberDto;
 import synapps.resona.api.member.dto.response.ProfileResponse;
 import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.entity.profile.Profile;

@@ -14,11 +14,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
 import synapps.resona.api.config.WithMockUserPrincipal;
-import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.member.dto.MemberDto;
 import synapps.resona.api.socialMedia.report.dto.request.CommentReportRequest;
 import synapps.resona.api.socialMedia.report.dto.request.FeedReportRequest;
 import synapps.resona.api.socialMedia.report.dto.request.ReplyReportRequest;
-import synapps.resona.api.socialMedia.report.controller.ReportController;
 import synapps.resona.api.socialMedia.report.entity.ReportCategory;
 import synapps.resona.api.socialMedia.report.service.ReportService;
 

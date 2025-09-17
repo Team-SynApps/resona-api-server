@@ -22,7 +22,7 @@ import synapps.resona.api.member.dto.request.auth.LoginRequest;
 import synapps.resona.api.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.member.dto.request.member.MemberPasswordChangeDto;
 import synapps.resona.api.member.dto.response.JoinResponseDto;
-import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.member.dto.MemberDto;
 import synapps.resona.api.member.dto.response.MemberInfoDto;
 import synapps.resona.api.member.dto.response.MemberRegisterResponseDto;
 import synapps.resona.api.member.dto.response.TokenResponse;

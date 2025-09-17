@@ -1,5 +1,6 @@
 package synapps.resona.api.member.dto.response;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +25,13 @@ public class ProfileResponse {
   private String birth;
   private String gender;
 
+  private static final DateTimeFormatter BIRTH_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
   public static ProfileResponse from(Profile profile) {
+    String formattedBirth = profile.getBirth() != null
+        ? profile.getBirth().format(BIRTH_FORMATTER)
+        : null;
+
     return ProfileResponse.builder()
         .id(profile.getId())
         .tag(profile.getTag())
@@ -38,7 +45,7 @@ public class ProfileResponse {
         .backgroundImageUrl(profile.getBackgroundImageUrl())
         .comment(profile.getComment())
         .age(profile.getAge())
-        .birth(DateTimeUtil.localDateTimeToString(profile.getBirth()))
+        .birth(formattedBirth)
         .gender(profile.getGender().toString())
         .build();
   }

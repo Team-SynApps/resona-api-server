@@ -10,7 +10,7 @@ import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.member.dto.request.auth.RegisterRequest;
 import synapps.resona.api.member.dto.request.member_details.MemberDetailsRequest;
 import synapps.resona.api.member.dto.request.profile.ProfileRequest;
-import synapps.resona.api.member.dto.response.MemberDto;
+import synapps.resona.api.member.dto.MemberDto;
 import synapps.resona.api.member.entity.account.AccountInfo;
 import synapps.resona.api.member.entity.account.AccountStatus;
 import synapps.resona.api.member.entity.account.RoleType;

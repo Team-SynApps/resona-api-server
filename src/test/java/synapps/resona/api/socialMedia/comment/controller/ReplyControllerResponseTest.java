@@ -16,8 +16,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.config.WithMockUserPrincipal;
 import synapps.resona.api.fixture.ReplyFixture;
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.member.dto.response.MemberDto;
-import synapps.resona.api.socialMedia.comment.controller.ReplyController;
+import synapps.resona.api.member.dto.MemberDto;
 import synapps.resona.api.socialMedia.comment.dto.ReplyDto;
 import synapps.resona.api.socialMedia.comment.dto.request.ReplyRequest;
 import synapps.resona.api.socialMedia.comment.dto.request.ReplyUpdateRequest;
@@ -25,9 +24,7 @@ import synapps.resona.api.socialMedia.comment.dto.response.CommentDeleteResponse
 import synapps.resona.api.socialMedia.comment.service.ReplyService;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.doNothing;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;

@@ -15,10 +15,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import synapps.resona.api.config.WithMockUserPrincipal; // Import the custom annotation
 import synapps.resona.api.global.config.server.ServerInfoConfig;
-import synapps.resona.api.member.controller.ProfileController;
 import synapps.resona.api.member.dto.request.profile.DuplicateTagRequest;
 import synapps.resona.api.member.dto.request.profile.ProfileRequest;
-import synapps.resona.api.member.dto.response.MemberDto; // Import MemberDto
+import synapps.resona.api.member.dto.MemberDto; // Import MemberDto
 import synapps.resona.api.member.dto.response.ProfileResponse;
 import synapps.resona.api.member.entity.profile.CountryCode;
 import synapps.resona.api.member.entity.profile.Profile;
