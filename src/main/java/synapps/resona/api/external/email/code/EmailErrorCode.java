@@ -1,5 +1,6 @@
 package synapps.resona.api.external.email.code;
 
+import java.util.Arrays;
 import org.springframework.http.HttpStatus;
 import synapps.resona.api.global.dto.code.ErrorCode;
 
@@ -21,6 +22,10 @@ public enum EmailErrorCode implements ErrorCode {
     this.code = code;
     this.status = status;
     this.message = message;
+  }
+
+  public static EmailErrorCode fromErrorCode(String errorCode) {
+    return Arrays.stream(EmailErrorCode.values()).filter(error-> error.code.equals(errorCode)).findFirst().get();
   }
 
   @Override

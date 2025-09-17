@@ -5,24 +5,15 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import synapps.resona.api.external.email.code.EmailErrorCode;
 import synapps.resona.api.global.error.GlobalErrorCode;
+import synapps.resona.api.global.error.exception.BaseException;
 
 @Getter
-public class EmailException extends MessagingException {
-
-  private final HttpStatus status;
-  private final String errorCode;
+public class EmailException extends BaseException {
 
   private Integer mailCheckCountLeft;
 
   public EmailException(String message, HttpStatus status, String errorCode) {
-    super(message);
-    this.status = status;
-    this.errorCode = errorCode;
-  }
-
-  private EmailException(HttpStatus status, String errorCode) {
-    this.status = status;
-    this.errorCode = errorCode;
+    super(message, status, errorCode);
   }
 
   private static EmailException of(EmailErrorCode errorCode) {

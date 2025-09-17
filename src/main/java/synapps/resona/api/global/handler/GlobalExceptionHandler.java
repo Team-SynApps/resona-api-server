@@ -66,14 +66,17 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(EmailException.class)
   public ResponseEntity<?> handleEmailException(EmailException ex, HttpServletRequest request) {
+    logger.error("EmailException: code={}, message={}", ex.getErrorCode(), ex.getMessage(), ex);
     RequestInfo requestInfo = createRequestInfo(request);
-    if (ex.getErrorCode().equals(EmailErrorCode.INVALID_EMAIL_CODE.getCustomCode())) {
-      EmailCheckExceptionDto body = new EmailCheckExceptionDto(ex.getMessage(),
-          ex.getMailCheckCountLeft());
-      return createErrorResponse(EmailErrorCode.INVALID_EMAIL_CODE, requestInfo, body);
+
+    EmailErrorCode errorCode = EmailErrorCode.fromErrorCode(ex.getErrorCode());
+
+    if (errorCode == EmailErrorCode.INVALID_EMAIL_CODE) {
+      EmailCheckExceptionDto body = new EmailCheckExceptionDto(ex.getMessage(), ex.getMailCheckCountLeft());
+      return createErrorResponse(errorCode, requestInfo, body);
     }
-    logger.error(ex.getMessage(), ex);
-    return createErrorResponse(GlobalErrorCode.INTERNAL_SERVER_ERROR, requestInfo);
+
+    return createErrorResponse(errorCode, requestInfo);
   }
 
   @ExceptionHandler(AuthException.class)

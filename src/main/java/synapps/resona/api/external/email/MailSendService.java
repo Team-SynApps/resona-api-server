@@ -25,7 +25,7 @@ public class MailSendService {
   }
 
   // TODO: 이메일 내용 수정 필요
-  public MimeMessage createMail(String mail) throws EmailException {
+  public MimeMessage createMail(String mail) {
     if (mail == null || mail.isEmpty()) {
       throw new IllegalArgumentException("수신자의 이메일 주소가 유효하지 않습니다.");
     }
@@ -55,18 +55,20 @@ public class MailSendService {
       body += "</div>";
 
       message.setText(body, "UTF-8", "html");
-    } catch (MailSendException | MessagingException e) {
+    } catch (MailSendException e) {
       throw EmailException.emailSendFailed();
+    } catch (MessagingException e) {
+      throw new RuntimeException(e);
     }
     return message;
   }
 
-  public int sendMail(String mail) throws EmailException {
+  public int sendMail(String mail) {
     try {
       MimeMessage message = createMail(mail);
       javaMailSender.send(message);
       return number;
-    } catch (MailException | MessagingException e) {
+    } catch (MailException e) {
       throw EmailException.emailSendFailed();
     }
   }
