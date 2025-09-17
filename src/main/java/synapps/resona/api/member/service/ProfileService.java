@@ -3,6 +3,7 @@ package synapps.resona.api.member.service;
 import jakarta.transaction.Transactional;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -40,8 +41,8 @@ public class ProfileService {
         request.getNickname(),
         request.getNationality(),
         request.getCountryOfResidence(),
-        copyToMutableSet(request.getNativeLanguages()),
-        copyToMutableSet(request.getInterestingLanguages()),
+        copyToMutableLanguageSet(request.getNativeLanguageCodes()),
+        copyToMutableLanguageSet(request.getInterestingLanguageCodes()),
         request.getProfileImageUrl(),
         request.getBackgroundImageUrl(),
         request.getBirth(),
@@ -49,8 +50,8 @@ public class ProfileService {
         request.getComment());
   }
 
-  private static Set<Language> copyToMutableSet(Set<Language> source) {
-    return new HashSet<>(source);
+  private static Set<Language> copyToMutableLanguageSet(Set<String> source) {
+    return source.stream().map(Language::fromCode).collect(Collectors.toSet());
   }
 
   /**

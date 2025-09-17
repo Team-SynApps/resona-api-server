@@ -27,10 +27,10 @@ public class ProfileRequest {
   private CountryCode countryOfResidence;
 
   @NotNull
-  private Set<Language> nativeLanguages;
+  private Set<String> nativeLanguageCodes;
 
   @NotNull
-  private Set<Language> interestingLanguages;
+  private Set<String> interestingLanguageCodes;
 
   @Size(max = 512)
   private String profileImageUrl;

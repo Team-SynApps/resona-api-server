@@ -1,6 +1,7 @@
 package synapps.resona.api.member.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.HashSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -73,7 +74,7 @@ class ProfileControllerResponseTest {
     ProfileRequest requestDto = new ProfileRequest(
         "test-nick",
         CountryCode.KR, CountryCode.US,
-        Set.of(Language.KOREAN), Set.of(Language.ENGLISH),
+        new HashSet<>(Set.of("KO")), new HashSet<>(Set.of("EN")),
         "profile.jpg",
         "bg.jpg",
         "2000-01-01",
@@ -126,7 +127,7 @@ class ProfileControllerResponseTest {
     ProfileRequest requestDto = new ProfileRequest(
         "updated-nick",
         CountryCode.KR, CountryCode.US,
-        Set.of(Language.KOREAN), Set.of(Language.ENGLISH),
+        new HashSet<>(Set.of("KO")), new HashSet<>(Set.of("EN")),
         "profile.jpg",
         "bg.jpg",
         "2000-01-01",

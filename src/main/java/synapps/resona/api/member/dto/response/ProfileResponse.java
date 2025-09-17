@@ -4,6 +4,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.Builder;
 import lombok.Data;
+import synapps.resona.api.global.entity.Language;
 import synapps.resona.api.global.utils.DateTimeUtil;
 import synapps.resona.api.member.entity.profile.Profile;
 
@@ -16,8 +17,8 @@ public class ProfileResponse {
   private String nickname;
   private String nationality;
   private String countryOfResidence;
-  private List<String> nativeLanguages;
-  private List<String> interestingLanguages;
+  private List<String> nativeLanguageCodes;
+  private List<String> interestingLanguageCodes;
   private String profileImageUrl;
   private String backgroundImageUrl;
   private String comment;
@@ -38,9 +39,9 @@ public class ProfileResponse {
         .nickname(profile.getNickname())
         .nationality(profile.getNationality().toString())
         .countryOfResidence(profile.getCountryOfResidence().toString())
-        .nativeLanguages(profile.getNativeLanguages().stream().map((Enum::toString)).toList())
-        .interestingLanguages(
-            profile.getInterestingLanguages().stream().map((Enum::toString)).toList())
+        .nativeLanguageCodes(profile.getNativeLanguages().stream().map(Language::getCode).toList())
+        .interestingLanguageCodes(
+            profile.getInterestingLanguages().stream().map(Language::getCode).toList())
         .profileImageUrl(profile.getProfileImageUrl())
         .backgroundImageUrl(profile.getBackgroundImageUrl())
         .comment(profile.getComment())
