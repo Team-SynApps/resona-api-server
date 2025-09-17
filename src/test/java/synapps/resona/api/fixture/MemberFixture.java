@@ -39,8 +39,8 @@ public class MemberFixture {
         "validPassword123!",
         CountryCode.KR,
         CountryCode.US,
-        Set.of(Language.KOREAN),
-        Set.of(Language.ENGLISH),
+        new HashSet<>(Set.of("KO")),
+        new HashSet<>(Set.of("EN")),
         9,
         LocalDate.of(1995, 5, 10).format(DateTimeFormatter.ISO_LOCAL_DATE),
         "tester",
@@ -52,7 +52,7 @@ public class MemberFixture {
   public static RegisterRequest createMeRegisterRequest() {
     return new RegisterRequest(
         "me@resona.com", "mine_tag", "secure123!", CountryCode.KR, CountryCode.KR,
-        Set.of(Language.KOREAN), Set.of(Language.ENGLISH), 9, "1998-07-21",
+        new HashSet<>(Set.of("KO")), new HashSet<>(Set.of("EN")), 9, "1998-07-21",
         "나자신", "http://image.me", false
     );
   }
@@ -60,7 +60,7 @@ public class MemberFixture {
   public static RegisterRequest createTargetRegisterRequest() {
     return new RegisterRequest(
         "target@resona.com", "other_tag", "secure123!", CountryCode.KR, CountryCode.KR,
-        Set.of(Language.KOREAN), Set.of(Language.ENGLISH), 7, "1995-01-01",
+        new HashSet<>(Set.of("KO")), new HashSet<>(Set.of("EN")), 7, "1995-01-01",
         "상대방", "http://image.you", false
     );
   }
@@ -68,7 +68,7 @@ public class MemberFixture {
   public static RegisterRequest createAnotherRegisterRequest() {
     return new RegisterRequest(
         "another@resona.com", "another_tag", "Qwerty12345!@", CountryCode.KR, CountryCode.KR,
-        Set.of(Language.KOREAN), Set.of(Language.ENGLISH), 1, "2000-01-01",
+        new HashSet<>(Set.of("KO")), new HashSet<>(Set.of("EN")), 1, "2000-01-01",
         "제3자", "http://img.third", false
     );
   }
@@ -92,7 +92,7 @@ public class MemberFixture {
   public static RegisterRequest createNewUserRegisterRequest() {
     return new RegisterRequest(
         "newuser1@example.com", "newuser_tag", "Newpass1@",
-        CountryCode.KR, CountryCode.US, Set.of(Language.KOREAN), Set.of(Language.ENGLISH),
+        CountryCode.KR, CountryCode.US, new HashSet<>(Set.of("KO")), new HashSet<>(Set.of("EN")),
         9, "1990-01-01", "newuser", "http://example.com/profile.jpg", false
     );
   }
@@ -100,7 +100,7 @@ public class MemberFixture {
   public static RegisterRequest createMongoSyncRegisterRequest() {
     return new RegisterRequest(
         "newuser1@example.com", "newuser_tag", "Newpass1@",
-        CountryCode.KR, CountryCode.US, Set.of(Language.KOREAN), Set.of(Language.ENGLISH),
+        CountryCode.KR, CountryCode.US, new HashSet<>(Set.of("KO")), new HashSet<>(Set.of("EN")),
         9, "1990-01-01", "MongoDB동기화테스트", "http://example.com/profile.jpg", false
     );
   }
@@ -116,31 +116,34 @@ public class MemberFixture {
   public static RegisterRequest createProfileTestRegisterRequest(String email) {
     return new RegisterRequest(
         email, "test_tag", "secure123!", CountryCode.KR, CountryCode.KR,
-        Set.of(Language.KOREAN), Set.of(Language.ENGLISH), 9, "1998-07-21",
+        new HashSet<>(Set.of("KO")), new HashSet<>(Set.of("EN")),
+        9, "1998-07-21",
         "테스트닉네임", "http://image.png", false
     );
   }
 
   public static ProfileRequest createProfileRegisterRequest() {
     return new ProfileRequest(
-        "등록된닉네임", CountryCode.KR, CountryCode.KR, Set.of(Language.KOREAN),
-        Set.of(Language.ENGLISH), "http://new.profile", "http://new.bg",
+        "등록된닉네임", CountryCode.KR, CountryCode.KR,
+        new HashSet<>(Set.of("KO")), new HashSet<>(Set.of("EN")), "http://new.profile", "http://new.bg",
         "1998-07-21", Gender.MAN, "등록 테스트용 자기소개입니다."
     );
   }
 
   public static ProfileRequest createProfileReadRequest() {
     return new ProfileRequest(
-        "조회용닉네임", CountryCode.KR, CountryCode.KR, Set.of(Language.KOREAN),
-        Set.of(Language.ENGLISH), "http://profile.img", "http://background.img",
+        "조회용닉네임", CountryCode.KR, CountryCode.KR,
+        new HashSet<>(Set.of("KO")), new HashSet<>(Set.of("EN")),
+        "http://profile.img", "http://background.img",
         "1998-07-21", Gender.WOMAN, "조회 테스트용 자기소개"
     );
   }
 
   public static ProfileRequest createProfileUpdateRequest() {
     return new ProfileRequest(
-        "수정된닉네임", CountryCode.JP, CountryCode.US, Set.of(Language.JAPANESE),
-        Set.of(Language.ENGLISH, Language.FRENCH), "http://updated.img", "http://updated.bg",
+        "수정된닉네임", CountryCode.JP, CountryCode.US,
+        new HashSet<>(Set.of("JA")), new HashSet<>(Set.of("EN", "FR")),
+        "http://updated.img", "http://updated.bg",
         "1995-12-31", Gender.MAN, "수정된 소개입니다."
     );
   }
@@ -152,7 +155,7 @@ public class MemberFixture {
   public static RegisterRequest createDetailsTestRegisterRequest(String email) {
     return new RegisterRequest(
         email, "test_tag", "secure123!", CountryCode.KR, CountryCode.KR,
-        new HashSet<>(Set.of(Language.KOREAN)), new HashSet<>(Set.of(Language.ENGLISH)),
+        new HashSet<>(Set.of("EN")), new HashSet<>(Set.of("KO")),
         9, "1998-07-21", "테스트닉네임", "http://image.png", false
     );
   }

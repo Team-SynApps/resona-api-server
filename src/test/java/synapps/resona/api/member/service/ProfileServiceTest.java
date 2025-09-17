@@ -66,8 +66,8 @@ class ProfileServiceTest extends IntegrationTestSupport {
 
     // then
     assertThat(result.getNickname()).isEqualTo("등록된닉네임");
-    assertThat(result.getNativeLanguages()).containsExactly("KOREAN");
-    assertThat(result.getInterestingLanguages()).contains("ENGLISH");
+    assertThat(result.getNativeLanguageCodes()).containsExactly("ko");
+    assertThat(result.getInterestingLanguageCodes()).contains("en");
     assertThat(result.getGender()).isEqualTo("MAN");
     assertThat(result.getComment()).isEqualTo("등록 테스트용 자기소개입니다.");
   }
@@ -104,8 +104,8 @@ class ProfileServiceTest extends IntegrationTestSupport {
     assertThat(result.getNickname()).isEqualTo("수정된닉네임");
     assertThat(result.getNationality()).isEqualTo("JP");
     assertThat(result.getCountryOfResidence()).isEqualTo("US");
-    assertThat(result.getNativeLanguages()).containsExactly("JAPANESE");
-    assertThat(result.getInterestingLanguages()).contains("ENGLISH", "FRENCH");
+    assertThat(result.getNativeLanguageCodes()).containsExactly("ja");
+    assertThat(result.getInterestingLanguageCodes()).contains("en", "fr");
     assertThat(result.getGender()).isEqualTo("MAN");
     assertThat(result.getComment()).isEqualTo("수정된 소개입니다.");
   }
