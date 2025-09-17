@@ -80,10 +80,13 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(AuthException.class)
-  public ResponseEntity<?> handleAuthException(AuthException ex, HttpServletRequest request) { // 파라미터 타입을 AuthException으로 변경
-    logger.error(ex.getMessage(), ex);
+  public ResponseEntity<ErrorResponse<String>> handleAuthException(AuthException ex, HttpServletRequest request) {
+    logger.error("AuthException: code={}, message={}", ex.getErrorCode(), ex.getMessage(), ex);
     RequestInfo requestInfo = createRequestInfo(request);
-    return createErrorResponse(GlobalErrorCode.INTERNAL_SERVER_ERROR, requestInfo);
+
+    AuthErrorCode errorCode = AuthErrorCode.fromCustomCode(ex.getErrorCode());
+
+    return createErrorResponse(errorCode, requestInfo, errorCode.getMessage());
   }
 
   @ExceptionHandler({AuthenticationException.class, BadCredentialsException.class})

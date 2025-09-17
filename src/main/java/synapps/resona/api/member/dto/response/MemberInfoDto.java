@@ -97,7 +97,9 @@ public class MemberInfoDto {
 
   private static Set<String> safeToStringSet(Set<Language> languages) {
     return Optional.ofNullable(languages)
-        .map(set -> set.stream().map(Language::toString).collect(Collectors.toSet()))
+        .map(langSet -> langSet.stream()
+            .map(Language::getCode)
+            .collect(Collectors.toSet()))
         .orElse(Set.of());
   }
 }

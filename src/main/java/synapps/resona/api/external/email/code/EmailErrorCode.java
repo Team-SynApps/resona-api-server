@@ -24,8 +24,11 @@ public enum EmailErrorCode implements ErrorCode {
     this.message = message;
   }
 
-  public static EmailErrorCode fromErrorCode(String errorCode) {
-    return Arrays.stream(EmailErrorCode.values()).filter(error-> error.code.equals(errorCode)).findFirst().get();
+  public static EmailErrorCode fromErrorCode(String customCode) {
+    return Arrays.stream(EmailErrorCode.values())
+        .filter(e -> e.getCustomCode().equals(customCode))
+        .findFirst()
+        .orElse(EmailErrorCode.EMAIL_SEND_FAILED);
   }
 
   @Override

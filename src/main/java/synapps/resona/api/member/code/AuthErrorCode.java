@@ -1,5 +1,6 @@
 package synapps.resona.api.member.code;
 
+import java.util.Arrays;
 import org.springframework.http.HttpStatus;
 import synapps.resona.api.global.dto.code.ErrorCode;
 
@@ -29,6 +30,13 @@ public enum AuthErrorCode implements ErrorCode {
     this.code = code;
     this.status = status;
     this.message = message;
+  }
+
+  public static AuthErrorCode fromCustomCode(String code) {
+    return Arrays.stream(AuthErrorCode.values())
+        .filter(e -> e.getCustomCode().equals(code))
+        .findFirst()
+        .orElse(UNAUTHORIZED);
   }
 
   @Override
