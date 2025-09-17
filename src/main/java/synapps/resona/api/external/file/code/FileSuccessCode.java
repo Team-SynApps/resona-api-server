@@ -5,9 +5,9 @@ import synapps.resona.api.global.dto.code.SuccessCode;
 
 public enum FileSuccessCode implements SuccessCode {
 
-  UPLOAD_FILE_SUCCESS(HttpStatus.OK, "파일 업로드에 성공하였습니다."),
-  UPLOAD_MULTIPLE_FILES_SUCCESS(HttpStatus.OK, "다중 파일 업로드에 성공하였습니다."),
-  FINALIZE_FILE_SUCCESS(HttpStatus.OK, "파일 이동 및 최종 처리에 성공하였습니다.");
+  UPLOAD_FILE_SUCCESS(HttpStatus.OK, "File uploaded successfully."),
+  UPLOAD_MULTIPLE_FILES_SUCCESS(HttpStatus.OK, "Multiple files uploaded successfully."),
+  FINALIZE_FILE_SUCCESS(HttpStatus.OK, "File moved and finalized successfully.");
 
   private final HttpStatus status;
   private final String message;

@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import synapps.resona.api.global.dto.code.SuccessCode;
 
 public enum MatchingSuccessCode implements SuccessCode {
-  MATCHING_SUCCESS(HttpStatus.CREATED, "매칭에 성공하고 채팅방을 생성했습니다.");
+  MATCHING_SUCCESS(HttpStatus.CREATED, "Matching successful and chat room created.");
 
   private final HttpStatus status;
   private final String message;

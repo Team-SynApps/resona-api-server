@@ -115,7 +115,7 @@ class FeedControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.meta.message").value("피드 조회에 성공하였습니다."))
+        .andExpect(jsonPath("$.meta.message").value("Successfully retrieved feed."))
         .andExpect(jsonPath("$.data.feedId").value(feedId))
         .andExpect(jsonPath("$.data.content").value("Feed Content"))
         .andExpect(jsonPath("$.data.likeCount").value(10))
@@ -211,7 +211,7 @@ class FeedControllerResponseTest {
     // then
     actions.andExpect(status().isOk())
         .andExpect(jsonPath("$.meta.status").value(200))
-        .andExpect(jsonPath("$.meta.message").value("피드 삭제에 성공하였습니다."))
+        .andExpect(jsonPath("$.meta.message").value("Feed deleted successfully."))
         // void 응답이므로 data 필드는 null 이거나 존재하지 않음
         .andExpect(jsonPath("$.data").doesNotExist())
         .andDo(print());
