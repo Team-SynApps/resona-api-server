@@ -3,8 +3,8 @@ package synapps.resona.api.chat.service;
 import static synapps.resona.api.global.config.database.RabbitMQConfig.CHAT_EXCHANGE_NAME;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import synapps.resona.api.chat.dto.MessageDto;
@@ -14,7 +14,7 @@ import synapps.resona.api.chat.entity.ChatMember;
 @Service
 @RequiredArgsConstructor
 public class ChatMessagePublisher {
-  private final Logger logger = LogManager.getLogger(ChatMessagePublisher.class);
+  private final Logger logger = LoggerFactory.getLogger(ChatMessagePublisher.class);
 
   private final RabbitTemplate rabbitTemplate;
 

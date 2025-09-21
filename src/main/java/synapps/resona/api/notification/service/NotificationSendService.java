@@ -2,8 +2,8 @@ package synapps.resona.api.notification.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +30,7 @@ public class NotificationSendService {
   private static final String CURRENT_ROOM_KEY_PREFIX = "user:";
   private static final String CURRENT_ROOM_KEY_SUFFIX = ":current_room";
 
-  private final Logger logger = LogManager.getLogger(NotificationSendService.class);
+  private static final Logger logger = LoggerFactory.getLogger(NotificationSendService.class);
 
   @Transactional(readOnly = true) // DB 조회만 수행하므로 readOnly
   public void sendPushForMessage(MessageDto messageDto) {

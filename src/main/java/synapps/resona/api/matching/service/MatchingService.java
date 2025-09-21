@@ -1,8 +1,8 @@
 package synapps.resona.api.matching.service;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import synapps.resona.api.chat.entity.ChatRoom;
@@ -15,7 +15,7 @@ import synapps.resona.api.matching.strategy.MatchingStrategy;
 @Service
 @RequiredArgsConstructor
 public class MatchingService {
-  private final Logger logger = LogManager.getLogger(MatchingService.class);
+  private static final Logger logger = LoggerFactory.getLogger(MatchingService.class);
 
   private final ChatRoomService chatRoomService;
   private final MatchingStrategy matchingStrategy;

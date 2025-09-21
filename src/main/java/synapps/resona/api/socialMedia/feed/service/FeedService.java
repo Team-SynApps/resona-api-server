@@ -4,8 +4,8 @@ import com.oracle.bmc.model.BmcException;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,7 +50,7 @@ public class FeedService {
   private final FeedQueryStrategyFactory feedQueryStrategyFactory;
   private final FeedExpressions feedExpressions;
 
-  private final Logger logger = LogManager.getLogger(FeedService.class);
+  private static final Logger logger = LoggerFactory.getLogger(FeedService.class);
 
   @Transactional
   public FeedDto updateFeed(Long feedId, Long memberId, FeedUpdateRequest feedRequest) {

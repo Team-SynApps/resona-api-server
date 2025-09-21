@@ -12,8 +12,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -36,7 +36,7 @@ import synapps.resona.api.oauth.entity.UserPrincipal;
 @RequiredArgsConstructor
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
-  private static final Logger logger = LogManager.getLogger(TokenAuthenticationFilter.class);
+  private final Logger logger = LoggerFactory.getLogger(TokenAuthenticationFilter.class);
 
   private final AuthTokenProvider tokenProvider;
   private final ObjectMapper objectMapper;

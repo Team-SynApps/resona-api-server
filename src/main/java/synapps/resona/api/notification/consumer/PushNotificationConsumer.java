@@ -3,8 +3,8 @@ package synapps.resona.api.notification.consumer;
 import static synapps.resona.api.global.config.database.RabbitMQConfig.PUSH_QUEUE_NAME;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.notification.dto.MessageDto;
@@ -19,7 +19,7 @@ public class PushNotificationConsumer {
 
   private final NotificationSendService notificationSendService;
 
-  private final Logger logger = LogManager.getLogger(PushNotificationConsumer.class);
+  private static final Logger logger = LoggerFactory.getLogger(PushNotificationConsumer.class);
 
   /**
    * PUSH_QUEUE_NAME 큐를 구독(Listen)하고 있다가, 메시지가 들어오면 이 메서드를 실행

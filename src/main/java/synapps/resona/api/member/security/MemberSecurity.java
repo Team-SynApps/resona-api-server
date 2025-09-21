@@ -1,7 +1,7 @@
 package synapps.resona.api.member.security;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,7 @@ import synapps.resona.api.oauth.entity.UserPrincipal; // UserPrincipal import
 @Component("memberSecurity")
 public class MemberSecurity {
 
-  private static final Logger log = LogManager.getLogger(MemberSecurity.class);
+  private static final Logger log = LoggerFactory.getLogger(MemberSecurity.class);
 
   // AuthTokenProvider 의존성 제거
   public MemberSecurity() {

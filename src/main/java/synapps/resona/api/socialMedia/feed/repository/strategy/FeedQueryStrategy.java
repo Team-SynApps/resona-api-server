@@ -4,7 +4,8 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
+
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import synapps.resona.api.socialMedia.feed.dto.FeedDto;
 import synapps.resona.api.socialMedia.feed.dto.request.FeedQueryRequest;
@@ -24,7 +25,7 @@ public interface FeedQueryStrategy<T extends FeedQueryRequest> {
     if (genericInterface instanceof ParameterizedType) {
       return (Class<T>) ((ParameterizedType) genericInterface).getActualTypeArguments()[0];
     }
-    LogManager.getLogger(FeedQueryStrategy.class).error("Could not determine the generic type for FeedQueryStrategy.");
+    LoggerFactory.getLogger(FeedQueryStrategy.class).error("Could not determine the generic type for FeedQueryStrategy.");
     throw new IllegalStateException("Could not determine the generic type for FeedQueryStrategy.");
   }
 }

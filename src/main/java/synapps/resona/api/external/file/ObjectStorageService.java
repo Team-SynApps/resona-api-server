@@ -16,9 +16,9 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import synapps.resona.api.external.file.code.FileErrorCode;
@@ -34,7 +34,7 @@ public class ObjectStorageService {
   private final ObjectStorage objectStorageClient;
   private final StorageProperties storageProperties;
   private final MemberService memberService;
-  private final Logger logger = LogManager.getLogger(ObjectStorageService.class);
+  private final Logger logger = LoggerFactory.getLogger(ObjectStorageService.class);
 
   // 버퍼 버킷에 임시 저장
   public FileMetadataDto uploadToBuffer(MultipartFile file, String userEmail) throws IOException {

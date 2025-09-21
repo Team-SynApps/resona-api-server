@@ -5,15 +5,15 @@ import io.jsonwebtoken.security.Keys;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class AuthTokenProvider {
 
   private static final String AUTHORITIES_KEY = "role";
   private static final String PERMISSIONS_KEY = "permissions";
-  private static final Logger logger = LogManager.getLogger(AuthTokenProvider.class);
+  private static final Logger logger = LoggerFactory.getLogger(AuthTokenProvider.class);
   private final Key key;
 
 

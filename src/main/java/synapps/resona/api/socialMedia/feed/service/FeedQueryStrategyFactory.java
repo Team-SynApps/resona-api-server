@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.socialMedia.feed.dto.request.FeedQueryRequest;
 import synapps.resona.api.socialMedia.feed.repository.strategy.FeedQueryStrategy;
@@ -13,7 +13,7 @@ import synapps.resona.api.socialMedia.feed.repository.strategy.FeedQueryStrategy
 @Component
 public class FeedQueryStrategyFactory {
   private final Map<Class<? extends FeedQueryRequest>, FeedQueryStrategy<?>> strategyMap;
-  private final Logger logger = LogManager.getLogger(FeedQueryStrategyFactory.class);
+  private static final Logger logger = LoggerFactory.getLogger(FeedQueryStrategyFactory.class);
 
   public FeedQueryStrategyFactory(List<FeedQueryStrategy<?>> strategies) {
     this.strategyMap = strategies.stream()

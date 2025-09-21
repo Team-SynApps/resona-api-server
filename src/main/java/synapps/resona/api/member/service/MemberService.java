@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -43,7 +43,7 @@ public class MemberService {
   private final ProfileRepository profileRepository;
   private final MemberProviderRepository memberProviderRepository;
   private final ApplicationEventPublisher eventPublisher;
-  private final Logger logger = LogManager.getLogger(MemberService.class);
+  private static final Logger logger = LoggerFactory.getLogger(MemberService.class);
 
   private static Set<Language> copyToMutableSet(Set<Language> source) {
     return new HashSet<>(source);
