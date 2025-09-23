@@ -1,8 +1,8 @@
 package synapps.resona.api.socialMedia.security;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import synapps.resona.api.member.entity.member.Member;
 import synapps.resona.api.member.service.MemberService;
@@ -16,7 +16,7 @@ import synapps.resona.api.socialMedia.feed.repository.ScrapRepository;
 @RequiredArgsConstructor
 public class SocialSecurity {
 
-  private static final Logger log = LogManager.getLogger(SocialSecurity.class);
+  private static final Logger logger = LoggerFactory.getLogger(SocialSecurity.class);
   private final MemberService memberService;
   private final FeedRepository feedRepository;
   private final CommentRepository commentRepository;

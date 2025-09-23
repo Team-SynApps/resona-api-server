@@ -11,15 +11,15 @@ import java.util.Date;
 import java.util.List;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RequiredArgsConstructor
 public class AuthToken {
 
   private static final String AUTHORITIES_KEY = "role";
   private static final String PERMISSIONS_KEY = "permissions";
-  private final Logger logger = LogManager.getLogger(AuthToken.class);
+  private static final Logger logger = LoggerFactory.getLogger(AuthToken.class);
   @Getter
   private final String token;
   private final Key key;

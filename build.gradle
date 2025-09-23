@@ -17,10 +17,6 @@ configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
 	}
-	all {
-		exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
-		exclude group: 'org.apache.logging.log4j', module: 'log4j-slf4j2-impl'
-	}
 }
 
 repositories {
@@ -37,6 +33,8 @@ dependencyManagement {
 
 
 dependencies {
+	implementation 'io.github.cdimascio:java-dotenv:5.2.2'
+
 	// web
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
@@ -88,9 +86,11 @@ dependencies {
 	implementation 'com.google.firebase:firebase-admin:9.5.0'
 
 	// log
-	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
-	implementation 'org.apache.logging.log4j:log4j-mongodb4:2.21.1'
-	implementation 'io.github.cdimascio:java-dotenv:5.2.2'
+	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
+	implementation 'com.sndyuk:logback-more-appenders:1.8.8'
+
+	implementation 'org.fluentd:fluent-logger:0.3.4'
+
 
 	// Actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'

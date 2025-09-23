@@ -33,7 +33,7 @@ The Social Media domain handles feed uploads, comments, replies, and other inter
 | Cloud      | Oracle Cloud Infrastructure |
 | Monitoring | Prometheus / Grafana        |
 | Test       | JUnit 5, AssertJ            |
-| Logging    | Log4j2, MongoDB             |
+| Logging    | Logback, Fluentd, MongoDB   |
 
 ---
 
@@ -74,17 +74,17 @@ This project uses **OCI Object Storage (oci-bucket)** for file uploads, using **
 
 ## 🪵 Logging
 
-This project uses **Log4j2** for logging. Logs are written both to a file and to a **MongoDB** collection.
+This project uses **Logback** for logging, which is the default logging framework in Spring Boot. Logs are sent to the console and **Fluentd** for aggregation, which then forwards them to **MongoDB**.
 
-We recommend using Log4j directly rather than wrapping it through `slf4j`, to take full advantage of Log4j2’s features.
+We recommend using the **SLF4J API** for logging, which allows for flexible integration with different logging frameworks.
 
 ### ✅ How to Use
 ```java
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExampleClass {
-    private final Logger logger = LogManager.getLogger(ExampleClass.class);
+    private final Logger logger = LoggerFactory.getLogger(ExampleClass.class);
 
     private void loggingExample() {
         logger.info("Log example");
@@ -94,25 +94,29 @@ public class ExampleClass {
 
 ### 🧾 Logging Destinations
 
-- `Console`: for local development
-- `RollingFile`: logs saved to `./logs/spring-boot-logger-log4j2.log` with daily and size-based rotation
-- `MongoDB`: logs stored in a capped collection for efficient and searchable persistence
+- `Console`: for local development (`dev`, `docker` profiles)
+- `Fluentd`: logs are sent to a Fluentd agent in the `release` profile, which then forwards them to MongoDB.
 
 ### ⚙️ Configuration
 
-Log4j2 is configured in [`resources/log4j2-spring.xml`](./src/main/resources/log4j2-spring.xml).  
-Here is a snippet of how MongoDB is integrated.
+Logback is configured in [`resources/logback-spring.xml`](./src/main/resources/logback-spring.xml).  
+Here is a snippet of how Fluentd is integrated.
 
 ```xml
-<NoSql name="MongoDbAppender">
-    <MongoDb4 connection="mongodb://${sys:MONGO_USERNAME}:${sys:MONGO_PASSWORD}@${sys:MONGO_HOST}:${sys:MONGO_PORT}/${sys:MONGO_DB_NAME}?authSource=${sys:MONGO_AUTH_DATABASE}"
-              capped="true"
-              collectionSize="1073741824"/>
-</NoSql>
+<appender name="FLUENT" class="ch.qos.logback.more.appenders.FluencyLogbackAppender">
+  <tag>springboot.${HOSTNAME}</tag>
+  <remoteHost>${FLUENTD_HOST}</remoteHost>
+  <port>24224</port>
+  <maxWaitSeconds>3</maxWaitSeconds>
+
+  <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+    <pattern>${LOG_PATTERN}</pattern>
+  </encoder>
+</appender>
 ```
 
-- The MongoDB appender uses a **capped collection** of 1GB for efficient storage and automatic document eviction.
-- Connection parameters are injected through system properties.
+- The Fluentd appender sends logs to a Fluentd agent, which is responsible for forwarding them to other services like MongoDB.
+- The Fluentd host is configured via the `FLUENTD_HOST` environment variable.
 
 > For full details, see the complete XML configuration file.
 

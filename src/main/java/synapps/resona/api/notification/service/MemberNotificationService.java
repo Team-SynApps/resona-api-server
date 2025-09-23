@@ -6,8 +6,8 @@ import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,7 +32,7 @@ import synapps.resona.api.member.service.MemberService;
 @RequiredArgsConstructor
 public class MemberNotificationService {
 
-  private final Logger logger = LogManager.getLogger(MemberNotificationService.class);
+  private static final Logger logger = LoggerFactory.getLogger(MemberNotificationService.class);
 
   private final MemberNotificationRepository notificationRepository;
   private final MemberNotificationSettingRepository notificationSettingRepository;

@@ -59,7 +59,7 @@ app:
 
 # 로깅 설정
 logging:
-  config: classpath:log4j2-spring.xml
+  config: classpath:logback-spring.xml
 
 # Actuator 설정
 management:

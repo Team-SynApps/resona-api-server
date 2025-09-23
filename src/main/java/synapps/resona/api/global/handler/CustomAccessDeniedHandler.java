@@ -5,8 +5,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
@@ -20,7 +20,7 @@ import synapps.resona.api.member.code.AuthErrorCode;
 @RequiredArgsConstructor
 public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
-  private static final Logger logger = LogManager.getLogger(CustomAccessDeniedHandler.class);
+  private static final Logger logger = LoggerFactory.getLogger(CustomAccessDeniedHandler.class);
 
   private final ServerInfoConfig serverInfo;
 
