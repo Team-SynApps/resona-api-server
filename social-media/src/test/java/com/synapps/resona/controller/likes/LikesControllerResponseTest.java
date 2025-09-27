@@ -13,11 +13,11 @@
 //import com.synapps.resona.code.SocialSuccessCode;
 //import com.synapps.resona.config.WithMockUserPrincipal;
 //import com.synapps.resona.config.server.ServerInfoConfig;
-//import com.synapps.resona.likes.controller.LikesController;
+//import com.synapps.resona.command.controller.likes.LikesController;
 //import com.synapps.resona.likes.dto.response.CommentLikesResponse;
 //import com.synapps.resona.likes.dto.response.FeedLikesResponse;
 //import com.synapps.resona.likes.dto.response.ReplyLikesResponse;
-//import com.synapps.resona.likes.service.LikeService;
+//import com.synapps.resona.query.service.LikeService;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Disabled;
 //import org.junit.jupiter.api.DisplayName;

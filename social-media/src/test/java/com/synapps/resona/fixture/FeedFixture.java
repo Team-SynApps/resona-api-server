@@ -1,14 +1,14 @@
 package com.synapps.resona.fixture;
 
 import com.synapps.resona.entity.member.Member;
-import com.synapps.resona.feed.dto.FeedDto;
-import com.synapps.resona.feed.dto.SocialMemberDto;
-import com.synapps.resona.feed.dto.request.FeedRegistrationRequest;
-import com.synapps.resona.feed.dto.request.FeedRequest;
-import com.synapps.resona.feed.dto.request.FeedUpdateRequest;
-import com.synapps.resona.feed.entity.Feed;
-import com.synapps.resona.feed.entity.FeedCategory;
-import com.synapps.resona.media.dto.FeedMediaDto;
+import com.synapps.resona.query.dto.feed.FeedDto;
+import com.synapps.resona.query.dto.feed.SocialMemberDto;
+import com.synapps.resona.query.dto.feed.request.FeedRegistrationRequest;
+import com.synapps.resona.query.dto.feed.request.FeedRequest;
+import com.synapps.resona.query.dto.feed.request.FeedUpdateRequest;
+import com.synapps.resona.domain.entity.feed.Feed;
+import com.synapps.resona.domain.entity.feed.FeedCategory;
+import com.synapps.resona.query.dto.media.FeedMediaDto;
 import java.time.LocalDateTime;
 import java.util.List;
 

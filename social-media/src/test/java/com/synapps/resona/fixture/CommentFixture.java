@@ -2,15 +2,15 @@ package com.synapps.resona.fixture;
 
 import static org.mockito.Mockito.mock;
 
-import com.synapps.resona.comment.dto.CommentDto;
-import com.synapps.resona.comment.dto.request.CommentRequest;
-import com.synapps.resona.comment.dto.request.CommentUpdateRequest;
-import com.synapps.resona.comment.entity.Comment;
-import com.synapps.resona.comment.entity.ContentDisplayStatus;
+import com.synapps.resona.query.dto.comment.CommentDto;
+import com.synapps.resona.query.dto.comment.request.CommentRequest;
+import com.synapps.resona.query.dto.comment.request.CommentUpdateRequest;
+import com.synapps.resona.domain.entity.comment.Comment;
+import com.synapps.resona.domain.entity.comment.ContentDisplayStatus;
 import com.synapps.resona.entity.member.Member;
-import com.synapps.resona.feed.entity.Feed;
-import com.synapps.resona.feed.dto.SocialMemberDto;
-import com.synapps.resona.likes.entity.CommentLikes;
+import com.synapps.resona.domain.entity.feed.Feed;
+import com.synapps.resona.query.dto.feed.SocialMemberDto;
+import com.synapps.resona.domain.entity.likes.CommentLikes;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;

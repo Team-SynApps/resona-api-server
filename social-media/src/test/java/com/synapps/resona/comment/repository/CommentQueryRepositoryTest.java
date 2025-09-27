@@ -3,12 +3,12 @@ package com.synapps.resona.comment.repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.synapps.resona.comment.dto.CommentProjectionDto;
-import com.synapps.resona.comment.entity.Comment;
-import com.synapps.resona.comment.repository.comment.CommentQueryRepository;
+import com.synapps.resona.query.dto.comment.CommentProjectionDto;
+import com.synapps.resona.domain.entity.comment.Comment;
+import com.synapps.resona.domain.repository.comment.comment.CommentQueryRepository;
 import com.synapps.resona.entity.member.Member;
-import com.synapps.resona.feed.entity.Feed;
-import com.synapps.resona.feed.repository.dsl.FeedExpressions;
+import com.synapps.resona.domain.entity.feed.Feed;
+import com.synapps.resona.domain.repository.feed.dsl.FeedExpressions;
 import com.synapps.resona.fixture.CommentFixture;
 import com.synapps.resona.fixture.FeedFixture;
 import com.synapps.resona.fixture.FeedMemberFixture;

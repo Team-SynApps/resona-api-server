@@ -13,9 +13,9 @@
 //
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.synapps.resona.config.server.ServerInfoConfig;
-//import com.synapps.resona.mention.controller.MentionController;
-//import com.synapps.resona.mention.dto.MentionResponse;
-//import com.synapps.resona.mention.service.MentionService;
+//import com.synapps.resona.command.controller.comment.MentionController;
+//import com.synapps.resona.query.dto.comment.MentionResponse;
+//import com.synapps.resona.query.service.MentionService;
 //import java.time.LocalDateTime;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Disabled;

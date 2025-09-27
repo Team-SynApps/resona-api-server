@@ -13,11 +13,11 @@
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.synapps.resona.config.WithMockUserPrincipal;
 //import com.synapps.resona.feed.controller.FeedController;
-//import com.synapps.resona.feed.dto.FeedDto;
-//import com.synapps.resona.feed.dto.request.FeedRegistrationRequest;
-//import com.synapps.resona.feed.dto.request.FeedRequest;
-//import com.synapps.resona.feed.dto.request.FeedUpdateRequest;
-//import com.synapps.resona.feed.service.FeedService;
+//import com.synapps.resona.query.dto.feed.FeedDto;
+//import com.synapps.resona.query.dto.feed.request.FeedRegistrationRequest;
+//import com.synapps.resona.query.dto.feed.request.FeedRequest;
+//import com.synapps.resona.query.dto.feed.request.FeedUpdateRequest;
+//import com.synapps.resona.query.service.FeedService;
 //import com.synapps.resona.config.server.ServerInfoConfig;
 //import com.synapps.resona.dto.CursorResult;
 //import java.time.LocalDateTime;

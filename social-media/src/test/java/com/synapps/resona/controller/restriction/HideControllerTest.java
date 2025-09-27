@@ -14,8 +14,8 @@
 //import com.synapps.resona.config.WithMockUserPrincipal;
 //import com.synapps.resona.config.server.ServerInfoConfig;
 //import com.synapps.resona.member.dto.MemberDto;
-//import com.synapps.resona.restriction.controller.HideController;
-//import com.synapps.resona.restriction.service.HideService;
+//import com.synapps.resona.command.controller.restriction.HideController;
+//import com.synapps.resona.query.service.HideService;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Disabled;
 //import org.junit.jupiter.api.DisplayName;

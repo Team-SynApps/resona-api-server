@@ -13,12 +13,12 @@
 //import com.synapps.resona.config.WithMockUserPrincipal;
 //import com.synapps.resona.config.server.ServerInfoConfig;
 //import com.synapps.resona.member.dto.MemberDto;
-//import com.synapps.resona.report.controller.ReportController;
+//import com.synapps.resona.command.controller.report.ReportController;
 //import com.synapps.resona.report.dto.request.CommentReportRequest;
 //import com.synapps.resona.report.dto.request.FeedReportRequest;
 //import com.synapps.resona.report.dto.request.ReplyReportRequest;
-//import com.synapps.resona.report.entity.ReportCategory;
-//import com.synapps.resona.report.service.ReportService;
+//import com.synapps.resona.domain.entity.report.ReportCategory;
+//import com.synapps.resona.query.service.ReportService;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Disabled;
 //import org.junit.jupiter.api.DisplayName;

@@ -12,12 +12,12 @@
 //import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 //
 //import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.synapps.resona.comment.controller.ReplyController;
-//import com.synapps.resona.comment.dto.ReplyDto;
-//import com.synapps.resona.comment.dto.request.ReplyRequest;
-//import com.synapps.resona.comment.dto.request.ReplyUpdateRequest;
-//import com.synapps.resona.comment.dto.response.CommentDeleteResponse;
-//import com.synapps.resona.comment.service.ReplyService;
+//import com.synapps.resona.command.controller.comment.ReplyController;
+//import com.synapps.resona.query.dto.comment.ReplyDto;
+//import com.synapps.resona.query.dto.comment.request.ReplyRequest;
+//import com.synapps.resona.query.dto.comment.request.ReplyUpdateRequest;
+//import com.synapps.resona.query.dto.comment.response.CommentDeleteResponse;
+//import com.synapps.resona.query.service.ReplyService;
 //import com.synapps.resona.fixture.ReplyFixture;
 //import com.synapps.resona.config.server.ServerInfoConfig;
 //import com.synapps.resona.member.dto.MemberDto;

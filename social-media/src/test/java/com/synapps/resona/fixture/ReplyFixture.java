@@ -2,12 +2,12 @@ package com.synapps.resona.fixture;
 
 import static org.mockito.Mockito.mock;
 
-import com.synapps.resona.comment.dto.ReplyDto;
-import com.synapps.resona.comment.dto.request.ReplyRequest;
-import com.synapps.resona.comment.dto.request.ReplyUpdateRequest;
-import com.synapps.resona.comment.entity.ContentDisplayStatus;
-import com.synapps.resona.comment.entity.Reply;
-import com.synapps.resona.feed.dto.SocialMemberDto;
+import com.synapps.resona.query.dto.comment.ReplyDto;
+import com.synapps.resona.query.dto.comment.request.ReplyRequest;
+import com.synapps.resona.query.dto.comment.request.ReplyUpdateRequest;
+import com.synapps.resona.domain.entity.comment.ContentDisplayStatus;
+import com.synapps.resona.domain.entity.comment.Reply;
+import com.synapps.resona.query.dto.feed.SocialMemberDto;
 import java.time.LocalDateTime;
 import java.util.List;
 

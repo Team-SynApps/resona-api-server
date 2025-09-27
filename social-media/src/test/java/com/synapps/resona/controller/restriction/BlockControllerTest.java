@@ -16,9 +16,9 @@
 //import com.synapps.resona.config.WithMockUserPrincipal;
 //import com.synapps.resona.config.server.ServerInfoConfig;
 //import com.synapps.resona.member.dto.MemberDto;
-//import com.synapps.resona.restriction.controller.BlockController;
-//import com.synapps.resona.restriction.dto.BlockedMemberResponse;
-//import com.synapps.resona.restriction.service.BlockService;
+//import com.synapps.resona.command.controller.restriction.BlockController;
+//import com.synapps.resona.query.dto.restriction.BlockedMemberResponse;
+//import com.synapps.resona.query.service.BlockService;
 //import java.util.List;
 //import org.junit.jupiter.api.BeforeEach;
 //import org.junit.jupiter.api.Disabled;

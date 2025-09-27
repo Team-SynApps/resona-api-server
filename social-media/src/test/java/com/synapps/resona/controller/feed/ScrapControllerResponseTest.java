@@ -13,8 +13,8 @@
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.synapps.resona.config.WithMockUserPrincipal;
 //import com.synapps.resona.feed.controller.ScrapController;
-//import com.synapps.resona.feed.dto.ScrapReadResponse;
-//import com.synapps.resona.feed.service.ScrapService;
+//import com.synapps.resona.query.dto.feed.ScrapReadResponse;
+//import com.synapps.resona.query.service.ScrapService;
 //import com.synapps.resona.config.server.ServerInfoConfig;
 //import com.synapps.resona.dto.CursorResult;
 //import com.synapps.resona.member.dto.MemberDto;
