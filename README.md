@@ -1,11 +1,39 @@
-# Resona API Server(SNS)
-> A scalable SNS API server built with Spring Boot and Oracle Cloud, supporting feeds, comments, and member management.
+# Resona API Server (SNS)
 
-This server is divided into two main domains. Member and Social Media.
+> A scalable, multi-module SNS API server built with Spring Boot, designed for high performance and maintainability.
 
-The Member domain is responsible for member registration and login, account status, and managing member profiles.
+Resona API Server is architected as a multi-module project to ensure clear separation of concerns, improved scalability, and easier maintenance. Each domain is developed and managed in its own module, promoting loose coupling and high cohesion.
 
-The Social Media domain handles feed uploads, comments, replies, and other interactions on the platform.
+## 🏗️ Project Structure
+
+The project is divided into the following modules:
+
+| Module         | Description                                                  |
+|----------------|--------------------------------------------------------------|
+| `application`  | The main entry point of the application. Handles global configurations, request routing, and application startup. |
+| `core`         | Contains common code, utilities, entities, and core business logic shared across all modules. |
+| `member`       | Manages all member-related functionalities, including authentication, profiles, and user accounts. |
+| `social-media` | Handles core social media features like feeds, posts, comments, and user interactions. |
+| `chat`         | Provides real-time chatting functionalities.                |
+| `notification` | Manages and sends notifications to users.                    |
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Java 17
+- Gradle
+
+### Build
+To build the entire project, run the following command from the root directory:
+```shell
+./gradlew clean build
+```
+
+### Run
+To run the application, execute the `bootRun` task from the `application` module:
+```shell
+./gradlew :application:bootRun
+```
 
 ## 📑 Table of Contents
 
@@ -33,7 +61,7 @@ The Social Media domain handles feed uploads, comments, replies, and other inter
 | Cloud      | Oracle Cloud Infrastructure |
 | Monitoring | Prometheus / Grafana        |
 | Test       | JUnit 5, AssertJ            |
-| Logging    | Logback, Fluentd, MongoDB   |
+| Logging    | Logback                     |
 
 ---
 
@@ -41,7 +69,7 @@ The Social Media domain handles feed uploads, comments, replies, and other inter
 
 The project uses **Swagger** for documenting REST APIs.
 
-> API docs (Swagger UI) are available in the production environment and accessible to authorized users only.  
+> API docs (Swagger UI) are available in the production environment and accessible to authorized users only.
 > For internal use during development and testing.
 
 ---
@@ -62,21 +90,13 @@ This project uses **OCI Object Storage (oci-bucket)** for file uploads, using **
 - [Put Object](https://docs.oracle.com/en-us/iaas/api/#/en/objectstorage/20160918/Object/PutObject)
 - [Copy Object](https://docs.oracle.com/en-us/iaas/api/#/en/objectstorage/20160918/Object/CopyObject)
 
-### 📦 Code Location
-
-- [`ObjectStorageService.java`](src/main/java/synapps/resona/api/external/file/ObjectStorageService.java)
-- [`ObjectStorageController.java`](src/main/java/synapps/resona/api/external/file/ObjectStorageController.java)
-
-
-> For full implementation details, including error handling and metadata construction, please refer to the source code linked above.
-
 ---
 
 ## 🪵 Logging
 
-This project uses **Logback** for logging, which is the default logging framework in Spring Boot. Logs are sent to the console and **Fluentd** for aggregation, which then forwards them to **MongoDB**.
+This project uses **Logback** for logging, configured via `logback-spring.xml`. The system is set up for structured logging, producing JSON-formatted logs for easier parsing and analysis.
 
-We recommend using the **SLF4J API** for logging, which allows for flexible integration with different logging frameworks.
+We recommend using the **SLF4J API** for logging consistency.
 
 ### ✅ How to Use
 ```java
@@ -94,29 +114,28 @@ public class ExampleClass {
 
 ### 🧾 Logging Destinations
 
-- `Console`: for local development (`dev`, `docker` profiles)
-- `Fluentd`: logs are sent to a Fluentd agent in the `release` profile, which then forwards them to MongoDB.
+- `Console`: For real-time monitoring during local development.
+- `JSON File`: Logs are written to a rolling file in JSON format. This is ideal for aggregation in log management systems.
+  - **File Path**: `logs/resona-api.log`
+  - **Rotation**: Daily, with a 30-day history.
 
 ### ⚙️ Configuration
 
-Logback is configured in [`resources/logback-spring.xml`](./src/main/resources/logback-spring.xml).  
-Here is a snippet of how Fluentd is integrated.
+Logback is configured in `application/src/main/resources/logback-spring.xml`.  
+Here is a snippet of the file appender configuration, which uses `LogstashEncoder` to generate structured JSON logs.
 
 ```xml
-<appender name="FLUENT" class="ch.qos.logback.more.appenders.FluencyLogbackAppender">
-  <tag>springboot.${HOSTNAME}</tag>
-  <remoteHost>${FLUENTD_HOST}</remoteHost>
-  <port>24224</port>
-  <maxWaitSeconds>3</maxWaitSeconds>
-
-  <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-    <pattern>${LOG_PATTERN}</pattern>
-  </encoder>
+<appender name="JSON_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${LOG_PATH}/${LOG_FILE_NAME}.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <fileNamePattern>${LOG_PATH}/${LOG_FILE_NAME}.%d{yyyy-MM-dd}.log</fileNamePattern>
+        <maxHistory>30</maxHistory>
+    </rollingPolicy>
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+        <customFields>{"application_name":"${APP_NAME}"}</customFields>
+    </encoder>
 </appender>
 ```
-
-- The Fluentd appender sends logs to a Fluentd agent, which is responsible for forwarding them to other services like MongoDB.
-- The Fluentd host is configured via the `FLUENTD_HOST` environment variable.
 
 > For full details, see the complete XML configuration file.
 
@@ -124,7 +143,7 @@ Here is a snippet of how Fluentd is integrated.
 
 ## 🚨 Error Handling
 
-This project uses a centralized error handling strategy based on `@RestControllerAdvice` and Spring Security hooks.  
+This project uses a centralized error handling strategy based on `@RestControllerAdvice` and Spring Security hooks.
 All exceptions are converted into a consistent JSON response with detailed metadata.
 
 ### ✅ Features
@@ -160,13 +179,6 @@ All exceptions are converted into a consistent JSON response with detailed metad
 ```
 
 > Error response metadata is built using `ErrorMetaDataDto`, and every exception includes a unique `requestId` to help trace issues.
-
-### 📦 Related Classes
-
-- [`GlobalExceptionHandler`](src/main/java/synapps/resona/api/global/handler/GlobalExceptionHandler.java)
-- [`CustomAuthenticationEntryPoint`](src/main/java/synapps/resona/api/global/handler/CustomAuthenticationEntryPoint.java)
-- [`CustomAccessDeniedHandler`](src/main/java/synapps/resona/api/global/handler/CustomAccessDeniedHandler.java)
-- [`ErrorMetaDataDto`](src/main/java/synapps/resona/api/global/dto/metadata/ErrorMetaDataDto.java)
 
 ---
 
