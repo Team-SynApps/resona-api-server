@@ -1,0 +1,42 @@
+package com.synapps.resona.matching.service;
+
+import com.synapps.resona.entity.ChatRoom;
+import com.synapps.resona.matching.dto.MatchResult;
+import com.synapps.resona.matching.exception.MatchingException;
+import com.synapps.resona.matching.strategy.MatchingStrategy;
+import com.synapps.resona.service.ChatRoomService;
+import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+@RequiredArgsConstructor
+public class MatchingService {
+  private static final Logger logger = LoggerFactory.getLogger(MatchingService.class);
+
+  private final ChatRoomService chatRoomService;
+  private final MatchingStrategy matchingStrategy;
+
+  @Transactional
+  public ChatRoom processMatchAndCreateRoom(Long requesterId) {
+    MatchResult result = matchingStrategy.match(requesterId);
+
+    if (!result.isSuccess() || result.matchedMemberIds().size() < 2) {
+      throw MatchingException.matchFailed();
+    }
+
+    String roomName = "새로운 채팅방";
+
+    ChatRoom createdRoom = chatRoomService.createChatRoom(
+        requesterId,
+        roomName,
+        result.matchedMemberIds()
+    );
+
+    logger.info("자동으로 채팅방이 생성되었습니다. Room ID: {}", createdRoom.getId());
+
+    return createdRoom;
+  }
+}

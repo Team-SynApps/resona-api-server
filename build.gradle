@@ -1,143 +1,110 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.3'
-	id 'io.spring.dependency-management' version '1.1.4'
-	id "co.uzzu.dotenv.gradle" version "4.0.0"
-	id("io.gatling.gradle") version "3.13.1"
+    id 'java'
+    id 'org.springframework.boot' version '3.2.3' apply false
+    id 'io.spring.dependency-management' version '1.1.4'
+    id "co.uzzu.dotenv.gradle" version "4.0.0" apply false
 }
 
-group = 'com.synapps'
-version = '0.0.1-SNAPSHOT'
+allprojects {
+    group = 'com.synapps'
+    version = '0.0.1-SNAPSHOT'
 
-java {
-	sourceCompatibility = '17'
+    repositories {
+        mavenCentral()
+    }
+}
+
+subprojects {
+    apply plugin: "java"
+    apply plugin: "io.spring.dependency-management"
+    apply plugin: "java-test-fixtures"
+
+    java {
+        sourceCompatibility = '17'
+    }
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    // Common Dependencies
+    dependencies {
+        // Lombok
+        compileOnly "org.projectlombok:lombok"
+        annotationProcessor "org.projectlombok:lombok"
+
+        // Test
+        testImplementation "org.springframework.boot:spring-boot-starter-test"
+        testCompileOnly "org.projectlombok:lombok"
+        testAnnotationProcessor "org.projectlombok:lombok"
+    }
+
+    dependencyManagement {
+        imports {
+            mavenBom 'com.oracle.oci.sdk:oci-java-sdk-bom:3.43.1'
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:2023.0.3"
+            mavenBom 'org.springframework.boot:spring-boot-dependencies:3.2.3'
+        }
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform {
+            excludeTags 'local-only'
+        }
+    }
+
+    // QueryDSL Config
+    afterEvaluate { sub ->
+        if (sub.name in ['member', 'social-media', 'notification']) {
+            println ">>> [${sub.name}] Applying QueryDSL configuration."
+
+            def generatedMainDir = sub.layout.buildDirectory.dir('generated/querydsl/main')
+            def generatedTestDir = sub.layout.buildDirectory.dir('generated/querydsl/test')
+
+            sourceSets {
+                main {
+                    java {
+                        srcDirs += generatedMainDir
+                    }
+                }
+                test {
+                    java {
+                        srcDirs += generatedTestDir
+                    }
+                }
+            }
+
+            tasks.named('compileJava') {
+                options.getGeneratedSourceOutputDirectory().set(generatedMainDir)
+            }
+            tasks.named('compileTestJava') {
+                options.getGeneratedSourceOutputDirectory().set(generatedTestDir)
+            }
+
+            tasks.register('cleanGenerated', Delete) {
+                delete generatedMainDir, generatedTestDir
+            }
+            tasks.named('clean') {
+                dependsOn tasks.named('cleanGenerated')
+            }
+        }
+    }
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
-}
-
-dependencyManagement {
-	// for oci bucket storage
-	imports {
-		mavenBom 'com.oracle.oci.sdk:oci-java-sdk-bom:3.43.1'
-		mavenBom 'org.springframework.boot:spring-boot-dependencies:3.2.3'
-	}
-}
-
-
-dependencies {
-	implementation 'io.github.cdimascio:java-dotenv:5.2.2'
-
-	// web
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-	implementation 'com.fasterxml.jackson.core:jackson-databind'
-
-	// spring security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-
-	// oauth
-	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-	implementation platform("org.springframework.cloud:spring-cloud-dependencies:2023.0.3")
-	implementation "org.springframework.cloud:spring-cloud-starter-openfeign"
-
-	// DB
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb:3.2.3'
-	runtimeOnly 'com.mysql:mysql-connector-j:8.2.0'
-
-	// QueryDSL
-	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-
-	// QueryDSL Q-Type
-	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
-	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
-
-	// Redis
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
-	// Swagger
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
-
-	// jwt
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
-	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
-
-	// OCI SDK
-	implementation 'com.oracle.oci.sdk:oci-java-sdk-shaded-full'
-
-	// email
-	implementation 'org.springframework.boot:spring-boot-starter-mail'
-
-	// lombok
-	compileOnly 'org.projectlombok:lombok:1.18.20'
-	annotationProcessor 'org.projectlombok:lombok:1.18.20'
-
-	// fcm
-	implementation 'com.google.firebase:firebase-admin:9.5.0'
-
-	// log
-	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
-	implementation 'com.sndyuk:logback-more-appenders:1.8.8'
-
-	implementation 'org.fluentd:fluent-logger:0.3.4'
-
-
-	// Actuator
-	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-
-	// prometheus
-	implementation 'io.micrometer:micrometer-registry-prometheus'
-
-	// test
-	testImplementation "org.springframework.boot:spring-boot-starter-test"
-	testImplementation 'org.springframework.security:spring-security-test'
-//	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo:4.12.6'
-// 	testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo-spring3x:4.9.2'
-	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
-	testImplementation 'org.testcontainers:mongodb'
-	testImplementation 'org.testcontainers:mysql'
-	testCompileOnly 'org.projectlombok:lombok'
-	testAnnotationProcessor 'org.projectlombok:lombok'
-
-	testImplementation 'com.h2database:h2'
-
-	// stress test: gatling
-	testImplementation 'io.gatling:gatling-test-framework:3.13.1'
-	testImplementation 'io.gatling.highcharts:gatling-charts-highcharts:3.13.1'
-
-	implementation 'org.springframework.boot:spring-boot-starter-amqp'
+    mavenCentral()
 }
 
 tasks.named('test') {
-	useJUnitPlatform {
-		excludeTags 'local-only'
-	}
+    useJUnitPlatform {
+        excludeTags 'local-only'
+    }
 }
-
-// Q-Type 클래스가 생성될 디렉토리 지정
-def generatedDir = layout.buildDirectory.dir('generated/querydsl')
-
-tasks.withType(JavaCompile) {
-	options.getGeneratedSourceOutputDirectory().set(generatedDir)
-}
-
-// sourceSets에 Q-Type 경로 추가
-sourceSets {
-	main.java.srcDirs += generatedDir
-}
-
-// gradle clean 시 generated 디렉토리도 함께 삭제
-tasks.register('cleanGenerated', Delete) {
-	delete generatedDir
-}
-clean.dependsOn cleanGenerated

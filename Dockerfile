@@ -4,17 +4,18 @@ WORKDIR /workspace/app
 
 COPY gradlew build.gradle settings.gradle ./
 COPY ./gradle ./gradle/
-COPY ./src ./src/
+
+COPY . .
+
 RUN chmod +x ./gradlew
-RUN ./gradlew clean bootJar -PexcludeSecrets=true
+RUN ./gradlew :application:clean :application:bootJar
 
 # === [2단계: 런타임 이미지] ======================================
 FROM openjdk:17-slim-buster
 
 WORKDIR /app
 
-# Spring Boot JAR 복사
-COPY --from=build /workspace/app/build/libs/*.jar /app/app.jar
+COPY --from=build /workspace/app/application/build/libs/*.jar /app/app.jar
 
 EXPOSE 8080
 
