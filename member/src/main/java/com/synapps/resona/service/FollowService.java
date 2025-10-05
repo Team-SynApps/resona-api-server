@@ -10,6 +10,8 @@ import com.synapps.resona.repository.member.MemberRepository;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -71,5 +73,10 @@ public class FollowService {
         .map(follow -> MemberProfileDto.from(follow.getFollowing(),
             follow.getFollowing().getProfile()))
         .collect(Collectors.toList());
+  }
+
+  @Transactional(readOnly = true)
+  public Page<Long> getFollowerIds(Long memberId, Pageable pageable) {
+    return followRepository.findFollowerIdsByFollowingId(memberId, pageable);
   }
 }

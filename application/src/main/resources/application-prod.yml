@@ -18,12 +18,6 @@ spring:
       port: ${REDIS_PORT}
     mongodb:
       uri: ${MONGODB_CONNECTION_STRING}
-#      host: ${MONGO_HOST}
-#      port: ${MONGO_PORT}
-#      database: ${MONGO_DB_NAME}
-#      authentication-database: ${MONGO_AUTH_DATABASE}
-#      username: ${MONGO_USERNAME}
-#      password: ${MONGO_PASSWORD}
   rabbitmq:
     host: ${RABBIT_MQ_HOST}
     port: ${RABBIT_MQ_PORT}

@@ -38,6 +38,11 @@ public enum MemberErrorCode implements ErrorCode {
   // notification
   NOTIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTI001", "Notification not found"),
   NOTIFICATION_SETTING_NOT_FOUND(HttpStatus.NOT_FOUND, "NOTI001", "Notification setting not found"),
+
+  // block
+  CANNOT_BLOCK_SELF(HttpStatus.CONFLICT, "BLK001", "Cannot block self"),
+  ALREADY_BLOCKED(HttpStatus.NOT_ACCEPTABLE, "BLK002", "Already blocked"),
+  NOT_BLOCKED(HttpStatus.BAD_REQUEST, "BLK003", "Not blocked"),
   ;
 
   private final String code;

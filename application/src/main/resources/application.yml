@@ -95,3 +95,18 @@ discord:
   webhook:
     report: ${DISCORD_REPORT_WEBHOOK_URL}
     deploy: ${DISCORD_DEPLOY_WEBHOOK_URL}
+
+member:
+  celebrity:
+    follower-threshold: 10000
+
+feed:
+  retrieval:
+    default-page-size: 20
+
+redis:
+  ttl:
+    personal-timeline: 30    # 개인 타임라인 TTL (30일)
+    public-timeline: 7       # 공용 타임라인 TTL (7일)
+    seen-feeds: 7            # '최근 본 게시물' 목록 TTL (7일)
+    unit: DAYS             # 시간 단위를 변경하고 싶을 때 사용 (예: HOURS, MINUTES)

@@ -91,6 +91,10 @@ subprojects {
             }
         }
     }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs << "-parameters"
+    }
 }
 
 configurations {
@@ -108,3 +112,4 @@ tasks.named('test') {
         excludeTags 'local-only'
     }
 }
+

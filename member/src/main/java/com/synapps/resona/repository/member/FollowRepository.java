@@ -5,6 +5,8 @@ import com.synapps.resona.entity.member.Member;
 import com.synapps.resona.annotation.DatabaseRepositories.MySQLRepository;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -31,4 +33,7 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
   long countByFollower(Member follower);
 
   long countByFollowing(Member following);
+
+  @Query("SELECT f.follower.id FROM Follow f WHERE f.following.id = :followingId")
+  Page<Long> findFollowerIdsByFollowingId(@Param("followingId") Long followingId, Pageable pageable);
 }

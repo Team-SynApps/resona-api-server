@@ -1,5 +1,6 @@
 package com.synapps.resona.service;
 
+import com.synapps.resona.config.MemberProperties;
 import com.synapps.resona.dto.MemberDto;
 import com.synapps.resona.dto.request.auth.RegisterRequest;
 import com.synapps.resona.dto.request.member.MemberPasswordChangeDto;
@@ -18,6 +19,7 @@ import com.synapps.resona.exception.AccountInfoException;
 import com.synapps.resona.exception.MemberException;
 import com.synapps.resona.exception.ProfileException;
 import com.synapps.resona.entity.Language;
+import com.synapps.resona.repository.member.FollowRepository;
 import com.synapps.resona.repository.member.MemberProviderRepository;
 import com.synapps.resona.repository.member.MemberRepository;
 import com.synapps.resona.repository.profile.ProfileRepository;
@@ -42,7 +44,9 @@ public class MemberService {
   private final MemberRepository memberRepository;
   private final ProfileRepository profileRepository;
   private final MemberProviderRepository memberProviderRepository;
+  private final FollowRepository followRepository;
   private final ApplicationEventPublisher eventPublisher;
+  private final MemberProperties memberProperties;
   private static final Logger logger = LoggerFactory.getLogger(MemberService.class);
 
   private static Set<Language> copyToMutableSet(Set<Language> source) {
@@ -188,5 +192,17 @@ public class MemberService {
     return memberRepository.findAccountInfoByEmail(email)
         .map(accountInfo -> !accountInfo.isAccountTemporary())
         .orElse(false);
+  }
+
+  public Member getMember(Long memberId) {
+    return memberRepository.findById(memberId).orElseThrow(MemberException::memberNotFound);
+  }
+
+  public Member getMemberWithProfile(Long memberId) {
+    return memberRepository.findWithProfileById(memberId).orElseThrow(MemberException::memberNotFound);
+  }
+
+  public boolean isCelebrity(Member member) {
+    return followRepository.countByFollowing(member) > memberProperties.followerThreshold();
   }
 }

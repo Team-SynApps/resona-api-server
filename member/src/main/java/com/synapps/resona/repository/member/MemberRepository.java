@@ -26,6 +26,11 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
       "WHERE m.email = :email")
   Optional<Member> findWithAllRelationsByEmail(@Param("email") String email);
 
+  @Query("SELECT DISTINCT m FROM Member m " +
+      "JOIN FETCH m.profile p " +
+      "WHERE m.id = :memberId")
+  Optional<Member> findWithProfileById(@Param("memberId") Long memberId);
+
   @Query("SELECT m FROM Member m " +
       "JOIN FETCH m.accountInfo " +
       "JOIN FETCH m.memberDetails " +

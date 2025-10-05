@@ -2,15 +2,23 @@ package com.synapps.resona;
 
 import com.synapps.resona.properties.AppProperties;
 import com.synapps.resona.properties.CorsProperties;
+import com.synapps.resona.properties.RedisTtlProperties;
 import io.github.cdimascio.dotenv.Dotenv;
+import com.synapps.resona.config.MemberProperties;
+import com.synapps.resona.retrieval.config.FeedRetrievalProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.scheduling.annotation.EnableAsync;
 
+@EnableAsync
 @SpringBootApplication
 @EnableConfigurationProperties({
     CorsProperties.class,
-    AppProperties.class
+    AppProperties.class,
+    RedisTtlProperties.class,
+    MemberProperties.class,
+    FeedRetrievalProperties.class
 })
 public class ResonaAPIServer {
   // 로컬 시스템 프로퍼티 등록용

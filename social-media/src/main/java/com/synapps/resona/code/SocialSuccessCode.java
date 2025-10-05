@@ -50,16 +50,14 @@ public enum SocialSuccessCode implements SuccessCode {
   REPORT_FEED_SUCCESS(HttpStatus.OK, "Feed reported successfully."),
   REPORT_COMMENT_SUCCESS(HttpStatus.OK, "Comment reported successfully."),
   REPORT_REPLY_SUCCESS(HttpStatus.OK, "Reply reported successfully."),
+  RESOLVE_REPORT_SUCCESS(HttpStatus.OK, "Report resolved successfully."),
+  REJECT_REPORT_SUCCESS(HttpStatus.OK, "Report rejected successfully."),
+  GET_REPORTS_SUCCESS(HttpStatus.OK, "Successfully retrieved reports."),
 
   // Mention
   REGISTER_MENTION_SUCCESS(HttpStatus.CREATED, "Mention registered successfully."),
   GET_MENTION_SUCCESS(HttpStatus.OK, "Successfully retrieved mention."),
   DELETE_MENTION_SUCCESS(HttpStatus.OK, "Mention deleted successfully."),
-
-  // Block
-  BLOCK_SUCCESS(HttpStatus.CREATED, "User blocked successfully."),
-  UNBLOCK_SUCCESS(HttpStatus.OK, "User unblocked successfully."),
-  BLOCK_LIST_SUCCESS(HttpStatus.OK, "Successfully retrieved blocked user list."),
 
   // Hide
   HIDE_FEED_SUCCESS(HttpStatus.OK, "Feed hidden successfully."),

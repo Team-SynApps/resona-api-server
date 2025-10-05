@@ -35,7 +35,12 @@ public enum MemberSuccessCode implements SuccessCode {
   GET_PROFILE_SUCCESS(HttpStatus.OK, "Successfully retrieved profile."),
   EDIT_PROFILE_SUCCESS(HttpStatus.OK, "Profile updated successfully."),
   DELETE_PROFILE_SUCCESS(HttpStatus.OK, "Profile deleted successfully."),
-  CHECK_TAG_DUPLICATE_SUCCESS(HttpStatus.OK, "Tag duplication check successful.");
+  CHECK_TAG_DUPLICATE_SUCCESS(HttpStatus.OK, "Tag duplication check successful."),
+
+  // Block
+  BLOCK_SUCCESS(HttpStatus.CREATED, "User blocked successfully."),
+  UNBLOCK_SUCCESS(HttpStatus.OK, "User unblocked successfully."),
+  BLOCK_LIST_SUCCESS(HttpStatus.OK, "Successfully retrieved blocked user list.");
 
 
   private final HttpStatus status;
