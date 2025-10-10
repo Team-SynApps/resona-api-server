@@ -1,0 +1,35 @@
+dependencies {
+    // Module Dependencies
+    implementation project(':core')
+    implementation project(':member')
+
+    // Spring Boot
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // QueryDSL
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+    // Database, Cache
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+    // OCI (Oracle Cloud Infrastructure)
+    implementation 'com.oracle.oci.sdk:oci-java-sdk-shaded-full'
+
+    // API Docs
+    implementation 'io.swagger.core.v3:swagger-annotations-jakarta:2.2.21'
+
+    // Test
+    testImplementation(testFixtures(project(":member")))
+    testImplementation(testFixtures(project(":core")))
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+//    testRuntimeOnly 'com.h2database:h2'
+}

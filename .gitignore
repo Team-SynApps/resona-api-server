@@ -1,58 +1,65 @@
-HELP.md
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+# =========================================
+# Gradle
+# =========================================
+.gradle/
+**/build/
 
-### environment
-.env
-.env-local
-.env-prod
-.env-test
 
-## private key ###
-src/main/resources/keys/resona-bucket-private-key.pem
+# =========================================
+# IDE & Editor Files
+# =========================================
+# IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
 
-## FCM ##
-src/main/resources/fcm-firebase.json
-
-### STS ###
-.apt_generated
+# STS & Eclipse
 .classpath
-.factorypath
 .project
-.settings
+.settings/
 .springBeans
 .sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
+.apt_generated
+.factorypath
 
-### IntelliJ IDEA ###
-.idea
-*.iws
-*.iml
-*.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-### NetBeans ###
+# NetBeans
 /nbproject/private/
 /nbbuild/
 /dist/
 /nbdist/
 /.nb-gradle/
 
-### VS Code ###
+# VS Code
 .vscode/
 
-### macOS ###
-# General
+
+# =========================================
+# Build Output & Logs
+# =========================================
+/bin/
+/out/
+/logs/
+
+
+# =========================================
+# Secrets & Environment Files (DO NOT COMMIT)
+# =========================================
+# Environment variables
+.env
+.env-local
+.env-prod
+.env-test
+
+# Private Keys
+core/src/main/resources/keys/resona-bucket-private-key.pem
+application/src/main/resources/fcm-firebase.json
+
+
+# =========================================
+# OS Specific Files
+# =========================================
+# macOS
 .DS_Store
 .AppleDouble
 .LSOverride
-
-## logs ##
-logs/
