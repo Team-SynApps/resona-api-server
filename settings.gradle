@@ -1,1 +1,8 @@
-rootProject.name = 'api'
+rootProject.name = 'resona-api-server'
+
+include 'application'
+include 'core'
+include 'member'
+include 'social-media'
+include 'chat'
+include 'notification'

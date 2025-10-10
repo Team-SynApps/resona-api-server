@@ -1,0 +1,80 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: ${MYSQL_LOCAL_DATABASE_URL}
+    username: ${MYSQL_LOCAL_USERNAME}
+    password: ${MYSQL_LOCAL_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        default_batch_fetch_size: 500
+        format_sql: true # 쿼리 추적용
+        use_sql_comments: true # 쿼리 추적용
+    open-in-view: false
+    show-sql: true # 쿼리 추적용
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+    mongodb:
+      uri: ${MONGODB_LOCAL_CONNECTION_STRING}
+  rabbitmq:
+    host: ${RABBIT_MQ_HOST}
+    port: ${RABBIT_MQ_PORT}
+    username: ${RABBIT_MQ_USERNAME}
+    password: ${RABBIT_MQ_PASSWORD}
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 20
+        queue-capacity: 50
+        keep-alive: 30s
+  security:
+    oauth2.client:
+      registration:
+        google:
+          clientId: ${GOOGLE_CLIENT_ID}
+          clientSecret: ${GOOGLE_CLIENT_SECRET}
+          scope:
+            - email
+            - profile
+        facebook:
+          clientId: ${FACEBOOK_CLIENT_ID}
+          clientSecret: ${FACEBOOK_CLIENT_SECRET}
+          scope:
+            - email
+            - public_profile
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME}
+    password: ${GMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          timeout: 5000
+          starttls:
+            enable: true
+oci:
+  config:
+    userId: ${OCI_BUCKET_USER_ID}
+    tenancyId: ${OCI_BUCKET_TENANCY_ID}
+    fingerprint: ${OCI_BUCKET_FINGERPRINT}
+    privateKeyPath: ${BUCKET_PRIVATE_KEY_PATH}
+    region: ${OCI_BUCKET_REGION}
+  storage:
+    bucketName: ${OCI_BUCKET_NAME}
+    compartmentId: ${OCI_BUCKET_COMPARTMENT_ID}
+    namespace: ${OCI_BUCKET_NAMESPACE}
+    region: ${OCI_BUCKET_REGION}
+    buffer-bucket-name: ${OCI_BUFFER_BUCKET_NAME}
+    disk-bucket-name: ${OCI_DISK_BUCKET_NAME}
+swagger:
+  server:
+    url: ${SWAGGER_SERVER_URL:http://localhost:8080/api/v1}
