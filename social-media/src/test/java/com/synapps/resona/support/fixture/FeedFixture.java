@@ -19,7 +19,11 @@ public class FeedFixture {
   public static final String DELETE_CONTENT = "삭제될 피드";
 
   public static LocationRequest createLocationRequest() {
-    return new LocationRequest(COORDINATE, ADDRESS, LOCATION_NAME);
+    String[] coords = COORDINATE.split(", ");
+    double latitude = Double.parseDouble(coords[0]);
+    double longitude = Double.parseDouble(coords[1]);
+    LocationRequest.GeoLocation location = new LocationRequest.GeoLocation(latitude, longitude);
+    return new LocationRequest("some-place-id", LOCATION_NAME, ADDRESS, location, "some-primary-type");
   }
 
   public static FeedRequest createFeedRequest() {
