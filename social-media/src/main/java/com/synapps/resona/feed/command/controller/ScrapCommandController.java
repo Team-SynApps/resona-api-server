@@ -5,7 +5,7 @@ import com.synapps.resona.code.SocialErrorCode;
 import com.synapps.resona.code.SocialSuccessCode;
 import com.synapps.resona.entity.AuthenticatedUser;
 import com.synapps.resona.feed.dto.ScrapResponse;
-import com.synapps.resona.feed.command.service.ScrapService;
+import com.synapps.resona.feed.command.service.ScrapCommandService;
 import com.synapps.resona.annotation.ApiErrorSpec;
 import com.synapps.resona.annotation.ApiSuccessResponse;
 import com.synapps.resona.annotation.ErrorCodeSpec;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ScrapCommandController {
 
-  private final ScrapService scrapService;
+  private final ScrapCommandService scrapCommandService;
   private final ServerInfoConfig serverInfo;
 
   private RequestInfo createRequestInfo(String path) {
@@ -50,7 +50,7 @@ public class ScrapCommandController {
   public ResponseEntity<SuccessResponse<ScrapResponse>> registerScrap(HttpServletRequest request,
       @Parameter(description = "스크랩할 피드의 ID", required = true) @PathVariable Long feedId,
       @AuthenticationPrincipal AuthenticatedUser member) {
-    ScrapResponse scrap = scrapService.scrapFeed(member.getMemberId(), feedId);
+    ScrapResponse scrap = scrapCommandService.scrapFeed(member.getMemberId(), feedId);
     return ResponseEntity
         .status(SocialSuccessCode.SCRAP_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.SCRAP_SUCCESS, createRequestInfo(request.getRequestURI()), scrap));
@@ -67,7 +67,7 @@ public class ScrapCommandController {
   public ResponseEntity<SuccessResponse<Void>> cancelScrap(HttpServletRequest request,
       @AuthenticationPrincipal AuthenticatedUser member,
       @Parameter(description = "취소할 스크랩의 ID", required = true) @PathVariable Long feedId) {
-    scrapService.unscrapFeed(member.getMemberId(), feedId);
+    scrapCommandService.unscrapFeed(member.getMemberId(), feedId);
     return ResponseEntity
         .status(SocialSuccessCode.CANCEL_SCRAP_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.CANCEL_SCRAP_SUCCESS, createRequestInfo(request.getRequestURI())));

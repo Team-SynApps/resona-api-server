@@ -24,6 +24,7 @@ public class CommentDto {
   private CommentDisplayStatus status;
   private List<MentionedMember> mentionedMembers;
   private List<ReplyDto> replies;
+  private String translatedContent;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime createdAt;
@@ -39,7 +40,7 @@ public class CommentDto {
    * @param processedReplies 필터링 및 가공이 완료된 대댓글 DTO 목록
    * @return 생성된 CommentDto 객체
    */
-  public static CommentDto from(CommentDocument document, CommentDisplayStatus status, String displayContent, List<ReplyDto> processedReplies) {
+  public static CommentDto from(CommentDocument document, CommentDisplayStatus status, String displayContent, String translatedContent, List<ReplyDto> processedReplies) {
     Author displayAuthor = (status == CommentDisplayStatus.NORMAL) ? document.getAuthor() : null;
     List<MentionedMember> displayMentions = (status == CommentDisplayStatus.NORMAL) ? document.getMentionedMembers() : Collections.emptyList();
 
@@ -53,6 +54,7 @@ public class CommentDto {
         .status(status)
         .mentionedMembers(displayMentions)
         .replies(processedReplies)
+        .translatedContent(translatedContent)
         .createdAt(document.getCreatedAt())
         .modifiedAt(document.getModifiedAt())
         .build();

@@ -6,14 +6,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.synapps.resona.dto.MemberDto;
-import com.synapps.resona.dto.request.auth.RegisterRequest;
 import com.synapps.resona.dto.request.profile.ProfileRequest;
-import com.synapps.resona.dto.response.MemberRegisterResponseDto;
 import com.synapps.resona.dto.response.ProfileResponse;
 import com.synapps.resona.entity.member.Member;
 import com.synapps.resona.entity.member.UserPrincipal;
-import com.synapps.resona.exception.ProfileException;
-import com.synapps.resona.fixture.MemberFixture;
+import fixture.MemberFixture;
 import com.synapps.resona.repository.member.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

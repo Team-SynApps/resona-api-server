@@ -34,8 +34,15 @@ public record FeedCreatedEvent(
   ) {}
 
   public record LocationInfo(
-      String coordinate,
-      String address,
-      String locationName
-  ) {}
+      String placeId,
+      String displayName,
+      String formattedAddress,
+      GeoLocation location,
+      String primaryType
+  ) {
+    public record GeoLocation(
+        double latitude,
+        double longitude
+    ) {}
+  }
 }

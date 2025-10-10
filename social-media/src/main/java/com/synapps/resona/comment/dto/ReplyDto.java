@@ -21,6 +21,7 @@ public class ReplyDto {
   private long likeCount;
   private CommentDisplayStatus status;
   private List<MentionedMember> mentionedMembers;
+  private String translatedContent;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime createdAt;
@@ -35,7 +36,7 @@ public class ReplyDto {
    * @param displayContent 상태에 따라 가공된 최종 표시 내용
    * @return 생성된 ReplyDto 객체
    */
-  public static ReplyDto from(ReplyEmbed embed, CommentDisplayStatus status, String displayContent) {
+  public static ReplyDto from(ReplyEmbed embed, CommentDisplayStatus status, String displayContent, String translatedContent) {
     // 상태가 NORMAL이 아니면 개인정보 보호를 위해 작성자 정보를 null 처리
     Author displayAuthor = (status == CommentDisplayStatus.NORMAL) ? embed.getAuthor() : null;
     List<MentionedMember> displayMentions = (status == CommentDisplayStatus.NORMAL) ? embed.getMentionedMembers() : Collections.emptyList();
@@ -47,6 +48,7 @@ public class ReplyDto {
         .likeCount(embed.getLikeCount())
         .status(status)
         .mentionedMembers(displayMentions)
+        .translatedContent(translatedContent)
         .createdAt(embed.getCreatedAt())
         .modifiedAt(embed.getModifiedAt())
         .build();

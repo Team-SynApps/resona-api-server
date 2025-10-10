@@ -51,7 +51,7 @@ public class ReportCommandController {
   @Operation(summary = "피드 신고", description = "특정 피드를 신고합니다. (인증 필요)")
   @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "REPORT_FEED_SUCCESS"))
   @ApiErrorSpec({
-      @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"FEED_NOT_FOUND", "REPORT_ALREADY_EXIST"}),
+      @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"FEED_NOT_FOUND", "ALREADY_REPORTED"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @PostMapping("/feed/{feedId}")
@@ -69,7 +69,7 @@ public class ReportCommandController {
   @Operation(summary = "댓글 신고", description = "특정 댓글을 신고합니다. (인증 필요)")
   @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "REPORT_COMMENT_SUCCESS"))
   @ApiErrorSpec({
-      @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"COMMENT_NOT_FOUND", "REPORT_ALREADY_EXIST"}),
+      @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"COMMENT_NOT_FOUND", "ALREADY_REPORTED"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @PostMapping("/comment/{commentId}")
@@ -87,7 +87,7 @@ public class ReportCommandController {
   @Operation(summary = "대댓글 신고", description = "특정 대댓글을 신고합니다. (인증 필요)")
   @ApiSuccessResponse(@SuccessCodeSpec(enumClass = SocialSuccessCode.class, code = "REPORT_REPLY_SUCCESS"))
   @ApiErrorSpec({
-      @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"REPLY_NOT_FOUND", "REPORT_ALREADY_EXIST"}),
+      @ErrorCodeSpec(enumClass = SocialErrorCode.class, codes = {"REPLY_NOT_FOUND", "ALREADY_REPORTED"}),
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @PostMapping("/reply/{replyId}")

@@ -3,6 +3,7 @@ package com.synapps.resona.retrieval.service;
 import com.synapps.resona.common.entity.Author;
 import com.synapps.resona.common.entity.Translation;
 import com.synapps.resona.entity.Language;
+import com.synapps.resona.feed.event.FeedTranslationUpdatedEvent;
 import com.synapps.resona.query.member.entity.MemberStateDocument;
 import com.synapps.resona.query.member.service.MemberStateService;
 import com.synapps.resona.retrieval.dto.FeedDto;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,7 @@ public class FeedQueryHelper {
   private final RedisTemplate<String, String> redisTemplate;
   private final MemberStateService memberStateService;
   private final TranslationService translationService;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   /**
    * Cache-Aside -> 숨김 처리된 피드 ID 목록 조회
@@ -67,14 +70,16 @@ public class FeedQueryHelper {
 
   public FeedDto translateAndConvertToDto(FeedDocument doc, Language targetLanguage) {
     String translatedContent = doc.getTranslations().stream()
-        .filter(t -> t.getLanguageCode().equals(targetLanguage.getCode()))
+        .filter(t -> t.languageCode().equals(targetLanguage.getCode()))
         .findFirst()
-        .map(Translation::getContent)
+        .map(Translation::content)
         .orElseGet(() -> {
           if (doc.getLanguage().equals(targetLanguage)) {
             return doc.getContent();
           }
-          return translationService.translateForRealTime(doc.getContent(), doc.getLanguage(), targetLanguage);
+          String translatedContext = translationService.translateForRealTime(doc.getContent(), doc.getLanguage(), targetLanguage);
+          applicationEventPublisher.publishEvent(new FeedTranslationUpdatedEvent(doc.getFeedId(), translatedContext, targetLanguage));
+          return translatedContext;
         });
 
     return toDto(doc, translatedContent);
@@ -93,9 +98,11 @@ public class FeedQueryHelper {
         .collect(Collectors.toList());
 
     LocationEmbed locationDto = doc.getLocation() != null ? LocationEmbed.of(
-        doc.getLocation().getCoordinate(),
-        doc.getLocation().getAddress(),
-        doc.getLocation().getLocationName()
+        doc.getLocation().getPlaceId(),
+        doc.getLocation().getDisplayName(),
+        doc.getLocation().getFormattedAddress(),
+        doc.getLocation().getLocation(),
+        doc.getLocation().getPrimaryType()
     ) : null;
 
     return new FeedDto(

@@ -2,7 +2,7 @@ package com.synapps.resona.report.command.service;
 
 import com.synapps.resona.entity.member.Member;
 import com.synapps.resona.feed.command.entity.Feed;
-import com.synapps.resona.feed.command.service.FeedService;
+import com.synapps.resona.feed.command.service.FeedCommandService;
 import com.synapps.resona.query.member.event.MemberBlockedEvent;
 import com.synapps.resona.report.command.entity.FeedReport;
 import com.synapps.resona.report.command.repository.FeedReportRepository;
@@ -21,13 +21,13 @@ public class FeedReportService {
 
   private final FeedReportRepository feedReportRepository;
   private final MemberService memberService;
-  private final FeedService feedService;
+  private final FeedCommandService feedCommandService;
   private final ApplicationEventPublisher eventPublisher;
 
   @Transactional
   public void reportFeed(Long reporterId, Long feedId, ReportCategory category, boolean isBlocked) {
     Member reporter = memberService.getMember(reporterId);
-    Feed feed = feedService.getFeed(feedId);
+    Feed feed = feedCommandService.getFeed(feedId);
     Member reported = feed.getMember();
 
     if (feedReportRepository.existsByReporterAndFeed(reporter, feed)) {

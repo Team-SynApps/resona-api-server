@@ -1,0 +1,126 @@
+spring:
+  config:
+    activate:
+      on-profile: test
+#
+#  datasource:
+#    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+#        dialect: org.hibernate.dialect.H2Dialect
+      defer-datasource-initialization: true
+    show-sql: true
+    open-in-view: false
+
+#  data:
+#    redis:
+#      host: localhost
+#      port: 6379
+#    mongodb:
+#      uri: mongodb://localhost/test
+  #      host: localhost
+#      port: 27017
+#      authentication-database: test
+#      username: test-user
+#      password: test-password
+
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 4
+        queue-capacity: 10
+        keep-alive: 10s
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            clientId: ${GOOGLE_CLIENT_ID:"dummy-google-client-id-for-test"}
+            clientSecret: ${GOOGLE_CLIENT_SECRET:"dummy-google-client-secret-for-test"}
+          facebook:
+            clientId: ${FACEBOOK_CLIENT_ID:"dummy-facebook-client-id-for-test"}
+            clientSecret: ${FACEBOOK_CLIENT_SECRET:"dummy-facebook-client-secret-for-test"}
+
+  mail:
+    host: localhost
+    port: 25
+    username: ${GMAIL_USERNAME:"dummy"}
+    password: ${GMAIL_PASSWORD:"dummy"}
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api/v1
+  name: resona
+
+api:
+  version: v1
+
+jwt:
+  secret: ${JWT_SECRET:"dummy-jwt-secret-for-integration-tests-that-is-long-enough"}
+
+oauth:
+  apple:
+    iss: https://appleid.apple.com
+    client-id: ${APPLE_CLIENT_ID:"com.dummy.test.client.id"}
+    nonce: ${APPLE_NONCE:"dummy-nonce-value-for-testing"}
+  redirect-scheme: redirect-uri
+
+app:
+  auth:
+    tokenSecret: ${AUTH_TOKEN_SECRET:"dummy-app-auth-token-secret-for-integration-tests"}
+    tokenExpiry: 1800000
+    refreshTokenExpiry: 604800000
+  oauth2:
+    authorizedRedirectUris:
+      - https://localhost:3000/oauth/redirect
+
+fcm:
+  path: "/dev/null" # 실제 파일 경로가 아니므로 FCM 초기화 방지
+
+oci:
+  config:
+    userId: ${OCI_BUCKET_USER_ID}
+    tenancyId: ${OCI_BUCKET_TENANCY_ID}
+    fingerprint: ${OCI_BUCKET_FINGERPRINT}
+    privateKeyPath: ${BUCKET_PRIVATE_KEY_PATH}
+    region: ${OCI_BUCKET_REGION}
+  storage:
+    bucketName: ${OCI_BUCKET_NAME}
+    compartmentId: ${OCI_BUCKET_COMPARTMENT_ID}
+    namespace: ${OCI_BUCKET_NAMESPACE}
+    region: ${OCI_BUCKET_REGION}
+    buffer-bucket-name: ${OCI_BUFFER_BUCKET_NAME}
+    disk-bucket-name: ${OCI_DISK_BUCKET_NAME}
+
+cors:
+  allowed-origins: "http://localhost:3000"
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: '*'
+  max-age: 3600
+
+swagger:
+  server:
+    url: http://localhost:8080/api/v1
+
+discord:
+  webhook:
+    report: "dummy-report-url"
+    deploy: "dummy-deploy-url"
+
+redis:
+  ttl:
+    personalTimeline: 30
+    publicTimeline: 7
+    seenFeeds: 7
+    unit: DAYS

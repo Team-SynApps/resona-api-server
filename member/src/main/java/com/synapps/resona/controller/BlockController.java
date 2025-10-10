@@ -78,21 +78,21 @@ public class BlockController {
         .body(SuccessResponse.of(MemberSuccessCode.UNBLOCK_SUCCESS,
             createRequestInfo(request.getRequestURI())));
   }
-
-  @Operation(summary = "차단한 사용자 조회", description = "차단한 사용자를 조회할 수 있습니다. (인증 필요)")
-  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = MemberSuccessCode.class, code = "BLOCK_LIST_SUCCESS"))
-  @ApiErrorSpec({
-      @ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"MEMBER_NOT_FOUND"}),
-      @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
-  })
-  @GetMapping("/member/my-blocks")
-  public ResponseEntity<SuccessResponse<List<BlockedMemberResponse>>> readBlockedMembers(HttpServletRequest request,
-      @AuthenticationPrincipal UserPrincipal userPrincipal) {
-    MemberDto memberDto = MemberDto.from(userPrincipal);
-    List<BlockedMemberResponse> response = blockService.getBlockedMembers(memberDto);
-    return ResponseEntity
-        .status(MemberSuccessCode.BLOCK_LIST_SUCCESS.getStatus())
-        .body(SuccessResponse.of(MemberSuccessCode.BLOCK_LIST_SUCCESS,
-            createRequestInfo(request.getRequestURI()), response));
-  }
+//
+//  @Operation(summary = "차단한 사용자 조회", description = "차단한 사용자를 조회할 수 있습니다. (인증 필요)")
+//  @ApiSuccessResponse(@SuccessCodeSpec(enumClass = MemberSuccessCode.class, code = "BLOCK_LIST_SUCCESS"))
+//  @ApiErrorSpec({
+//      @ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"MEMBER_NOT_FOUND"}),
+//      @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
+//  })
+//  @GetMapping("/member/my-blocks")
+//  public ResponseEntity<SuccessResponse<List<BlockedMemberResponse>>> readBlockedMembers(HttpServletRequest request,
+//      @AuthenticationPrincipal UserPrincipal userPrincipal) {
+//    MemberDto memberDto = MemberDto.from(userPrincipal);
+//    List<BlockedMemberResponse> response = blockService.getBlockedMembers(memberDto);
+//    return ResponseEntity
+//        .status(MemberSuccessCode.BLOCK_LIST_SUCCESS.getStatus())
+//        .body(SuccessResponse.of(MemberSuccessCode.BLOCK_LIST_SUCCESS,
+//            createRequestInfo(request.getRequestURI()), response));
+//  }
 }

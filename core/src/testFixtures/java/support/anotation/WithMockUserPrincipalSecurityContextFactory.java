@@ -1,5 +1,8 @@
 package support.anotation;
 
+import com.synapps.resona.entity.account.ProviderType;
+import com.synapps.resona.entity.account.RoleType;
+import com.synapps.resona.entity.member.UserPrincipal;
 import java.util.Collections;
 import java.util.List;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,20 +20,20 @@ public class WithMockUserPrincipalSecurityContextFactory implements
     SecurityContext context = SecurityContextHolder.createEmptyContext();
 
     List<GrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + annotation.role()));
-//
-//    UserPrincipal principal = new UserPrincipal(
-//        annotation.memberId(),
-//        annotation.email(),
-//        "password",
-//        ProviderType.LOCAL,
-//        RoleType.valueOf(annotation.role()),
-//        authorities
-//    );
-//
-//    UsernamePasswordAuthenticationToken authenticationToken =
-//        new UsernamePasswordAuthenticationToken(principal, "password", authorities);
 
-//    context.setAuthentication(authenticationToken);
+    UserPrincipal principal = new UserPrincipal(
+        annotation.memberId(),
+        annotation.email(),
+        "password",
+        ProviderType.LOCAL,
+        RoleType.valueOf(annotation.role()),
+        authorities
+    );
+
+    UsernamePasswordAuthenticationToken authenticationToken =
+        new UsernamePasswordAuthenticationToken(principal, "password", authorities);
+
+    context.setAuthentication(authenticationToken);
     return context;
   }
 }

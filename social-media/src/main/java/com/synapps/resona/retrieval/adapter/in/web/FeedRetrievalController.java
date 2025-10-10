@@ -63,7 +63,7 @@ public class FeedRetrievalController {
         );
 
         return ResponseEntity.status(SocialSuccessCode.GET_FEEDS_SUCCESS.getStatus())
-            .body(SuccessResponse.of(SocialSuccessCode.GET_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), result));
+            .body(SuccessResponse.of(SocialSuccessCode.GET_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), result, cursor, size, result.isHasNext()));
     }
 
     @Operation(summary = "탐색 피드 조회 (국가/카테고리별 최신 피드)")
@@ -88,7 +88,7 @@ public class FeedRetrievalController {
         );
 
         return ResponseEntity.status(SocialSuccessCode.GET_FEEDS_SUCCESS.getStatus())
-            .body(SuccessResponse.of(SocialSuccessCode.GET_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), result));
+            .body(SuccessResponse.of(SocialSuccessCode.GET_FEEDS_SUCCESS, createRequestInfo(request.getRequestURI()), result, cursor, size, result.isHasNext()));
     }
 
     @Operation(summary = "내 피드 목록 조회 (오프셋 기반 페이지네이션)")

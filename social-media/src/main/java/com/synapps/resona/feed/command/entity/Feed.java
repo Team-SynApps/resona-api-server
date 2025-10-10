@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AccessLevel;
@@ -66,6 +67,10 @@ public class Feed extends BaseEntity {
   @Column(name = "category")
   private FeedCategory category;
 
+  @OneToOne
+  @JoinColumn(name = "location_id")
+  private Location location;
+
   @Column(name = "like_count")
   private long likeCount = 0L;
 
@@ -81,6 +86,10 @@ public class Feed extends BaseEntity {
 
   public static Feed of(Member member, String content, String category, String languageCode) {
     return new Feed(member, content, category, languageCode);
+  }
+
+  public void addLocation(Location location) {
+    this.location = location;
   }
 
   public void updateContent(String content) {

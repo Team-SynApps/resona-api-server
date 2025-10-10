@@ -21,7 +21,7 @@ import com.synapps.resona.dto.response.MemberInfoDto;
 import com.synapps.resona.dto.response.MemberRegisterResponseDto;
 import com.synapps.resona.dto.response.TokenResponse;
 import com.synapps.resona.entity.token.AuthToken;
-import com.synapps.resona.fixture.MemberFixture; // Fixture 임포트
+import fixture.MemberFixture; // Fixture 임포트
 import com.synapps.resona.config.server.ServerInfoConfig;
 import com.synapps.resona.service.AuthService;
 import com.synapps.resona.service.MemberService;

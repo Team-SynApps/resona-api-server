@@ -21,7 +21,7 @@ import com.synapps.resona.common.entity.Author;
 import com.synapps.resona.entity.Language;
 import com.synapps.resona.entity.member.Member;
 import com.synapps.resona.feed.command.entity.Feed;
-import com.synapps.resona.feed.command.service.FeedService;
+import com.synapps.resona.feed.command.service.FeedCommandService;
 import com.synapps.resona.service.MemberService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +39,7 @@ public class CommentCommandService {
   private final CommentLikesRepository commentLikesRepository;
 
   private final MemberService memberService;
-  private final FeedService feedService;
+  private final FeedCommandService feedCommandService;
   private final MentionService mentionService;
   private final ApplicationEventPublisher eventPublisher;
   private final ReplyLikesRepository replyLikesRepository;
@@ -47,7 +47,7 @@ public class CommentCommandService {
   @Transactional
   public void createComment(Long memberId, CommentRequest request) {
     Member member = memberService.getMemberWithProfile(memberId);
-    Feed feed = feedService.getFeed(request.getFeedId());
+    Feed feed = feedCommandService.getFeed(request.getFeedId());
 
     Comment comment = Comment.of(feed, member, request.getLanguageCode(), request.getContent());
     commentRepository.save(comment);
@@ -65,6 +65,7 @@ public class CommentCommandService {
         comment.getCreatedAt(),
         mentionedMembers
         );
+
     eventPublisher.publishEvent(event);
   }
 
@@ -87,6 +88,7 @@ public class CommentCommandService {
         request.getContent(),
         mentionedMembers
         );
+
     eventPublisher.publishEvent(new ReplyCreatedEvent(request.getCommentId(), replyEmbed));
   }
 

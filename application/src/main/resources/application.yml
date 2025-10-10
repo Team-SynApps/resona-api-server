@@ -110,3 +110,7 @@ redis:
     public-timeline: 7       # 공용 타임라인 TTL (7일)
     seen-feeds: 7            # '최근 본 게시물' 목록 TTL (7일)
     unit: DAYS             # 시간 단위를 변경하고 싶을 때 사용 (예: HOURS, MINUTES)
+
+translation:
+  api:
+    url: ${TRANSLATION_API_URL}

@@ -60,8 +60,27 @@ public class CommentDocument extends BaseDocument {
     this.translations = new ArrayList<>();
   }
 
+  private CommentDocument(Long commentId, Long feedId, Author author, Language language,
+      String content, List<MentionedMember> mentionedMembers, List<Translation> translations) {
+    this.commentId = commentId;
+    this.feedId = feedId;
+    this.author = author;
+    this.language = language;
+    this.content = content;
+    this.mentionedMembers = (mentionedMembers != null) ? mentionedMembers : new ArrayList<>();
+    this.likeCount = 0;
+    this.replyCount = 0;
+    this.replies = new ArrayList<>();
+    this.translations = translations;
+  }
+
   public static CommentDocument of(Long commentId, Long feedId, Author author, Language language,
       String content, List<MentionedMember> mentionedMembers) {
     return new CommentDocument(commentId, feedId, author, language, content, mentionedMembers);
+  }
+
+  public static CommentDocument of(Long commentId, Long feedId, Author author, Language language,
+      String content, List<MentionedMember> mentionedMembers, List<Translation> translations) {
+    return new CommentDocument(commentId, feedId, author, language, content, mentionedMembers, translations);
   }
 }

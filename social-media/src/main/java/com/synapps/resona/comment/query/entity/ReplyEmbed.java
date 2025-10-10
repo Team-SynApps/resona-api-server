@@ -44,4 +44,8 @@ public class ReplyEmbed {
       List<MentionedMember> mentionedMembers) {
     return new ReplyEmbed(replyId, author, language, content, mentionedMembers);
   }
+
+  public void addTranslations(List<Translation> translations) {
+    this.translations.addAll(translations);
+  }
 }

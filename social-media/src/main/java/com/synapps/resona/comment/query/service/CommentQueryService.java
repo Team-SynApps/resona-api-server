@@ -3,12 +3,19 @@ package com.synapps.resona.comment.query.service;
 import com.synapps.resona.comment.command.entity.CommentDisplayStatus;
 import com.synapps.resona.comment.dto.CommentDto;
 import com.synapps.resona.comment.dto.ReplyDto;
+import com.synapps.resona.comment.event.CommentTranslationUpdatedEvent;
+import com.synapps.resona.comment.event.ReplyTranslationUpdatedEvent;
 import com.synapps.resona.comment.query.entity.CommentDocument;
+import com.synapps.resona.comment.query.entity.ReplyEmbed;
 import com.synapps.resona.comment.query.repository.CommentDocumentRepository;
+import com.synapps.resona.common.entity.Translation;
+import com.synapps.resona.entity.Language;
 import com.synapps.resona.query.member.service.MemberStateService;
+import com.synapps.resona.translation.service.TranslationService;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -22,8 +29,12 @@ public class CommentQueryService {
   private final CommentDocumentRepository commentDocumentRepository;
   private final MemberStateService memberStateService;
   private final CommentStatusCalculator statusCalculator;
+  private final TranslationService translationService;
 
-  public Page<CommentDto> getCommentsForFeed(Long feedId, Long viewerId, Pageable pageable) {
+  private final ApplicationEventPublisher applicationEventPublisher;
+
+
+  public Page<CommentDto> getCommentsForFeed(Long feedId, Long viewerId, Language targetLanguage, Pageable pageable) {
     ViewerContext viewerContext = new ViewerContext(
         viewerId,
         memberStateService.getHiddenCommentIds(viewerId),
@@ -33,21 +44,51 @@ public class CommentQueryService {
 
     Page<CommentDocument> commentPage = commentDocumentRepository.findByFeedIdOrderByCreatedAtDesc(feedId, pageable);
 
-    return commentPage.map(comment -> toCommentDto(comment, viewerContext));
+    return commentPage.map(comment -> toCommentDto(comment, viewerContext, targetLanguage));
   }
 
-  private CommentDto toCommentDto(CommentDocument comment, ViewerContext context) {
+  private CommentDto toCommentDto(CommentDocument comment, ViewerContext context, Language targetLanguage) {
     CommentDisplayStatus commentStatus = statusCalculator.determineCommentStatus(comment, context);
-    String displayContent = statusCalculator.getDisplayContent(comment.getContent(), commentStatus);
+
+    String translatedCommentContent = comment.getTranslations().stream()
+        .filter(t -> t.languageCode().equals(targetLanguage.getCode()))
+        .findFirst()
+        .map(Translation::content)
+        .orElseGet(() -> {
+          if (comment.getLanguage().equals(targetLanguage)) {
+            return comment.getContent();
+          }
+          String translatedContent = translationService.translateForRealTime(comment.getContent(), comment.getLanguage(), targetLanguage);
+          applicationEventPublisher.publishEvent(new CommentTranslationUpdatedEvent(comment.getCommentId(), translatedContent, targetLanguage));
+          return translatedContent;
+        });
+
+    String displayContent = statusCalculator.getDisplayContent(translatedCommentContent, commentStatus);
 
     List<ReplyDto> replyDtos = comment.getReplies().stream()
-        .map(reply -> {
-          CommentDisplayStatus replyStatus = statusCalculator.determineReplyStatus(reply, context);
-          String replyContent = statusCalculator.getDisplayContent(reply.getContent(), replyStatus);
-          return ReplyDto.from(reply, replyStatus, replyContent);
-        })
+        .map(reply -> toReplyDto(reply, comment, context, targetLanguage))
         .collect(Collectors.toList());
 
-    return CommentDto.from(comment, commentStatus, displayContent, replyDtos);
+    return CommentDto.from(comment, commentStatus, displayContent, translatedCommentContent, replyDtos);
+  }
+
+  private ReplyDto toReplyDto(ReplyEmbed reply, CommentDocument comment, ViewerContext context, Language targetLanguage) {
+    CommentDisplayStatus replyStatus = statusCalculator.determineReplyStatus(reply, context);
+
+    String translatedReplyContent = reply.getTranslations().stream()
+        .filter(t -> t.languageCode().equals(targetLanguage.getCode()))
+        .findFirst()
+        .map(Translation::content)
+        .orElseGet(() -> {
+          if (reply.getLanguage().equals(targetLanguage)) {
+            return reply.getContent();
+          }
+          String translatedContent = translationService.translateForRealTime(reply.getContent(), reply.getLanguage(), targetLanguage);
+          applicationEventPublisher.publishEvent(new ReplyTranslationUpdatedEvent(comment.getCommentId(), reply.getReplyId(), translatedContent, targetLanguage));
+          return translatedContent;
+        });
+
+    String replyContent = statusCalculator.getDisplayContent(translatedReplyContent, replyStatus);
+    return ReplyDto.from(reply, replyStatus, replyContent, translatedReplyContent);
   }
 }

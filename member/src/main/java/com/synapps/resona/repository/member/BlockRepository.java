@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 @MySQLRepository
-public interface BlockRepository extends JpaRepository<Block, Long> , BlockRepositoryCustom {
+public interface BlockRepository extends JpaRepository<Block, Long> {
 
   boolean existsByBlockerAndBlocked(Member blocker, Member blocked);
 

@@ -11,7 +11,7 @@ import com.synapps.resona.config.server.ServerInfoConfig;
 import com.synapps.resona.dto.RequestInfo;
 import com.synapps.resona.dto.response.SuccessResponse;
 import com.synapps.resona.entity.AuthenticatedUser;
-import com.synapps.resona.feed.command.service.FeedLikesService;
+import com.synapps.resona.feed.command.service.FeedCommandLikesService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class FeedLikeCommandController {
 
-  private final FeedLikesService feedLikesService;
+  private final FeedCommandLikesService feedCommandLikesService;
   private final ServerInfoConfig serverInfo;
 
   private RequestInfo createRequestInfo(String path) {
@@ -49,7 +49,7 @@ public class FeedLikeCommandController {
       HttpServletRequest request,
       @Parameter(description = "좋아요를 누를 피드의 ID", required = true) @PathVariable Long feedId,
       @AuthenticationPrincipal AuthenticatedUser user) {
-    feedLikesService.likeFeed(user.getMemberId(), feedId);
+    feedCommandLikesService.likeFeed(user.getMemberId(), feedId);
     return ResponseEntity
         .status(SocialSuccessCode.LIKE_FEED_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.LIKE_FEED_SUCCESS, createRequestInfo(request.getRequestURI())));
@@ -66,7 +66,7 @@ public class FeedLikeCommandController {
       HttpServletRequest request,
       @Parameter(description = "좋아요를 취소할 피드의 ID", required = true) @PathVariable Long feedId,
       @AuthenticationPrincipal AuthenticatedUser user) {
-    feedLikesService.unlikeFeed(user.getMemberId(), feedId);
+    feedCommandLikesService.unlikeFeed(user.getMemberId(), feedId);
     return ResponseEntity
         .status(SocialSuccessCode.UNLIKE_FEED_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.UNLIKE_FEED_SUCCESS, createRequestInfo(request.getRequestURI())));

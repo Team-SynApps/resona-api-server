@@ -78,16 +78,6 @@ public class FeedDocument extends BaseDocument {
         translations);
   }
 
-  // TODO: 도메인에 함수 제거, 쿼리를 따로 작성하는 것을 추천 -> 원자성 보장
-  public void addTranslation(Translation translation) {
-    translations.add(translation);
-  }
-
-  // TODO: 도메인에 함수 제거, 쿼리를 따로 작성하는 것을 추천 -> 원자성 보장
-  public void updateContent(String content) {
-    this.content = content;
-  }
-
   @Getter
   public static class MediaEmbed {
     private MediaType mediaType;
@@ -107,18 +97,37 @@ public class FeedDocument extends BaseDocument {
 
   @Getter
   public static class LocationEmbed {
-    private String coordinate;
-    private String address;
-    private String locationName;
+    private String placeId;
+    private String displayName;
+    private String formattedAddress;
+    private GeoLocation location;
+    private String primaryType;
 
-    private LocationEmbed(String coordinate, String address, String locationName) {
-      this.coordinate = coordinate;
-      this.address = address;
-      this.locationName = locationName;
+    @Getter
+    public static class GeoLocation {
+        private double latitude;
+        private double longitude;
+
+        private GeoLocation(double latitude, double longitude) {
+            this.latitude = latitude;
+            this.longitude = longitude;
+        }
+
+        public static GeoLocation of(double latitude, double longitude) {
+            return new GeoLocation(latitude, longitude);
+        }
     }
 
-    public static LocationEmbed of(String coordinate, String address, String locationName) {
-      return new LocationEmbed(coordinate, address, locationName);
+    private LocationEmbed(String placeId, String displayName, String formattedAddress, GeoLocation location, String primaryType) {
+        this.placeId = placeId;
+        this.displayName = displayName;
+        this.formattedAddress = formattedAddress;
+        this.location = location;
+        this.primaryType = primaryType;
+    }
+
+    public static LocationEmbed of(String placeId, String displayName, String formattedAddress, GeoLocation location, String primaryType) {
+        return new LocationEmbed(placeId, displayName, formattedAddress, location, primaryType);
     }
   }
 }

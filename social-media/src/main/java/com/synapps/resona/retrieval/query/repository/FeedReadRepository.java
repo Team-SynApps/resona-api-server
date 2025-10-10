@@ -29,6 +29,9 @@ public interface FeedReadRepository extends MongoRepository<FeedDocument, Object
 
   Page<FeedDocument> findByFeedIdInOrderByCreatedAtDesc(Set<Long> feedIds, Pageable pageable);
 
-  List<FeedDocument> findByAuthor_CountryOfResidenceOrderByCreatedAtDesc(CountryCode countryOfResidence, Pageable pageable);
-  List<FeedDocument> findByAuthor_CountryOfResidenceAndCategoryOrderByCreatedAtDesc(CountryCode countryOfResidence, FeedCategory category, Pageable pageable);
+  @Query("{ 'author.countryOfResidence' : ?0 }")
+  List<FeedDocument> findByCountry(CountryCode countryOfResidence, Pageable pageable);
+
+  @Query("{ 'author.countryOfResidence' : ?0, 'category' : ?1 }")
+  List<FeedDocument> findByCountryAndCategory(CountryCode countryOfResidence, FeedCategory category, Pageable pageable);
 }

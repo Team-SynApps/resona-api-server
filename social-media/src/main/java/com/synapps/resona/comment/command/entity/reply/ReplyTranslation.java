@@ -38,10 +38,14 @@ public class ReplyTranslation extends BaseEntity {
   @Column(name = "content")
   private String content;
 
-  private ReplyTranslation(Reply reply, String languageCode, String content) {
+  private ReplyTranslation(Reply reply, Language language, String content) {
     this.reply = reply;
-    this.language = Language.fromCode(languageCode);
+    this.language = language;
     this.content = content;
+  }
+
+  public static ReplyTranslation of(Reply reply, Language language, String content) {
+    return new ReplyTranslation(reply, language, content);
   }
 
   // TODO: 생성시, 작성된 content가 LanguageCode와 일치하는지 확인할 검증 메서드가 추가되면 좋을 것 같음. Lingua 참고

@@ -10,6 +10,7 @@ import com.synapps.resona.properties.RedisTtlProperties;
 import com.synapps.resona.retrieval.dto.FeedDto;
 import com.synapps.resona.retrieval.query.entity.FeedDocument;
 import com.synapps.resona.retrieval.query.repository.FeedReadRepository;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -111,50 +111,87 @@ public class FeedTimelineService {
   private CursorResult<FeedDto> getFeedsFromTimeline(Long memberId, Language targetLanguage, String cursor, int size, String timelineKey, FeedCategory category) {
     // 개인화 타임라인 콜드 스타트
     Long timelineSize = redisTemplate.opsForZSet().zCard(timelineKey);
-    if (timelineKey.startsWith("timeline:" + memberId) && cursor == null && (timelineSize == null || timelineSize == 0)) {
+    if (timelineKey.startsWith("timeline:" + memberId) && (timelineSize == null || timelineSize == 0)) {
       return getFallbackFeeds(memberId, targetLanguage, size, category);
     }
 
-    final int BATCH_MULTIPLIER = 5; // 요청한 size의 5배수만큼 후보를 가져옴 -> 필터링되어 오기 때문
+    final int BATCH_MULTIPLIER = 5;
     final int candidateSize = size * BATCH_MULTIPLIER;
 
-    double maxScore = (cursor != null) ? Double.parseDouble(cursor) : Double.POSITIVE_INFINITY;
+    double maxScore = Double.POSITIVE_INFINITY;
+    Long lastFeedId = null;
+
+    if (cursor != null && !cursor.isEmpty()) {
+      String[] parts = cursor.split(":");
+      if (parts.length == 2) {
+        maxScore = Double.parseDouble(parts[0]);
+        lastFeedId = Long.parseLong(parts[1]);
+      }
+    }
 
     // Redis에서 데이터 조회
+    log.info("Requesting timeline with maxScore: {}, lastFeedId: {}", maxScore, lastFeedId);
     Set<TypedTuple<String>> candidateTuples = redisTemplate.opsForZSet()
         .reverseRangeByScoreWithScores(timelineKey, Double.NEGATIVE_INFINITY, maxScore, 0, candidateSize);
 
     // 공용 타임라인 폴백 로직
     if ((candidateTuples == null || candidateTuples.isEmpty())) {
-      // 첫 페이지 요청이고, 조회하려던 것이 '공용 타임라인'이었을 경우
+      log.info("DEBUG: No candidates found from Redis for maxScore: {}", maxScore);
       if (cursor == null && !timelineKey.startsWith("timeline:" + memberId)) {
-
-        // 더 넓은 범위의 타임라인을 찾아서 대신 조회
         String fallbackKey = findNextFallbackKey(timelineKey);
         if (fallbackKey != null) {
           log.warn("Timeline '{}' is empty. Falling back to '{}'", timelineKey, fallbackKey);
           return getFeedsFromTimeline(memberId, targetLanguage, cursor, size, fallbackKey, category);
         }
       }
-      // fallback 할 곳이 없거나, 개인 타임라인이 비어있는 경우는 그냥 빈 결과 반환
       return new CursorResult<>(Collections.emptyList(), false, null);
     }
+    log.info("DEBUG: Found {} candidates from Redis.", candidateTuples.size());
+
+    // 커서 계산
+    List<TypedTuple<String>> candidatesAfterCursor = new ArrayList<>();
+    if (lastFeedId != null) {
+      boolean foundCursorPosition = false;
+      BigDecimal maxScoreDecimal = new BigDecimal(String.valueOf(maxScore));
+
+      for (TypedTuple<String> tuple : candidateTuples) {
+        if (foundCursorPosition) {
+          candidatesAfterCursor.add(tuple);
+          continue;
+        }
+
+        BigDecimal tupleScoreDecimal = new BigDecimal(Objects.requireNonNull(tuple.getScore()).toString());
+
+        if (tupleScoreDecimal.compareTo(maxScoreDecimal) == 0 &&
+            Objects.equals(tuple.getValue(), String.valueOf(lastFeedId))) {
+          foundCursorPosition = true;
+        }
+      }
+    } else {
+      candidatesAfterCursor.addAll(candidateTuples);
+    }
+
+    log.info("DEBUG: After cursor-finding loop, candidatesAfterCursor size is {}", candidatesAfterCursor.size());
 
     // 필터링에 필요한 ID 목록을 미리 준비
     String seenFeedsKey = "user:" + memberId + ":seen_feeds";
-    Set<String> seenFeedIds = redisTemplate.opsForSet().members(seenFeedsKey);
-    if (seenFeedIds == null) {
-      seenFeedIds = Collections.emptySet(); // NPE 방지
+    Set<String> seenFeedsIds = redisTemplate.opsForSet().members(seenFeedsKey);
+    if (seenFeedsIds == null) {
+      seenFeedsIds = Collections.emptySet();
     }
     Set<Long> hiddenFeedIds = feedQueryHelper.getHiddenFeedIds(memberId);
 
-    // 후보군에서 '본 피드'와 '숨김 피드'를 한번에 필터링하고, size+1 만큼만 남김
-    Set<String> finalSeenFeedIds = seenFeedIds;
-    List<TypedTuple<String>> preFilteredList = candidateTuples.stream()
+    log.info("DEBUG: Filtering with {} seen feeds and {} hidden feeds.", seenFeedsIds.size(), hiddenFeedIds.size());
+
+    // 본 피드와 숨김 피드 필터링
+    Set<String> finalSeenFeedIds = seenFeedsIds;
+    List<TypedTuple<String>> preFilteredList = candidatesAfterCursor.stream()
         .filter(tuple -> !finalSeenFeedIds.contains(tuple.getValue()))
         .filter(tuple -> !hiddenFeedIds.contains(Long.parseLong(Objects.requireNonNull(tuple.getValue()))))
         .limit(size + 1)
         .toList();
+
+    log.info("DEBUG: After seen/hidden filter, preFilteredList size is {}", preFilteredList.isEmpty() ? 0 : preFilteredList.size());
 
     if (preFilteredList.isEmpty()) {
       return new CursorResult<>(Collections.emptyList(), false, null);
@@ -167,8 +204,13 @@ public class FeedTimelineService {
 
     if (finalListForCursor.size() > size) {
       hasNext = true;
-      nextCursor = String.valueOf(Objects.requireNonNull(finalListForCursor.get(size).getScore()).longValue());
-      finalListForCursor.remove(size); // 최종 결과 목록에서는 size+1 번째 아이템 제거
+      TypedTuple<String> nextCursorTuple = finalListForCursor.get(size);
+
+      String scorePart = new BigDecimal(Objects.requireNonNull(nextCursorTuple.getScore()).toString()).toPlainString();
+      String feedIdPart = nextCursorTuple.getValue();
+      nextCursor = scorePart + ":" + feedIdPart;
+
+      finalListForCursor.remove(size);
     }
 
     Set<Long> feedIdsToFetch = finalListForCursor.stream()

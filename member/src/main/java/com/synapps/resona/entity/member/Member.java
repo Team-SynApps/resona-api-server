@@ -83,6 +83,12 @@ public class Member extends BaseEntity {
     this.lastAccessedAt = lastAccessedAt;
   }
 
+  private Member(String email, String password, LocalDateTime lastAccessedAt) {
+    this.email = email;
+    this.password = password;
+    this.lastAccessedAt = lastAccessedAt;
+  }
+
   private Member(AccountInfo accountInfo,
       MemberDetails memberDetails,
       Profile profile,
@@ -111,6 +117,10 @@ public class Member extends BaseEntity {
       String password,
       LocalDateTime lastAccessedAt) {
     return new Member(accountInfo, memberDetails, profile, email, password, lastAccessedAt);
+  }
+
+  public static Member of(String email, String password, LocalDateTime lastAccessedAt) {
+    return new Member(email, password, lastAccessedAt);
   }
 
   public void encodePassword(String rawPassword) {

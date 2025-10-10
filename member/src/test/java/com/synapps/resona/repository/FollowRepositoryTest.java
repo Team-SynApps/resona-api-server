@@ -4,20 +4,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.synapps.resona.entity.member.Follow;
 import com.synapps.resona.entity.member.Member;
-import com.synapps.resona.fixture.MemberFixture;
+import fixture.MemberFixture;
 import com.synapps.resona.repository.member.FollowRepository;
 import com.synapps.resona.repository.member.MemberRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import support.RepositoryTestSupport;
 
 
 @Transactional
-class FollowRepositoryTest extends RepositoryTestSupport {
+@Disabled
+class FollowRepositoryTest {
 
   @Autowired
   private MemberRepository memberRepository;

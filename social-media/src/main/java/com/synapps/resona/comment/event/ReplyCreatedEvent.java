@@ -4,6 +4,6 @@ import com.synapps.resona.comment.query.entity.ReplyEmbed;
 
 public record ReplyCreatedEvent(
     Long parentCommentId,
-    ReplyEmbed replyEmbed
+    ReplyEmbed reply
 ) {
 }

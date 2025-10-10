@@ -3,25 +3,27 @@ spring:
     activate:
       on-profile: test
 
-  datasource:
-    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+#  datasource:
+#    url: jdbc:h2:mem:testdb;MODE=MySQL;DB_CLOSE_DELAY=-1
+#    username: sa
+#    password:
+#    driver-class-name: org.h2.Driver
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
+    #        dialect: org.hibernate.dialect.H2Dialect
+        defer-datasource-initialization: true
     show-sql: true
     open-in-view: false
-
-  data:
-    redis:
-      host: localhost
-      port: 6379
+#
+#  data:
+#    redis:
+#      host: localhost
+#      port: 6379
 #    mongodb:
 #      uri: mongodb://localhost/test
   #      host: localhost
@@ -115,3 +117,10 @@ discord:
   webhook:
     report: "dummy-report-url"
     deploy: "dummy-deploy-url"
+
+redis:
+  ttl:
+    personalTimeline: 30
+    publicTimeline: 7
+    seenFeeds: 7
+    unit: DAYS

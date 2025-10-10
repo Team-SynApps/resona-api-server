@@ -24,29 +24,36 @@ public class Location extends BaseEntity {
   @Column(name = "location_id")
   private Long id;
 
-  @OneToOne
-  @JoinColumn(name = "feed_id")
-  private Feed feed;
+  @Column(name = "place_id")
+  private String placeId;
 
-  @Column(name = "coordinate")
-  private String coordinate;
+  @Column(name = "display_name", nullable = false)
+  private String displayName;
 
-  @Column(name = "address")
-  private String address;
+  @Column(name = "formatted_address", nullable = false)
+  private String formattedAddress;
 
-  @Column(name = "location_name")
-  private String locationName;
+  @Column(nullable = false)
+  private double latitude;
+
+  @Column(nullable = false)
+  private double longitude;
+
+  @Column(name = "primary_type")
+  private String primaryType;
 
 
-  private Location(Feed feed, String coordinate, String address, String locationName) {
-    this.feed = feed;
-    this.coordinate = coordinate;
-    this.address = address;
-    this.locationName = locationName;
+  private Location(String placeId, String displayName, String formattedAddress, double latitude, double longitude, String primaryType) {
+    this.placeId = placeId;
+    this.displayName = displayName;
+    this.formattedAddress = formattedAddress;
+    this.latitude = latitude;
+    this.longitude = longitude;
+    this.primaryType = primaryType;
   }
 
-  public static Location of(Feed feed, String coordinate, String address, String locationName) {
-    return new Location(feed, coordinate, address, locationName);
+  public static Location of(String placeId, String displayName, String formattedAddress, double latitude, double longitude, String primaryType) {
+    return new Location(placeId, displayName, formattedAddress, latitude, longitude, primaryType);
   }
 
 }

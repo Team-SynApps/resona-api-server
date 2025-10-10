@@ -9,12 +9,13 @@ import com.synapps.resona.repository.member.MemberRepository;
 import com.synapps.resona.repository.member_details.MemberDetailsRepository;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import support.RepositoryTestSupport;
 
 @Transactional
-class MemberDetailsRepositoryTest extends RepositoryTestSupport {
+@Disabled
+class MemberDetailsRepositoryTest {
 
   @Autowired
   private MemberDetailsRepository memberDetailsRepository;

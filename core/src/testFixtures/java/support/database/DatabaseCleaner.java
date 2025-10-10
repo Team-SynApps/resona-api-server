@@ -6,6 +6,8 @@ import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ public class DatabaseCleaner {
   private final EntityManager entityManager;
   private final DataSource dataSource;
   private final MongoTemplate mongoTemplate;
+  private final RedisConnectionFactory redisConnectionFactory;
 
   private List<String> tableNames = new ArrayList<>();
 
@@ -34,6 +37,10 @@ public class DatabaseCleaner {
     mongoTemplate.getCollectionNames().forEach(collectionName -> {
       mongoTemplate.getCollection(collectionName).deleteMany(new Document());
     });
+
+    try (RedisConnection connection = redisConnectionFactory.getConnection()) {
+      connection.serverCommands().flushDb();
+    }
 
     executeTruncate();
   }

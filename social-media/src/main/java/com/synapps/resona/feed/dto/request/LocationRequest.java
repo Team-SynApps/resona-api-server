@@ -9,7 +9,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class LocationRequest {
 
-  private String coordinate;
-  private String address;
-  private String name;
+  private String placeId;
+  private String displayName;
+  private String formattedAddress;
+  private GeoLocation location;
+  private String primaryType;
+
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  public static class GeoLocation {
+    private double latitude;
+    private double longitude;
+  }
 }

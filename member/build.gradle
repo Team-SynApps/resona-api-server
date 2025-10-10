@@ -1,3 +1,8 @@
+configurations {
+    testFixturesImplementation.extendsFrom(implementation)
+    testFixturesRuntimeOnly.extendsFrom(runtimeOnly)
+}
+
 dependencies {
     // Module Dependencies
     implementation project(':core')
@@ -41,4 +46,7 @@ dependencies {
     testImplementation "org.springframework.boot:spring-boot-starter-test"
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+
+    // Test Fixtures
+    testFixturesImplementation(testFixtures(project(":core")))
 }

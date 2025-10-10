@@ -2,6 +2,7 @@ package com.synapps.resona.comment.query.service;
 
 import com.synapps.resona.comment.query.entity.CommentDocument;
 import com.synapps.resona.comment.query.entity.ReplyEmbed;
+import com.synapps.resona.common.entity.Translation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -24,11 +25,6 @@ public class CommentDocumentUpdateService {
     mongoTemplate.updateFirst(query, update, CommentDocument.class);
   }
 
-  /**
-   * CommentDocument에 내장된 ReplyEmbed를 soft-delete 처리
-   * @param parentCommentId 부모 댓글 ID
-   * @param replyId 삭제할 대댓글 ID
-   */
   public void softDeleteReplyInComment(Long parentCommentId, Long replyId) {
     Query query = Query.query(Criteria.where("commentId").is(parentCommentId));
 
@@ -52,6 +48,23 @@ public class CommentDocumentUpdateService {
     Update update = new Update()
         .inc("replies.$[elem].likeCount", delta)
         .filterArray(Criteria.where("elem.replyId").is(replyId));
+    mongoTemplate.updateFirst(query, update, CommentDocument.class);
+  }
+
+  public void addTranslationToComment(Long commentId, Translation translation) {
+    Query query = Query.query(Criteria.where("commentId").is(commentId));
+    Update update = new Update().push("translations", translation);
+    mongoTemplate.updateFirst(query, update, CommentDocument.class);
+  }
+
+  public void addTranslationToReply(Long parentCommentId, Long replyId, Translation translation) {
+    Query query = Query.query(Criteria.where("commentId").is(parentCommentId));
+
+    Update update = new Update()
+        .push("replies.$[replyElem].translations").value(translation);
+
+    update.filterArray(Criteria.where("replyElem.replyId").is(replyId));
+
     mongoTemplate.updateFirst(query, update, CommentDocument.class);
   }
 }

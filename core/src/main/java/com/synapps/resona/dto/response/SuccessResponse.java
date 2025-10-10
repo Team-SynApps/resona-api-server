@@ -22,7 +22,7 @@ public class SuccessResponse<T> extends BaseResponse<T> {
     return new SuccessResponse<>(SuccessMeta.of(code, info), result);
   }
 
-  public static <T> SuccessResponse<T> of(SuccessCode code, RequestInfo info, T result, String cursor, int size, boolean hasNext) {
+  public static <T> SuccessResponse<T> of(SuccessCode code, RequestInfo info, T result, String cursor, Integer size, boolean hasNext) {
     return new SuccessResponse<>(CursorMeta.of(code, info, cursor, size, hasNext), result);
   }
 }

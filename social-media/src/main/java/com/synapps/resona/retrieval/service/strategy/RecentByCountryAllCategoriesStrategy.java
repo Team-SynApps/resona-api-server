@@ -18,8 +18,7 @@ public class RecentByCountryAllCategoriesStrategy implements FallbackStrategy {
 
   @Override
   public List<FeedDocument> findFeeds(FallbackStrategyContext context) {
-    return feedReadRepository.findByAuthor_CountryOfResidenceOrderByCreatedAtDesc(
-        context.countryOfResidence(), context.pageable()
+            return feedReadRepository.findByCountry(        context.countryOfResidence(), context.pageable()
     );
   }
 }

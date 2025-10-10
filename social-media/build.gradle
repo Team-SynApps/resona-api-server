@@ -26,6 +26,10 @@ dependencies {
     implementation 'io.swagger.core.v3:swagger-annotations-jakarta:2.2.21'
 
     // Test
+    testImplementation(testFixtures(project(":member")))
     testImplementation(testFixtures(project(":core")))
-    testImplementation 'com.h2database:h2'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+//    testRuntimeOnly 'com.h2database:h2'
 }

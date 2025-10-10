@@ -3,6 +3,7 @@ package com.synapps.resona.report.command.entity;
 import com.synapps.resona.comment.command.entity.comment.Comment;
 import com.synapps.resona.report.common.entity.ReportCategory;
 import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.report.common.entity.ReportStatus;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -28,6 +29,7 @@ public class CommentReport extends Report {
     this.setReporter(reporter);
     this.setReported(reported);
     this.setCategory(category);
+    this.setReportStatus(ReportStatus.PENDING);
     this.comment = comment;
   }
 

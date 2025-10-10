@@ -12,7 +12,9 @@ import com.synapps.resona.config.server.ServerInfoConfig;
 import com.synapps.resona.dto.RequestInfo;
 import com.synapps.resona.dto.response.SuccessResponse;
 import com.synapps.resona.entity.AuthenticatedUser;
+import com.synapps.resona.entity.Language;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Comment Query", description = "댓글/대댓글 조회 API")
@@ -43,11 +46,13 @@ public class CommentQueryController {
   @GetMapping("/feeds/{feedId}/comments")
   public ResponseEntity<SuccessResponse<Page<CommentDto>>> getComments(
       HttpServletRequest request,
+      @Parameter(description = "언어 코드") @RequestParam(name = "lang", defaultValue = "en") String languageCode,
       @PathVariable Long feedId,
       @AuthenticationPrincipal AuthenticatedUser user,
       @PageableDefault(size = 20) Pageable pageable
   ) {
-    Page<CommentDto> comments = commentQueryService.getCommentsForFeed(feedId, user.getMemberId(), pageable);
+    Language targetLanguage = Language.fromCode(languageCode);
+    Page<CommentDto> comments = commentQueryService.getCommentsForFeed(feedId, user.getMemberId(), targetLanguage, pageable);
     return ResponseEntity
         .status(SocialSuccessCode.GET_COMMENTS_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_COMMENTS_SUCCESS, createRequestInfo(request.getRequestURI()), comments));

@@ -58,10 +58,4 @@ public class BlockService {
     block.softDelete();
     eventPublisher.publishEvent(new MemberUnblockedEvent(blockerId, unblockedId));
   }
-
-
-  @Transactional
-  public List<BlockedMemberResponse> getBlockedMembers(MemberDto memberInfo) {
-    return blockRepository.findBlockedMembers(memberInfo.getId());
-  }
 }

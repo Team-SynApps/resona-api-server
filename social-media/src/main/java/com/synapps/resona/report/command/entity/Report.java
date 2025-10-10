@@ -59,6 +59,10 @@ public abstract class Report extends BaseEntity {
     this.category = category;
   }
 
+  protected void setReportStatus(ReportStatus reportStatus) {
+    this.reportStatus = reportStatus;
+  }
+
   public void resolve() {
     if (this.reportStatus != ReportStatus.PENDING) {
       throw ReportException.alreadyExecuted();
