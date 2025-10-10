@@ -22,6 +22,8 @@ The project is divided into the following modules:
 ### Prerequisites
 - Java 17
 - Gradle
+- Docker
+- Docker Compose
 
 ### Build
 To build the entire project, run the following command from the root directory:
@@ -38,11 +40,13 @@ To run the application, execute the `bootRun` task from the `application` module
 ## 📑 Table of Contents
 
 - [Tech Stack](#-tech-stack)
+- [Event-Driven Architecture](#-event-driven-architecture)
 - [API Documentation](#-api-documentation)
 - [File Upload](#-file-upload)
 - [Logging](#-logging)
 - [Error Handling](#-error-handling)
 - [Test](#test)
+- [CI/CD](#-ci/cd)
 - [License](#-license)
 - [Author](#-author)
 
@@ -53,20 +57,40 @@ To run the application, execute the `bootRun` task from the `application` module
 | Language   | Java 17                     |
 | Framework  | Spring Boot 3.2.3           |
 | Build Tool | Gradle                      |
-| Database   | MySQL 8.0                   |
-| ORM        | Spring Data JPA (Hibernate) |
+| Database   | MySQL 8.0, MongoDB (Oracle ADB) |
+| ORM        | Spring Data JPA (Hibernate), Spring Data MongoDB |
 | Security   | Spring Security, JWT        |
 | API Spec   | Swagger                     |
-| DevOps     | Docker, GitHub Actions      |
+| DevOps     | Docker, Docker Compose, GitHub Actions |
 | Cloud      | Oracle Cloud Infrastructure |
 | Monitoring | Prometheus / Grafana        |
 | Test       | JUnit 5, AssertJ            |
 | Logging    | Logback                     |
 
+## ⚙️ Configuration
+The project's configuration is managed through a hierarchical system of YAML files and environment variables, powered by Spring Profiles and the `dotenv-gradle` plugin.
+
+- **`application.yml`**: Contains common configuration properties shared across all environments.
+- **`application-{profile}.yml`**: Holds environment-specific settings (e.g., `application-dev.yml` for development, `application-prod.yml` for production).
+- **`.env`**: For sensitive data like database credentials or API keys. This file is loaded by the `dotenv-gradle` plugin and its values are exposed as environment variables. It should be included in `.gitignore` and not committed to the repository.
+
+The priority is as follows: `.env` variables > profile-specific YAML > common YAML.
+
+---
+
+## 📢 Event-Driven Architecture
+The Resona API Server utilizes an event-driven architecture based on Spring's Application Events for loose coupling and improved scalability. Key components publish events, and various listeners react to them to perform actions like sending notifications or updating read models.
+
+Here are some examples of event flows in the system:
+
+| Event                   | Publisher (Module)                               | Subscriber(s) (Module)                                                                                                                            | Description                                                                 |
+|-------------------------|--------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------|
+| `MemberRegisteredEvent` | `AuthService` (`member`)                         | `MemberNotificationEventListener` (`notification`)                                                                                                | When a new member signs up, a notification is sent.                         |
+| `FeedCreatedEvent`      | `FeedCommandService` (`social-media`)            | `SpringEventFanoutListener` (`social-media`)<br>`SpringFeedEventListener` (`social-media`)                                                          | When a new feed is posted, it is fanned out to followers' timelines and the read model is updated for efficient querying. |
+
 ---
 
 ## 📚 API Documentation
-
 The project uses **Swagger** for documenting REST APIs.
 
 > API docs (Swagger UI) are available in the production environment and accessible to authorized users only.
@@ -99,15 +123,19 @@ This project uses **Logback** for logging, configured via `logback-spring.xml`. 
 We recommend using the **SLF4J API** for logging consistency.
 
 ### ✅ How to Use
-```java
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+This project widely uses Lombok's **`@Slf4j`** annotation to reduce boilerplate code. This is the recommended approach.
 
+By adding the `@Slf4j` annotation to a class, a `log` field is automatically created and initialized.
+
+```java
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class ExampleClass {
-    private final Logger logger = LoggerFactory.getLogger(ExampleClass.class);
 
     private void loggingExample() {
-        logger.info("Log example");
+        log.info("Log example with @Slf4j");
+        log.error("This is an error message.");
     }
 }
 ```
@@ -195,6 +223,15 @@ This project follows a layered architecture and adopts a strategic approach to w
 - **Basic CRUD Repository**: Spring Data JPA ensures basic CRUD operations, so explicit tests are optional.
 
 Test cases are written based on these principles to ensure efficiency and maintainability.
+
+## 🌐 CI/CD
+
+The project utilizes GitHub Actions for Continuous Integration and Continuous Deployment. Workflows are configured to automate building, testing, and deploying the application.
+
+- **`build_deploy.yml`**: Handles building the application, running tests, building Docker images, and deploying to Oracle Cloud Infrastructure.
+- **`code_review.yml`**: Automates code review processes.
+
+--- 
 
 ## 📄 License
 
