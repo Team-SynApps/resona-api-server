@@ -3,8 +3,9 @@ package com.synapps.resona.comment.query.service;
 import com.synapps.resona.comment.command.entity.CommentDisplayStatus;
 import com.synapps.resona.comment.dto.CommentDto;
 import com.synapps.resona.comment.dto.ReplyDto;
-import com.synapps.resona.comment.event.CommentTranslationUpdatedEvent;
-import com.synapps.resona.comment.event.ReplyTranslationUpdatedEvent;
+import com.synapps.resona.comment.query.dto.ViewerContext;
+import com.synapps.resona.common.event.CommentTranslationUpdatedEvent;
+import com.synapps.resona.common.event.ReplyTranslationUpdatedEvent;
 import com.synapps.resona.comment.query.entity.CommentDocument;
 import com.synapps.resona.comment.query.entity.ReplyEmbed;
 import com.synapps.resona.comment.query.repository.CommentDocumentRepository;
@@ -24,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class CommentQueryService {
+public class CommentRetrievalService {
 
   private final CommentDocumentRepository commentDocumentRepository;
   private final MemberStateService memberStateService;

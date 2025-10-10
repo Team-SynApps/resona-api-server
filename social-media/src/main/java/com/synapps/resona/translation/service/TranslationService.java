@@ -1,28 +1,16 @@
 package com.synapps.resona.translation.service;
 
-import com.synapps.resona.comment.command.entity.comment.Comment;
-import com.synapps.resona.comment.command.entity.comment.CommentTranslation;
-import com.synapps.resona.comment.command.entity.reply.Reply;
-import com.synapps.resona.comment.command.entity.reply.ReplyTranslation;
-import com.synapps.resona.comment.command.repository.CommentTranslationRepository;
-import com.synapps.resona.comment.command.repository.ReplyTranslationRepository;
-import com.synapps.resona.comment.command.repository.comment.CommentRepository;
-import com.synapps.resona.comment.command.repository.reply.ReplyRepository;
-import com.synapps.resona.comment.event.CommentTranslationsCreatedEvent;
-import com.synapps.resona.comment.event.ReplyTranslationsCreatedEvent;
+import com.synapps.resona.common.event.CommentTranslationsCreatedEvent;
+import com.synapps.resona.common.event.ReplyTranslationsCreatedEvent;
 import com.synapps.resona.common.entity.Translation;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.feed.command.repository.FeedRepository;
-import com.synapps.resona.feed.command.repository.FeedTranslationRepository;
-import com.synapps.resona.feed.event.FeedTranslationsCreatedEvent;
+import com.synapps.resona.common.event.FeedTranslationsCreatedEvent;
 import com.synapps.resona.translation.port.Translator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor

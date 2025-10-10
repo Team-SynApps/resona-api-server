@@ -1,4 +1,4 @@
-package com.synapps.resona.comment.query.controller;
+package com.synapps.resona.comment.adapter.in;
 
 import com.synapps.resona.annotation.ApiErrorSpec;
 import com.synapps.resona.annotation.ApiSuccessResponse;
@@ -7,7 +7,7 @@ import com.synapps.resona.annotation.SuccessCodeSpec;
 import com.synapps.resona.code.SocialErrorCode;
 import com.synapps.resona.code.SocialSuccessCode;
 import com.synapps.resona.comment.dto.CommentDto;
-import com.synapps.resona.comment.query.service.CommentQueryService;
+import com.synapps.resona.comment.query.service.CommentRetrievalService;
 import com.synapps.resona.config.server.ServerInfoConfig;
 import com.synapps.resona.dto.RequestInfo;
 import com.synapps.resona.dto.response.SuccessResponse;
@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class CommentQueryController {
 
-  private final CommentQueryService commentQueryService;
+  private final CommentRetrievalService commentRetrievalService;
   private final ServerInfoConfig serverInfo;
 
   private RequestInfo createRequestInfo(String path) {
@@ -52,7 +52,7 @@ public class CommentQueryController {
       @PageableDefault(size = 20) Pageable pageable
   ) {
     Language targetLanguage = Language.fromCode(languageCode);
-    Page<CommentDto> comments = commentQueryService.getCommentsForFeed(feedId, user.getMemberId(), targetLanguage, pageable);
+    Page<CommentDto> comments = commentRetrievalService.getCommentsForFeed(feedId, user.getMemberId(), targetLanguage, pageable);
     return ResponseEntity
         .status(SocialSuccessCode.GET_COMMENTS_SUCCESS.getStatus())
         .body(SuccessResponse.of(SocialSuccessCode.GET_COMMENTS_SUCCESS, createRequestInfo(request.getRequestURI()), comments));

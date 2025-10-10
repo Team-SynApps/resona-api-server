@@ -25,10 +25,10 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 @ExtendWith(MockitoExtension.class)
-class CommentQueryServiceTest {
+class CommentRetrievalServiceTest {
 
     @InjectMocks
-    private CommentQueryService commentQueryService;
+    private CommentRetrievalService commentRetrievalService;
 
     @Mock
     private CommentDocumentRepository commentDocumentRepository;
@@ -59,7 +59,7 @@ class CommentQueryServiceTest {
         when(statusCalculator.getDisplayContent(any(), any())).thenReturn("Test Comment");
 
         // when
-        Page<CommentDto> result = commentQueryService.getCommentsForFeed(feedId, viewerId, Language.ko, pageable);
+        Page<CommentDto> result = commentRetrievalService.getCommentsForFeed(feedId, viewerId, Language.ko, pageable);
 
         // then
         assertThat(result).hasSize(1);

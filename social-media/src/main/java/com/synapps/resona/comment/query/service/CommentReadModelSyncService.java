@@ -2,11 +2,9 @@ package com.synapps.resona.comment.query.service;
 
 import com.synapps.resona.comment.event.CommentCreatedEvent;
 import com.synapps.resona.comment.event.CommentDeletedEvent;
-import com.synapps.resona.comment.event.CommentDocumentCreatedEvent;
 import com.synapps.resona.comment.event.CommentLikeChangedEvent;
 import com.synapps.resona.comment.event.ReplyCreatedEvent;
 import com.synapps.resona.comment.event.ReplyDeletedEvent;
-import com.synapps.resona.comment.event.ReplyDocumentCreatedEvent;
 import com.synapps.resona.comment.event.ReplyLikeChangedEvent;
 import com.synapps.resona.comment.exception.CommentException;
 import com.synapps.resona.comment.port.in.CommentReadModelSyncUseCase;

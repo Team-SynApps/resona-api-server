@@ -1,24 +1,20 @@
 package com.synapps.resona.translation.listener;
 
-import com.synapps.resona.comment.event.CommentDocumentCreatedEvent;
-import com.synapps.resona.comment.event.CommentTranslationUpdatedEvent;
-import com.synapps.resona.comment.event.CommentTranslationsCreatedEvent;
-import com.synapps.resona.comment.event.ReplyDocumentCreatedEvent;
-import com.synapps.resona.comment.event.ReplyTranslationUpdatedEvent;
-import com.synapps.resona.comment.event.ReplyTranslationsCreatedEvent;
+import com.synapps.resona.common.event.CommentTranslationUpdatedEvent;
+import com.synapps.resona.common.event.CommentTranslationsCreatedEvent;
+import com.synapps.resona.common.event.ReplyTranslationUpdatedEvent;
+import com.synapps.resona.common.event.ReplyTranslationsCreatedEvent;
 import com.synapps.resona.comment.query.service.CommentDocumentUpdateService;
 
 import com.synapps.resona.common.entity.Translation;
-import com.synapps.resona.feed.event.FeedTranslationUpdatedEvent;
-import com.synapps.resona.feed.event.FeedTranslationsCreatedEvent;
+import com.synapps.resona.common.event.FeedTranslationUpdatedEvent;
+import com.synapps.resona.common.event.FeedTranslationsCreatedEvent;
 import com.synapps.resona.retrieval.service.FeedDocumentUpdateService;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Slf4j
 @Component

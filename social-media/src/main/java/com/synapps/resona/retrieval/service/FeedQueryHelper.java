@@ -3,7 +3,7 @@ package com.synapps.resona.retrieval.service;
 import com.synapps.resona.common.entity.Author;
 import com.synapps.resona.common.entity.Translation;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.feed.event.FeedTranslationUpdatedEvent;
+import com.synapps.resona.common.event.FeedTranslationUpdatedEvent;
 import com.synapps.resona.query.member.entity.MemberStateDocument;
 import com.synapps.resona.query.member.service.MemberStateService;
 import com.synapps.resona.retrieval.dto.FeedDto;

@@ -1,4 +1,4 @@
-package com.synapps.resona.comment.query.service;
+package com.synapps.resona.comment.query.dto;
 
 import java.util.Set;
 

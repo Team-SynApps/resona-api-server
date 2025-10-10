@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.synapps.resona.comment.command.entity.CommentDisplayStatus;
+import com.synapps.resona.comment.query.dto.ViewerContext;
 import com.synapps.resona.comment.query.entity.CommentDocument;
 import com.synapps.resona.comment.query.entity.ReplyEmbed;
 import com.synapps.resona.common.entity.Author;

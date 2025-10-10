@@ -1,4 +1,4 @@
-package com.synapps.resona.comment.event;
+package com.synapps.resona.common.event;
 
 import com.synapps.resona.entity.Language;
 

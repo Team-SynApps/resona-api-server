@@ -1,4 +1,4 @@
-package com.synapps.resona.comment.command.controller;
+package com.synapps.resona.comment.adapter.in;
 
 import com.synapps.resona.annotation.ApiErrorSpec;
 import com.synapps.resona.annotation.ApiSuccessResponse;

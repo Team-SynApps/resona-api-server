@@ -1,6 +1,7 @@
 package com.synapps.resona.comment.query.service;
 
 import com.synapps.resona.comment.command.entity.CommentDisplayStatus;
+import com.synapps.resona.comment.query.dto.ViewerContext;
 import com.synapps.resona.comment.query.entity.CommentDocument;
 import com.synapps.resona.comment.query.entity.ReplyEmbed;
 import org.springframework.stereotype.Component;

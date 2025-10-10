@@ -1,7 +1,7 @@
 package com.synapps.resona.retrieval.service;
 
 import com.synapps.resona.comment.dto.CommentDto;
-import com.synapps.resona.comment.query.service.CommentQueryService;
+import com.synapps.resona.comment.query.service.CommentRetrievalService;
 import com.synapps.resona.dto.CursorResult;
 import com.synapps.resona.entity.Language;
 import com.synapps.resona.entity.profile.CountryCode;
@@ -13,10 +13,6 @@ import com.synapps.resona.retrieval.dto.FeedDetailDto;
 import com.synapps.resona.retrieval.dto.FeedDto;
 import com.synapps.resona.retrieval.query.entity.FeedDocument;
 import com.synapps.resona.retrieval.query.repository.FeedReadRepository;
-import com.synapps.resona.translation.port.Translator;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -34,7 +30,7 @@ public class FeedRetrievalService {
 
   private final FeedQueryHelper feedQueryHelper;
   private final MemberStateService memberStateService;
-  private final CommentQueryService commentQueryService;
+  private final CommentRetrievalService commentRetrievalService;
 
   public CursorResult<FeedDto> getHomeFeeds(Long memberId, Language targetLanguage, String cursor, int size, FeedCategory category) {
     return feedTimelineService.getHomeFeeds(memberId, targetLanguage, cursor, size, category);
@@ -57,7 +53,7 @@ public class FeedRetrievalService {
         .orElseThrow(FeedException::feedNotFoundException);
 
     FeedDto baseFeedDto = feedQueryHelper.translateAndConvertToDto(feedDocument, targetLanguage);
-    Page<CommentDto> comments = commentQueryService.getCommentsForFeed(feedId, currentMemberId, targetLanguage, pageable);
+    Page<CommentDto> comments = commentRetrievalService.getCommentsForFeed(feedId, currentMemberId, targetLanguage, pageable);
 
     MemberStateDocument memberState = memberStateService.getMemberStateDocument(currentMemberId);
 
