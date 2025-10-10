@@ -35,10 +35,11 @@ jobs:
       - name: Create application-test.properties
         run: |
               echo "Creating application-test.properties..."
-              echo "${{ secrets.TEST_PROPERTIES }}" > ./src/test/resources/application-test.properties
-              echo "oracle.cloud.config.private-key-path=./oci_private_key.pem" >> ./src/test/resources/application-test.properties
+              mkdir -p ./application/src/test/resources
+              echo "${{ secrets.TEST_PROPERTIES }}" > ./application/src/test/resources/application-test.properties
+              echo "oracle.cloud.config.private-key-path=${{ github.workspace }}/oci_private_key.pem" >> ./application/src/test/resources/application-test.properties
               echo "File content:"
-              cat ./src/test/resources/application-test.properties
+              cat ./application/src/test/resources/application-test.properties
 
       - name: Check Docker Status
         run: |
@@ -58,7 +59,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-report
-          path: build/reports/tests/test
+          path: application/build/reports/tests/test
 
   # ===================================================================
   #  Build Job: Build & Push Docker Image
