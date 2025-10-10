@@ -50,13 +50,13 @@ public class CommentCommandController {
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @PostMapping("/comments")
-  public ResponseEntity<SuccessResponse<Void>> registerComment(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<CommentDto>> registerComment(HttpServletRequest request,
       @Valid @RequestBody CommentRequest commentRequest,
       @AuthenticationPrincipal AuthenticatedUser member) {
-    commentCommandService.createComment(member.getMemberId(), commentRequest);
+    CommentDto response = commentCommandService.createComment(member.getMemberId(), commentRequest);
     return ResponseEntity
         .status(SocialSuccessCode.REGISTER_COMMENT_SUCCESS.getStatus())
-        .body(SuccessResponse.of(SocialSuccessCode.REGISTER_COMMENT_SUCCESS, createRequestInfo(request.getRequestURI())));
+        .body(SuccessResponse.of(SocialSuccessCode.REGISTER_COMMENT_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
   @Operation(summary = "대댓글 등록", description = "특정 댓글에 대한 대댓글을 등록합니다. (인증 필요)")
@@ -66,13 +66,13 @@ public class CommentCommandController {
       @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
   })
   @PostMapping("/replies")
-  public ResponseEntity<SuccessResponse<Void>> registerReply(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<ReplyDto>> registerReply(HttpServletRequest request,
       @Valid @RequestBody ReplyRequest replyRequest,
       @AuthenticationPrincipal AuthenticatedUser member) {
-    commentCommandService.createReply(member.getMemberId(), replyRequest);
+    ReplyDto response = commentCommandService.createReply(member.getMemberId(), replyRequest);
     return ResponseEntity
         .status(SocialSuccessCode.REGISTER_REPLY_SUCCESS.getStatus())
-        .body(SuccessResponse.of(SocialSuccessCode.REGISTER_REPLY_SUCCESS, createRequestInfo(request.getRequestURI())));
+        .body(SuccessResponse.of(SocialSuccessCode.REGISTER_REPLY_SUCCESS, createRequestInfo(request.getRequestURI()), response));
   }
 
   @Operation(summary = "댓글 삭제", description = "특정 댓글을 삭제합니다. (작성자 또는 관리자만 가능)")

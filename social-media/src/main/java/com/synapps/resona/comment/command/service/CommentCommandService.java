@@ -7,7 +7,9 @@ import com.synapps.resona.comment.command.repository.comment.CommentLikesReposit
 import com.synapps.resona.comment.command.repository.comment.CommentRepository;
 import com.synapps.resona.comment.command.repository.reply.ReplyLikesRepository;
 import com.synapps.resona.comment.command.repository.reply.ReplyRepository;
+import com.synapps.resona.comment.dto.CommentDto;
 import com.synapps.resona.comment.dto.CommentRequest;
+import com.synapps.resona.comment.dto.ReplyDto;
 import com.synapps.resona.comment.dto.ReplyRequest;
 import com.synapps.resona.comment.event.CommentCreatedEvent;
 import com.synapps.resona.comment.event.CommentDeletedEvent;
@@ -45,7 +47,7 @@ public class CommentCommandService {
   private final ReplyLikesRepository replyLikesRepository;
 
   @Transactional
-  public void createComment(Long memberId, CommentRequest request) {
+  public CommentDto createComment(Long memberId, CommentRequest request) {
     Member member = memberService.getMemberWithProfile(memberId);
     Feed feed = feedCommandService.getFeed(request.getFeedId());
 
@@ -67,10 +69,11 @@ public class CommentCommandService {
         );
 
     eventPublisher.publishEvent(event);
+    return CommentDto.of(comment);
   }
 
   @Transactional
-  public void createReply(Long memberId, ReplyRequest request) {
+  public ReplyDto createReply(Long memberId, ReplyRequest request) {
     Member member = memberService.getMemberWithProfile(memberId);
     Comment comment = commentRepository.findById(request.getCommentId()).orElseThrow(CommentException::commentNotFound);
 
@@ -90,6 +93,7 @@ public class CommentCommandService {
         );
 
     eventPublisher.publishEvent(new ReplyCreatedEvent(request.getCommentId(), replyEmbed));
+    return ReplyDto.of(reply);
   }
 
   @Transactional
