@@ -1,4 +1,4 @@
-package com.synapps.resona.comment.adapter;
+package com.synapps.resona.comment.adapter.in;
 
 import com.synapps.resona.comment.event.CommentCreatedEvent;
 import com.synapps.resona.comment.event.CommentDeletedEvent;
