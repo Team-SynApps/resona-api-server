@@ -5,6 +5,7 @@ import com.oracle.bmc.auth.AuthenticationDetailsProvider;
 import com.oracle.bmc.auth.SimpleAuthenticationDetailsProvider;
 import com.oracle.bmc.objectstorage.ObjectStorage;
 import com.oracle.bmc.objectstorage.ObjectStorageClient;
+import java.io.FileInputStream;
 import java.io.InputStream; // FileInputStream 대신 InputStream 사용
 import lombok.Getter;
 import lombok.Setter;
@@ -27,16 +28,18 @@ public class OracleCloudConfig {
 
   @Bean
   public ObjectStorage objectStorageClient() throws Exception {
-    String actualPath = privateKeyPath.replace("classpath:", "");
-    ClassPathResource resource = new ClassPathResource(actualPath);
-
     AuthenticationDetailsProvider provider = SimpleAuthenticationDetailsProvider.builder()
         .userId(userId)
         .tenantId(tenancyId)
         .fingerprint(fingerprint)
         .privateKeySupplier(() -> {
           try {
-            return resource.getInputStream();
+            if (privateKeyPath.startsWith("classpath:")) {
+              String actualPath = privateKeyPath.replace("classpath:", "");
+              return new ClassPathResource(actualPath).getInputStream();
+            } else {
+              return new FileInputStream(privateKeyPath);
+            }
           } catch (Exception e) {
             throw new RuntimeException("Private key 파일을 읽을 수 없습니다: " + privateKeyPath, e);
           }
