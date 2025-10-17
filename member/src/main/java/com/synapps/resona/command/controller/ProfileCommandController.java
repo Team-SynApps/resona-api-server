@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Member Profile Command", description = "사용자 프로필 관리 API")
+@Tag(name = "Member Profile", description = "사용자 프로필 관리 API")
 @RestController
 @RequestMapping("/profile")
 @RequiredArgsConstructor

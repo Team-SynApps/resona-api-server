@@ -5,7 +5,7 @@ import com.synapps.resona.fanout.port.in.FanoutUseCase;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.feed.event.FeedCreatedEvent;
 import com.synapps.resona.properties.RedisTtlProperties;
-import com.synapps.resona.query.service.FollowQueryService;
+import com.synapps.resona.query.service.retrieval.FollowQueryService;
 import java.time.ZoneOffset;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

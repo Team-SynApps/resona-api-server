@@ -13,7 +13,7 @@ import com.synapps.resona.dto.RequestInfo;
 import com.synapps.resona.dto.response.SuccessResponse;
 import com.synapps.resona.query.dto.MemberDetailQueryDto;
 import com.synapps.resona.query.dto.MemberDetailsQueryDto;
-import com.synapps.resona.query.service.MemberQueryService;
+import com.synapps.resona.query.service.retrieval.MemberQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Member Query", description = "사용자 정보 조회 API")
+@Tag(name = "Member", description = "사용자 정보 조회 API")
 @RestController
 @RequestMapping("/member")
 @RequiredArgsConstructor
@@ -53,6 +53,7 @@ public class MemberQueryController {
             .body(SuccessResponse.of(MemberSuccessCode.GET_MEMBER_DETAIL_SUCCESS, createRequestInfo(request.getRequestURI()), memberDetailInfo));
     }
 
+    @Tag(name = "Member Details")
     @Operation(summary = "상세 개인정보 조회", description = "현재 로그인된 사용자의 상세 개인정보를 조회합니다.")
     @ApiSuccessResponse(@SuccessCodeSpec(enumClass = MemberSuccessCode.class, code = "GET_DETAILS_SUCCESS", responseClass = MemberDetailsQueryDto.class))
     @ApiErrorSpec({

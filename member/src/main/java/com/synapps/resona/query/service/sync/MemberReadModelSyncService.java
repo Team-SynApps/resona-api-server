@@ -1,8 +1,9 @@
-package com.synapps.resona.query.service;
+package com.synapps.resona.query.service.sync;
 
 import com.synapps.resona.command.event.MemberCreatedEvent;
 import com.synapps.resona.query.entity.MemberDocument;
 import com.synapps.resona.query.repository.MemberDocumentRepository;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ public class MemberReadModelSyncService {
     private final MemberDocumentRepository memberDocumentRepository;
 
     public void createMemberDocument(MemberCreatedEvent event) {
+        LocalDateTime now = LocalDateTime.now();
         MemberDocument.AccountInfoEmbed accountInfo = MemberDocument.AccountInfoEmbed.builder()
             .roleType(event.accountInfo().roleType())
             .status(event.accountInfo().status())
@@ -49,6 +51,8 @@ public class MemberReadModelSyncService {
             .profile(profile)
             .providers(event.providers())
             .lastAccessedAt(event.lastAccessedAt())
+            .createdAt(now)
+            .modifiedAt(now)
             .build();
 
         memberDocumentRepository.save(memberDocument);

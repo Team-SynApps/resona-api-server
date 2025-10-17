@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Member Details Command", description = "사용자 상세 개인정보 관리 API")
+@Tag(name = "Member Details", description = "사용자 상세 개인정보 관리 API")
 @RestController
 @RequestMapping("/member-details")
 @RequiredArgsConstructor

@@ -1,4 +1,4 @@
-package com.synapps.resona.query.service;
+package com.synapps.resona.query.service.retrieval;
 
 import com.synapps.resona.query.dto.MemberDetailQueryDto;
 import com.synapps.resona.query.dto.MemberDetailsQueryDto;

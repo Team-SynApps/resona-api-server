@@ -20,6 +20,7 @@ import com.synapps.resona.command.repository.member.MemberRepository;
 import com.synapps.resona.command.service.MemberService;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -59,6 +60,7 @@ public class SecurityConfig {
   private final ClientRegistrationRepository clientRegistrationRepository;
   private final CustomAccessDeniedHandler customAccessDeniedHandler;
   private final Environment environment;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   private static final String[] PERMIT_URL_ARRAY = {
       /* swagger v3 */
@@ -211,7 +213,7 @@ public class SecurityConfig {
    * */
   @Bean
   public TokenAuthenticationFilter tokenAuthenticationFilter() {
-    return new TokenAuthenticationFilter(tokenProvider, objectMapper, serverInfo, memberRepository);
+    return new TokenAuthenticationFilter(tokenProvider, objectMapper, serverInfo, memberRepository, applicationEventPublisher);
   }
 
   /*

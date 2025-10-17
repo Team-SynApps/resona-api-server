@@ -13,7 +13,7 @@ import com.synapps.resona.config.server.ServerInfoConfig;
 import com.synapps.resona.dto.RequestInfo;
 import com.synapps.resona.dto.response.SuccessResponse;
 import com.synapps.resona.query.dto.ProfileQueryResponseDto;
-import com.synapps.resona.query.service.ProfileQueryService;
+import com.synapps.resona.query.service.retrieval.ProfileQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Member Profile Query", description = "사용자 프로필 조회 API")
+@Tag(name = "Member Profile", description = "사용자 프로필 조회 API")
 @RestController
 @RequestMapping("/profile")
 @RequiredArgsConstructor

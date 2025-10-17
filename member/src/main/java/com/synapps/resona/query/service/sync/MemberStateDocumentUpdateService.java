@@ -1,4 +1,4 @@
-package com.synapps.resona.query.service;
+package com.synapps.resona.query.service.sync;
 
 import com.synapps.resona.command.event.FollowChangedEvent;
 import com.synapps.resona.query.entity.MemberStateDocument;

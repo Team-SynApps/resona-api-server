@@ -4,6 +4,7 @@ package com.synapps.resona.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.synapps.resona.code.AuthErrorCode;
 import com.synapps.resona.command.entity.member.Member;
+import com.synapps.resona.event.MemberActivityEvent;
 import com.synapps.resona.exception.MemberException;
 import com.synapps.resona.config.server.ServerInfoConfig;
 import com.synapps.resona.dto.RequestInfo;
@@ -20,11 +21,13 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,6 +45,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
   private final ObjectMapper objectMapper;
   private final ServerInfoConfig serverInfo;
   private final MemberRepository memberRepository;
+  private final ApplicationEventPublisher eventPublisher;
 
   private static final AntPathMatcher pathMatcher = new AntPathMatcher();
   private static final List<String> PERMIT_ALL_URLS = Arrays.asList(
@@ -95,6 +99,9 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
               authentication.getName(),
               request.getRequestURI(),
               authentication.getAuthorities());
+
+          // Member 활동 이벤트 발행
+          eventPublisher.publishEvent(new MemberActivityEvent(userPrincipal.getMemberId(), LocalDateTime.now()));
         } else {
           logger.warn("Invalid token, uri: {}", request.getRequestURI());
           SecurityContextHolder.clearContext();

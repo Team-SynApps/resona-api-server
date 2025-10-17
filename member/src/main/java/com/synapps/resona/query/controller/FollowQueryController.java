@@ -10,7 +10,7 @@ import com.synapps.resona.config.server.ServerInfoConfig;
 import com.synapps.resona.dto.RequestInfo;
 import com.synapps.resona.dto.response.SuccessResponse;
 import com.synapps.resona.query.dto.MemberProfileQueryDto;
-import com.synapps.resona.query.service.FollowQueryService;
+import com.synapps.resona.query.service.retrieval.FollowQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Follow Query", description = "팔로우/언팔로우 목록 조회 API")
+@Tag(name = "Follow", description = "팔로우/언팔로우 목록 조회 API")
 @RestController
 @RequestMapping("/follow")
 @RequiredArgsConstructor

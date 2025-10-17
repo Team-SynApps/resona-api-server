@@ -1,4 +1,4 @@
-package com.synapps.resona.query.service;
+package com.synapps.resona.query.service.sync;
 
 import com.synapps.resona.command.event.HobbyAddedEvent;
 import com.synapps.resona.command.event.HobbyNameUpdatedEvent;
@@ -6,6 +6,7 @@ import com.synapps.resona.command.event.HobbyRemovedEvent;
 import com.synapps.resona.command.event.MemberDetailsUpdatedEvent;
 import com.synapps.resona.command.event.ProfileUpdatedEvent;
 import com.synapps.resona.query.entity.MemberDocument;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -32,7 +33,8 @@ public class MemberDocumentUpdateService {
             .set("profile.backgroundImageUrl", event.getBackgroundImageUrl())
             .set("profile.age", event.getAge())
             .set("profile.gender", event.getGender())
-            .set("profile.comment", event.getComment());
+            .set("profile.comment", event.getComment())
+            .set("modifiedAt", LocalDateTime.now());
         mongoTemplate.updateFirst(query, update, MemberDocument.class);
     }
 
@@ -43,19 +45,22 @@ public class MemberDocumentUpdateService {
             .set("memberDetails.phoneNumber", event.getPhoneNumber())
             .set("memberDetails.mbti", event.getMbti())
             .set("memberDetails.aboutMe", event.getAboutMe())
-            .set("memberDetails.location", event.getLocation());
+            .set("memberDetails.location", event.getLocation())
+            .set("modifiedAt", LocalDateTime.now());
         mongoTemplate.updateFirst(query, update, MemberDocument.class);
     }
 
     public void addHobby(HobbyAddedEvent event) {
         Query query = Query.query(Criteria.where("_id").is(event.getMemberId()));
-        Update update = new Update().addToSet("memberDetails.hobbies", event.getHobbyName());
+        Update update = new Update().addToSet("memberDetails.hobbies", event.getHobbyName())
+            .set("modifiedAt", LocalDateTime.now());
         mongoTemplate.updateFirst(query, update, MemberDocument.class);
     }
 
     public void removeHobby(HobbyRemovedEvent event) {
         Query query = Query.query(Criteria.where("_id").is(event.getMemberId()));
-        Update update = new Update().pull("memberDetails.hobbies", event.getHobbyName());
+        Update update = new Update().pull("memberDetails.hobbies", event.getHobbyName())
+            .set("modifiedAt", LocalDateTime.now());
         mongoTemplate.updateFirst(query, update, MemberDocument.class);
     }
 
@@ -63,7 +68,8 @@ public class MemberDocumentUpdateService {
         Query query = Query.query(Criteria.where("_id").is(event.getMemberId()));
         Update update = new Update()
             .pull("memberDetails.hobbies", event.getOldName())
-            .addToSet("memberDetails.hobbies", event.getNewName());
+            .addToSet("memberDetails.hobbies", event.getNewName())
+            .set("modifiedAt", LocalDateTime.now());
         mongoTemplate.updateFirst(query, update, MemberDocument.class);
     }
 }
