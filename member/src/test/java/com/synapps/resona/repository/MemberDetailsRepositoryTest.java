@@ -1,12 +1,12 @@
 package com.synapps.resona.repository;
 
-import com.synapps.resona.entity.account.AccountInfo;
-import com.synapps.resona.entity.member.Member;
-import com.synapps.resona.entity.member_details.MBTI;
-import com.synapps.resona.entity.member_details.MemberDetails;
-import com.synapps.resona.entity.profile.Profile;
-import com.synapps.resona.repository.member.MemberRepository;
-import com.synapps.resona.repository.member_details.MemberDetailsRepository;
+import com.synapps.resona.command.entity.account.AccountInfo;
+import com.synapps.resona.command.entity.member.Member;
+import com.synapps.resona.command.entity.member_details.MBTI;
+import com.synapps.resona.command.entity.member_details.MemberDetails;
+import com.synapps.resona.command.entity.profile.Profile;
+import com.synapps.resona.command.repository.member.MemberRepository;
+import com.synapps.resona.command.repository.member_details.MemberDetailsRepository;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

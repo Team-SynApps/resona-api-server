@@ -9,7 +9,7 @@ import com.synapps.resona.dto.RequestInfo;
 import com.synapps.resona.dto.response.SuccessResponse;
 import com.synapps.resona.entity.AuthenticatedUser;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.entity.profile.CountryCode;
+import com.synapps.resona.command.entity.profile.CountryCode;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.retrieval.config.FeedRetrievalProperties;
 import com.synapps.resona.retrieval.dto.FeedDetailDto;

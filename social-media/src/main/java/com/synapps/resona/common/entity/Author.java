@@ -1,6 +1,6 @@
 package com.synapps.resona.common.entity;
 
-import com.synapps.resona.entity.profile.CountryCode;
+import com.synapps.resona.command.entity.profile.CountryCode;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

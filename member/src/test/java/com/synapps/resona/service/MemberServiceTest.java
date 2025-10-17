@@ -8,13 +8,14 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.synapps.resona.dto.request.auth.RegisterRequest;
-import com.synapps.resona.dto.response.MemberRegisterResponseDto;
-import com.synapps.resona.entity.member.Member;
-import com.synapps.resona.entity.member.UserPrincipal;
+import com.synapps.resona.command.service.MemberService;
+import com.synapps.resona.command.dto.request.auth.RegisterRequest;
+import com.synapps.resona.command.dto.response.MemberRegisterResponseDto;
+import com.synapps.resona.command.entity.member.Member;
+import com.synapps.resona.command.entity.member.UserPrincipal;
 import fixture.MemberFixture;
-import com.synapps.resona.repository.member.MemberProviderRepository;
-import com.synapps.resona.repository.member.MemberRepository;
+import com.synapps.resona.command.repository.member.MemberProviderRepository;
+import com.synapps.resona.command.repository.member.MemberRepository;
 
 import java.util.Map;
 import java.util.Optional;

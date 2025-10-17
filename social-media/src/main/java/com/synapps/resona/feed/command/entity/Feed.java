@@ -1,7 +1,7 @@
 package com.synapps.resona.feed.command.entity;
 
 import com.synapps.resona.comment.command.entity.comment.Comment;
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.entity.BaseEntity;
 import com.synapps.resona.entity.Language;
 import com.synapps.resona.report.command.entity.FeedReport;

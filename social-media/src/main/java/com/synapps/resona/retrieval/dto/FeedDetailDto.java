@@ -2,7 +2,7 @@ package com.synapps.resona.retrieval.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.synapps.resona.comment.dto.CommentDto;
-import com.synapps.resona.query.member.entity.MemberStateDocument;
+import com.synapps.resona.query.entity.MemberStateDocument;
 import java.time.LocalDateTime;
 import lombok.Builder;
 import lombok.Getter;

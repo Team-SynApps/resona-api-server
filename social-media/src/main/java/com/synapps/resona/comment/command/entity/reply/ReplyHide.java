@@ -1,7 +1,7 @@
 package com.synapps.resona.comment.command.entity.reply;
 
 import com.synapps.resona.common.entity.Hide;
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

@@ -9,9 +9,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
-import com.synapps.resona.dto.response.TempTokenResponse;
+import com.synapps.resona.command.dto.response.TempTokenResponse;
 import com.synapps.resona.email.exception.EmailException;
-import com.synapps.resona.service.TempTokenService;
+import com.synapps.resona.command.service.TempTokenService;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

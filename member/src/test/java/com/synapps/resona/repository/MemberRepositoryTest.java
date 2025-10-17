@@ -2,11 +2,11 @@ package com.synapps.resona.repository;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-import com.synapps.resona.entity.member.Member;
-import com.synapps.resona.entity.member_details.MemberDetails;
-import com.synapps.resona.entity.profile.Profile;
+import com.synapps.resona.command.entity.member.Member;
+import com.synapps.resona.command.entity.member_details.MemberDetails;
+import com.synapps.resona.command.entity.profile.Profile;
 import fixture.MemberFixture;
-import com.synapps.resona.repository.member.MemberRepository;
+import com.synapps.resona.command.repository.member.MemberRepository;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

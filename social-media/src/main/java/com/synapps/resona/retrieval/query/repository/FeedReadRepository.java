@@ -1,10 +1,9 @@
 package com.synapps.resona.retrieval.query.repository;
 
 import com.synapps.resona.annotation.DatabaseRepositories.MongoDBRepository;
-import com.synapps.resona.entity.profile.CountryCode;
+import com.synapps.resona.command.entity.profile.CountryCode;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.retrieval.query.entity.FeedDocument;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

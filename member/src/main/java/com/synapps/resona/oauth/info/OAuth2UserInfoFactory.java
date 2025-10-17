@@ -1,6 +1,6 @@
 package com.synapps.resona.oauth.info;
 
-import com.synapps.resona.entity.account.ProviderType;
+import com.synapps.resona.command.entity.account.ProviderType;
 import com.synapps.resona.oauth.info.impl.FacebookOAuth2UserInfo;
 import com.synapps.resona.oauth.info.impl.GoogleOAuth2UserInfo;
 import java.util.Map;

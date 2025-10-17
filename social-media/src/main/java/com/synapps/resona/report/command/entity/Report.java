@@ -1,7 +1,7 @@
 package com.synapps.resona.report.command.entity;
 
 import com.synapps.resona.report.common.entity.ReportCategory;
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.entity.BaseEntity;
 import com.synapps.resona.report.common.entity.ReportStatus;
 import com.synapps.resona.report.exception.ReportException;

@@ -11,7 +11,7 @@ import com.synapps.resona.file.code.FileErrorCode;
 import com.synapps.resona.file.dto.FileMetadataDto;
 import com.synapps.resona.file.exception.FileEmptyException;
 import com.synapps.resona.config.database.StorageProperties;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.command.service.MemberService;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.time.LocalDateTime;

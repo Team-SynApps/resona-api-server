@@ -7,15 +7,15 @@ import static org.mockito.Mockito.when;
 
 import com.synapps.resona.comment.command.entity.comment.Comment;
 import com.synapps.resona.comment.command.repository.comment.CommentRepository;
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.feed.command.entity.Feed;
 import com.synapps.resona.feed.command.repository.FeedRepository;
 import com.synapps.resona.report.command.entity.CommentReport;
 import com.synapps.resona.report.command.repository.CommentReportRepository;
 import com.synapps.resona.report.common.entity.ReportCategory;
 import com.synapps.resona.report.event.CommentReportedEvent;
-import com.synapps.resona.repository.member.MemberRepository;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.command.repository.member.MemberRepository;
+import com.synapps.resona.command.service.MemberService;
 import com.synapps.resona.support.ServiceLayerTest;
 import com.synapps.resona.support.fixture.FeedFixture;
 import fixture.MemberFixture;

@@ -1,13 +1,13 @@
 package com.synapps.resona.feed.command.service;
 
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.feed.command.entity.Feed;
 import com.synapps.resona.feed.command.entity.Scrap;
 import com.synapps.resona.feed.command.repository.ScrapRepository;
 import com.synapps.resona.feed.dto.ScrapResponse;
 import com.synapps.resona.feed.event.FeedScrappedEvent;
 import com.synapps.resona.feed.exception.ScrapException;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.command.service.MemberService;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;

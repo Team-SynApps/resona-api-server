@@ -5,7 +5,7 @@ import com.synapps.resona.common.entity.Translation;
 import com.synapps.resona.feed.event.FeedCreatedEvent;
 import com.synapps.resona.feed.event.FeedLikeChangedEvent;
 import com.synapps.resona.feed.event.FeedUpdatedEvent;
-import com.synapps.resona.query.member.service.MemberStateService;
+import com.synapps.resona.query.service.MemberStateService;
 import com.synapps.resona.retrieval.port.in.FeedReadModelSyncUseCase;
 import com.synapps.resona.retrieval.query.entity.FeedDocument;
 import com.synapps.resona.retrieval.query.entity.FeedDocument.LocationEmbed;

@@ -1,11 +1,11 @@
 package com.synapps.resona.fanout.service;
 
-import com.synapps.resona.entity.profile.CountryCode;
+import com.synapps.resona.command.entity.profile.CountryCode;
 import com.synapps.resona.fanout.port.in.FanoutUseCase;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.feed.event.FeedCreatedEvent;
 import com.synapps.resona.properties.RedisTtlProperties;
-import com.synapps.resona.service.FollowService;
+import com.synapps.resona.query.service.FollowQueryService;
 import java.time.ZoneOffset;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class FanoutService implements FanoutUseCase {
-  private final FollowService followService;
+  private final FollowQueryService followQueryService;
   private final StringRedisTemplate redisTemplate;
 
   private static final int PAGE_SIZE = 1000; // 한 번에 조회할 팔로워 수
@@ -87,7 +87,7 @@ public class FanoutService implements FanoutUseCase {
     int currentPage = 0;
     Page<Long> followersPage;
     do {
-      followersPage = followService.getFollowerIds(
+      followersPage = followQueryService.getFollowerIds(
           event.authorInfo().memberId(), PageRequest.of(currentPage, PAGE_SIZE)
       );
 

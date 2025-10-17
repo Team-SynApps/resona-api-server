@@ -4,7 +4,7 @@ import static java.util.stream.Collectors.toMap;
 
 import com.synapps.resona.dto.CursorResult;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.entity.profile.CountryCode;
+import com.synapps.resona.command.entity.profile.CountryCode;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.properties.RedisTtlProperties;
 import com.synapps.resona.retrieval.dto.FeedDto;

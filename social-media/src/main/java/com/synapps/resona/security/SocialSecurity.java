@@ -2,11 +2,9 @@ package com.synapps.resona.security;
 
 import com.synapps.resona.comment.command.repository.comment.CommentRepository;
 import com.synapps.resona.comment.command.repository.reply.ReplyRepository;
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.feed.command.repository.FeedRepository;
-import com.synapps.resona.feed.command.repository.ScrapRepository;
-import com.synapps.resona.comment.command.repository.MentionRepository;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.command.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

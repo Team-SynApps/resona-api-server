@@ -1,7 +1,7 @@
 package com.synapps.resona.feed.command.service;
 
 import com.oracle.bmc.model.BmcException;
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.exception.MemberException;
 import com.synapps.resona.feed.command.entity.MediaType;
 import com.synapps.resona.feed.dto.FeedDetailDto;
@@ -21,8 +21,8 @@ import com.synapps.resona.file.dto.FileMetadataDto;
 import com.synapps.resona.feed.dto.FeedImageDto;
 import com.synapps.resona.feed.command.entity.FeedMedia;
 import com.synapps.resona.feed.command.repository.FeedMediaRepository;
-import com.synapps.resona.repository.member.MemberRepository;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.command.repository.member.MemberRepository;
+import com.synapps.resona.command.service.MemberService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;

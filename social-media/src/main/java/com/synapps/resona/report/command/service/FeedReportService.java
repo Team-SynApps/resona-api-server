@@ -1,15 +1,15 @@
 package com.synapps.resona.report.command.service;
 
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.feed.command.entity.Feed;
 import com.synapps.resona.feed.command.service.FeedCommandService;
-import com.synapps.resona.query.member.event.MemberBlockedEvent;
+import com.synapps.resona.query.event.MemberBlockedEvent;
 import com.synapps.resona.report.command.entity.FeedReport;
 import com.synapps.resona.report.command.repository.FeedReportRepository;
 import com.synapps.resona.report.common.entity.ReportCategory;
 import com.synapps.resona.report.event.FeedReportedEvent;
 import com.synapps.resona.report.exception.ReportException;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.command.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;

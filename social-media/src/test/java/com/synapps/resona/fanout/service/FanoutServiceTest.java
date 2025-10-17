@@ -1,24 +1,21 @@
 package com.synapps.resona.fanout.service;
 
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.entity.profile.CountryCode;
+import com.synapps.resona.command.entity.profile.CountryCode;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.feed.event.FeedCreatedEvent;
 import com.synapps.resona.feed.event.FeedCreatedEvent.AuthorInfo;
-import com.synapps.resona.fanout.service.FanoutService;
 import com.synapps.resona.properties.RedisTtlProperties;
-import com.synapps.resona.service.FollowService;
+import com.synapps.resona.command.service.FollowService;
 import com.synapps.resona.support.ServiceLayerTest;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties; // 이 부분을 import 합니다.
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.domain.PageImpl;

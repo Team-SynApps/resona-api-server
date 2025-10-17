@@ -1,6 +1,6 @@
 package com.synapps.resona.feed.dto;
 
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;

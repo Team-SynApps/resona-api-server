@@ -1,8 +1,8 @@
 package com.synapps.resona.comment.command.service;
 
 import com.synapps.resona.comment.query.entity.MentionedMember;
-import com.synapps.resona.entity.member.Member;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.command.entity.member.Member;
+import com.synapps.resona.command.service.MemberService;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;

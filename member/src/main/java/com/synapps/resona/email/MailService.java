@@ -1,7 +1,7 @@
 package com.synapps.resona.email;
 
 import com.synapps.resona.email.exception.EmailException;
-import com.synapps.resona.service.TempTokenService;
+import com.synapps.resona.command.service.TempTokenService;
 import java.util.HashMap;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

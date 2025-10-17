@@ -1,7 +1,7 @@
 package com.synapps.resona.feed.command.entity;
 
 import com.synapps.resona.common.entity.Likes;
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

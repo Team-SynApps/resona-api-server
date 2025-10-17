@@ -1,6 +1,6 @@
 package com.synapps.resona.oauth.apple;
 
-import com.synapps.resona.dto.response.OAuthPlatformMemberResponse;
+import com.synapps.resona.command.dto.response.OAuthPlatformMemberResponse;
 import io.jsonwebtoken.Claims;
 import java.security.PublicKey;
 import java.util.Map;

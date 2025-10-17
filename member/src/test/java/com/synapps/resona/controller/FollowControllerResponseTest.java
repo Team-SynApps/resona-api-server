@@ -10,9 +10,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.synapps.resona.dto.response.MemberProfileDto;
+import com.synapps.resona.command.controller.FollowController;
+import com.synapps.resona.command.dto.response.MemberProfileDto;
 import com.synapps.resona.config.server.ServerInfoConfig;
-import com.synapps.resona.service.FollowService;
+import com.synapps.resona.command.service.FollowService;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

@@ -13,18 +13,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.synapps.resona.dto.MemberDto;
-import com.synapps.resona.dto.request.auth.LoginRequest;
-import com.synapps.resona.dto.request.auth.RegisterRequest;
-import com.synapps.resona.dto.request.member.MemberPasswordChangeDto;
-import com.synapps.resona.dto.response.MemberInfoDto;
-import com.synapps.resona.dto.response.MemberRegisterResponseDto;
-import com.synapps.resona.dto.response.TokenResponse;
-import com.synapps.resona.entity.token.AuthToken;
+import com.synapps.resona.command.controller.MemberController;
+import com.synapps.resona.command.dto.MemberDto;
+import com.synapps.resona.command.dto.request.auth.LoginRequest;
+import com.synapps.resona.command.dto.request.auth.RegisterRequest;
+import com.synapps.resona.command.dto.request.member.MemberPasswordChangeDto;
+import com.synapps.resona.command.dto.response.MemberInfoDto;
+import com.synapps.resona.command.dto.response.MemberRegisterResponseDto;
+import com.synapps.resona.command.dto.response.TokenResponse;
+import com.synapps.resona.command.entity.token.AuthToken;
 import fixture.MemberFixture; // Fixture 임포트
 import com.synapps.resona.config.server.ServerInfoConfig;
-import com.synapps.resona.service.AuthService;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.command.service.AuthService;
+import com.synapps.resona.command.service.MemberService;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;

@@ -13,15 +13,16 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.synapps.resona.dto.MemberDto; // Import MemberDto
-import com.synapps.resona.dto.request.profile.DuplicateTagRequest;
-import com.synapps.resona.dto.request.profile.ProfileRequest;
-import com.synapps.resona.dto.response.ProfileResponse;
-import com.synapps.resona.entity.profile.CountryCode;
-import com.synapps.resona.entity.profile.Gender;
-import com.synapps.resona.entity.profile.Profile;
+import com.synapps.resona.command.controller.ProfileController;
+import com.synapps.resona.command.dto.MemberDto; // Import MemberDto
+import com.synapps.resona.command.dto.request.profile.DuplicateTagRequest;
+import com.synapps.resona.command.dto.request.profile.ProfileRequest;
+import com.synapps.resona.command.dto.response.ProfileResponse;
+import com.synapps.resona.command.entity.profile.CountryCode;
+import com.synapps.resona.command.entity.profile.Gender;
+import com.synapps.resona.command.entity.profile.Profile;
 import com.synapps.resona.config.server.ServerInfoConfig;
-import com.synapps.resona.service.ProfileService;
+import com.synapps.resona.command.service.ProfileService;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;

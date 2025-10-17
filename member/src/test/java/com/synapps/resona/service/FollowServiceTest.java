@@ -4,10 +4,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
+import com.synapps.resona.command.service.FollowService;
+import com.synapps.resona.command.service.MemberService;
+import com.synapps.resona.command.service.TempTokenService;
 import fixture.MemberFixture;
-import com.synapps.resona.repository.member.FollowRepository;
-import com.synapps.resona.repository.member.MemberRepository;
-import com.synapps.resona.dto.request.auth.RegisterRequest;
+import com.synapps.resona.command.repository.member.FollowRepository;
+import com.synapps.resona.command.repository.member.MemberRepository;
+import com.synapps.resona.command.dto.request.auth.RegisterRequest;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

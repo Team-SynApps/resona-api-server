@@ -10,14 +10,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.synapps.resona.dto.request.auth.AppleLoginRequest;
-import com.synapps.resona.dto.request.auth.LoginRequest;
-import com.synapps.resona.dto.request.auth.RefreshRequest;
-import com.synapps.resona.dto.response.ChatMemberDto;
-import com.synapps.resona.dto.response.TokenResponse;
-import com.synapps.resona.entity.token.AuthToken;
+import com.synapps.resona.command.controller.AuthController;
+import com.synapps.resona.command.dto.request.auth.AppleLoginRequest;
+import com.synapps.resona.command.dto.request.auth.LoginRequest;
+import com.synapps.resona.command.dto.request.auth.RefreshRequest;
+import com.synapps.resona.command.dto.response.ChatMemberDto;
+import com.synapps.resona.command.dto.response.TokenResponse;
+import com.synapps.resona.command.entity.token.AuthToken;
 import com.synapps.resona.config.server.ServerInfoConfig;
-import com.synapps.resona.service.AuthService;
+import com.synapps.resona.command.service.AuthService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;

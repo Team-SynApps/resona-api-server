@@ -11,12 +11,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.synapps.resona.dto.request.member_details.MemberDetailsRequest;
-import com.synapps.resona.dto.response.MemberDetailsResponse;
-import com.synapps.resona.entity.member_details.MBTI;
-import com.synapps.resona.entity.member_details.MemberDetails;
+import com.synapps.resona.command.controller.MemberDetailsController;
+import com.synapps.resona.command.dto.request.member_details.MemberDetailsRequest;
+import com.synapps.resona.command.dto.response.MemberDetailsResponse;
+import com.synapps.resona.command.entity.member_details.MBTI;
+import com.synapps.resona.command.entity.member_details.MemberDetails;
 import com.synapps.resona.config.server.ServerInfoConfig;
-import com.synapps.resona.service.MemberDetailsService;
+import com.synapps.resona.command.service.MemberDetailsService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;

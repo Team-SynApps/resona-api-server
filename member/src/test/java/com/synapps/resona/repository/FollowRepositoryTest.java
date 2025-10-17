@@ -2,11 +2,11 @@ package com.synapps.resona.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.synapps.resona.entity.member.Follow;
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Follow;
+import com.synapps.resona.command.entity.member.Member;
 import fixture.MemberFixture;
-import com.synapps.resona.repository.member.FollowRepository;
-import com.synapps.resona.repository.member.MemberRepository;
+import com.synapps.resona.command.repository.member.FollowRepository;
+import com.synapps.resona.command.repository.member.MemberRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;

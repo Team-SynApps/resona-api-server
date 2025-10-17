@@ -3,7 +3,10 @@ package com.synapps.resona.service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
-import com.synapps.resona.repository.member.MemberRepository;
+import com.synapps.resona.command.repository.member.MemberRepository;
+import com.synapps.resona.command.service.MemberDetailsService;
+import com.synapps.resona.command.service.MemberService;
+import com.synapps.resona.command.service.TempTokenService;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;

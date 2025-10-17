@@ -6,8 +6,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import com.synapps.resona.comment.query.entity.MentionedMember;
-import com.synapps.resona.entity.member.Member;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.command.entity.member.Member;
+import com.synapps.resona.command.service.MemberService;
 import fixture.MemberFixture;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +16,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
 

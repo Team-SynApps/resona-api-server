@@ -3,7 +3,7 @@ package com.synapps.resona.report.command.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.feed.command.entity.Feed;
 import com.synapps.resona.feed.command.repository.FeedRepository;
 import com.synapps.resona.report.command.entity.FeedReport;
@@ -11,7 +11,7 @@ import com.synapps.resona.report.command.repository.ReportRepository;
 import com.synapps.resona.report.common.entity.ReportCategory;
 import com.synapps.resona.report.common.entity.ReportStatus;
 import com.synapps.resona.report.event.ReportStatusChangedEvent;
-import com.synapps.resona.repository.member.MemberRepository;
+import com.synapps.resona.command.repository.member.MemberRepository;
 import com.synapps.resona.support.ServiceLayerTest;
 import com.synapps.resona.support.fixture.FeedFixture;
 import fixture.MemberFixture;

@@ -6,7 +6,7 @@ import com.synapps.resona.annotation.ErrorCodeSpec;
 import com.synapps.resona.annotation.SuccessCodeSpec;
 import com.synapps.resona.dto.code.ErrorCode;
 import com.synapps.resona.dto.code.SuccessCode;
-import com.synapps.resona.entity.token.AuthToken;
+import com.synapps.resona.command.entity.token.AuthToken;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
