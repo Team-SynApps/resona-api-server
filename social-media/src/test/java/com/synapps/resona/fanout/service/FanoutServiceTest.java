@@ -7,6 +7,7 @@ import com.synapps.resona.feed.event.FeedCreatedEvent;
 import com.synapps.resona.feed.event.FeedCreatedEvent.AuthorInfo;
 import com.synapps.resona.properties.RedisTtlProperties;
 import com.synapps.resona.command.service.FollowService;
+import com.synapps.resona.query.service.retrieval.FollowQueryService;
 import com.synapps.resona.support.ServiceLayerTest;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -39,7 +40,7 @@ class FanoutServiceTest {
     private FanoutService fanoutService;
 
     @MockBean
-    private FollowService followService;
+    private FollowQueryService followQueryService;
 
     @Autowired
     private StringRedisTemplate redisTemplate;
@@ -62,14 +63,14 @@ class FanoutServiceTest {
         AuthorInfo authorInfo = new AuthorInfo(1L, "nickname", "url", false, CountryCode.KR);
         FeedCreatedEvent event = new FeedCreatedEvent(2L, "content", FeedCategory.DAILY, Language.ko, authorInfo, Collections.emptyList(), Optional.empty(), LocalDateTime.now());
 
-        when(followService.getFollowerIds(anyLong(), any(PageRequest.class)))
+        when(followQueryService.getFollowerIds(anyLong(), any(PageRequest.class)))
             .thenReturn(new PageImpl<>(List.of(3L, 4L)));
 
         // when
         fanoutService.fanoutFeed(event);
 
         // then
-        verify(followService, times(1)).getFollowerIds(anyLong(), any(PageRequest.class));
+        verify(followQueryService, times(1)).getFollowerIds(anyLong(), any(PageRequest.class));
         assertThat(redisTemplate.opsForZSet().score("feeds:recent", "2")).isNotNull();
         assertThat(redisTemplate.opsForZSet().score("timeline:category:DAILY", "2")).isNotNull();
         assertThat(redisTemplate.opsForZSet().score("timeline:country:KR", "2")).isNotNull();
@@ -91,7 +92,7 @@ class FanoutServiceTest {
         fanoutService.fanoutFeed(event);
 
         // then
-        verify(followService, times(0)).getFollowerIds(anyLong(), any(PageRequest.class));
+        verify(followQueryService, times(0)).getFollowerIds(anyLong(), any(PageRequest.class));
         assertThat(redisTemplate.opsForZSet().score("feeds:recent", "2")).isNotNull();
         assertThat(redisTemplate.opsForZSet().score("timeline:category:DAILY", "2")).isNotNull();
         assertThat(redisTemplate.opsForZSet().score("timeline:country:KR", "2")).isNotNull();

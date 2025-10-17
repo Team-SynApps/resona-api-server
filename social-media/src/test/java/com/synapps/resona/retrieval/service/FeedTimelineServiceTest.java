@@ -103,7 +103,7 @@ class FeedTimelineServiceTest {
         // then
         assertThat(result.getValues()).hasSize(10);
         assertThat(result.isHasNext()).isTrue();
-        assertThat(result.getCursor()).isNotNull();
+        assertThat(result.getNextCursor()).isNotNull();
         verify(feedQueryHelper, times(10)).translateAndConvertToDto(any(FeedDocument.class), eq(targetLanguage));
     }
 
@@ -197,7 +197,7 @@ class FeedTimelineServiceTest {
         // then
         assertThat(result.getValues()).hasSize(5);
         assertThat(result.isHasNext()).isTrue();
-        assertThat(result.getCursor()).isNotNull();
+        assertThat(result.getNextCursor()).isNotNull();
     }
 
     @Test
