@@ -10,6 +10,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.synapps.resona.report.common.entity.ReportCategory;
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class ReportManagementService {
@@ -22,6 +25,17 @@ public class ReportManagementService {
     Report report = reportRepository.findById(reportId)
         .orElseThrow(ReportException::reportNotFound);
     report.resolve();
+
+    ReportCategory category = report.getCategory();
+    int sanctionDays = category.getSanctionDays();
+
+    if (sanctionDays != 0) {
+      if (sanctionDays == -1) {
+        report.getReported().getAccountInfo().ban(LocalDateTime.now().plusYears(100));
+      } else {
+        report.getReported().getAccountInfo().ban(LocalDateTime.now().plusDays(sanctionDays));
+      }
+    }
 
     eventPublisher.publishEvent(new ReportStatusChangedEvent(reportId, ReportStatus.RESOLVED));
   }

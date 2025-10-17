@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Report Admin", description = "신고 조회 API (관리자용)")
+@Tag(name = "Admin", description = "관리자 기능 API")
 @RestController
 @RequestMapping("/admin/reports")
 @RequiredArgsConstructor
