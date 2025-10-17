@@ -180,14 +180,17 @@ public class AuthService {
       throw AuthException.invalidRefreshToken();
     }
 
-    long validTime = calculateValidTime(authRefreshToken);
-    AuthToken newRefreshToken = authRefreshToken;
+//    long validTime = calculateValidTime(authRefreshToken);
 
-    if (validTime <= THREE_DAYS_MSEC) {
-      long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
-      newRefreshToken = createRefreshToken(now, refreshTokenExpiry);
-      memberRefreshToken.setRefreshToken(newRefreshToken.getToken());
-    }
+    long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
+    AuthToken newRefreshToken = createRefreshToken(now, refreshTokenExpiry);
+    memberRefreshToken.setRefreshToken(newRefreshToken.getToken());
+
+//    if (validTime <= THREE_DAYS_MSEC) {
+//      long refreshTokenExpiry = appProperties.getAuth().getRefreshTokenExpiry();
+//      newRefreshToken = createRefreshToken(now, refreshTokenExpiry);
+//      memberRefreshToken.setRefreshToken(newRefreshToken.getToken());
+//    }
 
     AuthToken newAccessToken = createNewAccessToken(memberEmail, roleType, now);
     return new TokenResponse(newAccessToken, newRefreshToken, true);
