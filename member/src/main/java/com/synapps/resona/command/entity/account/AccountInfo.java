@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,9 @@ public class AccountInfo extends BaseEntity {
   @NotNull
   @Column(name = "account_status")
   private AccountStatus status;
+
+  @Column(name = "banned_until")
+  private LocalDateTime bannedUntil;
 
   private AccountInfo(RoleType roleType, AccountStatus status) {
     this.roleType = roleType;
@@ -64,5 +68,27 @@ public class AccountInfo extends BaseEntity {
 
   public boolean isAccountTemporary() {
     return this.status.equals(AccountStatus.TEMPORARY);
+  }
+
+  public void ban(LocalDateTime until) {
+    if (this.roleType == RoleType.ADMIN) {
+      throw new IllegalStateException("관리자 계정은 정지할 수 없습니다.");
+    }
+    this.status = AccountStatus.BANNED;
+    this.bannedUntil = until;
+  }
+
+  public void unban() {
+    if (this.status == AccountStatus.BANNED) {
+      this.status = AccountStatus.ACTIVE;
+      this.bannedUntil = null;
+    }
+  }
+
+  public boolean isBanExpired() {
+    if (this.status != AccountStatus.BANNED || this.bannedUntil == null) {
+      return false;
+    }
+    return LocalDateTime.now().isAfter(this.bannedUntil);
   }
 }
