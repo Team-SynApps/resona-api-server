@@ -9,6 +9,7 @@ dependencies {
     implementation project(':social-media')
     implementation project(':chat')
     implementation project(':notification')
+    implementation project(':report')
 
     // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'

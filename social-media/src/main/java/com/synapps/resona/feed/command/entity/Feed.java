@@ -4,7 +4,6 @@ import com.synapps.resona.comment.command.entity.comment.Comment;
 import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.entity.BaseEntity;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.report.command.entity.FeedReport;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,9 +44,6 @@ public class Feed extends BaseEntity {
   @BatchSize(size = 100)
   @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
   private final List<FeedMedia> images = new ArrayList<>();
-
-  @OneToMany(mappedBy = "feed")
-  private final List<FeedReport> complaints = new ArrayList<>();
 
   @Column(name = "is_kept")
   private final boolean isKept = false;
