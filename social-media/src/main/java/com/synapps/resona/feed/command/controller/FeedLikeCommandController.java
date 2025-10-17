@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "FeedLike", description = "피드 좋아요 관련 API")
+@Tag(name = "Feed", description = "피드 관련 API")
 @RestController
 @RequestMapping
 @RequiredArgsConstructor
