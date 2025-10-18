@@ -23,7 +23,7 @@ public class FeedFixture {
     double latitude = Double.parseDouble(coords[0]);
     double longitude = Double.parseDouble(coords[1]);
     LocationRequest.GeoLocation location = new LocationRequest.GeoLocation(latitude, longitude);
-    return new LocationRequest("some-place-id", LOCATION_NAME, ADDRESS, location, "some-primary-type");
+    return new LocationRequest("some-place-id", LOCATION_NAME, ADDRESS, location,"some-category", "some-primary-type");
   }
 
   public static FeedRequest createFeedRequest() {
