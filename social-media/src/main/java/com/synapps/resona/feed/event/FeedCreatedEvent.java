@@ -1,7 +1,7 @@
 package com.synapps.resona.feed.event;
 
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.entity.profile.CountryCode;
+import com.synapps.resona.command.entity.profile.CountryCode;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.feed.command.entity.MediaType;
 import java.time.LocalDateTime;

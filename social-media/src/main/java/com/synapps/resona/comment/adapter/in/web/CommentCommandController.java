@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Comment Command", description = "댓글/대댓글 생성, 수정, 삭제 API")
+@Tag(name = "Comment", description = "댓글/대댓글 API")
 @RestController
 @RequestMapping
 @RequiredArgsConstructor

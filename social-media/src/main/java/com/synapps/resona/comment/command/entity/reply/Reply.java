@@ -3,7 +3,7 @@ package com.synapps.resona.comment.command.entity.reply;
 import com.synapps.resona.comment.command.entity.MentionableContent;
 import com.synapps.resona.comment.command.entity.comment.Comment;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;

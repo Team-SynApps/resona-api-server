@@ -2,7 +2,7 @@ package com.synapps.resona.comment.command.entity;
 
 import com.synapps.resona.entity.BaseEntity;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.SQLRestriction;

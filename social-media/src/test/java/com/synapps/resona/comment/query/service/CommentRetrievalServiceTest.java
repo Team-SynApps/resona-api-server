@@ -12,7 +12,7 @@ import com.synapps.resona.comment.dto.CommentDto;
 import com.synapps.resona.entity.Language;
 import com.synapps.resona.comment.query.entity.CommentDocument;
 import com.synapps.resona.comment.query.repository.CommentDocumentRepository;
-import com.synapps.resona.query.member.service.MemberStateService;
+import com.synapps.resona.query.service.MemberStateService;
 import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

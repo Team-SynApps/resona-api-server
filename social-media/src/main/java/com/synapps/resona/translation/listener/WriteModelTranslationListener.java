@@ -8,6 +8,7 @@ import com.synapps.resona.comment.command.repository.CommentTranslationRepositor
 import com.synapps.resona.comment.command.repository.ReplyTranslationRepository;
 import com.synapps.resona.comment.command.repository.comment.CommentRepository;
 import com.synapps.resona.comment.command.repository.reply.ReplyRepository;
+import com.synapps.resona.common.entity.Translation;
 import com.synapps.resona.common.event.CommentTranslationUpdatedEvent;
 import com.synapps.resona.common.event.CommentTranslationsCreatedEvent;
 
@@ -15,13 +16,17 @@ import com.synapps.resona.common.event.ReplyTranslationUpdatedEvent;
 import com.synapps.resona.common.event.ReplyTranslationsCreatedEvent;
 import com.synapps.resona.comment.exception.CommentException;
 import com.synapps.resona.comment.exception.ReplyException;
+import com.synapps.resona.entity.Language;
 import com.synapps.resona.feed.command.entity.Feed;
 import com.synapps.resona.feed.command.entity.FeedTranslation;
 import com.synapps.resona.feed.command.repository.FeedRepository;
 import com.synapps.resona.feed.command.repository.FeedTranslationRepository;
 import com.synapps.resona.common.event.FeedTranslationUpdatedEvent;
 import com.synapps.resona.common.event.FeedTranslationsCreatedEvent;
+import com.synapps.resona.feed.event.FeedCreatedEvent;
 import com.synapps.resona.feed.exception.FeedException;
+import com.synapps.resona.translation.service.TranslationService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -41,6 +46,20 @@ public class WriteModelTranslationListener {
   private final FeedTranslationRepository feedTranslationRepository;
   private final CommentTranslationRepository commentTranslationRepository;
   private final ReplyTranslationRepository replyTranslationRepository;
+
+  private final TranslationService translationService;
+
+  @TransactionalEventListener
+  public void handleFeedCreatedEvent(FeedCreatedEvent event) {
+    Feed feed = feedRepository.findById(event.feedId()).orElseThrow(FeedException::feedNotFoundException);
+    List<Translation> translations = translationService.translateToTargetLanguages(feed.getContent(), feed.getLanguage());
+
+    for (Translation translation : translations) {
+      Language translatedLanguage = Language.fromCode(translation.languageCode());
+      FeedTranslation feedTranslation = FeedTranslation.of(feed, translatedLanguage, translation.content());
+      feedTranslationRepository.save(feedTranslation);
+    }
+  }
 
   @TransactionalEventListener
   public void handleFeedTranslationsCreatedEvent(FeedTranslationsCreatedEvent event) {

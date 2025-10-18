@@ -1,6 +1,6 @@
 package com.synapps.resona.feed.command.repository;
 
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.feed.command.entity.Feed;
 import com.synapps.resona.annotation.DatabaseRepositories.MySQLRepository;
 import com.synapps.resona.feed.command.entity.FeedLikes;

@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Comment Like Command", description = "댓글/대댓글 좋아요 API")
+@Tag(name = "Comment", description = "댓글/대댓글 API")
 @RestController
 @RequestMapping
 @RequiredArgsConstructor

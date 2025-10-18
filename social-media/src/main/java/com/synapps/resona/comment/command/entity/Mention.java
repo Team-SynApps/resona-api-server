@@ -1,6 +1,6 @@
 package com.synapps.resona.comment.command.entity;
 
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

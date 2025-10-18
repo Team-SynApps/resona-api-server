@@ -1,25 +1,26 @@
 package com.synapps.resona.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.synapps.resona.entity.account.RoleType;
+import com.synapps.resona.command.entity.account.RoleType;
 import com.synapps.resona.config.server.ServerInfoConfig;
 import com.synapps.resona.filter.TokenAuthenticationFilter;
 import com.synapps.resona.handler.CustomAccessDeniedHandler;
 import com.synapps.resona.handler.CustomAuthenticationEntryPoint;
 import com.synapps.resona.properties.AppProperties;
 import com.synapps.resona.properties.CorsProperties;
-import com.synapps.resona.entity.token.AuthTokenProvider;
+import com.synapps.resona.command.entity.token.AuthTokenProvider;
 import com.synapps.resona.oauth.handler.OAuth2AuthenticationFailureHandler;
 import com.synapps.resona.oauth.handler.OAuth2AuthenticationSuccessHandler;
 import com.synapps.resona.oauth.resolver.CustomOAuth2AuthorizationRequestResolver;
 import com.synapps.resona.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
 import com.synapps.resona.oauth.service.CustomOAuth2UserService;
 import com.synapps.resona.oauth.service.CustomUserDetailsService;
-import com.synapps.resona.repository.member.MemberRefreshTokenRepository;
-import com.synapps.resona.repository.member.MemberRepository;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.command.repository.member.MemberRefreshTokenRepository;
+import com.synapps.resona.command.repository.member.MemberRepository;
+import com.synapps.resona.command.service.MemberService;
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
@@ -59,6 +60,7 @@ public class SecurityConfig {
   private final ClientRegistrationRepository clientRegistrationRepository;
   private final CustomAccessDeniedHandler customAccessDeniedHandler;
   private final Environment environment;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   private static final String[] PERMIT_URL_ARRAY = {
       /* swagger v3 */
@@ -211,7 +213,7 @@ public class SecurityConfig {
    * */
   @Bean
   public TokenAuthenticationFilter tokenAuthenticationFilter() {
-    return new TokenAuthenticationFilter(tokenProvider, objectMapper, serverInfo, memberRepository);
+    return new TokenAuthenticationFilter(tokenProvider, objectMapper, serverInfo, memberRepository, applicationEventPublisher);
   }
 
   /*

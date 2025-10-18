@@ -1,6 +1,6 @@
 package com.synapps.resona.support.fixture;
 
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.feed.command.entity.Feed;
 import com.synapps.resona.feed.dto.request.FeedRequest;
 import com.synapps.resona.feed.dto.request.LocationRequest;

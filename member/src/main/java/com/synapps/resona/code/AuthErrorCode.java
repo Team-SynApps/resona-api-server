@@ -17,6 +17,7 @@ public enum AuthErrorCode implements ErrorCode {
   NOT_EXPIRED(HttpStatus.NOT_ACCEPTABLE, "AUTH007", "Access token not Expired"),
   FORBIDDEN(HttpStatus.FORBIDDEN, "AUTH008", "You do not have permission to access this resource."),
   LOGIN_FAILED(HttpStatus.UNAUTHORIZED, "AUTH009", "The account information does not match"),
+  ACCOUNT_BANNED(HttpStatus.FORBIDDEN, "AUTH010", "The account is banned"),
 
   // oauth
   PROVIDER_TYPE_MISSMATCH(HttpStatus.CONFLICT, "OAUTH001", "Account info missmatch"),

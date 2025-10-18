@@ -1,7 +1,7 @@
 package com.synapps.resona.oauth.exception;
 
 import com.synapps.resona.code.AuthErrorCode;
-import com.synapps.resona.entity.account.ProviderType;
+import com.synapps.resona.command.entity.account.ProviderType;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.AuthenticationException;

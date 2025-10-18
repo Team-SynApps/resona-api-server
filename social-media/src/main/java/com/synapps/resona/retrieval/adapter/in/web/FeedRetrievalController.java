@@ -9,7 +9,7 @@ import com.synapps.resona.dto.RequestInfo;
 import com.synapps.resona.dto.response.SuccessResponse;
 import com.synapps.resona.entity.AuthenticatedUser;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.entity.profile.CountryCode;
+import com.synapps.resona.command.entity.profile.CountryCode;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.retrieval.config.FeedRetrievalProperties;
 import com.synapps.resona.retrieval.dto.FeedDetailDto;
@@ -17,6 +17,7 @@ import com.synapps.resona.retrieval.dto.FeedDto;
 import com.synapps.resona.retrieval.service.FeedRetrievalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Feed", description = "피드 관련 API")
 @RestController
 @RequestMapping
 @RequiredArgsConstructor

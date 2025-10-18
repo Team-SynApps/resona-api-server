@@ -9,14 +9,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.query.member.service.MemberStateService;
+import com.synapps.resona.query.service.MemberStateService;
 import com.synapps.resona.retrieval.dto.FeedDto;
 import com.synapps.resona.retrieval.query.entity.FeedDocument;
 import com.synapps.resona.retrieval.query.repository.FeedReadRepository;
 import com.synapps.resona.translation.service.TranslationService;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;

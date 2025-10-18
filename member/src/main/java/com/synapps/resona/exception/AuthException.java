@@ -42,4 +42,8 @@ public class AuthException extends BaseException {
     return of(AuthErrorCode.NOT_EXPIRED);
   }
 
+  public static AuthException accountBanned() {
+    return of(AuthErrorCode.ACCOUNT_BANNED);
+  }
+
 }
