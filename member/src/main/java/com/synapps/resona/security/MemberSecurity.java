@@ -1,6 +1,6 @@
 package com.synapps.resona.security;
 
-import com.synapps.resona.entity.member.UserPrincipal;
+import com.synapps.resona.command.entity.member.UserPrincipal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;

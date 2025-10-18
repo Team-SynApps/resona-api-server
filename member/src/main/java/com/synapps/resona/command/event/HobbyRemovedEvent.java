@@ -1,0 +1,12 @@
+package com.synapps.resona.command.event;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public class HobbyRemovedEvent {
+
+    private final Long memberId;
+    private final String hobbyName;
+}

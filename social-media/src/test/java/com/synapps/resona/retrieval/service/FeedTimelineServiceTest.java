@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 import com.synapps.resona.common.entity.Author;
 import com.synapps.resona.dto.CursorResult;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.entity.profile.CountryCode;
+import com.synapps.resona.command.entity.profile.CountryCode;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.properties.RedisTtlProperties;
 import com.synapps.resona.retrieval.dto.FeedDto;
@@ -103,7 +103,7 @@ class FeedTimelineServiceTest {
         // then
         assertThat(result.getValues()).hasSize(10);
         assertThat(result.isHasNext()).isTrue();
-        assertThat(result.getCursor()).isNotNull();
+        assertThat(result.getNextCursor()).isNotNull();
         verify(feedQueryHelper, times(10)).translateAndConvertToDto(any(FeedDocument.class), eq(targetLanguage));
     }
 
@@ -197,7 +197,7 @@ class FeedTimelineServiceTest {
         // then
         assertThat(result.getValues()).hasSize(5);
         assertThat(result.isHasNext()).isTrue();
-        assertThat(result.getCursor()).isNotNull();
+        assertThat(result.getNextCursor()).isNotNull();
     }
 
     @Test

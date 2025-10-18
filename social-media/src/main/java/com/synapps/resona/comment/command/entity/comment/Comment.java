@@ -2,7 +2,7 @@ package com.synapps.resona.comment.command.entity.comment;
 
 import com.synapps.resona.comment.command.entity.MentionableContent;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.feed.command.entity.Feed;
 import jakarta.persistence.*;
 import lombok.AccessLevel;

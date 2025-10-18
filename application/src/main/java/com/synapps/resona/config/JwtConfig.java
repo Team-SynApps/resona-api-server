@@ -1,7 +1,7 @@
 package com.synapps.resona.config;
 
 
-import com.synapps.resona.entity.token.AuthTokenProvider;
+import com.synapps.resona.command.entity.token.AuthTokenProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

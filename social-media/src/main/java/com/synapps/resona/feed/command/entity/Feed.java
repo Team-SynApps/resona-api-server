@@ -1,15 +1,15 @@
 package com.synapps.resona.feed.command.entity;
 
 import com.synapps.resona.comment.command.entity.comment.Comment;
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.entity.BaseEntity;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.report.command.entity.FeedReport;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -46,9 +46,6 @@ public class Feed extends BaseEntity {
   @OneToMany(mappedBy = "feed", cascade = CascadeType.PERSIST)
   private final List<FeedMedia> images = new ArrayList<>();
 
-  @OneToMany(mappedBy = "feed")
-  private final List<FeedReport> complaints = new ArrayList<>();
-
   @Column(name = "is_kept")
   private final boolean isKept = false;
 
@@ -67,7 +64,7 @@ public class Feed extends BaseEntity {
   @Column(name = "category")
   private FeedCategory category;
 
-  @OneToOne
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "location_id")
   private Location location;
 

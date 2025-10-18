@@ -8,7 +8,7 @@ import com.synapps.resona.config.server.ServerInfoConfig;
 import com.synapps.resona.dto.RequestInfo;
 import com.synapps.resona.dto.response.ErrorResponse;
 import com.synapps.resona.dto.response.SuccessResponse;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.command.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

@@ -43,6 +43,9 @@ public enum MemberErrorCode implements ErrorCode {
   CANNOT_BLOCK_SELF(HttpStatus.CONFLICT, "BLK001", "Cannot block self"),
   ALREADY_BLOCKED(HttpStatus.NOT_ACCEPTABLE, "BLK002", "Already blocked"),
   NOT_BLOCKED(HttpStatus.BAD_REQUEST, "BLK003", "Not blocked"),
+
+  // Global
+  INVALID_PARAMETER(HttpStatus.BAD_REQUEST, "GLO001", "Invalid parameter")
   ;
 
   private final String code;

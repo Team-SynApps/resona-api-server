@@ -1,11 +1,11 @@
 package com.synapps.resona.feed.command.service;
 
-import com.synapps.resona.entity.member.Member;
+import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.feed.command.entity.Feed;
 import com.synapps.resona.feed.command.entity.FeedHide;
 import com.synapps.resona.feed.command.repository.FeedHideRepository;
-import com.synapps.resona.query.member.event.FeedHiddenEvent;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.query.event.FeedHiddenEvent;
+import com.synapps.resona.command.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;

@@ -1,7 +1,7 @@
 package com.synapps.resona.retrieval.service;
 
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.query.member.service.MemberStateService;
+import com.synapps.resona.query.service.MemberStateService;
 import com.synapps.resona.retrieval.dto.FeedDto;
 import com.synapps.resona.retrieval.query.entity.FeedDocument;
 import com.synapps.resona.retrieval.query.repository.FeedReadRepository;

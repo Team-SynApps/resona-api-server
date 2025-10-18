@@ -1,23 +1,22 @@
 package fixture;
 
-import com.synapps.resona.dto.MemberDto;
-import com.synapps.resona.dto.request.auth.RegisterRequest;
-import com.synapps.resona.dto.request.member_details.MemberDetailsRequest;
-import com.synapps.resona.dto.request.profile.ProfileRequest;
-import com.synapps.resona.entity.account.AccountInfo;
-import com.synapps.resona.entity.account.AccountStatus;
-import com.synapps.resona.entity.account.RoleType;
-import com.synapps.resona.entity.member.Member;
-import com.synapps.resona.entity.member_details.MBTI;
-import com.synapps.resona.entity.member_details.MemberDetails;
-import com.synapps.resona.entity.profile.CountryCode;
-import com.synapps.resona.entity.profile.Gender;
-import com.synapps.resona.entity.profile.Profile;
+import com.synapps.resona.command.dto.MemberDto;
+import com.synapps.resona.command.dto.request.auth.RegisterRequest;
+import com.synapps.resona.command.dto.request.member_details.MemberDetailsRequest;
+import com.synapps.resona.command.dto.request.profile.ProfileRequest;
+import com.synapps.resona.command.entity.account.AccountInfo;
+import com.synapps.resona.command.entity.account.AccountStatus;
+import com.synapps.resona.command.entity.account.RoleType;
+import com.synapps.resona.command.entity.member.Member;
+import com.synapps.resona.command.entity.member_details.MBTI;
+import com.synapps.resona.command.entity.member_details.MemberDetails;
+import com.synapps.resona.command.entity.profile.CountryCode;
+import com.synapps.resona.command.entity.profile.Gender;
+import com.synapps.resona.command.entity.profile.Profile;
 import com.synapps.resona.entity.Language;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 

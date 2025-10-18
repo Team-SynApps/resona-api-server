@@ -1,18 +1,18 @@
 package com.synapps.resona.oauth.handler;
 
 
-import com.synapps.resona.entity.account.RoleType;
-import com.synapps.resona.entity.member.MemberRefreshToken;
+import com.synapps.resona.command.entity.account.RoleType;
+import com.synapps.resona.command.entity.member.MemberRefreshToken;
 import com.synapps.resona.properties.AppProperties;
-import com.synapps.resona.entity.token.AuthToken;
-import com.synapps.resona.entity.token.AuthTokenProvider;
+import com.synapps.resona.command.entity.token.AuthToken;
+import com.synapps.resona.command.entity.token.AuthTokenProvider;
 import com.synapps.resona.utils.CookieUtil;
-import com.synapps.resona.entity.account.ProviderType;
+import com.synapps.resona.command.entity.account.ProviderType;
 import com.synapps.resona.oauth.info.OAuth2UserInfo;
 import com.synapps.resona.oauth.info.OAuth2UserInfoFactory;
 import com.synapps.resona.oauth.respository.CustomOAuth2AuthorizationRequestRepository;
-import com.synapps.resona.repository.member.MemberRefreshTokenRepository;
-import com.synapps.resona.service.MemberService;
+import com.synapps.resona.command.repository.member.MemberRefreshTokenRepository;
+import com.synapps.resona.command.service.MemberService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

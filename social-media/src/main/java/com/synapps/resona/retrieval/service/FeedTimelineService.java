@@ -4,12 +4,13 @@ import static java.util.stream.Collectors.toMap;
 
 import com.synapps.resona.dto.CursorResult;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.entity.profile.CountryCode;
+import com.synapps.resona.command.entity.profile.CountryCode;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.properties.RedisTtlProperties;
 import com.synapps.resona.retrieval.dto.FeedDto;
 import com.synapps.resona.retrieval.query.entity.FeedDocument;
 import com.synapps.resona.retrieval.query.repository.FeedReadRepository;
+import com.synapps.resona.util.RedisKeyGenerator;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,6 +18,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,9 @@ public class FeedTimelineService {
   private final FeedQueryHelper feedQueryHelper;
   private final RedisTtlProperties redisTtlProperties;
 
+  private static final int BATCH_MULTIPLIER = 5;
+  private static final boolean filterSeenFeeds = false;
+
   /**
    * 개인화된 홈 피드(Home Feed)를 조회한다.
    *
@@ -51,9 +56,7 @@ public class FeedTimelineService {
    * @return 커서 정보가 포함된 피드 DTO 목록
    */
   public CursorResult<FeedDto> getHomeFeeds(Long memberId, Language targetLanguage, String cursor, int size, FeedCategory category) {
-    String categorySuffix = (category != null) ? ":" + category.name() : ":ALL";
-    String timelineKey = "timeline:" + memberId + categorySuffix;
-
+    String timelineKey = (category != null) ? RedisKeyGenerator.getCategoryTimelineKey(memberId, category) : RedisKeyGenerator.getAllTimelineKey(memberId);
     return getFeedsFromTimeline(memberId, targetLanguage, cursor, size, timelineKey, category);
   }
 
@@ -89,9 +92,9 @@ public class FeedTimelineService {
    * @param category 사용자가 원래 홈 피드에서 필터링하려 했던 카테고리 (null일 수 있음)
    * @return 탐색 피드 조회 결과
    */
-  private CursorResult<FeedDto> getFallbackFeeds(Long memberId, Language targetLanguage, int size, FeedCategory category) {
+  private CursorResult<FeedDto> getFallbackFeeds(Long memberId, Language targetLanguage, int size, String cursor, FeedCategory category) {
     log.info("Cold start detected for memberId: {}. Fetching fallback feeds for category: {}", memberId, category);
-    return getExploreFeeds(memberId, targetLanguage, null, size, null, category);
+    return getExploreFeeds(memberId, targetLanguage, cursor, size, null, category);
   }
 
   @Async
@@ -99,7 +102,7 @@ public class FeedTimelineService {
     if (feedIds == null || feedIds.isEmpty()) {
       return;
     }
-    String key = "user:" + memberId + ":seen_feeds";
+    String key = RedisKeyGenerator.getUserSeenFeedsKey(memberId);
     String[] feedIdStrings = feedIds.stream().map(String::valueOf).toArray(String[]::new);
 
     redisTemplate.opsForSet().add(key, feedIdStrings);
@@ -109,160 +112,190 @@ public class FeedTimelineService {
   }
 
   private CursorResult<FeedDto> getFeedsFromTimeline(Long memberId, Language targetLanguage, String cursor, int size, String timelineKey, FeedCategory category) {
-    // 개인화 타임라인 콜드 스타트
-    Long timelineSize = redisTemplate.opsForZSet().zCard(timelineKey);
-    if (timelineKey.startsWith("timeline:" + memberId) && (timelineSize == null || timelineSize == 0)) {
-      return getFallbackFeeds(memberId, targetLanguage, size, category);
+    // 개인화 타임라인 콜드 스타트 처리
+    Optional<CursorResult<FeedDto>> coldStartResult = handleColdStart(memberId, targetLanguage, size, cursor, timelineKey, category);
+    if (coldStartResult.isPresent()) {
+      return coldStartResult.get();
     }
 
-    final int BATCH_MULTIPLIER = 5;
-    final int candidateSize = size * BATCH_MULTIPLIER;
+    // Redis에서 후보 데이터 조회
+    TimelineRequest request = TimelineRequest.from(cursor);
+    LinkedHashSet<TypedTuple<String>> candidates = fetchCandidatesFromRedis(timelineKey, request.maxScore, size * BATCH_MULTIPLIER);
 
-    double maxScore = Double.POSITIVE_INFINITY;
-    Long lastFeedId = null;
-
-    if (cursor != null && !cursor.isEmpty()) {
-      String[] parts = cursor.split(":");
-      if (parts.length == 2) {
-        maxScore = Double.parseDouble(parts[0]);
-        lastFeedId = Long.parseLong(parts[1]);
-      }
-    }
-
-    // Redis에서 데이터 조회
-    log.info("Requesting timeline with maxScore: {}, lastFeedId: {}", maxScore, lastFeedId);
-    Set<TypedTuple<String>> candidateTuples = redisTemplate.opsForZSet()
-        .reverseRangeByScoreWithScores(timelineKey, Double.NEGATIVE_INFINITY, maxScore, 0, candidateSize);
-
-    // 공용 타임라인 폴백 로직
-    if ((candidateTuples == null || candidateTuples.isEmpty())) {
-      log.info("DEBUG: No candidates found from Redis for maxScore: {}", maxScore);
-      if (cursor == null && !timelineKey.startsWith("timeline:" + memberId)) {
-        String fallbackKey = findNextFallbackKey(timelineKey);
-        if (fallbackKey != null) {
-          log.warn("Timeline '{}' is empty. Falling back to '{}'", timelineKey, fallbackKey);
-          return getFeedsFromTimeline(memberId, targetLanguage, cursor, size, fallbackKey, category);
-        }
+    // Redis 결과가 비었을 경우 Fallback 처리
+    if (candidates.isEmpty()) {
+      String fallbackKey = findNextFallbackKey(timelineKey);
+      if (cursor == null && fallbackKey != null) {
+        log.warn("Timeline '{}' is empty. Falling back to '{}'", timelineKey, fallbackKey);
+        return getFeedsFromTimeline(memberId, targetLanguage, null, size, fallbackKey, category);
       }
       return new CursorResult<>(Collections.emptyList(), false, null);
     }
-    log.info("DEBUG: Found {} candidates from Redis.", candidateTuples.size());
 
-    // 커서 계산
-    List<TypedTuple<String>> candidatesAfterCursor = new ArrayList<>();
-    if (lastFeedId != null) {
-      boolean foundCursorPosition = false;
-      BigDecimal maxScoreDecimal = new BigDecimal(String.valueOf(maxScore));
-
-      for (TypedTuple<String> tuple : candidateTuples) {
-        if (foundCursorPosition) {
-          candidatesAfterCursor.add(tuple);
-          continue;
-        }
-
-        BigDecimal tupleScoreDecimal = new BigDecimal(Objects.requireNonNull(tuple.getScore()).toString());
-
-        if (tupleScoreDecimal.compareTo(maxScoreDecimal) == 0 &&
-            Objects.equals(tuple.getValue(), String.valueOf(lastFeedId))) {
-          foundCursorPosition = true;
-        }
-      }
-    } else {
-      candidatesAfterCursor.addAll(candidateTuples);
-    }
-
-    log.info("DEBUG: After cursor-finding loop, candidatesAfterCursor size is {}", candidatesAfterCursor.size());
-
-    // 필터링에 필요한 ID 목록을 미리 준비
-    String seenFeedsKey = "user:" + memberId + ":seen_feeds";
-    Set<String> seenFeedsIds = redisTemplate.opsForSet().members(seenFeedsKey);
-    if (seenFeedsIds == null) {
-      seenFeedsIds = Collections.emptySet();
-    }
-    Set<Long> hiddenFeedIds = feedQueryHelper.getHiddenFeedIds(memberId);
-
-    log.info("DEBUG: Filtering with {} seen feeds and {} hidden feeds.", seenFeedsIds.size(), hiddenFeedIds.size());
-
-    // 본 피드와 숨김 피드 필터링
-    Set<String> finalSeenFeedIds = seenFeedsIds;
-    List<TypedTuple<String>> preFilteredList = candidatesAfterCursor.stream()
-        .filter(tuple -> !finalSeenFeedIds.contains(tuple.getValue()))
-        .filter(tuple -> !hiddenFeedIds.contains(Long.parseLong(Objects.requireNonNull(tuple.getValue()))))
-        .limit(size + 1)
-        .toList();
-
-    log.info("DEBUG: After seen/hidden filter, preFilteredList size is {}", preFilteredList.isEmpty() ? 0 : preFilteredList.size());
-
+    // 커서 적용 및 1차 필터링 (읽음/숨김)
+    List<TypedTuple<String>> preFilteredList = applyCursorAndFilters(candidates, request, memberId, size);
     if (preFilteredList.isEmpty()) {
       return new CursorResult<>(Collections.emptyList(), false, null);
     }
 
-    // 필터링된 결과를 기준으로 다음 페이지 유무와 커서를 계산
-    List<TypedTuple<String>> finalListForCursor = new ArrayList<>(preFilteredList);
-    boolean hasNext = false;
-    String nextCursor = null;
+    // 다음 페이지 커서 계산
+    CursorState cursorState = calculateNextCursor(preFilteredList, size);
 
-    if (finalListForCursor.size() > size) {
-      hasNext = true;
-      TypedTuple<String> nextCursorTuple = finalListForCursor.get(size);
+    // DB 조회 및 2차 필터링 후 최종 결과 생성
+    List<FeedDto> finalFeedDtos = finalizeFeeds(cursorState.pageContent(), memberId, targetLanguage);
 
-      String scorePart = new BigDecimal(Objects.requireNonNull(nextCursorTuple.getScore()).toString()).toPlainString();
-      String feedIdPart = nextCursorTuple.getValue();
-      nextCursor = scorePart + ":" + feedIdPart;
-
-      finalListForCursor.remove(size);
+    // 최종적으로 사용자에게 보여줄 피드 '봤음' 처리 -> 지금은 꺼둠
+    if (filterSeenFeeds && !finalFeedDtos.isEmpty()) {
+      markFeedsAsSeen(memberId, finalFeedDtos.stream().map(FeedDto::feedId).toList());
     }
 
-    Set<Long> feedIdsToFetch = finalListForCursor.stream()
+    return new CursorResult<>(finalFeedDtos, cursorState.hasNext(), cursorState.nextCursor());
+  }
+
+  private record TimelineRequest(double maxScore, Long offsetId) {
+    static TimelineRequest from(String cursor) {
+      if (cursor == null || cursor.isEmpty()) {
+        return new TimelineRequest(Double.POSITIVE_INFINITY, null);
+      }
+      String[] parts = cursor.split(":");
+      if (parts.length == 2) {
+        return new TimelineRequest(Double.parseDouble(parts[0]), Long.parseLong(parts[1]));
+      }
+      return new TimelineRequest(Double.POSITIVE_INFINITY, null);
+    }
+  }
+
+  private record CursorState(List<TypedTuple<String>> pageContent, boolean hasNext, String nextCursor) {}
+
+  /**
+   * 개인화 타임라인의 콜드 스타트 상황을 확인하고, 필요시 Fallback 피드를 반환
+   */
+  private Optional<CursorResult<FeedDto>> handleColdStart(Long memberId, Language targetLanguage, int size, String cursor, String timelineKey, FeedCategory category) {
+    if (RedisKeyGenerator.isPersonalTimelineKey(timelineKey, memberId)) {
+      Long timelineSize = redisTemplate.opsForZSet().zCard(timelineKey);
+      if (timelineSize == null || timelineSize == 0) {
+        return Optional.of(getFallbackFeeds(memberId, targetLanguage, size, cursor, category));
+      }
+    }
+    return Optional.empty();
+  }
+
+
+
+  /**
+   * Redis ZSET에서 지정된 조건으로 피드 후보 목록을 조회
+   */
+  private LinkedHashSet<TypedTuple<String>> fetchCandidatesFromRedis(String timelineKey, double maxScore, int limit) {
+    Set<TypedTuple<String>> tuples = redisTemplate.opsForZSet()
+        .reverseRangeByScoreWithScores(timelineKey, Double.NEGATIVE_INFINITY, maxScore, 0, limit);
+    return tuples != null ? new LinkedHashSet<>(tuples) : new LinkedHashSet<>();
+  }
+
+  /**
+   * Redis에서 조회한 후보 목록에 커서 위치를 적용하고, 읽음/숨김 피드를 필터링
+   */
+  private List<TypedTuple<String>> applyCursorAndFilters(LinkedHashSet<TypedTuple<String>> candidates, TimelineRequest request, Long memberId, int size) {
+    // 커서 위치 찾기
+    List<TypedTuple<String>> candidatesAfterCursor = new ArrayList<>();
+    if (request.offsetId != null) {
+      boolean foundCursor = false;
+      BigDecimal maxScoreDecimal = BigDecimal.valueOf(request.maxScore);
+
+      for (TypedTuple<String> tuple : candidates) {
+        if (foundCursor) {
+          candidatesAfterCursor.add(tuple);
+          continue;
+        }
+        BigDecimal tupleScoreDecimal = BigDecimal.valueOf(Objects.requireNonNull(tuple.getScore()));
+        if (tupleScoreDecimal.compareTo(maxScoreDecimal) == 0 && Objects.equals(tuple.getValue(), String.valueOf(request.offsetId))) {
+          foundCursor = true;
+        }
+      }
+    } else {
+      candidatesAfterCursor.addAll(candidates);
+    }
+
+    // 읽음/숨김 필터링
+    Set<String> seenFeedIds = Collections.emptySet();
+    if (filterSeenFeeds) {
+      seenFeedIds = redisTemplate.opsForSet().members(RedisKeyGenerator.getUserSeenFeedsKey(memberId));
+      seenFeedIds = (seenFeedIds == null) ? Collections.emptySet() : seenFeedIds;
+    }
+
+    Set<Long> hiddenFeedIds = feedQueryHelper.getHiddenFeedIds(memberId);
+
+    final Set<String> finalSeenFeedIds = seenFeedIds;
+
+    return candidatesAfterCursor.stream()
+        .filter(tuple -> !finalSeenFeedIds.contains(tuple.getValue()))
+        .filter(tuple -> !hiddenFeedIds.contains(Long.parseLong(Objects.requireNonNull(tuple.getValue()))))
+        .limit(size + 1)
+        .toList();
+  }
+
+  /**
+   * 필터링된 목록을 기반으로 다음 페이지 유무와 커서 문자열을 계산
+   */
+  private CursorState calculateNextCursor(List<TypedTuple<String>> list, int size) {
+    boolean hasNext = list.size() > size;
+    String nextCursor = null;
+    List<TypedTuple<String>> pageContent = new ArrayList<>(list);
+
+    if (hasNext) {
+      TypedTuple<String> nextCursorTuple = list.get(size);
+      String scorePart = new BigDecimal(Objects.requireNonNull(nextCursorTuple.getScore()).toString()).toPlainString();
+      nextCursor = scorePart + ":" + nextCursorTuple.getValue();
+      pageContent.remove(size);
+    }
+    return new CursorState(pageContent, hasNext, nextCursor);
+  }
+
+  /**
+   * 최종 피드 ID 목록으로 DB를 조회, 차단/본인 글 필터링, DTO 변환
+   */
+  private List<FeedDto> finalizeFeeds(List<TypedTuple<String>> finalCandidates, Long memberId, Language targetLanguage) {
+    if (finalCandidates.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    Set<Long> feedIdsToFetch = finalCandidates.stream()
         .map(tuple -> Long.parseLong(Objects.requireNonNull(tuple.getValue())))
         .collect(Collectors.toCollection(LinkedHashSet::new));
 
-    if (feedIdsToFetch.isEmpty()) {
-      return new CursorResult<>(Collections.emptyList(), false, null);
-    }
-
-    // DB 조회 및 2차 필터링(차단, 본인 글) 수행
+    // DB 조회
     Map<Long, FeedDocument> feedDocumentMap = feedReadRepository.findAllByFeedIdIn(feedIdsToFetch).stream()
         .collect(toMap(FeedDocument::getFeedId, doc -> doc));
-    Set<Long> blockedMemberIds = feedQueryHelper.getBlockedMemberIds(memberId);
 
-    List<FeedDto> finalFeedDtos = feedIdsToFetch.stream()
+    // 2차 필터링 (차단, 본인 글) 및 DTO 변환
+    Set<Long> blockedMemberIds = feedQueryHelper.getBlockedMemberIds(memberId);
+    return feedIdsToFetch.stream()
         .map(feedDocumentMap::get)
         .filter(Objects::nonNull)
         .filter(doc -> !blockedMemberIds.contains(doc.getAuthor().getMemberId()))
         .filter(doc -> !doc.getAuthor().getMemberId().equals(memberId))
         .map(doc -> feedQueryHelper.translateAndConvertToDto(doc, targetLanguage))
         .collect(Collectors.toList());
-
-    // 최종적으로 사용자에게 보내는 피드 ID 목록만 '봤음' 처리
-    if (!finalFeedDtos.isEmpty()) {
-      List<Long> seenIds = finalFeedDtos.stream().map(FeedDto::feedId).toList();
-      markFeedsAsSeen(memberId, seenIds);
-    }
-
-    return new CursorResult<>(finalFeedDtos, hasNext, nextCursor);
   }
 
   private String findNextFallbackKey(String currentKey) {
-    if (currentKey.matches("timeline:country:\\w+:\\w+")) {
+    if (RedisKeyGenerator.isExploreCountryCategoryKey(currentKey)) {
       return currentKey.substring(0, currentKey.lastIndexOf(":"));
     }
-    if (currentKey.startsWith("timeline:country:") || currentKey.startsWith("timeline:category:")) {
-      return "feeds:recent";
+    if (RedisKeyGenerator.isExploreCountryKey(currentKey) || RedisKeyGenerator.isExploreCategoryKey(currentKey)) {
+      return RedisKeyGenerator.getExploreRecentKey();
     }
     return null;
   }
 
   private String buildExploreTimelineKey(CountryCode country, FeedCategory category) {
     if (country != null && category != null) {
-      return "timeline:country:" + country.name() + ":" + category.name();
+      return RedisKeyGenerator.getExploreCountryCategoryKey(country.name(), category);
     } else if (country != null) {
-      return "timeline:country:" + country.name();
+      return RedisKeyGenerator.getExploreCountryKey(country.name());
     } else if (category != null) {
-      return "timeline:category:" + category.name();
+      return RedisKeyGenerator.getExploreCategoryKey(category);
     } else {
-      return "feeds:recent";
+      return RedisKeyGenerator.getExploreRecentKey();
     }
   }
-
 }

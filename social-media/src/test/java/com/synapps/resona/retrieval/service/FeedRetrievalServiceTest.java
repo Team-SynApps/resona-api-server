@@ -13,10 +13,9 @@ import com.synapps.resona.dto.CursorResult;
 import com.synapps.resona.entity.Language;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.retrieval.dto.FeedDto;
-import com.synapps.resona.retrieval.query.entity.FeedDocument;
 import com.synapps.resona.retrieval.query.repository.FeedReadRepository;
 import com.synapps.resona.retrieval.service.strategy.FallbackStrategyContext;
-import com.synapps.resona.query.member.service.MemberStateService;
+import com.synapps.resona.query.service.MemberStateService;
 import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,9 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class FeedRetrievalServiceTest {

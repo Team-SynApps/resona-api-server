@@ -23,6 +23,7 @@ public enum MemberSuccessCode implements SuccessCode {
   GET_MEMBER_DETAIL_SUCCESS(HttpStatus.OK, "Successfully retrieved member details."),
   PASSWORD_CHANGE_SUCCESS(HttpStatus.OK, "Password changed successfully."),
   DELETE_USER_SUCCESS(HttpStatus.OK, "Member deleted successfully."),
+  GET_MEMBERS_SUCCESS(HttpStatus.OK, "Successfully retrieved member list."),
 
   // Member Details
   REGISTER_DETAILS_SUCCESS(HttpStatus.CREATED, "Personal information registered successfully."),

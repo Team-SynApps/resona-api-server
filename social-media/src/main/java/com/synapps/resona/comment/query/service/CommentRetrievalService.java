@@ -11,7 +11,7 @@ import com.synapps.resona.comment.query.entity.ReplyEmbed;
 import com.synapps.resona.comment.query.repository.CommentDocumentRepository;
 import com.synapps.resona.common.entity.Translation;
 import com.synapps.resona.entity.Language;
-import com.synapps.resona.query.member.service.MemberStateService;
+import com.synapps.resona.query.service.MemberStateService;
 import com.synapps.resona.translation.service.TranslationService;
 import java.util.List;
 import java.util.stream.Collectors;

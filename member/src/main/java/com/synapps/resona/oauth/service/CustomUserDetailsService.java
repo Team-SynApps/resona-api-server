@@ -1,9 +1,9 @@
 package com.synapps.resona.oauth.service;
 
-import com.synapps.resona.entity.member.Member;
-import com.synapps.resona.entity.member.UserPrincipal;
+import com.synapps.resona.command.entity.member.Member;
+import com.synapps.resona.command.entity.member.UserPrincipal;
 import com.synapps.resona.exception.MemberException;
-import com.synapps.resona.repository.member.MemberRepository;
+import com.synapps.resona.command.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

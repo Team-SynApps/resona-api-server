@@ -3,7 +3,7 @@ package com.synapps.resona.entity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.synapps.resona.entity.member.MemberRefreshToken;
+import com.synapps.resona.command.entity.member.MemberRefreshToken;
 import org.junit.jupiter.api.Test;
 
 public class MemberRefreshTokenTest {

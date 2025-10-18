@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "Comment Query", description = "댓글/대댓글 조회 API")
+@Tag(name = "Comment", description = "댓글/대댓글 API")
 @RestController
 @RequiredArgsConstructor
 public class CommentQueryController {
