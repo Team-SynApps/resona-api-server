@@ -100,7 +100,7 @@ public class FeedCommandService {
         Location location = Location.of(locationRequest.getPlaceId(),
             locationRequest.getDisplayName(), locationRequest.getFormattedAddress(),
             locationRequest.getLocation().getLatitude(), locationRequest.getLocation().getLongitude(),
-            locationRequest.getPrimaryType());
+            locationRequest.getCategory(), locationRequest.getPrimaryType());
         locationRepository.save(location);
         feed.addLocation(location);
       }
