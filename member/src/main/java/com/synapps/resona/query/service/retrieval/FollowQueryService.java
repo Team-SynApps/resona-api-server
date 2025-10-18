@@ -6,7 +6,9 @@ import com.synapps.resona.query.entity.MemberStateDocument;
 import com.synapps.resona.query.repository.MemberDocumentRepository;
 import com.synapps.resona.query.repository.MemberStateDocumentRepository;
 import com.synapps.resona.exception.MemberException;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,7 +49,9 @@ public class FollowQueryService {
         MemberStateDocument memberState = memberStateDocumentRepository.findById(memberId)
             .orElseThrow(MemberException::memberNotFound);
 
-        List<Long> followerIds = memberState.getFollowerIds().stream().toList();
+        List<Long> followerIds = Optional.ofNullable(memberState.getFollowerIds())
+            .map(set -> set.stream().toList())
+            .orElse(Collections.emptyList());
 
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), followerIds.size());
