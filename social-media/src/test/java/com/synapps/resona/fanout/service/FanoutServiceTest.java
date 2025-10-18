@@ -1,14 +1,14 @@
 package com.synapps.resona.fanout.service;
 
-import com.synapps.resona.entity.Language;
 import com.synapps.resona.command.entity.profile.CountryCode;
+import com.synapps.resona.entity.Language;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.feed.event.FeedCreatedEvent;
 import com.synapps.resona.feed.event.FeedCreatedEvent.AuthorInfo;
 import com.synapps.resona.properties.RedisTtlProperties;
-import com.synapps.resona.command.service.FollowService;
 import com.synapps.resona.query.service.retrieval.FollowQueryService;
 import com.synapps.resona.support.ServiceLayerTest;
+import com.synapps.resona.util.RedisKeyGenerator;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -71,14 +71,14 @@ class FanoutServiceTest {
 
         // then
         verify(followQueryService, times(1)).getFollowerIds(anyLong(), any(PageRequest.class));
-        assertThat(redisTemplate.opsForZSet().score("feeds:recent", "2")).isNotNull();
-        assertThat(redisTemplate.opsForZSet().score("timeline:category:DAILY", "2")).isNotNull();
-        assertThat(redisTemplate.opsForZSet().score("timeline:country:KR", "2")).isNotNull();
-        assertThat(redisTemplate.opsForZSet().score("timeline:country:KR:DAILY", "2")).isNotNull();
-        assertThat(redisTemplate.opsForZSet().score("timeline:3:ALL", "2")).isNotNull();
-        assertThat(redisTemplate.opsForZSet().score("timeline:3:DAILY", "2")).isNotNull();
-        assertThat(redisTemplate.opsForZSet().score("timeline:4:ALL", "2")).isNotNull();
-        assertThat(redisTemplate.opsForZSet().score("timeline:4:DAILY", "2")).isNotNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getExploreRecentKey(), "2")).isNotNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getFanoutCategoryKey(FeedCategory.DAILY), "2")).isNotNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getFanoutCountryKey("KR"), "2")).isNotNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getFanoutCountryCategoryKey("KR", FeedCategory.DAILY), "2")).isNotNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getAllTimelineKey(3L), "2")).isNotNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getCategoryTimelineKey(3L, FeedCategory.DAILY), "2")).isNotNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getAllTimelineKey(4L), "2")).isNotNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getCategoryTimelineKey(4L, FeedCategory.DAILY), "2")).isNotNull();
     }
 
     @Test
@@ -93,10 +93,10 @@ class FanoutServiceTest {
 
         // then
         verify(followQueryService, times(0)).getFollowerIds(anyLong(), any(PageRequest.class));
-        assertThat(redisTemplate.opsForZSet().score("feeds:recent", "2")).isNotNull();
-        assertThat(redisTemplate.opsForZSet().score("timeline:category:DAILY", "2")).isNotNull();
-        assertThat(redisTemplate.opsForZSet().score("timeline:country:KR", "2")).isNotNull();
-        assertThat(redisTemplate.opsForZSet().score("timeline:country:KR:DAILY", "2")).isNotNull();
-        assertThat(redisTemplate.opsForZSet().score("timeline:3:ALL", "2")).isNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getExploreRecentKey(), "2")).isNotNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getFanoutCategoryKey(FeedCategory.DAILY), "2")).isNotNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getFanoutCountryKey("KR"), "2")).isNotNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getFanoutCountryCategoryKey("KR", FeedCategory.DAILY), "2")).isNotNull();
+        assertThat(redisTemplate.opsForZSet().score(RedisKeyGenerator.getAllTimelineKey(3L), "2")).isNull();
     }
 }

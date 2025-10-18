@@ -11,6 +11,7 @@ import com.synapps.resona.retrieval.query.entity.FeedDocument;
 import com.synapps.resona.retrieval.query.entity.FeedDocument.LocationEmbed;
 import com.synapps.resona.retrieval.query.entity.FeedDocument.MediaEmbed;
 import com.synapps.resona.translation.service.TranslationService;
+import com.synapps.resona.util.RedisKeyGenerator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -32,7 +33,7 @@ public class FeedQueryHelper {
    * Cache-Aside -> 숨김 처리된 피드 ID 목록 조회
    */
   public Set<Long> getHiddenFeedIds(Long memberId) {
-    String key = "user:" + memberId + ":hidden_feeds";
+    String key = RedisKeyGenerator.getHiddenFeedsKey(memberId);
     Set<String> cachedIds = redisTemplate.opsForSet().members(key);
 
     if (cachedIds != null && !cachedIds.isEmpty()) {
@@ -52,7 +53,7 @@ public class FeedQueryHelper {
    * Cache-Aside -> 차단한 사용자 ID 목록 조회
    */
   public Set<Long> getBlockedMemberIds(Long memberId) {
-    String key = "user:" + memberId + ":blocked_users";
+    String key = RedisKeyGenerator.getBlockedUsersKey(memberId);
     Set<String> cachedIds = redisTemplate.opsForSet().members(key);
 
     if (cachedIds != null && !cachedIds.isEmpty()) {

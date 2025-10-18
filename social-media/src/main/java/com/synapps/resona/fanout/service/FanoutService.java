@@ -6,6 +6,7 @@ import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.feed.event.FeedCreatedEvent;
 import com.synapps.resona.properties.RedisTtlProperties;
 import com.synapps.resona.query.service.retrieval.FollowQueryService;
+import com.synapps.resona.util.RedisKeyGenerator;
 import java.time.ZoneOffset;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -58,25 +59,25 @@ public class FanoutService implements FanoutUseCase {
 
     redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
       // 전체 최신 피드 (feeds:recent)
-      String recentKey = "feeds:recent";
+      String recentKey = RedisKeyGenerator.getExploreRecentKey();
       redisTemplate.opsForZSet().add(recentKey, feedId, finalScore);
       redisTemplate.opsForZSet().removeRange(recentKey, 0, -(GLOBAL_FEED_MAX_SIZE + 1));
       redisTemplate.expire(recentKey, redisTtlProperties.publicTimeline(), redisTtlProperties.unit());
 
       // 전체 국가의 카테고리별 피드 (timeline:category:{CATEGORY})
-      String categoryKey = "timeline:category:" + category.name();
+      String categoryKey = RedisKeyGenerator.getFanoutCategoryKey(category);
       redisTemplate.opsForZSet().add(categoryKey, feedId, finalScore);
       redisTemplate.opsForZSet().removeRange(categoryKey, 0, -(GLOBAL_FEED_MAX_SIZE + 1));
       redisTemplate.expire(categoryKey, redisTtlProperties.publicTimeline(), redisTtlProperties.unit());
 
       // 특정 국가의 전체 카테고리 피드 (timeline:country:{COUNTRY})
-      String countryKey = "timeline:country:" + country.name();
+      String countryKey = RedisKeyGenerator.getFanoutCountryKey(country.name());
       redisTemplate.opsForZSet().add(countryKey, feedId, finalScore);
       redisTemplate.opsForZSet().removeRange(countryKey, 0, -(GLOBAL_FEED_MAX_SIZE + 1));
       redisTemplate.expire(countryKey, redisTtlProperties.publicTimeline(), redisTtlProperties.unit());
 
       // 특정 국가의 특정 카테고리 피드 (timeline:country:{COUNTRY}:{CATEGORY})
-      String countryCategoryKey = "timeline:country:" + country.name() + ":" + category.name();
+      String countryCategoryKey = RedisKeyGenerator.getFanoutCountryCategoryKey(country.name(), category);
       redisTemplate.opsForZSet().add(countryCategoryKey, feedId, finalScore);
       redisTemplate.opsForZSet().removeRange(countryCategoryKey, 0, -(GLOBAL_FEED_MAX_SIZE + 1));
       redisTemplate.expire(countryCategoryKey, redisTtlProperties.publicTimeline(), redisTtlProperties.unit());
@@ -113,13 +114,13 @@ public class FanoutService implements FanoutUseCase {
     redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
       for (Long followerId : followerIds) {
         // 개인화된 전체 타임라인
-        String allTimelineKey = "timeline:" + followerId + ":ALL";
+        String allTimelineKey = RedisKeyGenerator.getAllTimelineKey(followerId);
         redisTemplate.opsForZSet().add(allTimelineKey, feedId, finalScore);
         redisTemplate.opsForZSet().removeRange(allTimelineKey, 0, -(FEED_MAX_SIZE + 1));
         redisTemplate.expire(allTimelineKey, redisTtlProperties.personalTimeline(), redisTtlProperties.unit());
 
         // 개인화된 카테고리별 타임라인
-        String categoryTimelineKey = "timeline:" + followerId + ":" + category.name();
+        String categoryTimelineKey = RedisKeyGenerator.getCategoryTimelineKey(followerId, category);
         redisTemplate.opsForZSet().add(categoryTimelineKey, feedId, finalScore);
         redisTemplate.opsForZSet().removeRange(categoryTimelineKey, 0, -(FEED_MAX_SIZE + 1));
         redisTemplate.expire(categoryTimelineKey, redisTtlProperties.personalTimeline(), redisTtlProperties.unit());

@@ -10,6 +10,7 @@ import com.synapps.resona.properties.RedisTtlProperties;
 import com.synapps.resona.retrieval.dto.FeedDto;
 import com.synapps.resona.retrieval.query.entity.FeedDocument;
 import com.synapps.resona.retrieval.query.repository.FeedReadRepository;
+import com.synapps.resona.util.RedisKeyGenerator;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -55,9 +56,7 @@ public class FeedTimelineService {
    * @return 커서 정보가 포함된 피드 DTO 목록
    */
   public CursorResult<FeedDto> getHomeFeeds(Long memberId, Language targetLanguage, String cursor, int size, FeedCategory category) {
-    String categorySuffix = (category != null) ? ":" + category.name() : ":ALL";
-    String timelineKey = "timeline:" + memberId + categorySuffix;
-
+    String timelineKey = (category != null) ? RedisKeyGenerator.getCategoryTimelineKey(memberId, category) : RedisKeyGenerator.getAllTimelineKey(memberId);
     return getFeedsFromTimeline(memberId, targetLanguage, cursor, size, timelineKey, category);
   }
 
@@ -103,7 +102,7 @@ public class FeedTimelineService {
     if (feedIds == null || feedIds.isEmpty()) {
       return;
     }
-    String key = "user:" + memberId + ":seen_feeds";
+    String key = RedisKeyGenerator.getUserSeenFeedsKey(memberId);
     String[] feedIdStrings = feedIds.stream().map(String::valueOf).toArray(String[]::new);
 
     redisTemplate.opsForSet().add(key, feedIdStrings);
@@ -172,7 +171,7 @@ public class FeedTimelineService {
    * 개인화 타임라인의 콜드 스타트 상황을 확인하고, 필요시 Fallback 피드를 반환
    */
   private Optional<CursorResult<FeedDto>> handleColdStart(Long memberId, Language targetLanguage, int size, String cursor, String timelineKey, FeedCategory category) {
-    if (timelineKey.startsWith("timeline:" + memberId)) {
+    if (RedisKeyGenerator.isPersonalTimelineKey(timelineKey, memberId)) {
       Long timelineSize = redisTemplate.opsForZSet().zCard(timelineKey);
       if (timelineSize == null || timelineSize == 0) {
         return Optional.of(getFallbackFeeds(memberId, targetLanguage, size, cursor, category));
@@ -180,6 +179,8 @@ public class FeedTimelineService {
     }
     return Optional.empty();
   }
+
+
 
   /**
    * Redis ZSET에서 지정된 조건으로 피드 후보 목록을 조회
@@ -217,7 +218,7 @@ public class FeedTimelineService {
     // 읽음/숨김 필터링
     Set<String> seenFeedIds = Collections.emptySet();
     if (filterSeenFeeds) {
-      seenFeedIds = redisTemplate.opsForSet().members("user:" + memberId + ":seen_feeds");
+      seenFeedIds = redisTemplate.opsForSet().members(RedisKeyGenerator.getUserSeenFeedsKey(memberId));
       seenFeedIds = (seenFeedIds == null) ? Collections.emptySet() : seenFeedIds;
     }
 
@@ -277,24 +278,24 @@ public class FeedTimelineService {
   }
 
   private String findNextFallbackKey(String currentKey) {
-    if (currentKey.matches("timeline:country:\\w+:\\w+")) {
+    if (RedisKeyGenerator.isExploreCountryCategoryKey(currentKey)) {
       return currentKey.substring(0, currentKey.lastIndexOf(":"));
     }
-    if (currentKey.startsWith("timeline:country:") || currentKey.startsWith("timeline:category:")) {
-      return "feeds:recent";
+    if (RedisKeyGenerator.isExploreCountryKey(currentKey) || RedisKeyGenerator.isExploreCategoryKey(currentKey)) {
+      return RedisKeyGenerator.getExploreRecentKey();
     }
     return null;
   }
 
   private String buildExploreTimelineKey(CountryCode country, FeedCategory category) {
     if (country != null && category != null) {
-      return "timeline:country:" + country.name() + ":" + category.name();
+      return RedisKeyGenerator.getExploreCountryCategoryKey(country.name(), category);
     } else if (country != null) {
-      return "timeline:country:" + country.name();
+      return RedisKeyGenerator.getExploreCountryKey(country.name());
     } else if (category != null) {
-      return "timeline:category:" + category.name();
+      return RedisKeyGenerator.getExploreCategoryKey(category);
     } else {
-      return "feeds:recent";
+      return RedisKeyGenerator.getExploreRecentKey();
     }
   }
 }
