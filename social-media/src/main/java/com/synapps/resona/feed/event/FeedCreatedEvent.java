@@ -38,6 +38,7 @@ public record FeedCreatedEvent(
       String displayName,
       String formattedAddress,
       GeoLocation location,
+      String category,
       String primaryType
   ) {
     public record GeoLocation(

@@ -103,6 +103,7 @@ public class FeedQueryHelper {
         doc.getLocation().getDisplayName(),
         doc.getLocation().getFormattedAddress(),
         doc.getLocation().getLocation(),
+        doc.getLocation().getCategory(),
         doc.getLocation().getPrimaryType()
     ) : null;
 
