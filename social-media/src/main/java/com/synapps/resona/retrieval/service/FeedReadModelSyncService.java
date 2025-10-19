@@ -57,6 +57,7 @@ public class FeedReadModelSyncService implements FeedReadModelSyncUseCase {
                 locationInfo.location().latitude(),
                 locationInfo.location().longitude()
             ),
+            locationInfo.category(),
             locationInfo.primaryType()
         ))
         .orElse(null);

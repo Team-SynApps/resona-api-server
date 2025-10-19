@@ -101,6 +101,7 @@ public class FeedDocument extends BaseDocument {
     private String displayName;
     private String formattedAddress;
     private GeoLocation location;
+    private String category;
     private String primaryType;
 
     @Getter
@@ -118,16 +119,17 @@ public class FeedDocument extends BaseDocument {
         }
     }
 
-    private LocationEmbed(String placeId, String displayName, String formattedAddress, GeoLocation location, String primaryType) {
+    private LocationEmbed(String placeId, String displayName, String formattedAddress, GeoLocation location, String category, String primaryType) {
         this.placeId = placeId;
         this.displayName = displayName;
         this.formattedAddress = formattedAddress;
         this.location = location;
+        this.category = category;
         this.primaryType = primaryType;
     }
 
-    public static LocationEmbed of(String placeId, String displayName, String formattedAddress, GeoLocation location, String primaryType) {
-        return new LocationEmbed(placeId, displayName, formattedAddress, location, primaryType);
+    public static LocationEmbed of(String placeId, String displayName, String formattedAddress, GeoLocation location, String category, String primaryType) {
+        return new LocationEmbed(placeId, displayName, formattedAddress, location,category, primaryType);
     }
   }
 }

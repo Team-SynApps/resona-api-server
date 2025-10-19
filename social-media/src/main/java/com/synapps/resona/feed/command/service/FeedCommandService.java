@@ -143,6 +143,7 @@ public class FeedCommandService {
                 loc.getLocation().getLatitude(),
                 loc.getLocation().getLongitude()
             ),
+            loc.getCategory(),
             loc.getPrimaryType()
         ));
 
