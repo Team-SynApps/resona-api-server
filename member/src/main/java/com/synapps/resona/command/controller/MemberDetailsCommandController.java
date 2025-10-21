@@ -4,7 +4,7 @@ import com.synapps.resona.code.AuthErrorCode;
 import com.synapps.resona.code.MemberErrorCode;
 import com.synapps.resona.code.MemberSuccessCode;
 import com.synapps.resona.command.dto.request.member_details.MemberDetailsRequest;
-import com.synapps.resona.command.dto.response.MemberDetailsResponse;
+import com.synapps.resona.common.dto.MemberDetailsResponse;
 import com.synapps.resona.command.entity.member_details.MemberDetails;
 import com.synapps.resona.annotation.ApiErrorSpec;
 import com.synapps.resona.annotation.ApiSuccessResponse;
@@ -22,7 +22,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,9 +65,9 @@ public class MemberDetailsCommandController {
   })
   @PutMapping
   @PreAuthorize("@memberSecurity.isCurrentUser(#request) or hasRole('ADMIN')")
-  public ResponseEntity<SuccessResponse<MemberDetails>> editPersonalInfo(HttpServletRequest request,
+  public ResponseEntity<SuccessResponse<MemberDetailsResponse>> editPersonalInfo(HttpServletRequest request,
       @Valid @RequestBody MemberDetailsRequest memberDetailsRequest) {
-    MemberDetails response = memberDetailsService.editMemberDetails(memberDetailsRequest);
+    MemberDetailsResponse response = memberDetailsService.editMemberDetails(memberDetailsRequest);
     return ResponseEntity
         .status(MemberSuccessCode.EDIT_DETAILS_SUCCESS.getStatus())
         .body(SuccessResponse.of(MemberSuccessCode.EDIT_DETAILS_SUCCESS, createRequestInfo(request.getRequestURI()), response));

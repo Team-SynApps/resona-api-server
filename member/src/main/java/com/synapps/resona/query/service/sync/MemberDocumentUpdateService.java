@@ -32,6 +32,7 @@ public class MemberDocumentUpdateService {
             .set("profile.profileImageUrl", event.getProfileImageUrl())
             .set("profile.backgroundImageUrl", event.getBackgroundImageUrl())
             .set("profile.age", event.getAge())
+            .set("profile.birth", event.getBirth())
             .set("profile.gender", event.getGender())
             .set("profile.comment", event.getComment())
             .set("modifiedAt", LocalDateTime.now());

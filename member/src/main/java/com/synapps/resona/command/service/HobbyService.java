@@ -12,7 +12,13 @@ import com.synapps.resona.command.repository.member.MemberRepository;
 import com.synapps.resona.exception.HobbyException;
 import com.synapps.resona.exception.MemberException;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -37,18 +43,56 @@ public class HobbyService {
   }
 
   @Transactional
-  public void registerHobbies(String hobbies) {
+  public Set<Hobby> registerHobbies(Set<String> hobbies) {
     Member member = memberService.getMemberUsingSecurityContext();
     MemberDetails memberDetails = member.getMemberDetails();
-    Arrays.stream(hobbies.split(","))
-        .forEach(hobbyName -> {
+    Set<Hobby> createdHobbies = new HashSet<>();
+    hobbies.forEach(hobbyName -> {
           GivenHobby givenHobby = GivenHobby.of(hobbyName);
           Hobby hobby = givenHobby.equals(GivenHobby.NOT_GIVEN)
               ? Hobby.of(memberDetails, hobbyName)
               : Hobby.of(memberDetails, givenHobby);
-          hobbyRepository.save(hobby);
+          Hobby createdHobby = hobbyRepository.save(hobby);
+          createdHobbies.add(createdHobby);
           eventPublisher.publishEvent(new HobbyAddedEvent(member.getId(), hobby.getName()));
         });
+    return createdHobbies;
+  }
+
+  @Transactional
+  public Set<Hobby> syncHobbies(Set<String> newHobbyNames) {
+    Member member = memberService.getMemberUsingSecurityContext();
+    MemberDetails memberDetails = member.getMemberDetails();
+
+    List<Hobby> existingHobbies = hobbyRepository.findAllByMemberDetailsIdWithSoftDeleted(memberDetails.getId());
+
+    Map<String, Hobby> existingHobbyMap = existingHobbies.stream()
+        .collect(Collectors.toMap(Hobby::getName, hobby -> hobby));
+
+    Set<Hobby> hobbies = new HashSet<>();
+
+    for (String newName : newHobbyNames) {
+      Hobby hobby = existingHobbyMap.get(newName);
+
+      if (hobby == null) {
+        Hobby newHobby = Hobby.of(memberDetails, newName);
+        hobbyRepository.save(newHobby);
+        hobbies.add(newHobby);
+        eventPublisher.publishEvent(new HobbyAddedEvent(member.getId(), newName));
+      } else if (hobby.isDeleted()) {
+        hobby.restore();
+        hobbies.add(hobby);
+        eventPublisher.publishEvent(new HobbyAddedEvent(member.getId(), newName));
+      }
+    }
+
+    for (Hobby existingHobby : existingHobbies) {
+      if (!newHobbyNames.contains(existingHobby.getName()) && !existingHobby.isDeleted()) {
+        existingHobby.softDelete();
+        eventPublisher.publishEvent(new HobbyRemovedEvent(member.getId(), existingHobby.getName()));
+      }
+    }
+    return hobbies;
   }
 
   @Transactional

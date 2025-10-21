@@ -77,6 +77,7 @@ public class MemberDocument extends BaseDocument {
         private Set<Language> interestingLanguages;
         private String profileImageUrl;
         private String backgroundImageUrl;
+        private LocalDateTime birth;
         private Integer age;
         private Gender gender;
         private String comment;

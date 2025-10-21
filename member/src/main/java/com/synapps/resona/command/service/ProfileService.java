@@ -3,7 +3,7 @@ package com.synapps.resona.command.service;
 import com.synapps.resona.code.MemberErrorCode;
 import com.synapps.resona.command.dto.MemberDto;
 import com.synapps.resona.command.dto.request.profile.ProfileRequest;
-import com.synapps.resona.command.dto.response.ProfileResponse;
+import com.synapps.resona.common.dto.ProfileResponse;
 import com.synapps.resona.command.entity.profile.Profile;
 import com.synapps.resona.command.event.ProfileUpdatedEvent;
 import com.synapps.resona.event.MemberUpdatedEvent;
@@ -107,6 +107,7 @@ public class ProfileService {
         profile.getInterestingLanguages(),
         profile.getProfileImageUrl(),
         profile.getBackgroundImageUrl(),
+        profile.getBirth(),
         profile.getAge(),
         profile.getGender(),
         profile.getComment()

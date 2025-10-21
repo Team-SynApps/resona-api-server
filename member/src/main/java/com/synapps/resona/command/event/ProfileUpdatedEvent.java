@@ -3,6 +3,7 @@ package com.synapps.resona.command.event;
 import com.synapps.resona.command.entity.profile.CountryCode;
 import com.synapps.resona.command.entity.profile.Gender;
 import com.synapps.resona.entity.Language;
+import java.time.LocalDateTime;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class ProfileUpdatedEvent {
     private final Set<Language> interestingLanguages;
     private final String profileImageUrl;
     private final String backgroundImageUrl;
+    private final LocalDateTime birth;
     private final Integer age;
     private final Gender gender;
     private final String comment;

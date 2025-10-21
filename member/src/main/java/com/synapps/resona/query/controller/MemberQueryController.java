@@ -8,6 +8,7 @@ import com.synapps.resona.annotation.ApiErrorSpec;
 import com.synapps.resona.annotation.ApiSuccessResponse;
 import com.synapps.resona.annotation.ErrorCodeSpec;
 import com.synapps.resona.annotation.SuccessCodeSpec;
+import com.synapps.resona.common.dto.MemberDetailsResponse;
 import com.synapps.resona.config.server.ServerInfoConfig;
 import com.synapps.resona.dto.RequestInfo;
 import com.synapps.resona.dto.response.SuccessResponse;
@@ -44,10 +45,10 @@ public class MemberQueryController {
         @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"INVALID_TOKEN", "EXPIRED_TOKEN"})
     })
     @GetMapping("/detail")
-    public ResponseEntity<SuccessResponse<MemberDetailQueryDto>> getMemberDetailInfo(
+    public ResponseEntity<SuccessResponse<MemberDetailsResponse>> getMemberDetailInfo(
         HttpServletRequest request,
         @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        MemberDetailQueryDto memberDetailInfo = memberQueryService.getMemberDetailInfo(userPrincipal.getEmail());
+        MemberDetailsResponse memberDetailInfo = memberQueryService.getMemberDetailInfo(userPrincipal.getEmail());
         return ResponseEntity
             .status(MemberSuccessCode.GET_MEMBER_DETAIL_SUCCESS.getStatus())
             .body(SuccessResponse.of(MemberSuccessCode.GET_MEMBER_DETAIL_SUCCESS, createRequestInfo(request.getRequestURI()), memberDetailInfo));
@@ -61,8 +62,8 @@ public class MemberQueryController {
         @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
     })
     @GetMapping("/details")
-    public ResponseEntity<SuccessResponse<MemberDetailsQueryDto>> readPersonalInfo(HttpServletRequest request, @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        MemberDetailsQueryDto response = memberQueryService.getMemberDetails(userPrincipal.getEmail());
+    public ResponseEntity<SuccessResponse<MemberDetailsResponse>> readPersonalInfo(HttpServletRequest request, @AuthenticationPrincipal UserPrincipal userPrincipal) {
+        MemberDetailsResponse response = memberQueryService.getMemberDetails(userPrincipal.getEmail());
         return ResponseEntity
             .status(MemberSuccessCode.GET_DETAILS_SUCCESS.getStatus())
             .body(SuccessResponse.of(MemberSuccessCode.GET_DETAILS_SUCCESS, createRequestInfo(request.getRequestURI()), response));
