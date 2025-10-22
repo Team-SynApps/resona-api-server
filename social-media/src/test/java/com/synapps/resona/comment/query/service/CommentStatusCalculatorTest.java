@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.synapps.resona.comment.command.entity.CommentDisplayStatus;
-import com.synapps.resona.comment.query.dto.ViewerContext;
+import com.synapps.resona.comment.query.dto.CommentViewerContext;
 import com.synapps.resona.comment.query.entity.CommentDocument;
 import com.synapps.resona.comment.query.entity.ReplyEmbed;
 import com.synapps.resona.common.entity.Author;
@@ -35,7 +35,7 @@ class CommentStatusCalculatorTest {
         when(comment.getAuthor()).thenReturn(author);
         when(author.getMemberId()).thenReturn(2L);
         when(comment.getCommentId()).thenReturn(3L);
-        ViewerContext context = new ViewerContext(1L, Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
+        CommentViewerContext context = new CommentViewerContext(1L, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
 
         // when
         CommentDisplayStatus status = calculator.determineCommentStatus(comment, context);
@@ -50,7 +50,7 @@ class CommentStatusCalculatorTest {
         // given
         CommentDocument comment = mock(CommentDocument.class);
         when(comment.isDeleted()).thenReturn(true);
-        ViewerContext context = new ViewerContext(1L, Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
+        CommentViewerContext context = new CommentViewerContext(1L, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
 
         // when
         CommentDisplayStatus status = calculator.determineCommentStatus(comment, context);
@@ -68,7 +68,7 @@ class CommentStatusCalculatorTest {
         when(comment.isDeleted()).thenReturn(false);
         when(comment.getAuthor()).thenReturn(author);
         when(author.getMemberId()).thenReturn(2L);
-        ViewerContext context = new ViewerContext(1L, Collections.emptySet(), Collections.emptySet(), Set.of(2L));
+        CommentViewerContext context = new CommentViewerContext(1L, Collections.emptySet(), Collections.emptySet(), Set.of(2L), Collections.emptySet(), Collections.emptySet());
 
         // when
         CommentDisplayStatus status = calculator.determineCommentStatus(comment, context);
@@ -87,7 +87,7 @@ class CommentStatusCalculatorTest {
         when(comment.getAuthor()).thenReturn(author);
         when(author.getMemberId()).thenReturn(2L);
         when(comment.getCommentId()).thenReturn(3L);
-        ViewerContext context = new ViewerContext(1L, Set.of(3L), Collections.emptySet(), Collections.emptySet());
+        CommentViewerContext context = new CommentViewerContext(1L, Set.of(3L), Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
 
         // when
         CommentDisplayStatus status = calculator.determineCommentStatus(comment, context);
@@ -106,7 +106,7 @@ class CommentStatusCalculatorTest {
         when(reply.getAuthor()).thenReturn(author);
         when(author.getMemberId()).thenReturn(2L);
         when(reply.getReplyId()).thenReturn(4L);
-        ViewerContext context = new ViewerContext(1L, Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
+        CommentViewerContext context = new CommentViewerContext(1L, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
 
         // when
         CommentDisplayStatus status = calculator.determineReplyStatus(reply, context);

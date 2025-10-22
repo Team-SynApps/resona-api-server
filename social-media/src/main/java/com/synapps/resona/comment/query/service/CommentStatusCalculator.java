@@ -1,7 +1,7 @@
 package com.synapps.resona.comment.query.service;
 
 import com.synapps.resona.comment.command.entity.CommentDisplayStatus;
-import com.synapps.resona.comment.query.dto.ViewerContext;
+import com.synapps.resona.comment.query.dto.CommentViewerContext;
 import com.synapps.resona.comment.query.entity.CommentDocument;
 import com.synapps.resona.comment.query.entity.ReplyEmbed;
 import org.springframework.stereotype.Component;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CommentStatusCalculator {
 
-  public CommentDisplayStatus determineCommentStatus(CommentDocument comment, ViewerContext context) {
+  public CommentDisplayStatus determineCommentStatus(CommentDocument comment, CommentViewerContext context) {
     if (comment.isDeleted()) {
       return CommentDisplayStatus.DELETED;
     }
@@ -22,7 +22,7 @@ public class CommentStatusCalculator {
     return CommentDisplayStatus.NORMAL;
   }
 
-  public CommentDisplayStatus determineReplyStatus(ReplyEmbed reply, ViewerContext context) {
+  public CommentDisplayStatus determineReplyStatus(ReplyEmbed reply, CommentViewerContext context) {
     if (reply.isDeleted()) {
       return CommentDisplayStatus.DELETED;
     }

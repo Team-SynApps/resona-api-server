@@ -21,8 +21,10 @@ import com.synapps.resona.command.entity.profile.CountryCode;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.properties.RedisTtlProperties;
 import com.synapps.resona.retrieval.dto.FeedDto;
+import com.synapps.resona.retrieval.dto.FeedViewerContext;
 import com.synapps.resona.retrieval.query.entity.FeedDocument;
 import com.synapps.resona.retrieval.query.repository.FeedReadRepository;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -65,6 +67,9 @@ class FeedTimelineServiceTest {
     @Mock
     private SetOperations<String, String> setOperations;
 
+    @Mock
+    private FeedViewerContextFactory feedViewerContextFactory;
+
     @Test
     @DisplayName("홈 피드 조회 - 타임라인에 데이터가 있는 경우")
     void getHomeFeeds_Success() {
@@ -75,6 +80,7 @@ class FeedTimelineServiceTest {
         int size = 10;
         FeedCategory category = FeedCategory.DAILY;
         String timelineKey = "timeline:" + memberId + ":" + category.name();
+        FeedViewerContext context = feedViewerContextFactory.create(memberId);
 
         when(redisTemplate.opsForZSet()).thenReturn(zSetOperations);
         when(zSetOperations.zCard(timelineKey)).thenReturn(15L);
@@ -98,13 +104,13 @@ class FeedTimelineServiceTest {
         when(feedReadRepository.findAllByFeedIdIn(any())).thenReturn(feedDocuments);
 
         // when
-        CursorResult<FeedDto> result = feedTimelineService.getHomeFeeds(memberId, targetLanguage, cursor, size, category);
+        CursorResult<FeedDto> result = feedTimelineService.getHomeFeeds(memberId, targetLanguage, cursor, size, category, context);
 
         // then
         assertThat(result.getValues()).hasSize(10);
         assertThat(result.isHasNext()).isTrue();
         assertThat(result.getNextCursor()).isNotNull();
-        verify(feedQueryHelper, times(10)).translateAndConvertToDto(any(FeedDocument.class), eq(targetLanguage));
+        verify(feedQueryHelper, times(10)).translateAndConvertToDto(any(FeedDocument.class), eq(targetLanguage), context);
     }
 
     @Test
@@ -117,6 +123,7 @@ class FeedTimelineServiceTest {
         int size = 10;
         FeedCategory category = FeedCategory.DAILY;
         String timelineKey = "timeline:" + memberId + ":" + category.name();
+        FeedViewerContext context = feedViewerContextFactory.create(memberId);
 
         when(redisTemplate.opsForZSet()).thenReturn(zSetOperations);
         when(zSetOperations.zCard(timelineKey)).thenReturn(0L);
@@ -132,15 +139,15 @@ class FeedTimelineServiceTest {
 
         when(redisTemplate.opsForSet()).thenReturn(setOperations);
         when(setOperations.members(anyString())).thenReturn(Collections.emptySet());
-        when(feedQueryHelper.translateAndConvertToDto(any(FeedDocument.class), eq(targetLanguage)))
+        when(feedQueryHelper.translateAndConvertToDto(any(FeedDocument.class), eq(targetLanguage), context))
             .thenAnswer(invocation -> {
                 FeedDocument doc = invocation.getArgument(0);
                 Author author = Author.of(1L, "test", "test.jpg", CountryCode.KR);
-                return new FeedDto(doc.getFeedId(), author, "content", Collections.emptyList(), null, "DAILY", "KO", 0, 0, null);
+                return new FeedDto(doc.getFeedId(), author, FeedCategory.DAILY, "content", Collections.emptyList(), null, "KO", 0, 0, null, false, false, LocalDateTime.now(), LocalDateTime.now());
             });
 
         // when
-        CursorResult<FeedDto> result = feedTimelineService.getHomeFeeds(memberId, targetLanguage, cursor, size, category);
+        CursorResult<FeedDto> result = feedTimelineService.getHomeFeeds(memberId, targetLanguage, cursor, size, category, context);
 
         // then
         assertThat(result.getValues()).hasSize(5);
@@ -160,6 +167,7 @@ class FeedTimelineServiceTest {
         CountryCode residence = CountryCode.KR;
         FeedCategory category = FeedCategory.TRAVEL;
         String timelineKey = "timeline:country:" + residence.name() + ":" + category.name();
+        FeedViewerContext context = feedViewerContextFactory.create(memberId);
 
         when(redisTemplate.opsForZSet()).thenReturn(zSetOperations);
         when(zSetOperations.zCard(timelineKey)).thenReturn(8L);
@@ -184,15 +192,15 @@ class FeedTimelineServiceTest {
             })
             .toList();
         when(feedReadRepository.findAllByFeedIdIn(any())).thenReturn(feedDocuments);
-        when(feedQueryHelper.translateAndConvertToDto(any(FeedDocument.class), eq(targetLanguage)))
+        when(feedQueryHelper.translateAndConvertToDto(any(FeedDocument.class), eq(targetLanguage), context))
             .thenAnswer(invocation -> {
                 FeedDocument doc = invocation.getArgument(0);
                 Author author = Author.of(1L, "test", "test.jpg", CountryCode.KR);
-                return new FeedDto(doc.getFeedId(), author, "content", Collections.emptyList(), null, "TRAVEL", "EN", 0, 0, null);
+                return new FeedDto(doc.getFeedId(), author, FeedCategory.TRAVEL,"content", Collections.emptyList(), null,  "EN", 0, 0, null, false, false, LocalDateTime.now(), LocalDateTime.now());
             });
 
         // when
-        CursorResult<FeedDto> result = feedTimelineService.getExploreFeeds(memberId, targetLanguage, cursor, size, residence, category);
+        CursorResult<FeedDto> result = feedTimelineService.getExploreFeeds(memberId, targetLanguage, cursor, size, residence, category, context);
 
         // then
         assertThat(result.getValues()).hasSize(5);

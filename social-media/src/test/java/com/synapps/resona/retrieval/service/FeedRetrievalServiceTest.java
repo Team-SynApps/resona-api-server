@@ -13,6 +13,7 @@ import com.synapps.resona.dto.CursorResult;
 import com.synapps.resona.entity.Language;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.retrieval.dto.FeedDto;
+import com.synapps.resona.retrieval.dto.FeedViewerContext;
 import com.synapps.resona.retrieval.query.repository.FeedReadRepository;
 import com.synapps.resona.retrieval.service.strategy.FallbackStrategyContext;
 import com.synapps.resona.query.service.MemberStateService;
@@ -48,6 +49,9 @@ class FeedRetrievalServiceTest {
     @Mock
     private FallbackStrategyContext fallbackStrategyContext;
 
+    @Mock
+    private FeedViewerContextFactory feedViewerContextFactory;
+
     @Test
     @DisplayName("홈 피드 목록을 성공적으로 조회한다.")
     void getHomeFeeds_Success() {
@@ -57,10 +61,12 @@ class FeedRetrievalServiceTest {
         String cursor = null;
         int size = 10;
         FeedCategory category = FeedCategory.DAILY;
+        FeedViewerContext context = mock(FeedViewerContext.class); // Mock the context
+        when(feedViewerContextFactory.create(memberId)).thenReturn(context); // Stub the factory call
 
         CursorResult<FeedDto> expectedResult = new CursorResult<>(Collections.singletonList(mock(FeedDto.class)), false, null);
 
-        when(feedTimelineService.getHomeFeeds(anyLong(), any(Language.class), nullable(String.class), anyInt(), any(FeedCategory.class)))
+        when(feedTimelineService.getHomeFeeds(anyLong(), any(Language.class), nullable(String.class), anyInt(), any(FeedCategory.class), any(FeedViewerContext.class))) // Use any() for context
             .thenReturn(expectedResult);
 
         // when

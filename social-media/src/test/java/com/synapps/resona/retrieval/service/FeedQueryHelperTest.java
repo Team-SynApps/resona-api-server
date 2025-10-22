@@ -1,4 +1,3 @@
-
 package com.synapps.resona.retrieval.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,6 +17,7 @@ import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.query.entity.MemberStateDocument;
 import com.synapps.resona.query.service.MemberStateService;
 import com.synapps.resona.retrieval.dto.FeedDto;
+import com.synapps.resona.retrieval.dto.FeedViewerContext;
 import com.synapps.resona.retrieval.query.entity.FeedDocument;
 import com.synapps.resona.translation.service.TranslationService;
 import java.util.Collections;
@@ -144,9 +144,10 @@ class FeedQueryHelperTest {
         // given
         Author author = Author.of(1L, "test", "test.jpg", CountryCode.KR);
         FeedDocument doc = FeedDocument.of(1L, author, "Hello", Collections.emptyList(), null, FeedCategory.DAILY, Language.en, List.of(new Translation("ko", "안녕하세요")));
+        FeedViewerContext context = new FeedViewerContext(0L, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
 
         // when
-        FeedDto feedDto = feedQueryHelper.translateAndConvertToDto(doc, Language.ko);
+        FeedDto feedDto = feedQueryHelper.translateAndConvertToDto(doc, Language.ko, context);
 
         // then
         assertThat(feedDto.translatedContent()).isEqualTo("안녕하세요");
@@ -159,9 +160,10 @@ class FeedQueryHelperTest {
         // given
         Author author = Author.of(1L, "test", "test.jpg", CountryCode.KR);
         FeedDocument doc = FeedDocument.of(1L, author, "Hello", Collections.emptyList(), null, FeedCategory.DAILY, Language.en, Collections.emptyList());
+        FeedViewerContext context = new FeedViewerContext(0L, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
 
         // when
-        FeedDto feedDto = feedQueryHelper.translateAndConvertToDto(doc, Language.en);
+        FeedDto feedDto = feedQueryHelper.translateAndConvertToDto(doc, Language.en, context);
 
         // then
         assertThat(feedDto.translatedContent()).isEqualTo("Hello");
@@ -174,10 +176,11 @@ class FeedQueryHelperTest {
         // given
         Author author = Author.of(1L, "test", "test.jpg", CountryCode.KR);
         FeedDocument doc = FeedDocument.of(1L, author, "Hello", Collections.emptyList(), null, FeedCategory.DAILY, Language.en, Collections.emptyList());
+        FeedViewerContext context = new FeedViewerContext(0L, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
         when(translationService.translateForRealTime("Hello", Language.en, Language.ko)).thenReturn("안녕하세요");
 
         // when
-        FeedDto feedDto = feedQueryHelper.translateAndConvertToDto(doc, Language.ko);
+        FeedDto feedDto = feedQueryHelper.translateAndConvertToDto(doc, Language.ko, context);
 
         // then
         assertThat(feedDto.translatedContent()).isEqualTo("안녕하세요");
@@ -190,9 +193,10 @@ class FeedQueryHelperTest {
         // given
         Author author = Author.of(1L, "test", "test.jpg", CountryCode.KR);
         FeedDocument doc = FeedDocument.of(1L, author, "Hello", Collections.emptyList(), null, FeedCategory.DAILY, Language.en, Collections.emptyList());
+        FeedViewerContext context = new FeedViewerContext(0L, Collections.emptySet(), Collections.emptySet(), Collections.emptySet(), Collections.emptySet());
 
         // when
-        FeedDto feedDto = feedQueryHelper.toDto(doc, "안녕하세요");
+        FeedDto feedDto = feedQueryHelper.toDto(doc, "안녕하세요", context);
 
         // then
         assertThat(feedDto.feedId()).isEqualTo(1L);

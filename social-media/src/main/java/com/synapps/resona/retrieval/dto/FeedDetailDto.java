@@ -1,7 +1,7 @@
 package com.synapps.resona.retrieval.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.synapps.resona.comment.dto.CommentDto;
+import com.synapps.resona.common.dto.CommentDto;
 import com.synapps.resona.query.entity.MemberStateDocument;
 import java.time.LocalDateTime;
 import lombok.Builder;
@@ -15,8 +15,8 @@ public class FeedDetailDto {
   private FeedDto feed;
   private Page<CommentDto> comment;
 
-  private boolean isLiked;
-  private boolean isScrapped;
+  private boolean hasLiked;
+  private boolean hasScrapped;
 
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime createdAt;
@@ -24,20 +24,13 @@ public class FeedDetailDto {
   @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
   private LocalDateTime modifiedAt;
 
-  public static FeedDetailDto of(FeedDto feedDto, Page<CommentDto> comment, MemberStateDocument memberState, LocalDateTime createdAt, LocalDateTime modifiedAt) {
-    boolean liked = false;
-    boolean scrapped = false;
-
-    if (memberState != null) {
-      liked = memberState.isFeedLiked(feedDto.feedId());
-      scrapped = memberState.isScrapped(feedDto.feedId());
-    }
+  public static FeedDetailDto of(FeedDto feedDto, Page<CommentDto> comment, LocalDateTime createdAt, LocalDateTime modifiedAt) {
 
     return FeedDetailDto.builder()
         .feed(feedDto)
         .comment(comment)
-        .isLiked(liked)
-        .isScrapped(scrapped)
+        .hasLiked(feedDto.hasLiked())
+        .hasScrapped(feedDto.hasScraped())
         .createdAt(createdAt)
         .modifiedAt(modifiedAt)
         .build();
