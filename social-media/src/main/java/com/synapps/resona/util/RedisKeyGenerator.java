@@ -11,12 +11,36 @@ public class RedisKeyGenerator {
     private static final String CATEGORY_PREFIX = "category:";
     private static final String COUNTRY_PREFIX = "country:";
 
+    public static String getMemberLikedFeedKey(Long memberId) {
+        return USER_PREFIX + memberId + ":liked_feeds";
+    }
+
+    public static String getMemberScrappedFeedKey(Long memberId) {
+        return USER_PREFIX + memberId + ":scrapped_feeds";
+    }
+
+    public static String getLikedCommentKey(Long memberId) {
+        return USER_PREFIX + memberId + ":liked_comments";
+    }
+
+    public static String getLikedReplyKey(Long memberId) {
+        return USER_PREFIX + memberId + ":liked_replies";
+    }
+
     public static String getUserSeenFeedsKey(Long memberId) {
         return USER_PREFIX + memberId + ":seen_feeds";
     }
 
     public static String getHiddenFeedsKey(Long memberId) {
         return USER_PREFIX + memberId + ":hidden_feeds";
+    }
+
+    public static String getHiddenCommentsKey(Long memberId) {
+        return USER_PREFIX + memberId + ":hidden_comments";
+    }
+
+    public static String getHiddenRepliesKey(Long memberId) {
+        return USER_PREFIX + memberId + ":hidden_replies";
     }
 
     public static String getBlockedUsersKey(Long memberId) {

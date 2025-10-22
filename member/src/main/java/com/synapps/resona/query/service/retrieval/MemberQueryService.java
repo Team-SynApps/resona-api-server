@@ -1,7 +1,6 @@
 package com.synapps.resona.query.service.retrieval;
 
-import com.synapps.resona.query.dto.MemberDetailQueryDto;
-import com.synapps.resona.query.dto.MemberDetailsQueryDto;
+import com.synapps.resona.common.dto.MemberDetailsResponse;
 import com.synapps.resona.query.entity.MemberDocument;
 import com.synapps.resona.query.repository.MemberDocumentRepository;
 import com.synapps.resona.exception.MemberException;
@@ -14,15 +13,15 @@ public class MemberQueryService {
 
     private final MemberDocumentRepository memberDocumentRepository;
 
-    public MemberDetailQueryDto getMemberDetailInfo(String email) {
+    public MemberDetailsResponse getMemberDetailInfo(String email) {
         MemberDocument memberDocument = memberDocumentRepository.findByEmail(email)
             .orElseThrow(MemberException::memberNotFound);
-        return MemberDetailQueryDto.from(memberDocument);
+        return MemberDetailsResponse.from(memberDocument.getMemberDetails());
     }
 
-    public MemberDetailsQueryDto getMemberDetails(String email) {
+    public MemberDetailsResponse getMemberDetails(String email) {
         MemberDocument memberDocument = memberDocumentRepository.findByEmail(email)
             .orElseThrow(MemberException::memberNotFound);
-        return MemberDetailsQueryDto.from(memberDocument.getMemberDetails());
+        return MemberDetailsResponse.from(memberDocument.getMemberDetails());
     }
 }

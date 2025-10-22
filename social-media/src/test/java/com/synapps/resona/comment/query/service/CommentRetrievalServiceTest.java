@@ -8,11 +8,14 @@ import static org.mockito.Mockito.when;
 
 import static org.mockito.Mockito.mock;
 import com.synapps.resona.comment.command.entity.CommentDisplayStatus;
-import com.synapps.resona.comment.dto.CommentDto;
+import com.synapps.resona.common.dto.CommentDto;
 import com.synapps.resona.entity.Language;
 import com.synapps.resona.comment.query.entity.CommentDocument;
 import com.synapps.resona.comment.query.repository.CommentDocumentRepository;
-import com.synapps.resona.query.service.MemberStateService;
+import com.synapps.resona.retrieval.service.FeedQueryHelper;
+import com.synapps.resona.comment.query.service.CommentStatusCalculator;
+import com.synapps.resona.translation.service.TranslationService;
+import org.springframework.context.ApplicationEventPublisher;
 import java.util.Collections;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,12 +35,14 @@ class CommentRetrievalServiceTest {
 
     @Mock
     private CommentDocumentRepository commentDocumentRepository;
-
     @Mock
-    private MemberStateService memberStateService;
-
+    private FeedQueryHelper feedQueryHelper;
     @Mock
     private CommentStatusCalculator statusCalculator;
+    @Mock
+    private TranslationService translationService;
+    @Mock
+    private ApplicationEventPublisher applicationEventPublisher;
 
     @Test
     @DisplayName("피드에 대한 댓글 목록을 성공적으로 조회한다.")
@@ -49,9 +54,11 @@ class CommentRetrievalServiceTest {
         CommentDocument commentDocument = mock(CommentDocument.class);
         Page<CommentDocument> commentPage = new PageImpl<>(Collections.singletonList(commentDocument));
 
-        when(memberStateService.getHiddenCommentIds(viewerId)).thenReturn(Collections.emptySet());
-        when(memberStateService.getHiddenReplyIds(viewerId)).thenReturn(Collections.emptySet());
-        when(memberStateService.getBlockedMemberIds(viewerId)).thenReturn(Collections.emptySet());
+        when(feedQueryHelper.getHiddenCommentIds(viewerId)).thenReturn(Collections.emptySet());
+        when(feedQueryHelper.getHiddenReplyIds(viewerId)).thenReturn(Collections.emptySet());
+        when(feedQueryHelper.getBlockedMemberIds(viewerId)).thenReturn(Collections.emptySet());
+        when(feedQueryHelper.getLikedCommentIds(viewerId)).thenReturn(Collections.emptySet());
+        when(feedQueryHelper.getLikedReplyIds(viewerId)).thenReturn(Collections.emptySet());
         when(commentDocumentRepository.findByFeedIdOrderByCreatedAtDesc(feedId, pageable)).thenReturn(commentPage);
         when(commentDocument.getTranslations()).thenReturn(Collections.emptyList());
         when(commentDocument.getLanguage()).thenReturn(Language.ko);

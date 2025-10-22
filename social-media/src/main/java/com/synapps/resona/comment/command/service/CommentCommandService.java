@@ -7,9 +7,9 @@ import com.synapps.resona.comment.command.repository.comment.CommentLikesReposit
 import com.synapps.resona.comment.command.repository.comment.CommentRepository;
 import com.synapps.resona.comment.command.repository.reply.ReplyLikesRepository;
 import com.synapps.resona.comment.command.repository.reply.ReplyRepository;
-import com.synapps.resona.comment.dto.CommentDto;
+import com.synapps.resona.common.dto.CommentDto;
 import com.synapps.resona.comment.dto.CommentRequest;
-import com.synapps.resona.comment.dto.ReplyDto;
+import com.synapps.resona.common.dto.ReplyDto;
 import com.synapps.resona.comment.dto.ReplyRequest;
 import com.synapps.resona.comment.event.CommentCreatedEvent;
 import com.synapps.resona.comment.event.CommentDeletedEvent;

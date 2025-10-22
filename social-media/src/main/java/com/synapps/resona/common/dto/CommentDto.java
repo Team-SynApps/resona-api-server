@@ -1,4 +1,4 @@
-package com.synapps.resona.comment.dto;
+package com.synapps.resona.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -9,6 +9,7 @@ import com.synapps.resona.comment.query.entity.MentionedMember;
 import com.synapps.resona.common.entity.Author;
 import com.synapps.resona.command.entity.member.Member;
 import com.synapps.resona.command.entity.profile.Profile;
+import com.synapps.resona.query.entity.MemberStateDocument;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +27,7 @@ public class CommentDto {
   private long likeCount;
   private long replyCount;
   private CommentDisplayStatus status;
+  private boolean hasLiked;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private List<MentionedMember> mentionedMembers;
@@ -50,7 +52,13 @@ public class CommentDto {
    * @param processedReplies 필터링 및 가공이 완료된 대댓글 DTO 목록
    * @return 생성된 CommentDto 객체
    */
-  public static CommentDto from(CommentDocument document, CommentDisplayStatus status, String displayContent, String translatedContent, List<ReplyDto> processedReplies) {
+  public static CommentDto from(
+      CommentDocument document,
+      CommentDisplayStatus status,
+      boolean hasLiked,
+      String displayContent,
+      String translatedContent,
+      List<ReplyDto> processedReplies) {
     Author displayAuthor = (status == CommentDisplayStatus.NORMAL) ? document.getAuthor() : null;
     List<MentionedMember> displayMentions = (status == CommentDisplayStatus.NORMAL) ? document.getMentionedMembers() : Collections.emptyList();
 
@@ -62,6 +70,7 @@ public class CommentDto {
         .likeCount(document.getLikeCount())
         .replyCount(document.getReplyCount())
         .status(status)
+        .hasLiked(hasLiked)
         .mentionedMembers(displayMentions)
         .replies(processedReplies)
         .translatedContent(translatedContent)

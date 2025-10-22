@@ -6,7 +6,7 @@ import com.synapps.resona.annotation.ErrorCodeSpec;
 import com.synapps.resona.annotation.SuccessCodeSpec;
 import com.synapps.resona.code.SocialErrorCode;
 import com.synapps.resona.code.SocialSuccessCode;
-import com.synapps.resona.comment.dto.CommentDto;
+import com.synapps.resona.common.dto.CommentDto;
 import com.synapps.resona.comment.query.service.CommentRetrievalService;
 import com.synapps.resona.config.server.ServerInfoConfig;
 import com.synapps.resona.dto.RequestInfo;

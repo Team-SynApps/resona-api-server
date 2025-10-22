@@ -1,4 +1,4 @@
-package com.synapps.resona.comment.dto;
+package com.synapps.resona.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -26,6 +26,7 @@ public class ReplyDto {
   private String content;
   private long likeCount;
   private CommentDisplayStatus status;
+  private boolean hasLiked;
 
   @JsonInclude(JsonInclude.Include.NON_NULL)
   private List<MentionedMember> mentionedMembers;
@@ -46,7 +47,7 @@ public class ReplyDto {
    * @param displayContent 상태에 따라 가공된 최종 표시 내용
    * @return 생성된 ReplyDto 객체
    */
-  public static ReplyDto from(ReplyEmbed embed, CommentDisplayStatus status, String displayContent, String translatedContent) {
+  public static ReplyDto from(ReplyEmbed embed, CommentDisplayStatus status, boolean hasLiked, String displayContent, String translatedContent) {
     Author displayAuthor = (status == CommentDisplayStatus.NORMAL) ? embed.getAuthor() : null;
     List<MentionedMember> displayMentions = (status == CommentDisplayStatus.NORMAL) ? embed.getMentionedMembers() : Collections.emptyList();
 
@@ -56,6 +57,7 @@ public class ReplyDto {
         .content(displayContent)
         .likeCount(embed.getLikeCount())
         .status(status)
+        .hasLiked(hasLiked)
         .mentionedMembers(displayMentions)
         .translatedContent(translatedContent)
         .createdAt(embed.getCreatedAt())

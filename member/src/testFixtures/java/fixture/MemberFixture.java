@@ -148,23 +148,23 @@ public class MemberFixture {
   }
 
   public static MemberDetailsRequest createDetailsRegisterRequest() {
-    return new MemberDetailsRequest(9, "010-1234-5678", MBTI.ENFJ, "자기소개입니다", "서울 강남구");
+    return new MemberDetailsRequest(9, "010-1234-5678", MBTI.ENFJ, "자기소개입니다", "서울 강남구", Set.of());
   }
 
   public static MemberDetailsRequest createDetailsReadRequest() {
-    return new MemberDetailsRequest(8, "010-2222-3333", MBTI.INFP, "소개글", "부산 해운대구");
+    return new MemberDetailsRequest(8, "010-2222-3333", MBTI.INFP, "소개글", "부산 해운대구", Set.of());
   }
 
   public static MemberDetailsRequest createDetailsInitialRequest() {
-    return new MemberDetailsRequest(9, "010-1111-2222", MBTI.ENFJ, "초기 소개", "대전 중구");
+    return new MemberDetailsRequest(9, "010-1111-2222", MBTI.ENFJ, "초기 소개", "대전 중구", Set.of());
   }
 
   public static MemberDetailsRequest createDetailsUpdateRequest() {
-    return new MemberDetailsRequest(7, "010-9999-8888", MBTI.ENTP, "수정된 소개", "제주도 제주시");
+    return new MemberDetailsRequest(7, "010-9999-8888", MBTI.ENTP, "수정된 소개", "제주도 제주시", Set.of());
   }
 
   public static MemberDetailsRequest createDetailsDeleteRequest() {
-    return new MemberDetailsRequest(9, "010-0000-0000", MBTI.ISFJ, "삭제용 소개", "인천 연수구");
+    return new MemberDetailsRequest(9, "010-0000-0000", MBTI.ISFJ, "삭제용 소개", "인천 연수구", Set.of());
   }
 
   public static Member createCustomMember(String email, String nickname) {

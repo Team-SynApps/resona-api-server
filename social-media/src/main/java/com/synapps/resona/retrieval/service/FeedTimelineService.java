@@ -7,7 +7,10 @@ import com.synapps.resona.entity.Language;
 import com.synapps.resona.command.entity.profile.CountryCode;
 import com.synapps.resona.feed.command.entity.FeedCategory;
 import com.synapps.resona.properties.RedisTtlProperties;
+import com.synapps.resona.query.entity.MemberStateDocument;
+import com.synapps.resona.query.service.MemberStateService;
 import com.synapps.resona.retrieval.dto.FeedDto;
+import com.synapps.resona.retrieval.dto.FeedViewerContext;
 import com.synapps.resona.retrieval.query.entity.FeedDocument;
 import com.synapps.resona.retrieval.query.repository.FeedReadRepository;
 import com.synapps.resona.util.RedisKeyGenerator;
@@ -55,9 +58,9 @@ public class FeedTimelineService {
    * @param category 필터링할 피드 카테고리 (nullable)
    * @return 커서 정보가 포함된 피드 DTO 목록
    */
-  public CursorResult<FeedDto> getHomeFeeds(Long memberId, Language targetLanguage, String cursor, int size, FeedCategory category) {
+  public CursorResult<FeedDto> getHomeFeeds(Long memberId, Language targetLanguage, String cursor, int size, FeedCategory category, FeedViewerContext viewerContext) {
     String timelineKey = (category != null) ? RedisKeyGenerator.getCategoryTimelineKey(memberId, category) : RedisKeyGenerator.getAllTimelineKey(memberId);
-    return getFeedsFromTimeline(memberId, targetLanguage, cursor, size, timelineKey, category);
+    return getFeedsFromTimeline(memberId, targetLanguage, cursor, size, timelineKey, category, viewerContext);
   }
 
   /**
@@ -75,9 +78,9 @@ public class FeedTimelineService {
    * @param category 필터링할 피드 카테고리 (nullable)
    * @return 커서 정보가 포함된 피드 DTO 목록
    */
-  public CursorResult<FeedDto> getExploreFeeds(Long currentMemberId, Language targetLanguage, String cursor, int size, CountryCode residence, FeedCategory category) {
+  public CursorResult<FeedDto> getExploreFeeds(Long currentMemberId, Language targetLanguage, String cursor, int size, CountryCode residence, FeedCategory category, FeedViewerContext viewerContext) {
     String timelineKey = buildExploreTimelineKey(residence, category);
-    return getFeedsFromTimeline(currentMemberId, targetLanguage, cursor, size, timelineKey, category);
+    return getFeedsFromTimeline(currentMemberId, targetLanguage, cursor, size, timelineKey, category, viewerContext);
   }
 
   /**
@@ -92,9 +95,9 @@ public class FeedTimelineService {
    * @param category 사용자가 원래 홈 피드에서 필터링하려 했던 카테고리 (null일 수 있음)
    * @return 탐색 피드 조회 결과
    */
-  private CursorResult<FeedDto> getFallbackFeeds(Long memberId, Language targetLanguage, int size, String cursor, FeedCategory category) {
+  private CursorResult<FeedDto> getFallbackFeeds(Long memberId, Language targetLanguage, int size, String cursor, FeedCategory category, FeedViewerContext viewerContext) {
     log.info("Cold start detected for memberId: {}. Fetching fallback feeds for category: {}", memberId, category);
-    return getExploreFeeds(memberId, targetLanguage, cursor, size, null, category);
+    return getExploreFeeds(memberId, targetLanguage, cursor, size, null, category, viewerContext);
   }
 
   @Async
@@ -111,9 +114,9 @@ public class FeedTimelineService {
     log.debug("Marked {} feeds as seen for memberId {}", feedIds.size(), memberId);
   }
 
-  private CursorResult<FeedDto> getFeedsFromTimeline(Long memberId, Language targetLanguage, String cursor, int size, String timelineKey, FeedCategory category) {
+  private CursorResult<FeedDto> getFeedsFromTimeline(Long memberId, Language targetLanguage, String cursor, int size, String timelineKey, FeedCategory category, FeedViewerContext viewerContext) {
     // 개인화 타임라인 콜드 스타트 처리
-    Optional<CursorResult<FeedDto>> coldStartResult = handleColdStart(memberId, targetLanguage, size, cursor, timelineKey, category);
+    Optional<CursorResult<FeedDto>> coldStartResult = handleColdStart(memberId, targetLanguage, size, cursor, timelineKey, category, viewerContext);
     if (coldStartResult.isPresent()) {
       return coldStartResult.get();
     }
@@ -127,7 +130,7 @@ public class FeedTimelineService {
       String fallbackKey = findNextFallbackKey(timelineKey);
       if (cursor == null && fallbackKey != null) {
         log.warn("Timeline '{}' is empty. Falling back to '{}'", timelineKey, fallbackKey);
-        return getFeedsFromTimeline(memberId, targetLanguage, null, size, fallbackKey, category);
+        return getFeedsFromTimeline(memberId, targetLanguage, null, size, fallbackKey, category, viewerContext);
       }
       return new CursorResult<>(Collections.emptyList(), false, null);
     }
@@ -142,7 +145,7 @@ public class FeedTimelineService {
     CursorState cursorState = calculateNextCursor(preFilteredList, size);
 
     // DB 조회 및 2차 필터링 후 최종 결과 생성
-    List<FeedDto> finalFeedDtos = finalizeFeeds(cursorState.pageContent(), memberId, targetLanguage);
+    List<FeedDto> finalFeedDtos = finalizeFeeds(cursorState.pageContent(), memberId, targetLanguage, viewerContext);
 
     // 최종적으로 사용자에게 보여줄 피드 '봤음' 처리 -> 지금은 꺼둠
     if (filterSeenFeeds && !finalFeedDtos.isEmpty()) {
@@ -170,17 +173,15 @@ public class FeedTimelineService {
   /**
    * 개인화 타임라인의 콜드 스타트 상황을 확인하고, 필요시 Fallback 피드를 반환
    */
-  private Optional<CursorResult<FeedDto>> handleColdStart(Long memberId, Language targetLanguage, int size, String cursor, String timelineKey, FeedCategory category) {
+  private Optional<CursorResult<FeedDto>> handleColdStart(Long memberId, Language targetLanguage, int size, String cursor, String timelineKey, FeedCategory category, FeedViewerContext viewerContext) {
     if (RedisKeyGenerator.isPersonalTimelineKey(timelineKey, memberId)) {
       Long timelineSize = redisTemplate.opsForZSet().zCard(timelineKey);
       if (timelineSize == null || timelineSize == 0) {
-        return Optional.of(getFallbackFeeds(memberId, targetLanguage, size, cursor, category));
+        return Optional.of(getFallbackFeeds(memberId, targetLanguage, size, cursor, category, viewerContext));
       }
     }
     return Optional.empty();
   }
-
-
 
   /**
    * Redis ZSET에서 지정된 조건으로 피드 후보 목록을 조회
@@ -253,7 +254,7 @@ public class FeedTimelineService {
   /**
    * 최종 피드 ID 목록으로 DB를 조회, 차단/본인 글 필터링, DTO 변환
    */
-  private List<FeedDto> finalizeFeeds(List<TypedTuple<String>> finalCandidates, Long memberId, Language targetLanguage) {
+  private List<FeedDto> finalizeFeeds(List<TypedTuple<String>> finalCandidates, Long memberId, Language targetLanguage, FeedViewerContext viewerContext) {
     if (finalCandidates.isEmpty()) {
       return Collections.emptyList();
     }
@@ -273,7 +274,7 @@ public class FeedTimelineService {
         .filter(Objects::nonNull)
         .filter(doc -> !blockedMemberIds.contains(doc.getAuthor().getMemberId()))
         .filter(doc -> !doc.getAuthor().getMemberId().equals(memberId))
-        .map(doc -> feedQueryHelper.translateAndConvertToDto(doc, targetLanguage))
+        .map(doc -> feedQueryHelper.translateAndConvertToDto(doc, targetLanguage, viewerContext))
         .collect(Collectors.toList());
   }
 

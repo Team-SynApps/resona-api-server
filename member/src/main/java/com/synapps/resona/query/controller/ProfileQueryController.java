@@ -9,10 +9,10 @@ import com.synapps.resona.annotation.ApiErrorSpec;
 import com.synapps.resona.annotation.ApiSuccessResponse;
 import com.synapps.resona.annotation.ErrorCodeSpec;
 import com.synapps.resona.annotation.SuccessCodeSpec;
+import com.synapps.resona.common.dto.ProfileResponse;
 import com.synapps.resona.config.server.ServerInfoConfig;
 import com.synapps.resona.dto.RequestInfo;
 import com.synapps.resona.dto.response.SuccessResponse;
-import com.synapps.resona.query.dto.ProfileQueryResponseDto;
 import com.synapps.resona.query.service.retrieval.ProfileQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -40,16 +40,16 @@ public class ProfileQueryController {
     }
 
     @Operation(summary = "프로필 조회", description = "현재 로그인된 사용자의 프로필을 조회합니다. (인증 필요)")
-    @ApiSuccessResponse(@SuccessCodeSpec(enumClass = MemberSuccessCode.class, code = "GET_PROFILE_SUCCESS", responseClass = ProfileQueryResponseDto.class))
+    @ApiSuccessResponse(@SuccessCodeSpec(enumClass = MemberSuccessCode.class, code = "GET_PROFILE_SUCCESS", responseClass = ProfileResponse.class))
     @ApiErrorSpec({
         @ErrorCodeSpec(enumClass = MemberErrorCode.class, codes = {"PROFILE_NOT_FOUND"}),
         @ErrorCodeSpec(enumClass = AuthErrorCode.class, codes = {"TOKEN_NOT_FOUND", "INVALID_TOKEN"})
     })
     @GetMapping
-    public ResponseEntity<SuccessResponse<ProfileQueryResponseDto>> readProfile(
+    public ResponseEntity<SuccessResponse<ProfileResponse>> readProfile(
         HttpServletRequest request,
         @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        ProfileQueryResponseDto response = profileQueryService.readProfile(userPrincipal.getEmail());
+        ProfileResponse response = profileQueryService.readProfile(userPrincipal.getEmail());
         return ResponseEntity
             .status(MemberSuccessCode.GET_PROFILE_SUCCESS.getStatus())
             .body(SuccessResponse.of(MemberSuccessCode.GET_PROFILE_SUCCESS, createRequestInfo(request.getRequestURI()), response));
