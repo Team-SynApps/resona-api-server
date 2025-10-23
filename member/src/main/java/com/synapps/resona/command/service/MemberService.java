@@ -135,6 +135,7 @@ public class MemberService {
         member.getProfile().getInterestingLanguages(),
         member.getProfile().getProfileImageUrl(),
         member.getProfile().getBackgroundImageUrl(),
+        member.getProfile().getBirth(),
         member.getProfile().getAge(),
         member.getProfile().getGender(),
         member.getProfile().getComment()

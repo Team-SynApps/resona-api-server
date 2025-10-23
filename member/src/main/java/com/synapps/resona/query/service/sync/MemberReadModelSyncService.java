@@ -38,6 +38,7 @@ public class MemberReadModelSyncService {
             .interestingLanguages(event.profileInfo().interestingLanguages())
             .profileImageUrl(event.profileInfo().profileImageUrl())
             .backgroundImageUrl(event.profileInfo().backgroundImageUrl())
+            .birth(event.profileInfo().birth())
             .age(event.profileInfo().age())
             .gender(event.profileInfo().gender())
             .comment(event.profileInfo().comment())
