@@ -29,6 +29,8 @@ public record MemberCreatedEvent(
     public record ProfileInfo(String tag, String nickname, CountryCode nationality,
                               CountryCode countryOfResidence, Set<Language> nativeLanguages,
                               Set<Language> interestingLanguages, String profileImageUrl,
-                              String backgroundImageUrl, Integer age, Gender gender,
+                              String backgroundImageUrl,
+                              LocalDateTime birth,
+                              Integer age, Gender gender,
                               String comment) {}
 }
